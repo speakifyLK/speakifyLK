@@ -1,17 +1,15 @@
 <a name="readme-top"></a>
 
-# Lingo - Interactive platform for language learning.
+# SpeakifyLK - Interactive platform for language learning.
 
-![Lingo - Interactive platform for language learning.](/.github/images/img_main.png "Lingo - Interactive platform for language learning.")
+![SpeakifyLK - Interactive platform for language learning.](/.github/images/img_main.png "SpeakifyLK - Interactive platform for language learning.")
 
-[![Ask Me Anything!](https://flat.badgen.net/static/Ask%20me/anything?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy "Ask Me Anything!")
-[![GitHub license](https://flat.badgen.net/github/license/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/blob/main/LICENSE "GitHub license")
-[![Maintenance](https://flat.badgen.net/static/Maintained/yes?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/commits/main "Maintenance")
-[![GitHub branches](https://flat.badgen.net/github/branches/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/branches "GitHub branches")
-[![Github commits](https://flat.badgen.net/github/commits/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/commits "Github commits")
-[![GitHub issues](https://flat.badgen.net/github/issues/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/issues "GitHub issues")
-[![GitHub pull requests](https://flat.badgen.net/github/prs/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/pulls "GitHub pull requests")
-[![Vercel status](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://lingo-clone.vercel.app/ "Vercel status")
+[![GitHub license](https://flat.badgen.net/github/license/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/blob/main/LICENSE "GitHub license")
+[![Maintenance](https://flat.badgen.net/static/Maintained/yes?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/commits/main "Maintenance")
+[![GitHub branches](https://flat.badgen.net/github/branches/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/branches "GitHub branches")
+[![Github commits](https://flat.badgen.net/github/commits/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/commits "Github commits")
+[![GitHub issues](https://flat.badgen.net/github/issues/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/issues "GitHub issues")
+[![GitHub pull requests](https://flat.badgen.net/github/prs/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/pulls "GitHub pull requests")
 
 <!-- Table of Contents -->
 <details>
@@ -29,12 +27,8 @@
 - [Stats](#wrench-stats)
 - [Contribute](#raised_hands-contribute)
 - [Acknowledgements](#gem-acknowledgements)
-- [Buy Me a Coffee](#coffee-buy-me-a-coffee)
-- [Follow Me](#rocket-follow-me)
 - [Learn More](#books-learn-more)
 - [Deploy on Vercel](#page_with_curl-deploy-on-vercel)
-- [Give A Star](#star-give-a-star)
-- [Star History](#star2-star-history)
 - [Give A Star](#star-give-a-star)
 
 </details>
@@ -221,7 +215,7 @@ Once the script completes, check your database to ensure that the challenges dat
 
 ## :wrench: Stats
 
-[![Stats for Lingo](/.github/images/stats.svg "Stats for Lingo")](https://pagespeed.web.dev/analysis?url=https://lingo-clone.vercel.app/ "Stats for Lingo")
+[![Stats for SpeakifyLK](/.github/images/stats.svg "Stats for SpeakifyLK")](https://pagespeed.web.dev/analysis?url=https://lingo-clone.vercel.app/ "Stats for SpeakifyLK")
 
 ## :raised_hands: Contribute
 
@@ -229,7 +223,7 @@ You might encounter some bugs while using this app. You are more than welcome to
 
 ## :gem: Acknowledgements
 
-Useful resources and dependencies that are used in Lingo.
+Useful resources and dependencies that are used in SpeakifyLK.
 
 - Special Thanks to Code with Antonio: https://codewithantonio.com/
 - Kenney Assets: https://kenney.nl/
@@ -282,15 +276,6 @@ Useful resources and dependencies that are used in Lingo.
 
 <!--- DEPENDENCIES_END --->
 
-## :coffee: Buy Me a Coffee
-
-[<img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" width="200" />](https://www.buymeacoffee.com/sanidhy "Buy me a Coffee")
-
-## :rocket: Follow Me
-
-[![Follow Me](https://img.shields.io/github/followers/sanidhyy?style=social&label=Follow&maxAge=2592000)](https://github.com/sanidhyy "Follow Me")
-[![Tweet about this project](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fx.com%2F_sanidhyy)](https://x.com/intent/tweet?text=Check+out+this+amazing+app:&url=https%3A%2F%2Fgithub.com%2Fsanidhyy%2Fduolingo-clone "Tweet about this project")
-
 ## :books: Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -309,16 +294,6 @@ Check out [Next.js deployment documentation](https://nextjs.org/docs/deployment)
 ## :star: Give A Star
 
 You can also give this repository a star to show more people and they can use this repository.
-
-## :star2: Star History
-
-<a href="https://star-history.com/#sanidhyy/duolingo-clone&Timeline">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=sanidhyy/duolingo-clone&type=Timeline&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=sanidhyy/duolingo-clone&type=Timeline" />
-  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=sanidhyy/duolingo-clone&type=Timeline" />
-</picture>
-</a>
 
 <br />
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
