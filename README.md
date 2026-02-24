@@ -102,7 +102,6 @@ duolingo-clone/
   |- package.json
   |- postcss.config.js
   |- tailwind.config.ts
-  |- test.txt
   |- tsconfig.json
   |- vercel.ts
 ```
