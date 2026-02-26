@@ -1,0 +1,673 @@
+# =============================================================================
+# Pull Request Automation
+# =============================================================================
+# Handles all PR lifecycle events and enforces project workflow laws.
+#
+# Events handled:
+#   - PR opened         → Duplicate PR check → Assign to opener → Assign issue
+#                          to opener → Move issue to "In Review"
+#   - PR merged         → Move issue to "Done" → Close issue
+#   - PR closed (no merge) → Move issue to "Done" → Close issue → Comment
+#   - PR reopened       → Prevent: close again (Law: don't reopen, create new issue)
+#   - Review submitted  → If "Request Changes", post advisory comment
+#
+# Laws enforced:
+#   1. Don't fail using review, just comment
+#   2. Don't open multiple PRs for the same issue
+#   3. If a PR is closed, create a new issue — don't reopen
+#   4. Assign the PR and issue to the PR opener automatically
+# =============================================================================
+
+name: PR Automation
+
+on:
+  pull_request:
+    types: [opened, closed, reopened, edited, ready_for_review, converted_to_draft]
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+  PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # PR Opened → Validate, assign, and move issue to "In Review"
+  # ---------------------------------------------------------------------------
+  pr-opened:
+    name: "Handle PR opened"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'opened' &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract linked issue numbers
+        id: extract
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBERS=$(get_linked_issue_numbers \
+            "$PR_NUMBER" "$REPO_OWNER" "$REPO_NAME" "$PR_BRANCH" "$PR_BODY")
+
+          echo "issue_numbers=$ISSUE_NUMBERS" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "::warning::No linked issue found in PR #$PR_NUMBER"
+            echo "has_issues=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Linked issues: $ISSUE_NUMBERS"
+            echo "has_issues=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment if no linked issue found
+        if: steps.extract.outputs.has_issues == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}" \
+            --body "$(cat <<'EOF'
+          **No linked issue detected.**
+
+          Please link an issue to this PR using one of these methods:
+          - Add `Closes #<issue-number>` to the PR description
+          - Name your branch with the issue number (e.g., `42-feature-name`, `issue-42`)
+
+          This is required for proper project board tracking.
+          EOF
+          )"
+
+      - name: Check for duplicate PRs
+        id: dup_check
+        if: steps.extract.outputs.has_issues == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBERS: ${{ steps.extract.outputs.issue_numbers }}
+          CURRENT_PR: ${{ github.event.pull_request.number }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          # Get all open PRs
+          ALL_OPEN_PRS=$(gh pr list \
+            --repo "$FULL_REPO" \
+            --state open \
+            --json number,body,headRefName \
+            --jq ".[] | select(.number != $CURRENT_PR)")
+
+          # Write PR data to temp file to avoid subshell issues with pipes
+          echo "$ALL_OPEN_PRS" | jq -c '.' 2>/dev/null > /tmp/open_prs.json || true
+
+          DUPLICATE_DETECTED=false
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            [ "$DUPLICATE_DETECTED" = "true" ] && break
+
+            while IFS= read -r pr_json; do
+              [ -z "$pr_json" ] && continue
+
+              OTHER_NUM=$(echo "$pr_json" | jq -r '.number')
+              OTHER_BODY=$(echo "$pr_json" | jq -r '.body // ""')
+              OTHER_BRANCH=$(echo "$pr_json" | jq -r '.headRefName')
+
+              # Check if the other PR references the same issue
+              BODY_MATCH=$(echo "$OTHER_BODY" | grep -oiE "(close[sd]?|fix(e[sd])?|resolve[sd]?)\s+#${ISSUE_NUM}(\b)" || echo "")
+              BRANCH_ISSUE=$(extract_issue_number_from_branch "$OTHER_BRANCH")
+
+              if [ -n "$BODY_MATCH" ] || [ "$BRANCH_ISSUE" = "$ISSUE_NUM" ]; then
+                echo "::error::Duplicate PR detected! PR #$OTHER_NUM already addresses issue #$ISSUE_NUM"
+
+                gh pr comment "$CURRENT_PR" \
+                  --repo "$FULL_REPO" \
+                  --body "**Duplicate PR detected.** PR #$OTHER_NUM already addresses issue #$ISSUE_NUM. Only one PR per issue is allowed. This PR will be closed automatically."
+
+                gh pr close "$CURRENT_PR" \
+                  --repo "$FULL_REPO"
+
+                DUPLICATE_DETECTED=true
+                echo "duplicate_found=true" >> "$GITHUB_OUTPUT"
+                break
+              fi
+            done < /tmp/open_prs.json
+          done
+
+      - name: Assign PR to opener
+        if: steps.dup_check.outputs.duplicate_found != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}" \
+            --add-assignee "${{ github.event.pull_request.user.login }}" || true
+
+      - name: Assign issue to PR opener and move to In Review
+        if: steps.extract.outputs.has_issues == 'true' && steps.dup_check.outputs.duplicate_found != 'true'
+        env:
+          ISSUE_NUMBERS: ${{ steps.extract.outputs.issue_numbers }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            echo "Processing issue #$ISSUE_NUM..."
+
+            # Skip if issue is not open (don't move a closed/Done issue back to In Review)
+            ISSUE_STATE=$(gh issue view "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+
+            if [ "$ISSUE_STATE" != "OPEN" ]; then
+              echo "Issue #$ISSUE_NUM is not open (state: $ISSUE_STATE) — skipping"
+              continue
+            fi
+
+            # Assign issue to PR opener
+            gh issue edit "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --add-assignee "$PR_AUTHOR" 2>/dev/null || true
+
+            # Get issue node ID and move to In Review
+            ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUM" "$REPO_OWNER" "$REPO_NAME")
+
+            if [ -n "$ISSUE_NODE_ID" ] && [ "$ISSUE_NODE_ID" != "null" ]; then
+              ensure_status "$ISSUE_NODE_ID" "In Review"
+            else
+              echo "::warning::Could not find issue #$ISSUE_NUM"
+            fi
+          done
+
+      - name: Propagate issue labels to PR
+        if: steps.extract.outputs.has_issues == 'true' && steps.dup_check.outputs.duplicate_found != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBERS: ${{ steps.extract.outputs.issue_numbers }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          LABELS_FILE=$(mktemp)
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            gh issue view "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --json labels --jq '.labels[].name' >> "$LABELS_FILE" 2>/dev/null || true
+          done
+
+          # Deduplicate and build comma-separated list
+          LABEL_CSV=$(sort -u "$LABELS_FILE" | grep -v '^$' | paste -sd ',' - || echo "")
+          rm -f "$LABELS_FILE"
+
+          if [ -n "$LABEL_CSV" ]; then
+            echo "Propagating labels to PR #$PR_NUMBER: $LABEL_CSV"
+            gh pr edit "$PR_NUMBER" \
+              --repo "$FULL_REPO" \
+              --add-label "$LABEL_CSV" || true
+          else
+            echo "No labels to propagate"
+          fi
+
+
+
+  # ---------------------------------------------------------------------------
+  # PR Converted to Draft → Move issue back to "In Progress" from "In Review"
+  # ---------------------------------------------------------------------------
+  pr-converted-to-draft:
+    name: "Handle PR converted to draft"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'converted_to_draft'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Move linked issues back to In Progress
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBERS=$(get_linked_issue_numbers \
+            "$PR_NUMBER" "$REPO_OWNER" "$REPO_NAME" "$PR_BRANCH" "$PR_BODY")
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "No linked issues found — skipping"
+            exit 0
+          fi
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUM" "$REPO_OWNER" "$REPO_NAME")
+            if [ -n "$ISSUE_NODE_ID" ] && [ "$ISSUE_NODE_ID" != "null" ]; then
+              ensure_status "$ISSUE_NODE_ID" "In Progress"
+            fi
+          done
+
+  # ---------------------------------------------------------------------------
+  # Draft PR marked ready for review → Same as opened (move to In Review)
+  # ---------------------------------------------------------------------------
+  pr-ready-for-review:
+    name: "Handle draft → ready for review"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'ready_for_review'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract linked issue numbers
+        id: extract
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBERS=$(get_linked_issue_numbers \
+            "$PR_NUMBER" "$REPO_OWNER" "$REPO_NAME" "$PR_BRANCH" "$PR_BODY")
+
+          echo "issue_numbers=$ISSUE_NUMBERS" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "has_issues=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_issues=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for duplicate PRs
+        id: dup_check
+        if: steps.extract.outputs.has_issues == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBERS: ${{ steps.extract.outputs.issue_numbers }}
+          CURRENT_PR: ${{ github.event.pull_request.number }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          # Get all open PRs except this one
+          ALL_OPEN_PRS=$(gh pr list \
+            --repo "$FULL_REPO" \
+            --state open \
+            --json number,body,headRefName \
+            --jq ".[] | select(.number != $CURRENT_PR)")
+
+          echo "$ALL_OPEN_PRS" | jq -c '.' 2>/dev/null > /tmp/open_prs.json || true
+
+          DUPLICATE_DETECTED=false
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            [ "$DUPLICATE_DETECTED" = "true" ] && break
+
+            while IFS= read -r pr_json; do
+              [ -z "$pr_json" ] && continue
+
+              OTHER_NUM=$(echo "$pr_json" | jq -r '.number')
+              OTHER_BODY=$(echo "$pr_json" | jq -r '.body // ""')
+              OTHER_BRANCH=$(echo "$pr_json" | jq -r '.headRefName')
+
+              BODY_MATCH=$(echo "$OTHER_BODY" | grep -oiE "(close[sd]?|fix(e[sd])?|resolve[sd]?)\s+#${ISSUE_NUM}(\b)" || echo "")
+              BRANCH_ISSUE=$(extract_issue_number_from_branch "$OTHER_BRANCH")
+
+              if [ -n "$BODY_MATCH" ] || [ "$BRANCH_ISSUE" = "$ISSUE_NUM" ]; then
+                echo "::error::Duplicate PR detected! PR #$OTHER_NUM already addresses issue #$ISSUE_NUM"
+
+                gh pr comment "$CURRENT_PR" \
+                  --repo "$FULL_REPO" \
+                  --body "**Duplicate PR detected.** PR #$OTHER_NUM already addresses issue #$ISSUE_NUM. Only one PR per issue is allowed. This PR will be closed automatically."
+
+                gh pr close "$CURRENT_PR" \
+                  --repo "$FULL_REPO"
+
+                DUPLICATE_DETECTED=true
+                echo "duplicate_found=true" >> "$GITHUB_OUTPUT"
+                break
+              fi
+            done < /tmp/open_prs.json
+          done
+
+      - name: Assign and move to In Review
+        if: steps.extract.outputs.has_issues == 'true' && steps.dup_check.outputs.duplicate_found != 'true'
+        env:
+          ISSUE_NUMBERS: ${{ steps.extract.outputs.issue_numbers }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            # Skip if issue is not open
+            ISSUE_STATE=$(gh issue view "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+
+            if [ "$ISSUE_STATE" != "OPEN" ]; then
+              echo "Issue #$ISSUE_NUM is not open (state: $ISSUE_STATE) — skipping"
+              continue
+            fi
+
+            gh issue edit "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --add-assignee "$PR_AUTHOR" 2>/dev/null || true
+
+            ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUM" "$REPO_OWNER" "$REPO_NAME")
+            if [ -n "$ISSUE_NODE_ID" ] && [ "$ISSUE_NODE_ID" != "null" ]; then
+              ensure_status "$ISSUE_NODE_ID" "In Review"
+            fi
+          done
+
+      - name: Propagate issue labels to PR
+        if: steps.extract.outputs.has_issues == 'true' && steps.dup_check.outputs.duplicate_found != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBERS: ${{ steps.extract.outputs.issue_numbers }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          LABELS_FILE=$(mktemp)
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            gh issue view "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --json labels --jq '.labels[].name' >> "$LABELS_FILE" 2>/dev/null || true
+          done
+
+          LABEL_CSV=$(sort -u "$LABELS_FILE" | grep -v '^$' | paste -sd ',' - || echo "")
+          rm -f "$LABELS_FILE"
+
+          if [ -n "$LABEL_CSV" ]; then
+            echo "Propagating labels to PR #$PR_NUMBER: $LABEL_CSV"
+            gh pr edit "$PR_NUMBER" \
+              --repo "$FULL_REPO" \
+              --add-label "$LABEL_CSV" || true
+          else
+            echo "No labels to propagate"
+          fi
+
+
+
+  # ---------------------------------------------------------------------------
+  # PR Edited → Re-check linked issues and update project board
+  # (handles case where Closes #X is added to body after initial PR open)
+  # ---------------------------------------------------------------------------
+  pr-edited:
+    name: "Handle PR edited (re-link issues)"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'edited' &&
+      github.event.changes.body != null &&
+      github.event.pull_request.state == 'open' &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Re-extract and update linked issues
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          FULL_REPO: ${{ github.repository }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBERS=$(get_linked_issue_numbers \
+            "$PR_NUMBER" "$REPO_OWNER" "$REPO_NAME" "$PR_BRANCH" "$PR_BODY")
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "No linked issues found after edit — skipping"
+            exit 0
+          fi
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            echo "Processing issue #$ISSUE_NUM..."
+
+            # Skip if issue is not open
+            ISSUE_STATE=$(gh issue view "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+
+            if [ "$ISSUE_STATE" != "OPEN" ]; then
+              echo "Issue #$ISSUE_NUM is not open (state: $ISSUE_STATE) — skipping"
+              continue
+            fi
+
+            gh issue edit "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --add-assignee "$PR_AUTHOR" 2>/dev/null || true
+
+            ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUM" "$REPO_OWNER" "$REPO_NAME")
+            if [ -n "$ISSUE_NODE_ID" ] && [ "$ISSUE_NODE_ID" != "null" ]; then
+              ensure_status "$ISSUE_NODE_ID" "In Review"
+            fi
+          done
+
+          # Propagate issue labels to PR
+          LABELS_FILE=$(mktemp)
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            gh issue view "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --json labels --jq '.labels[].name' >> "$LABELS_FILE" 2>/dev/null || true
+          done
+          LABEL_CSV=$(sort -u "$LABELS_FILE" | grep -v '^$' | paste -sd ',' - || echo "")
+          rm -f "$LABELS_FILE"
+          if [ -n "$LABEL_CSV" ]; then
+            echo "Propagating labels to PR #$PR_NUMBER: $LABEL_CSV"
+            gh pr edit "$PR_NUMBER" \
+              --repo "$FULL_REPO" \
+              --add-label "$LABEL_CSV" || true
+          fi
+
+
+
+  # ---------------------------------------------------------------------------
+  # PR Merged → Move issue to "Done" and close it
+  # ---------------------------------------------------------------------------
+  pr-merged:
+    name: "Handle PR merged"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Move linked issues to Done and close
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBERS=$(get_linked_issue_numbers \
+            "$PR_NUMBER" "$REPO_OWNER" "$REPO_NAME" "$PR_BRANCH" "$PR_BODY")
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "No linked issues found — skipping"
+            exit 0
+          fi
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            echo "Processing issue #$ISSUE_NUM..."
+
+            # Move to Done in project
+            ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUM" "$REPO_OWNER" "$REPO_NAME")
+
+            if [ -n "$ISSUE_NODE_ID" ] && [ "$ISSUE_NODE_ID" != "null" ]; then
+              ensure_status "$ISSUE_NODE_ID" "Done"
+            fi
+
+            # Close the issue (may already be closed by GitHub's auto-close)
+            gh issue close "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --comment "Closed via PR #$PR_NUMBER merge." 2>/dev/null || true
+          done
+
+  # ---------------------------------------------------------------------------
+  # PR Closed (not merged) → Move issue to "Done", close it, comment
+  # Law: If a PR is closed, create a new issue — don't reopen
+  # ---------------------------------------------------------------------------
+  pr-closed-unmerged:
+    name: "Handle PR closed (not merged)"
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Move linked issues to Done, close, and notify
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_SENDER: ${{ github.event.sender.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          # Skip if the close was triggered by our own bot (prevent-reopen loop)
+          if [ "$PR_SENDER" = "github-actions[bot]" ]; then
+            echo "Close triggered by bot (prevent-reopen) — skipping to avoid duplicate comments"
+            exit 0
+          fi
+
+          ISSUE_NUMBERS=$(get_linked_issue_numbers \
+            "$PR_NUMBER" "$REPO_OWNER" "$REPO_NAME" "$PR_BRANCH" "$PR_BODY")
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "No linked issues found — skipping"
+            exit 0
+          fi
+
+          for ISSUE_NUM in $ISSUE_NUMBERS; do
+            echo "Processing issue #$ISSUE_NUM..."
+
+            # Move to Done in project
+            ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUM" "$REPO_OWNER" "$REPO_NAME")
+
+            if [ -n "$ISSUE_NODE_ID" ] && [ "$ISSUE_NODE_ID" != "null" ]; then
+              ensure_status "$ISSUE_NODE_ID" "Done"
+            fi
+
+            # Comment on the issue explaining what happened
+            gh issue comment "$ISSUE_NUM" \
+              --repo "$FULL_REPO" \
+              --body "PR #$PR_NUMBER was **closed without merging**. This issue has been closed automatically. If this work still needs to be done, please create a **new issue** — we do not reopen closed issues or PRs." 2>/dev/null || true
+
+            # Close the issue
+            gh issue close "$ISSUE_NUM" \
+              --repo "$FULL_REPO" 2>/dev/null || true
+          done
+
+  # ---------------------------------------------------------------------------
+  # PR Reopened → Prevent reopen (Law: don't reopen, create new issue + PR)
+  # ---------------------------------------------------------------------------
+  prevent-pr-reopen:
+    name: "Prevent PR reopen"
+    if: github.event_name == 'pull_request' && github.event.action == 'reopened'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Close PR again with explanation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}" \
+            --body "$(cat <<'EOF'
+          **PRs cannot be reopened in this project.**
+
+          This is an automated enforcement of our workflow rules. If this work still needs to be done, please:
+          1. Create a **new issue** describing the remaining work
+          2. Create a **new branch** from the latest code
+          3. Open a **new PR** linked to the new issue
+
+          Reopening PRs or issues is not allowed to maintain clean project tracking.
+          EOF
+          )"
+
+          gh pr close ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}"
+
+  # ---------------------------------------------------------------------------
+  # Review Governance (Law: Don't fail using review, just comment)
+  # When "Request Changes" is used, remind that reviews are advisory only.
+  # ---------------------------------------------------------------------------
+  review-governance:
+    name: "Review governance advisory"
+    if: >-
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'changes_requested'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post advisory comment about review policy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --repo "${{ github.repository }}" \
+            --body "**Reminder:** This project uses comments for code review feedback rather than blocking reviews. The \"Request Changes\" status will not prevent this PR from being merged. Please discuss requested changes via regular comments."

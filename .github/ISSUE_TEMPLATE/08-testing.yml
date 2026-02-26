@@ -1,0 +1,14 @@
+name: Testing
+description: Report a testing issue or request test coverage for Speakify
+title: "[TEST] "
+labels: ["testing"]
+type: "testing"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Testing Description
+      description: Explain the testing issue or what needs test coverage.
+    validations:
+      required: true

@@ -1,0 +1,14 @@
+name: UI/UX Issue
+description: Report a user interface or experience issue in Speakify
+title: "[UI/UX] "
+labels: ["ui/ux"]
+type: "ui/ux"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: UI/UX Description
+      description: Explain the UI/UX issue and any suggestions for improvement.
+    validations:
+      required: true
