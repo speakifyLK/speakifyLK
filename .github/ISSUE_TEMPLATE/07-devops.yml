@@ -1,0 +1,14 @@
+name: DevOps Issue
+description: Report an infrastructure, deployment, or DevOps issue in Speakify
+title: "[DEVOPS] "
+labels: ["devops"]
+type: "devops"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: DevOps Description
+      description: Explain the DevOps issue or what needs to be changed.
+    validations:
+      required: true

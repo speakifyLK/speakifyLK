@@ -1,0 +1,14 @@
+name: AI Issue
+description: Report an AI-related issue, idea, or bug in Speakify
+title: "[AI] "
+labels: ["ai"]
+type: "ai"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: AI Description
+      description: Explain the AI-related issue or feature.
+    validations:
+      required: true

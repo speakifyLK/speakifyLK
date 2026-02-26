@@ -1,0 +1,14 @@
+name: Feature Request
+description: Track an idea or new feature for Speakify
+title: "[FEATURE] "
+labels: ["feature"]
+type: "feature"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: Explain the feature and what it solves.
+    validations:
+      required: true

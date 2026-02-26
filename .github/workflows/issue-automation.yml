@@ -1,0 +1,152 @@
+# =============================================================================
+# Issue Automation
+# =============================================================================
+# Handles all issue lifecycle events and keeps the GitHub Project board in sync.
+#
+# Events handled:
+#   - Issue opened    → Add to project board in "Todo" status, assign to creator
+#   - Issue closed    → Move to "Done" (from ANY state: Todo, In Progress, In Review)
+#   - Issue deleted   → Remove from project board
+#   - Issue reopened  → Prevent: close again with comment (Law: we don't reopen issues)
+#
+# Note: Handles the "Closing an Issue Mid-Workflow" edge case — if an issue is
+# closed while its card is in "In Progress" or "In Review", it moves to "Done".
+# =============================================================================
+
+name: Issue Automation
+
+on:
+  issues:
+    types: [opened, closed, deleted, reopened, transferred]
+
+concurrency:
+  group: issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+  PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Issue Opened → Add to project "Todo" + assign to creator
+  # ---------------------------------------------------------------------------
+  issue-opened:
+    name: "Add to project → Todo"
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add issue to project with Todo status
+        run: |
+          source .github/scripts/project-helpers.sh
+          add_and_set_status "${{ github.event.issue.node_id }}" "Todo"
+
+      - name: Assign issue to creator
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --repo "${{ github.repository }}" \
+            --add-assignee "${{ github.event.issue.user.login }}" || true
+
+  # ---------------------------------------------------------------------------
+  # Issue Closed → Move to "Done" (handles mid-workflow closing from any state)
+  # ---------------------------------------------------------------------------
+  issue-closed:
+    name: "Move to Done"
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Move issue to Done in project
+        run: |
+          source .github/scripts/project-helpers.sh
+          ensure_status "${{ github.event.issue.node_id }}" "Done"
+
+  # ---------------------------------------------------------------------------
+  # Issue Deleted → Remove from project board
+  # ---------------------------------------------------------------------------
+  issue-deleted:
+    name: "Remove from project"
+    if: github.event.action == 'deleted'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Remove issue from project
+        run: |
+          source .github/scripts/project-helpers.sh
+          ITEM_ID=$(get_item_id_for_content "${{ github.event.issue.node_id }}")
+          if [ -n "$ITEM_ID" ] && [ "$ITEM_ID" != "null" ]; then
+            remove_item "$ITEM_ID"
+          else
+            echo "Item not found in project — may have already been removed"
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Issue Reopened → Prevent reopen (Law: We don't reopen issues)
+  # ---------------------------------------------------------------------------
+  prevent-reopen:
+    name: "Prevent issue reopen"
+    if: github.event.action == 'reopened'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Close issue again with explanation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment ${{ github.event.issue.number }} \
+            --repo "${{ github.repository }}" \
+            --body "$(cat <<'EOF'
+          **Issues cannot be reopened in this project.**
+
+          This is an automated enforcement of our workflow rules. If this work still needs to be done, please **create a new issue** instead.
+
+          Reopening issues is not allowed to maintain a clean project history and accurate tracking.
+          EOF
+          )"
+
+          gh issue close ${{ github.event.issue.number }} \
+            --repo "${{ github.repository }}"
+
+  # ---------------------------------------------------------------------------
+  # Issue Transferred → Remove from this project board
+  # (The receiving repo's automation will pick it up if configured)
+  # ---------------------------------------------------------------------------
+  issue-transferred:
+    name: "Handle issue transfer"
+    if: github.event.action == 'transferred'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Remove transferred issue from project
+        run: |
+          source .github/scripts/project-helpers.sh
+          # The old node_id may still be valid briefly after transfer
+          ITEM_ID=$(get_item_id_for_content "${{ github.event.issue.node_id }}" 2>/dev/null || echo "")
+          if [ -n "$ITEM_ID" ] && [ "$ITEM_ID" != "null" ]; then
+            remove_item "$ITEM_ID"
+            echo "Transferred issue removed from project board"
+          else
+            echo "Issue not found in project or already removed"
+          fi
