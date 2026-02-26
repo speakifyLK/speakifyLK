@@ -1,0 +1,14 @@
+name: Documentation
+description: Report documentation improvements or additions for Speakify
+title: "[DOCS] "
+labels: ["documentation"]
+type: "documentation"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Documentation Description
+      description: Explain what documentation needs to be added or improved.
+    validations:
+      required: true
