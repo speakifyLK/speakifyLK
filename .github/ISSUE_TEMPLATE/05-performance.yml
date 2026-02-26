@@ -1,0 +1,14 @@
+name: Performance Issue
+description: Report a performance problem in Speakify
+title: "[PERF] "
+labels: ["performance"]
+type: "performance"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Description
+      description: Explain the performance issue and any relevant metrics.
+    validations:
+      required: true

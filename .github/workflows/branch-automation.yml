@@ -1,0 +1,172 @@
+# =============================================================================
+# Branch Automation
+# =============================================================================
+# Handles branch create/delete events and syncs the GitHub Project board.
+#
+# Events handled:
+#   - Branch created → Extract issue # from branch name → Move issue to "In Progress"
+#   - Branch deleted → If no PR was ever opened for it → Move issue back to "Todo"
+#
+# Branch naming convention (issue number extraction):
+#   42-add-login, issue-42, issue/42, feature/42-add-login, fix/42-bug, hotfix/42
+#
+# Note: Handles the "Branch Deletion" edge case — if a branch is deleted without
+# a PR ever being opened, the card moves back from "In Progress" to "Todo"
+# instead of getting stuck.
+# =============================================================================
+
+name: Branch Automation
+
+on:
+  create:
+  delete:
+
+concurrency:
+  group: branch-${{ github.event.ref }}
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+  PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Branch Created → Move linked issue to "In Progress"
+  # ---------------------------------------------------------------------------
+  branch-created:
+    name: "Move issue to In Progress"
+    if: github.event_name == 'create' && github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract issue number and move to In Progress
+        env:
+          BRANCH: ${{ github.event.ref }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBER=$(extract_issue_number_from_branch "$BRANCH")
+
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "No issue number found in branch name: $BRANCH"
+            echo "Supported patterns: 42-desc, issue-42, issue/42, feature/42-desc"
+            echo "Skipping project board update."
+            exit 0
+          fi
+
+          echo "Found issue #$ISSUE_NUMBER from branch: $BRANCH"
+
+          # Get issue node ID
+          ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUMBER" "$REPO_OWNER" "$REPO_NAME")
+
+          if [ -z "$ISSUE_NODE_ID" ] || [ "$ISSUE_NODE_ID" = "null" ]; then
+            echo "Issue #$ISSUE_NUMBER not found in repository — skipping"
+            exit 0
+          fi
+
+          # Check if issue is open
+          ISSUE_STATE=$(gh issue view "$ISSUE_NUMBER" \
+            --repo "${REPO_OWNER}/${REPO_NAME}" \
+            --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+
+          if [ "$ISSUE_STATE" != "OPEN" ]; then
+            echo "Issue #$ISSUE_NUMBER is not open (state: $ISSUE_STATE) — skipping"
+            exit 0
+          fi
+
+          ensure_status "$ISSUE_NODE_ID" "In Progress"
+
+  # ---------------------------------------------------------------------------
+  # Branch Deleted → If no PR was ever opened, move issue back to "Todo"
+  # ---------------------------------------------------------------------------
+  branch-deleted:
+    name: "Handle branch deletion (no PR)"
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for PRs and revert issue status if needed
+        env:
+          BRANCH: ${{ github.event.ref }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          FULL_REPO: ${{ github.repository }}
+        run: |
+          source .github/scripts/project-helpers.sh
+
+          ISSUE_NUMBER=$(extract_issue_number_from_branch "$BRANCH")
+
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "No issue number found in branch name: $BRANCH — skipping"
+            exit 0
+          fi
+
+          echo "Found issue #$ISSUE_NUMBER from deleted branch: $BRANCH"
+
+          # Check if any PR was ever opened for this branch (any state: open, closed, merged)
+          PR_COUNT=$(gh pr list \
+            --repo "$FULL_REPO" \
+            --head "$BRANCH" \
+            --state all \
+            --json number \
+            --jq 'length' 2>/dev/null || echo "0")
+
+          if [ "$PR_COUNT" -gt 0 ]; then
+            echo "PR(s) exist for branch '$BRANCH' — PR workflow handles status transitions"
+            exit 0
+          fi
+
+          echo "No PRs found for branch '$BRANCH' — checking for other active branches"
+
+          # Check if another branch for the same issue still exists
+          OTHER_BRANCH_EXISTS=false
+          BRANCHES=$(gh api "repos/${FULL_REPO}/branches" --paginate --jq '.[].name' 2>/dev/null || echo "")
+          for b in $BRANCHES; do
+            [ "$b" = "$BRANCH" ] && continue  # skip the deleted branch itself (may still show briefly)
+            OTHER_ISSUE=$(extract_issue_number_from_branch "$b")
+            if [ "$OTHER_ISSUE" = "$ISSUE_NUMBER" ]; then
+              echo "Another branch '$b' still references issue #$ISSUE_NUMBER — keeping In Progress"
+              OTHER_BRANCH_EXISTS=true
+              break
+            fi
+          done
+
+          if [ "$OTHER_BRANCH_EXISTS" = "true" ]; then
+            exit 0
+          fi
+
+          echo "No other branches for issue #$ISSUE_NUMBER — moving back to Todo"
+
+          # Verify issue exists and is still open
+          ISSUE_STATE=$(gh issue view "$ISSUE_NUMBER" \
+            --repo "$FULL_REPO" \
+            --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+
+          if [ "$ISSUE_STATE" != "OPEN" ]; then
+            echo "Issue #$ISSUE_NUMBER is not open (state: $ISSUE_STATE) — skipping"
+            exit 0
+          fi
+
+          # Get issue node ID and move back to Todo
+          ISSUE_NODE_ID=$(get_issue_node_id "$ISSUE_NUMBER" "$REPO_OWNER" "$REPO_NAME")
+
+          if [ -z "$ISSUE_NODE_ID" ] || [ "$ISSUE_NODE_ID" = "null" ]; then
+            echo "Issue #$ISSUE_NUMBER not found — skipping"
+            exit 0
+          fi
+
+          ensure_status "$ISSUE_NODE_ID" "Todo"

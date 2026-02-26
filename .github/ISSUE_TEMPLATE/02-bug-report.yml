@@ -1,0 +1,14 @@
+name: Bug Report
+description: Create a report to track a bug in Speakify
+title: "[BUG] "
+labels: ["bug"]
+type: "bug"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Explain the bug and any steps to reproduce it.
+    validations:
+      required: true

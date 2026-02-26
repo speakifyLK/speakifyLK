@@ -1,0 +1,14 @@
+name: Security Issue
+description: Report a security vulnerability or concern in Speakify
+title: "[SECURITY] "
+labels: ["security"]
+type: "security"
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Security Description
+      description: Describe the security concern. For sensitive vulnerabilities, consider using private disclosure instead.
+    validations:
+      required: true

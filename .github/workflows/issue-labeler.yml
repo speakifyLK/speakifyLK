@@ -1,0 +1,151 @@
+# =============================================================================
+# Issue Auto-Labeler
+# =============================================================================
+# Automatically applies labels to new issues based on keyword analysis of
+# the issue title and body.
+#
+# Events handled:
+#   - Issue opened → Scan title + body for keywords → Apply matching labels
+#
+# Brands applied:
+#   feature      — [FEATURE], feature, add, implement, improve, enhance, new, request
+#   bug          — [BUG], error, crash, broken, not working, fail, regression
+#   documentation— [DOCS], docs, documentation, readme, guide, typo, spelling
+#   security     — [SECURITY], security, vulnerability, CVE, auth, token, XSS, injection
+#   performance  — [PERF], perf, slow, speed, optimize, memory, latency
+#   ui/ux        — [UI/UX], UI, UX, design, layout, style, CSS, responsive, visual
+#   devops       — [DEVOPS], devops, infra, deploy, pipeline, docker, kubernetes, aws
+#   testing      — [TEST], test, coverage, spec, assert, mock, CI, flaky
+#   ai           — [AI], ai, ml, model, prompt, generation, llm, inference
+#
+# Note: Labels are created automatically if they don't already exist.
+# =============================================================================
+
+name: Issue Auto-Labeler
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  auto-label:
+    name: "Auto-label issue"
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Analyze and apply labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Combine title and body for analysis (lowercase for matching)
+          TEXT=$(echo "${ISSUE_TITLE} ${ISSUE_BODY}" | tr '[:upper:]' '[:lower:]')
+
+          LABELS=()
+
+          # -------------------------------------------------------------------
+          # Keyword → Label mapping
+          # -------------------------------------------------------------------
+
+          # Bug indicators
+          if echo "$TEXT" | grep -qiE '\b(bug|error|crash|broken|not working|fail(s|ed|ing)?|regression|exception|stacktrace|stack trace|unexpected)\b'; then
+            LABELS+=("bug")
+          fi
+
+          # Feature / Enhancement indicators
+          if echo "$TEXT" | grep -qiE '\b(feature|add(ing)?|implement|improv(e|ing|ement)|enhanc(e|ing|ement)|new|request|proposal|suggest(ion)?|wish|would be nice)\b'; then
+            LABELS+=("feature")
+          fi
+
+          # Documentation indicators
+          if echo "$TEXT" | grep -qiE '\b(doc(s|umentation)?|readme|guide|tutorial|typo|spelling|wording|comment(s|ed)?|example(s)?)\b'; then
+            LABELS+=("documentation")
+          fi
+
+          # DevOps indicators
+          if echo "$TEXT" | grep -qiE '\b(devops|infra(structure)?|deploy(ment)?|pipeline|docker|kubernetes|k8s|aws|gcp|azure|ci/cd|terraform)\b'; then
+            LABELS+=("devops")
+          fi
+
+          # AI indicators
+          if echo "$TEXT" | grep -qiE '\b(ai|ml|model|prompt|generation|llm|inference|neural network|hallucinat(e|ion))\b'; then
+            LABELS+=("ai")
+          fi
+
+          # Performance indicators
+          if echo "$TEXT" | grep -qiE '\b(perf(ormance)?|slow|speed|optimi(z|s)(e|ation)|memory|latency|lag(gy)?|bottleneck|profil(e|ing))\b'; then
+            LABELS+=("performance")
+          fi
+
+          # Security indicators
+          if echo "$TEXT" | grep -qiE '\b(security|vulnerabilit(y|ies)|cve-|auth(entication|orization)?|token|xss|injection|csrf|exploit|breach)\b'; then
+            LABELS+=("security")
+          fi
+
+          # UI/UX indicators
+          if echo "$TEXT" | grep -qiE '\b(ui|ux|design|layout|style|css|responsive|visual|theme|dark mode|light mode|accessibility|a11y)\b'; then
+            LABELS+=("ui/ux")
+          fi
+
+          # Testing indicators
+          if echo "$TEXT" | grep -qiE '\b(test(s|ing)?|coverage|spec|assert|mock|ci|flaky|unit test|e2e|integration test)\b'; then
+            LABELS+=("testing")
+          fi
+
+          # -------------------------------------------------------------------
+          # Apply labels
+          # -------------------------------------------------------------------
+
+          if [ ${#LABELS[@]} -eq 0 ]; then
+            echo "No labels matched for issue #$ISSUE_NUMBER — skipping"
+            exit 0
+          fi
+
+          echo "Applying labels to issue #$ISSUE_NUMBER: ${LABELS[*]}"
+
+          # Ensure labels exist (create with default color if missing)
+          declare -A LABEL_COLORS=(
+            ["feature"]="a2eeef"
+            ["bug"]="d73a4a"
+            ["documentation"]="0075ca"
+            ["security"]="e4e669"
+            ["performance"]="f9d0c4"
+            ["ui/ux"]="7057ff"
+            ["devops"]="ffa500"
+            ["testing"]="bfd4f2"
+            ["ai"]="00ff00"
+          )
+
+          declare -A LABEL_DESCRIPTIONS=(
+            ["feature"]="New feature or enhancement"
+            ["bug"]="Something isn't working"
+            ["documentation"]="Improvements or additions to documentation"
+            ["security"]="Security vulnerability or concern"
+            ["performance"]="Performance-related issue"
+            ["ui/ux"]="User interface or experience issue"
+            ["devops"]="Infrastructure, deployment, or DevOps issue"
+            ["testing"]="Testing-related issue"
+            ["ai"]="AI-related issue, idea, or bug"
+          )
+
+          for LABEL in "${LABELS[@]}"; do
+            # Create label if it doesn't exist (--force updates if exists)
+            gh label create "$LABEL" \
+              --repo "$REPO" \
+              --color "${LABEL_COLORS[$LABEL]}" \
+              --description "${LABEL_DESCRIPTIONS[$LABEL]}" \
+              --force 2>/dev/null || true
+          done
+
+          # Build comma-separated label list for gh issue edit
+          LABEL_CSV=$(IFS=,; echo "${LABELS[*]}")
+
+          gh issue edit "$ISSUE_NUMBER" \
+            --repo "$REPO" \
+            --add-label "$LABEL_CSV"
+
+          echo "✓ Labels applied: ${LABELS[*]}"

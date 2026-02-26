@@ -1,0 +1,53 @@
+# =============================================================================
+# Copilot Code Review
+# =============================================================================
+# Automatically requests GitHub Copilot as a code reviewer on pull requests.
+#
+# Copilot reviews code for bugs, security issues, performance problems, and
+# style improvements — then posts review comments directly on the PR.
+#
+# Prerequisite:
+#   Enable Copilot Code Review in repo Settings → Copilot → Code Review
+#
+# Events handled:
+#   - PR opened (non-draft)       → Request Copilot review
+#   - Draft PR marked ready       → Request Copilot review
+#   - New commits pushed to PR    → Re-request Copilot review
+#
+# Note: Copilot reviews are advisory only, consistent with this project's
+# review governance rule — reviews inform but don't block merges.
+# =============================================================================
+
+name: Copilot Code Review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+
+jobs:
+  copilot-review:
+    name: "Request Copilot review"
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Request Copilot as reviewer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Requesting Copilot code review on PR #$PR_NUMBER..."
+
+          # Request Copilot as a reviewer via the API
+          gh api "repos/${REPO}/pulls/${PR_NUMBER}/requested_reviewers" \
+            --method POST \
+            --input - <<EOF || true
+          {
+            "reviewers": ["copilot"]
+          }
+          EOF
+
+          echo "✓ Copilot review requested on PR #$PR_NUMBER"
