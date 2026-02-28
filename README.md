@@ -39,7 +39,7 @@ Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
 ```bash
-duolingo-clone/
+speakifyLK/
   |- actions/
     |-- challenge-progress.ts
     |-- user-progress.ts
@@ -127,7 +127,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 CLERK_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # neon db uri
-DATABASE_URL="postgresql://<user>:<password>@<host>:<post>/lingo?sslmode=require"
+DATABASE_URL="postgresql://<user>:<password>@<host>:<post>/speakify?sslmode=require"
 
 # stripe api key and webhook
 STRIPE_API_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -215,7 +215,7 @@ Once the script completes, check your database to ensure that the challenges dat
 
 ## :wrench: Stats
 
-[![Stats for SpeakifyLK](/.github/images/stats.svg "Stats for SpeakifyLK")](https://pagespeed.web.dev/analysis?url=https://lingo-clone.vercel.app/ "Stats for SpeakifyLK")
+[![Stats for SpeakifyLK](/.github/images/stats.svg "Stats for SpeakifyLK")](https://pagespeed.web.dev/analysis?url=https://speakifylk.vercel.app/ "Stats for SpeakifyLK")
 
 ## :raised_hands: Contribute
 

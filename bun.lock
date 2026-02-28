@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "duolingo-clone",
+      "name": "speakify",
       "dependencies": {
         "@clerk/nextjs": "^6.38.1",
         "@neondatabase/serverless": "^1.0.2",

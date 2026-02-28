@@ -12,7 +12,7 @@ type BannerProps = {
   setHide: Dispatch<SetStateAction<boolean>>;
 };
 
-const BANNER_KEY = "hide-lingo-banner";
+const BANNER_KEY = "hide-speakify-banner";
 
 const Banner = ({ hide, setHide }: BannerProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
