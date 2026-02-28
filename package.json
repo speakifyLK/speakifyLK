@@ -1,5 +1,5 @@
 {
-  "name": "duolingo-clone",
+  "name": "speakify",
   "version": "1.0.1",
   "private": true,
   "scripts": {
@@ -71,14 +71,14 @@
     "nextjs",
     "vercel",
     "react",
-    "duolingo-clone",
+    "Speakify",
     "learn-language",
     "shadcn",
     "shadcn-ui",
     "radix-ui",
     "cn",
     "clsx",
-    "lingo",
+    "speakify",
     "postgresql",
     "sonner",
     "drizzle",
@@ -103,21 +103,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sanidhyy/duolingo-clone.git"
+    "url": "https://github.com/speakifyLK/speakifyLK"
   },
-  "homepage": "https://github.com/sanidhyy/duolingo-clone#readme",
+  "homepage": "https://github.com/speakifyLK/speakifyLK#readme",
   "bugs": {
-    "url": "https://github.com/sanidhyy/duolingo-clone/issues",
+    "url": "https://github.com/speakifyLK/speakifyLK/issues",
     "email": "sanidhya.verma12345@gmail.com"
-  },
-  "funding": [
-    {
-      "type": "patreon",
-      "url": "https://www.patreon.com/sanidhy"
-    },
-    {
-      "type": "Buy me a coffee",
-      "url": "https://www.buymeacoffee.com/sanidhy"
-    }
-  ]
+  }
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteConfig: Metadata = {
-  title: "Lingo",
+  title: "Speakify",
   description:
     "Interactive platform for language learning with lessons, quizzes, and progress tracking.",
   keywords: [
@@ -9,14 +9,14 @@ export const siteConfig: Metadata = {
     "nextjs",
     "vercel",
     "react",
-    "duolingo-clone",
+    "speakify",
     "learn-language",
     "shadcn",
     "shadcn-ui",
     "radix-ui",
     "cn",
     "clsx",
-    "lingo",
+    "speakify",
     "postgresql",
     "sonner",
     "drizzle",
@@ -39,12 +39,12 @@ export const siteConfig: Metadata = {
     "css",
   ] as Array<string>,
   authors: {
-    name: "Sanidhya Kumar Verma",
-    url: "https://github.com/sanidhyy",
+    name: "SpeakifyLK",
+    url: "https://github.com/speakifyLK",
   },
 } as const;
 
 export const links = {
-  sourceCode: "https://github.com/sanidhyy/duolingo-clone",
-  email: "sanidhya.verma12345@gmail.com",
+  sourceCode: "https://github.com/speakifyLK/speakifyLK",
+  email: "speakifylk@gmail.com",
 } as const;
