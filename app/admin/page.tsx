@@ -8,7 +8,7 @@ const AdminPage = async () => {
 
   if (!isAdmin) redirect("/");
 
-  return <App />;
+  return <App/>;
 };
 
 export default AdminPage;

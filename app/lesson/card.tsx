@@ -31,7 +31,7 @@ export const Card = ({
   type,
 }: CardProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [audio, _, controls] = useAudio({ src: audioSrc || "" });
+  const [audio, _, controls] = useAudio({ src: audioSrc || "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" });
 
   const handleClick = useCallback(() => {
     if (disabled) return;
@@ -58,7 +58,7 @@ export const Card = ({
         type === "ASSIST" && "w-full lg:p-3"
       )}
     >
-      {audio}
+      {audioSrc && audio}
       {imageSrc && (
         <div className="relative mb-4 aspect-square max-h-[80px] w-full lg:max-h-[150px]">
           <Image src={imageSrc} fill alt={text} />
