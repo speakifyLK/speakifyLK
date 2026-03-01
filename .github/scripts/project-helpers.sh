@@ -255,6 +255,12 @@ ensure_status() {
 extract_issue_number_from_branch() {
   local branch="$1"
 
+  # Skip Dependabot branches — their version numbers must not be mistaken for issue numbers
+  if [[ "$branch" =~ ^dependabot/ ]]; then
+    echo ""
+    return 0
+  fi
+
   # Pattern: issue-42 or issue/42
   if [[ "$branch" =~ issue[/-]([0-9]+) ]]; then
     echo "${BASH_REMATCH[1]}"

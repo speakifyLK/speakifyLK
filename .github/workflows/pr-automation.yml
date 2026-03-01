@@ -44,7 +44,8 @@ jobs:
     if: >-
       github.event_name == 'pull_request' &&
       github.event.action == 'opened' &&
-      github.event.pull_request.draft == false
+      github.event.pull_request.draft == false &&
+      github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -625,7 +626,10 @@ jobs:
   # ---------------------------------------------------------------------------
   prevent-pr-reopen:
     name: "Prevent PR reopen"
-    if: github.event_name == 'pull_request' && github.event.action == 'reopened'
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'reopened' &&
+      github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
