@@ -55,13 +55,13 @@ jobs:
             console.log('=== Starting Jira-GitHub Integration ===');
 
             // Check if PR already has matching Jira title and description
-            const jiraTitleMatch = title.match(/^(TES-\d+):/);
+            const jiraTitleMatch = title.match(/^([A-Z][A-Z0-9]+-\d+):/);
             const jiraReferenceSection = /##\s*Jira Reference/i;
 
             if (jiraTitleMatch && jiraReferenceSection.test(body)) {
               // Only skip if the Jira key in title matches the one in the body
               const titleKey = jiraTitleMatch[1];
-              const bodyKeyMatch = body.match(/TES-\d+/);
+              const bodyKeyMatch = body.match(/[A-Z][A-Z0-9]+-\d+/);
               if (bodyKeyMatch && bodyKeyMatch[0] === titleKey) {
                 console.log(`PR already synced with ${titleKey}, skipping update`);
                 return;
@@ -75,7 +75,7 @@ jobs:
             const issueMatches = [...body.matchAll(issuePattern)];
 
             // Extract direct Jira references
-            const jiraPattern = /TES-\d+/g;
+            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/g;
             let jiraKeys = [...new Set((title + ' ' + body).match(jiraPattern) || [])];
 
             console.log(`Found ${issueMatches.length} GitHub issue references`);
@@ -365,7 +365,7 @@ jobs:
               pull_number: context.issue.number,
             });
 
-            const jiraPattern = /TES-\d+/;
+            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
             const invalidCommits = [];
 
             for (const commit of commits) {

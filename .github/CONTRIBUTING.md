@@ -6,7 +6,7 @@ Thank you for contributing to SpeakifyLK! This guide covers our development work
 
 ### 1. Pick a Task from Jira
 - Visit the [Jira Board](https://speakifylk.atlassian.net)
-- Find your assigned task (e.g., TES-4)
+- Find your assigned task (e.g., SPEAKIFYLK-4)
 - Move it to "In Progress"
 
 ### 2. Create a Branch
@@ -37,7 +37,7 @@ git push -u origin yourname/feature-description
 ```
 
 **PR Title must include the Jira key:**
-- `TES-4: Create Gemini client utility` (Recommended)
+- `SPEAKIFYLK-4: Create Gemini client utility` (Recommended)
 - `feat(chat): add streaming support` (Conventional commits also accepted)
 
 That's it. The PR title is the **only place** you need to reference the Jira key.
@@ -68,11 +68,11 @@ Once approved, merge the PR. On merge:
 
 ## What You Need to Remember
 
-**Only the PR title matters for Jira integration.** Include `TES-XXX:` in your PR title and everything else is automated.
+**Only the PR title matters for Jira integration.** Include `SPEAKIFYLK-XXX:` in your PR title and everything else is automated.
 
 | | Required? |
 |---|---|
-| PR title has `TES-XXX:` | **Yes** |
+| PR title has `SPEAKIFYLK-XXX:` | **Yes** |
 | Branch name has Jira key | No |
 | Commit messages have Jira key | No |
 | PR body has Jira reference | No (auto-generated) |
@@ -83,21 +83,21 @@ Once approved, merge the PR. On merge:
 ## PR Title Format
 
 **Valid formats:**
-- `TES-4: Create Gemini client utility`
-- `TES-12: Fix chat streaming bug`
+- `SPEAKIFYLK-4: Create Gemini client utility`
+- `SPEAKIFYLK-12: Fix chat streaming bug`
 - `feat(api): add user endpoint` (conventional commits)
 - `fix: resolve session timeout`
 
 **Invalid:**
 - `Added new feature` (missing Jira key or conventional prefix)
-- `TES-4` (missing colon and description)
+- `SPEAKIFYLK-4` (missing colon and description)
 
 ---
 
 ## Validation Checks
 
 Our CI pipeline checks:
-- PR title format (`TES-XXX:` or conventional commit)
+- PR title format (`SPEAKIFYLK-XXX:` or conventional commit)
 - Jira reference exists in title or body
 
 If a check fails, update your PR title to include the Jira key.
@@ -119,10 +119,10 @@ Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot
 ## Workflow Summary
 
 ```
-1. Pick Jira task        (TES-4)
+1. Pick Jira task        (SPEAKIFYLK-4)
 2. Create branch         (yourname/feature-name)
 3. Write code & commit
-4. Push & open PR        (Title: "TES-4: Description")
+4. Push & open PR        (Title: "SPEAKIFYLK-4: Description")
 5. Workflows auto-fill PR description + link to Jira
 6. Comment "copilot-review" for AI review
 7. Team reviews & approves
@@ -135,10 +135,10 @@ Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot
 ## Troubleshooting
 
 **"PR title must follow conventional commit format"**
-- Fix: Add Jira key to title: `TES-4: Your description`
+- Fix: Add Jira key to title: `SPEAKIFYLK-4: Your description`
 
 **"PR must reference a Jira issue"**
-- Fix: Make sure `TES-XXX` appears in your PR title
+- Fix: Make sure `SPEAKIFYLK-XXX` appears in your PR title
 
 **Jira issue didn't close after merge?**
 - Check the Jira board — it may need a manual transition if "Done" isn't available
