@@ -23,7 +23,7 @@ jobs:
               issue_number: context.issue.number,
               assignees: [context.payload.pull_request.user.login]
             });
-            console.log('✅ Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
+            console.log('Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
 
       - name: Validate PR title format
         id: title_check
@@ -33,31 +33,14 @@ jobs:
           script: |
             const title = context.payload.pull_request.title;
 
-            // Conventional commit pattern: type(scope): description OR MEDEASE-XXX: description
-            // Examples: feat(api): add user endpoint, fix: resolve bug, MEDEASE-123: add feature
+            // Conventional commit pattern OR JIRA-XXX: description
             const conventionalCommitPattern = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\(.+\))?:\s.+/i;
-            const jiraPattern = /^SPEAKIFY-\d+:\s.+/;
+            const jiraPattern = /^[A-Z][A-Z0-9]+-\d+:\s.+/;
 
             if (!conventionalCommitPattern.test(title) && !jiraPattern.test(title)) {
-              core.setFailed('❌ PR title must follow conventional commit format OR include Jira key.\nExamples:\n- feat(api): add user endpoint\n- fix(auth): resolve login issue\n- SPEAKIFY-123: implement user authentication\n- docs: update README');
+              core.setFailed('PR title must follow conventional commit format OR include Jira key.\nExamples:\n- feat(api): add user endpoint\n- fix(auth): resolve login issue\n- SPEAKLK-123: implement feature\n- docs: update README');
             } else {
-              console.log('✅ PR title format is valid');
-            }
-
-      - name: Verify issue linkage
-        id: issue_check
-        continue-on-error: true
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request.body || '';
-            const issueKeywords = ['fixes', 'closes', 'resolves', 'fix', 'close', 'resolve'];
-            const issuePattern = new RegExp(`(${issueKeywords.join('|')})\\s+#\\d+`, 'i');
-
-            if (!issuePattern.test(body)) {
-              core.setFailed('❌ PR description must link to an issue using: Fixes #123, Closes #123, or Resolves #123');
-            } else {
-              console.log('✅ PR is linked to an issue');
+              console.log('PR title format is valid');
             }
 
       - name: Validate Jira reference
@@ -69,18 +52,18 @@ jobs:
             const body = context.payload.pull_request.body || '';
             const title = context.payload.pull_request.title;
 
-            // Check for SPEAKIFY-XXX pattern in either title or body
-            const jiraPattern = /SPEAKIFY-\d+/;
+            // Check for any Jira key pattern in either title or body
+            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
 
             if (!jiraPattern.test(title) && !jiraPattern.test(body)) {
-              core.setFailed('❌ PR must reference a Jira issue (SPEAKIFY-XXX) in title or description.\nExample: SPEAKIFY-123: Add authentication feature');
+              core.setFailed('PR must reference a Jira issue in title or description.\nExample: SPEAKLK-123: Add authentication feature');
             } else {
               const jiraKey = (title.match(jiraPattern) || body.match(jiraPattern))[0];
-              console.log(`✅ PR references Jira issue: ${jiraKey}`);
+              console.log(`PR references Jira issue: ${jiraKey}`);
             }
 
       - name: Check validation results
-        if: steps.title_check.outcome == 'failure' || steps.issue_check.outcome == 'failure' || steps.jira_check.outcome == 'failure'
+        if: steps.title_check.outcome == 'failure' || steps.jira_check.outcome == 'failure'
         run: |
           echo "::error::One or more PR validation checks failed"
           exit 1

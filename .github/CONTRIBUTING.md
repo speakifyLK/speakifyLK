@@ -1,12 +1,12 @@
 # Contributing to SpeakifyLK
 
-Thank you for contributing to SpeakifyLK! This guide will help you understand our development workflow and best practices.
+Thank you for contributing to SpeakifyLK! This guide covers our development workflow.
 
-## 🎯 Quick Start
+## Quick Start
 
 ### 1. Pick a Task from Jira
-- Visit: https://speakifylk.atlassian.net
-- Find your assigned task (e.g., SPEAKIFY-1)
+- Visit the [Jira Board](https://speakifylk.atlassian.net)
+- Find your assigned task (e.g., SPEAKLK-4)
 - Move it to "In Progress"
 
 ### 2. Create a Branch
@@ -19,304 +19,136 @@ git checkout -b yourname/feature-description
 ```
 
 **Examples:**
-- `itzzjb/user-authentication`
+- `itzzjb/gemini-client-setup`
 - `itzzjb/fix-login-bug`
-- `itzzjb/update-readme`
+- `itzzjb/quiz-ui-components`
 
-### 3. Write Code
-Make your changes following our coding standards.
-
-### 4. Commit with Jira Reference
-**IMPORTANT:** Always include the Jira issue key in your commit message.
+### 3. Write Code & Commit
+Commit messages can be anything descriptive. No special format required.
 
 ```bash
-git commit -m "SPEAKIFY-1: Add user authentication feature"
+git commit -m "Add Gemini client utility"
+git commit -m "Fix quiz scoring logic"
 ```
 
-**Format:**
-- `SPEAKIFY-XXX: <description>` - Standard format
-- `SPEAKIFY-XXX: <type>: <description>` - With type prefix
-
-**Examples:**
-```bash
-git commit -m "SPEAKIFY-123: Implement login API endpoint"
-git commit -m "SPEAKIFY-456: Fix authentication bug"
-git commit -m "SPEAKIFY-789: Update README documentation"
-```
-
-### 5. Push Your Branch
+### 4. Push & Open a Pull Request
 ```bash
 git push -u origin yourname/feature-description
 ```
 
-### 6. Create Pull Request
-**PR Title Format (choose one):**
-- `SPEAKIFY-XXX: Description` (Recommended)
-- `feat(scope): description` (Conventional commits)
-- `fix: description`
+**PR Title must include the Jira key:**
+- `SPEAKLK-4: Create Gemini client utility` (Recommended)
+- `feat(chat): add streaming support` (Conventional commits also accepted)
 
-**Examples:**
-- ✅ `SPEAKIFY-1: Add user authentication`
-- ✅ `feat(auth): implement JWT authentication`
-- ✅ `fix(login): resolve session timeout issue`
-- ❌ `Added new feature` (Missing Jira reference)
+That's it. The PR title is the **only place** you need to reference the Jira key.
 
-**PR Description:**
-Fill out the template, including:
-- Description of changes
-- Type of change
-- **Jira Reference** (SPEAKIFY-XXX)
-- Related GitHub issue (if applicable)
+### 5. Automation Takes Over
 
-```markdown
-## Jira Reference
-**Jira Issue:** SPEAKIFY-1
-**Link:** https://speakifylk.atlassian.net/browse/SPEAKIFY-1
+Once you open the PR, workflows handle everything:
 
-## Related Issues
-Fixes #252
-```
+| What happens | Automated? |
+|---|---|
+| PR assigned to you | Yes |
+| PR title validated (Jira key format) | Yes |
+| Jira reference checked | Yes |
+| PR description generated (from Jira + diff) | Yes |
+| `jira-linked` label added | Yes |
+| Comment posted on Jira issue with PR link | Yes |
 
----
+### 6. Request a Code Review
+To request an AI-powered code review from GitHub Copilot, add a new comment on the PR that starts with the command `/copilot-review`.
 
-## 🔄 Jira-GitHub Integration
-
-Our repository is integrated with Jira to provide automatic tracking and visibility.
-
-### What Happens Automatically:
-
-1. **Commits with Jira Keys:**
-   - Show up in Jira Development panel
-   - Link to the Jira issue automatically
-   - Provide full traceability
-
-2. **Pull Requests:**
-   - Automatically linked to Jira issues
-   - Bot adds Jira links to PR
-   - Status updates reflect in Jira
-
-3. **PR Labels:**
-   - `jira-linked` label added automatically
-   - Helps filter PRs by Jira status
-
-### Validation Checks:
-
-Our CI/CD pipeline validates:
-- ✅ PR title format (Jira key or conventional commits)
-- ✅ Jira reference in title or description
-- ✅ Issue linkage (Fixes #123)
-- ✅ Commit messages (warns if no Jira reference)
+> Note: The workflow currently triggers on any comment that contains the phrase `copilot-review`, so avoid mentioning it in other contexts unless you intend to start a review.
+### 7. Team Review & Merge
+Once approved, merge the PR. On merge:
+- Jira issue automatically transitions to **Done**
+- Branch is automatically deleted
 
 ---
 
-## 📝 Best Practices
+## What You Need to Remember
 
-### Commit Messages
+**Only the PR title matters for Jira integration.** Include `SPEAKLK-XXX:` in your PR title and everything else is automated.
 
-**Good:**
-```bash
-SPEAKIFY-123: Add user registration endpoint
-SPEAKIFY-456: Fix bug in login validation
-SPEAKIFY-789: Update API documentation
-```
-
-**Bad:**
-```bash
-Fixed bug                    # No Jira reference
-WIP                          # Not descriptive
-Update code                  # Too vague
-asdfasdf                     # Unprofessional
-```
-
-### Branch Names
-
-**Good:**
-```
-itzzjb/user-authentication
-itzzjb/fix-payment-bug
-itzzjb/update-readme
-```
-
-**Bad:**
-```
-feature                      # Too vague
-my-branch                    # Not descriptive
-temp                         # Unclear purpose
-```
-
-### Pull Requests
-
-**Before Creating PR:**
-- [ ] Code is tested and working
-- [ ] Jira issue key in title or description
-- [ ] GitHub issue linked (if exists)
-- [ ] No merge conflicts
-- [ ] Follows coding standards
-
-**PR Checklist:**
-- [ ] Title follows format (MEDEASE-XXX or conventional)
-- [ ] Description filled out completely
-- [ ] Jira reference included
-- [ ] Type of change selected
-- [ ] Self-review completed
+| | Required? |
+|---|---|
+| PR title has `SPEAKLK-XXX:` | **Yes** |
+| Branch name has Jira key | No |
+| Commit messages have Jira key | No |
+| PR body has Jira reference | No (auto-generated) |
+| Link GitHub issues | No |
 
 ---
 
-## 🚀 Smart Commits (Advanced)
+## PR Title Format
 
-Use Jira smart commits to take actions directly from GitHub:
+**Valid formats:**
+- `SPEAKLK-4: Create Gemini client utility`
+- `SPEAKLK-12: Fix chat streaming bug`
+- `feat(api): add user endpoint` (conventional commits)
+- `fix: resolve session timeout`
 
-### Add Comment to Jira:
-```bash
-git commit -m "SPEAKIFY-123 #comment Fixed the authentication issue"
-```
-
-### Log Work Time:
-```bash
-git commit -m "SPEAKIFY-123 #time 2h 30m Implementing auth logic"
-```
-
-### Close Jira Issue:
-```bash
-git commit -m "SPEAKIFY-123 #close Completed user authentication"
-```
-
-### Combine Multiple Actions:
-```bash
-git commit -m "SPEAKIFY-123 #comment Finished testing #time 1h #close"
-```
+**Invalid:**
+- `Added new feature` (missing Jira key or conventional prefix)
+- `SPEAKIFYLK-4` (missing colon and description)
 
 ---
 
-## 🎨 Code Style
+## Validation Checks
 
-### General Guidelines
-- Write clean, readable code
-- Follow language-specific conventions
-- Add comments for complex logic
-- Keep functions small and focused
+Our CI pipeline checks:
+- PR title format (`SPEAKLK-XXX:` or conventional commit)
+- Jira reference exists in title or body
 
-### File Organization
-- Keep related files together
-- Use clear, descriptive names
-- Maintain consistent structure
+If a check fails, update your PR title to include the Jira key.
 
 ---
 
-## 🧪 Testing
+## Code Review
 
-### Before Pushing:
-1. Test your changes locally
-2. Run existing tests
-3. Add new tests for new features
-4. Ensure all tests pass
+### AI Review
+Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot. It posts inline review comments on specific lines.
 
-### Test Checklist:
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
-- [ ] Edge cases considered
-
----
-
-## 🔍 Code Review
-
-### As Author:
+### Team Review
 - Keep PRs focused and small
 - Respond to feedback promptly
-- Update PR based on comments
 - Resolve conversations when addressed
-
-### As Reviewer:
-- Be constructive and respectful
-- Test the changes locally
-- Check for security issues
-- Verify Jira integration
 
 ---
 
-## 🛠️ Troubleshooting
+## Workflow Summary
 
-### PR Validation Failed?
-
-**Issue:** "PR title must follow conventional commit format"
-- **Fix:** Add Jira key: `SPEAKIFY-123: Your description`
-
-**Issue:** "PR must reference a Jira issue"
-- **Fix:** Add Jira reference in PR description:
-  ```markdown
-  **Jira Issue:** SPEAKIFY-123
-  ```
-
-**Issue:** "PR description must link to an issue"
-- **Fix:** Add `Fixes #123` in description
-
-### Commits Missing Jira Reference?
-
-You'll get a warning comment. While not blocking, it's best practice to include Jira keys.
-
-**To fix:**
-```bash
-# Amend last commit
-git commit --amend -m "SPEAKIFY-123: Your description"
-git push --force-with-lease
+```
+1. Pick Jira task        (SPEAKLK-4)
+2. Create branch         (yourname/feature-name)
+3. Write code & commit
+4. Push & open PR        (Title: "SPEAKLK-4: Description")
+5. Workflows auto-fill PR description + link to Jira
+6. Comment "copilot-review" for AI review
+7. Team reviews & approves
+8. Merge PR
+9. Jira auto-closes + branch auto-deleted
 ```
 
 ---
 
-## 📚 Resources
+## Troubleshooting
 
-### Documentation
+**"PR title must follow conventional commit format"**
+- Fix: Add Jira key to title: `SPEAKLK-4: Your description`
+
+**"PR must reference a Jira issue"**
+- Fix: Make sure `SPEAKLK-XXX` appears in your PR title
+
+**Jira issue didn't close after merge?**
+- Check the Jira board — it may need a manual transition if "Done" isn't available
+
+---
+
+## Resources
+
 - **Jira Board:** https://speakifylk.atlassian.net
 - **GitHub Repo:** https://github.com/speakifyLK/speakifyLK
 - **Conventional Commits:** https://www.conventionalcommits.org/
 
-### Need Help?
-- Ask in team chat
-- Comment on Jira issue
-- Tag reviewers in PR
-- Check existing PRs for examples
-
----
-
-## 🎯 Workflow Summary
-
-```
-1. Pick Jira task → SPEAKIFY-1
-2. Create branch → yourname/feature-name
-3. Write code
-4. Commit → "SPEAKIFY-1: Description"
-5. Push → git push
-6. Create PR → Title: "SPEAKIFY-1: Description"
-7. Fill template → Include Jira reference
-8. Wait for review
-9. Address feedback
-10. Merge!
-11. Jira updates automatically ✅
-```
-
----
-
-## ✅ Checklist Template
-
-Copy this for each task:
-
-```markdown
-- [ ] Jira task moved to "In Progress"
-- [ ] Branch created with proper name
-- [ ] Code written and tested
-- [ ] Commits include Jira reference
-- [ ] PR created with Jira key in title
-- [ ] PR template filled completely
-- [ ] All CI checks pass
-- [ ] Code reviewed and approved
-- [ ] PR merged
-- [ ] Branch deleted
-- [ ] Jira task moved to "Done"
-```
-
----
-
-**Happy Coding! 🚀**
-
-For questions or suggestions about this guide, create an issue or contact the team lead.
+For questions, contact the team lead.

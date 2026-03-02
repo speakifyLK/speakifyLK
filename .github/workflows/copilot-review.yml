@@ -1,0 +1,65 @@
+name: AI Code Review (Copilot)
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  copilot-review:
+    name: Request Copilot code review
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request
+      && (github.event.comment.author_association == 'OWNER'
+        || github.event.comment.author_association == 'MEMBER'
+        || github.event.comment.author_association == 'COLLABORATOR')
+      && startsWith(github.event.comment.body, '/copilot-review')
+    steps:
+      - name: Add rocket reaction to comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
+
+      - name: Request Copilot review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+
+            try {
+              // Request review from GitHub Copilot
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                reviewers: ['copilot']
+              });
+
+              console.log('Copilot review requested successfully');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: '**Copilot code review requested!** The review will appear shortly as a PR review.'
+              });
+            } catch (error) {
+              console.error('Failed to request Copilot review:', error.message);
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: '**Failed to request Copilot review.** Make sure Copilot code review is enabled in your repository settings.\n\nGo to: Repository Settings > Copilot > Code Review > Enable\n\nError: ' + error.message
+              });
+            }

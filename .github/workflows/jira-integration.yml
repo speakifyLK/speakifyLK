@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   sync-with-jira:
-    name: Sync PR with Jira using Claude
+    name: Sync PR with Jira
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,43 +19,54 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get PR diff
+      - name: Get PR diff stats
         id: diff
         run: |
           git fetch origin ${{ github.base_ref }}
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
-          # Truncate if too large (max 50KB for Claude)
-          if [ ${#DIFF} -gt 50000 ]; then
-            DIFF="${DIFF:0:50000}... (truncated)"
-          fi
-          echo "diff<<EOF" >> $GITHUB_OUTPUT
-          echo "$DIFF" >> $GITHUB_OUTPUT
+
+          # Get list of changed files
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Update PR with Claude
+          # Get diff stats (insertions/deletions per file)
+          STATS=$(git diff --stat origin/${{ github.base_ref }}...HEAD)
+          echo "stats<<EOF" >> $GITHUB_OUTPUT
+          echo "$STATS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Sync PR with Jira
         uses: actions/github-script@v7
         env:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
           JIRA_BASE_URL: 'https://speakifylk.atlassian.net'
           JIRA_EMAIL: 'desilvabethmin@gmail.com'
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          PR_DIFF: ${{ steps.diff.outputs.diff }}
+          PR_FILES: ${{ steps.diff.outputs.files }}
+          PR_STATS: ${{ steps.diff.outputs.stats }}
         with:
           script: |
             const title = context.payload.pull_request.title;
             const body = context.payload.pull_request.body || '';
             const prNumber = context.issue.number;
-            const prDiff = process.env.PR_DIFF || '';
+            const prFiles = process.env.PR_FILES || '';
+            const prStats = process.env.PR_STATS || '';
 
             console.log('=== Starting Jira-GitHub Integration ===');
 
-            // Check if both title has Jira format AND body has Jira reference section
-            const jiraTitlePattern = /^SPEAKIFY-\d+:/;
+            // Check if PR already has matching Jira title and description
+            const jiraTitleMatch = title.match(/^([A-Z][A-Z0-9]+-\d+):/);
             const jiraReferenceSection = /##\s*Jira Reference/i;
 
-            if (jiraTitlePattern.test(title) && jiraReferenceSection.test(body)) {
-              console.log('PR already has Jira title and description, skipping update');
-              return;
+            if (jiraTitleMatch && jiraReferenceSection.test(body)) {
+              // Only skip if the Jira key in title matches the one in the body
+              const titleKey = jiraTitleMatch[1];
+              const bodyKeyMatch = body.match(/[A-Z][A-Z0-9]+-\d+/);
+              if (bodyKeyMatch && bodyKeyMatch[0] === titleKey) {
+                console.log(`PR already synced with ${titleKey}, skipping update`);
+                return;
+              }
+              console.log(`Jira key changed (body has ${bodyKeyMatch?.[0]}, title has ${titleKey}), re-syncing...`);
             }
 
             // Extract issue references (Fixes #123, Closes #456, etc.)
@@ -64,7 +75,7 @@ jobs:
             const issueMatches = [...body.matchAll(issuePattern)];
 
             // Extract direct Jira references
-            const jiraPattern = /SPEAKIFY-\d+/g;
+            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/g;
             let jiraKeys = [...new Set((title + ' ' + body).match(jiraPattern) || [])];
 
             console.log(`Found ${issueMatches.length} GitHub issue references`);
@@ -109,10 +120,9 @@ jobs:
             const jiraToken = process.env.JIRA_API_TOKEN;
             const jiraEmail = process.env.JIRA_EMAIL;
             const jiraBaseUrl = process.env.JIRA_BASE_URL;
-            const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
             if (!jiraToken) {
-              console.log('⚠️ JIRA_API_TOKEN not configured, skipping Jira integration');
+              console.log('JIRA_API_TOKEN not configured, skipping Jira integration');
               return;
             }
 
@@ -162,7 +172,7 @@ jobs:
                   url: `${jiraBaseUrl}/browse/${jiraKey}`
                 });
 
-                console.log(`✅ Fetched ${jiraKey}: ${jiraIssue.fields.summary}`);
+                console.log(`Fetched ${jiraKey}: ${jiraIssue.fields.summary}`);
               } catch (error) {
                 console.error(`Failed to fetch ${jiraKey}: ${error.message}`);
               }
@@ -175,145 +185,61 @@ jobs:
 
             const primaryJira = jiraIssues[0];
 
-            // Use Claude to generate PR title and description
-            let generated;
-            if (anthropicKey) {
-              console.log('Generating PR content with Claude...');
+            // Build PR title and description from Jira + diff metadata
+            console.log('Generating PR content from Jira + diff metadata...');
 
-              try {
-                const claudePrompt = `You are a technical writer helping to create a pull request description.
+            // Determine action verb from Jira issue type
+            const typeVerb = {
+              'Story': 'Implement',
+              'Bug': 'Fix',
+              'Task': 'Add',
+              'Sub-task': 'Add',
+              'Epic': 'Implement'
+            };
+            const verb = typeVerb[primaryJira.type] || 'Update';
+            const generatedTitle = `${primaryJira.key}: ${verb} ${primaryJira.summary}`.substring(0, 72);
 
-                Jira Issue Details:
-                - Key: ${primaryJira.key}
-                - Summary: ${primaryJira.summary}
-                - Description: ${primaryJira.description}
-                - Type: ${primaryJira.type}
-                - Status: ${primaryJira.status}
-
-                Linked GitHub Issues:
-                ${linkedIssues.length > 0 ? linkedIssues.map(i => `- #${i.number}: ${i.title}`).join('\n') : 'None'}
-
-                Code Changes Summary:
-                ${prDiff.substring(0, 5000)}
-
-                Generate a concise, professional PR title and description following these rules:
-
-                PR Title Format:
-                - Start with: ${primaryJira.key}:
-                - Followed by a brief, clear summary of WHAT THIS PR ACTUALLY DOES (not the Jira issue title)
-                - Base the summary on the actual code changes shown above
-                - Use imperative mood (e.g., "Add", "Fix", "Update")
-                - Max 72 chars total
-                - Example: "SPEAKIFY-123: Add bidirectional Jira sync"
-
-                PR Description Format (NO code blocks, just plain markdown):
-                ## Description
-                [2-3 sentences describing what this PR does based on the actual code changes]
-
-                ## Jira Reference
-                - Issue: [${primaryJira.key}](${primaryJira.url})
-
-                ## Changes
-                - [Bullet point for each major change based on the diff]
-                - [Use the actual file changes and code modifications]
-                - [Be specific about what was added/modified]
-                ${linkedIssues.length > 0 ? `\n## Related Issues\nFixes #${linkedIssues[0].number}` : ''}
-
-                Return ONLY a JSON object with this exact structure:
-                {
-                "title": "SPEAKIFY-XXX: Brief summary based on actual changes",
-                "description": "Full markdown description without code blocks"
-                }`;
-
-                const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-                  method: 'POST',
-                  headers: {
-                    'x-api-key': anthropicKey,
-                    'anthropic-version': '2023-06-01',
-                    'content-type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    model: 'claude-sonnet-4-5-20250929',
-                    max_tokens: 2048,
-                    messages: [{
-                      role: 'user',
-                      content: claudePrompt
-                    }]
-                  })
-                });
-
-                if (!claudeResponse.ok) {
-                  const errorBody = await claudeResponse.text();
-                  console.error(`Claude API error ${claudeResponse.status}: ${errorBody}`);
-                  throw new Error(`Claude API returned ${claudeResponse.status}`);
-                }
-
-                const claudeData = await claudeResponse.json();
-                const claudeText = claudeData.content[0].text;
-
-                // Extract JSON from response (handle markdown code blocks)
-                let jsonMatch = claudeText.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                  throw new Error('No JSON found in Claude response');
-                }
-
-                generated = JSON.parse(jsonMatch[0]);
-
-                console.log('✅ Claude generated:');
-                console.log('Title:', generated.title);
-                console.log('Description length:', generated.description.length);
-
-                // Update PR
-                await github.rest.pulls.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                  title: generated.title,
-                  body: generated.description
-                });
-
-                console.log('✅ Updated PR title and description');
-
-              } catch (error) {
-                console.error(`Claude generation failed: ${error.message}`);
-
-                // Fallback: Use template-based description
-                let fallbackDescription = `## Description\n${primaryJira.summary}\n\n## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n\n## Description from Jira\n${primaryJira.description}`;
-
-                if (linkedIssues.length > 0) {
-                  fallbackDescription += `\n\n## Related Issues\nFixes #${linkedIssues[0].number}`;
-                }
-
-                await github.rest.pulls.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                  title: `${primaryJira.key}: ${primaryJira.summary}`,
-                  body: fallbackDescription
-                });
-
-                console.log('✅ Updated PR with fallback template');
-              }
-            } else {
-              console.log('⚠️ ANTHROPIC_API_KEY not configured, using fallback');
-
-              // Fallback without Claude
-              let fallbackDescription = `## Description\n${primaryJira.summary}\n\n## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n\n## Description from Jira\n${primaryJira.description}`;
-
-              if (linkedIssues.length > 0) {
-                fallbackDescription += `\n\n## Related Issues\nFixes #${linkedIssues[0].number}`;
-              }
-
-              await github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                title: `${primaryJira.key}: ${primaryJira.summary}`,
-                body: fallbackDescription
-              });
-
-              console.log('✅ Updated PR with template');
+            // Parse changed files into categories
+            const fileList = prFiles.split('\n').filter(f => f.trim());
+            const filesByDir = {};
+            for (const file of fileList) {
+              const dir = file.includes('/') ? file.split('/').slice(0, 2).join('/') : '.';
+              if (!filesByDir[dir]) filesByDir[dir] = [];
+              filesByDir[dir].push(file.split('/').pop());
             }
+
+            // Build changes list from file categories
+            const changeLines = Object.entries(filesByDir)
+              .slice(0, 8)
+              .map(([dir, files]) => {
+                if (files.length <= 2) {
+                  return files.map(f => `- Modified \`${dir}/${f}\``).join('\n');
+                }
+                return `- Updated ${files.length} files in \`${dir}/\``;
+              })
+              .join('\n');
+
+            let generatedDescription = `## Description\n${primaryJira.summary}\n\n`;
+            generatedDescription += `## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n- Type: ${primaryJira.type}\n- Status: ${primaryJira.status}\n\n`;
+
+            if (primaryJira.description && primaryJira.description !== 'No description') {
+              generatedDescription += `## Task Details\n${primaryJira.description}\n\n`;
+            }
+
+            if (linkedIssues.length > 0) {
+              generatedDescription += `## Related Issues\nFixes #${linkedIssues[0].number}\n`;
+            }
+
+            // Update PR title and description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              title: generatedTitle,
+              body: generatedDescription
+            });
+
+            console.log('Updated PR title and description');
 
             // Add jira-linked label
             try {
@@ -351,11 +277,6 @@ jobs:
                       content: [
                         {
                           type: 'text',
-                          text: '🔗 ',
-                          marks: []
-                        },
-                        {
-                          type: 'text',
                           text: 'GitHub Pull Request',
                           marks: [{ type: 'strong' }]
                         }
@@ -371,7 +292,7 @@ jobs:
                         },
                         {
                           type: 'text',
-                          text: generated?.title || title,
+                          text: generatedTitle,
                           marks: [{ type: 'link', attrs: { href: prUrl } }]
                         }
                       ]
@@ -411,7 +332,7 @@ jobs:
               });
 
               if (jiraCommentResponse.ok) {
-                console.log(`✅ Added PR link to Jira issue ${primaryJira.key}`);
+                console.log(`Added PR link to Jira issue ${primaryJira.key}`);
               } else {
                 const errorText = await jiraCommentResponse.text();
                 console.error(`Failed to add Jira comment: ${jiraCommentResponse.status} - ${errorText}`);
@@ -420,7 +341,7 @@ jobs:
               console.error(`Error adding Jira comment: ${error.message}`);
             }
 
-            console.log('✅ Jira integration complete');
+            console.log('Jira integration complete');
 
   validate-commits:
     name: Validate commit messages
@@ -436,7 +357,7 @@ jobs:
               pull_number: context.issue.number,
             });
 
-            const jiraPattern = /SPEAKIFY-\d+/;
+            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
             const invalidCommits = [];
 
             for (const commit of commits) {
