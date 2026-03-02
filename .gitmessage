@@ -1,0 +1,16 @@
+# SPEAKIFY-XXX: Brief summary (50 chars or less)
+
+# More detailed explanation if needed (wrap at 72 chars)
+# - What changed and why
+# - Any side effects or implications
+# - Related issues or dependencies
+
+# Jira smart commits (optional):
+# #comment <your comment>
+# #time <time spent>
+# #close (closes the Jira issue)
+
+# Examples:
+# SPEAKIFY-123: Add user authentication endpoint
+# SPEAKIFY-456: Fix payment validation bug #time 2h
+# SPEAKIFY-789: Update README documentation #comment Added setup instructions

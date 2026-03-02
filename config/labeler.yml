@@ -1,0 +1,91 @@
+# Frontend changes (UI, components, app routes)
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'app/**/*'
+      - 'components/**/*'
+      - 'public/**/*'
+      - 'store/**/*'
+      - 'tailwind.config.ts'
+      - '**/*.jsx'
+      - '**/*.tsx'
+
+# Backend changes (server actions, utilities, middleware)
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'actions/**/*'
+      - 'lib/**/*'
+      - 'middleware.ts'
+      - 'scripts/**/*'
+      - 'constants.ts'
+      - 'environment.d.ts'
+
+# Terraform/Infrastructure changes
+terraform:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'terraform/**/*'
+      - 'infrastructure/**/*'
+      - '**/*.tf'
+      - '**/*.tfvars'
+
+# Documentation changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+# Database changes (Drizzle ORM)
+database:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'db/**/*'
+      - 'drizzle.config.ts'
+      - '**/migrations/**/*'
+
+# API changes (Next.js API routes)
+api:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'app/api/**/*'
+
+# CI/CD changes
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - 'Dockerfile*'
+      - 'docker-compose*.yml'
+      - 'vercel.ts'
+      - 'eslint.config.mjs'
+
+# Build system changes
+build:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'next.config.ts'
+      - 'tsconfig.json'
+      - 'postcss.config.js'
+
+# Testing changes
+testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.test.*'
+      - '**/*.spec.*'
+      - '**/tests/**/*'
+      - '**/test/**/*'
+
+# Dependency changes
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/package.json'
+      - '**/package-lock.json'
+      - '**/bun.lock'
+      - '**/yarn.lock'
+      - '**/pnpm-lock.yaml'

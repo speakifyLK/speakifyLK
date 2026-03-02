@@ -39,3 +39,6 @@ next-env.d.ts
 # testing tools
 /ngrok
 /stripe
+
+# clerk configuration (can include secrets)
+/.clerk/

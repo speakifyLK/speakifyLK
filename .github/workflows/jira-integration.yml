@@ -1,0 +1,458 @@
+name: Jira Integration
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  pull-requests: write
+  contents: read
+  issues: write
+
+jobs:
+  sync-with-jira:
+    name: Sync PR with Jira using Claude
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
+          # Truncate if too large (max 50KB for Claude)
+          if [ ${#DIFF} -gt 50000 ]; then
+            DIFF="${DIFF:0:50000}... (truncated)"
+          fi
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update PR with Claude
+        uses: actions/github-script@v7
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
+          JIRA_BASE_URL: 'https://speakifylk.atlassian.net'
+          JIRA_EMAIL: 'desilvabethmin@gmail.com'
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_DIFF: ${{ steps.diff.outputs.diff }}
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const body = context.payload.pull_request.body || '';
+            const prNumber = context.issue.number;
+            const prDiff = process.env.PR_DIFF || '';
+
+            console.log('=== Starting Jira-GitHub Integration ===');
+
+            // Check if both title has Jira format AND body has Jira reference section
+            const jiraTitlePattern = /^SPEAKIFY-\d+:/;
+            const jiraReferenceSection = /##\s*Jira Reference/i;
+
+            if (jiraTitlePattern.test(title) && jiraReferenceSection.test(body)) {
+              console.log('PR already has Jira title and description, skipping update');
+              return;
+            }
+
+            // Extract issue references (Fixes #123, Closes #456, etc.)
+            const issueKeywords = ['fixes', 'closes', 'resolves', 'fix', 'close', 'resolve'];
+            const issuePattern = new RegExp(`(${issueKeywords.join('|')})\\s+#(\\d+)`, 'gi');
+            const issueMatches = [...body.matchAll(issuePattern)];
+
+            // Extract direct Jira references
+            const jiraPattern = /SPEAKIFY-\d+/g;
+            let jiraKeys = [...new Set((title + ' ' + body).match(jiraPattern) || [])];
+
+            console.log(`Found ${issueMatches.length} GitHub issue references`);
+            console.log(`Found ${jiraKeys.length} direct Jira references`);
+
+            // Fetch linked GitHub issues to extract Jira references
+            let linkedIssues = [];
+            for (const match of issueMatches) {
+              const issueNumber = match[2];
+              console.log(`Fetching GitHub issue #${issueNumber}...`);
+
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: parseInt(issueNumber)
+                });
+
+                linkedIssues.push({
+                  number: issueNumber,
+                  title: issue.title,
+                  body: issue.body || ''
+                });
+
+                // Extract Jira key from issue title or body
+                const issueJiraKeys = (issue.title + ' ' + issue.body).match(jiraPattern) || [];
+                jiraKeys = [...new Set([...jiraKeys, ...issueJiraKeys])];
+                console.log(`Found Jira keys in issue #${issueNumber}: ${issueJiraKeys.join(', ')}`);
+              } catch (error) {
+                console.error(`Failed to fetch issue #${issueNumber}: ${error.message}`);
+              }
+            }
+
+            if (jiraKeys.length === 0) {
+              console.log('No Jira reference found, skipping Jira integration');
+              return;
+            }
+
+            console.log(`Processing Jira keys: ${jiraKeys.join(', ')}`);
+
+            // Fetch Jira issue details
+            const jiraToken = process.env.JIRA_API_TOKEN;
+            const jiraEmail = process.env.JIRA_EMAIL;
+            const jiraBaseUrl = process.env.JIRA_BASE_URL;
+            const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+            if (!jiraToken) {
+              console.log('⚠️ JIRA_API_TOKEN not configured, skipping Jira integration');
+              return;
+            }
+
+            const authHeader = Buffer.from(`${jiraEmail}:${jiraToken}`).toString('base64');
+
+            // Fetch details for all Jira issues
+            let jiraIssues = [];
+            for (const jiraKey of jiraKeys) {
+              console.log(`Fetching Jira details for ${jiraKey}...`);
+
+              try {
+                const jiraResponse = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${jiraKey}`, {
+                  headers: {
+                    'Authorization': `Basic ${authHeader}`,
+                    'Accept': 'application/json'
+                  }
+                });
+
+                if (!jiraResponse.ok) {
+                  throw new Error(`Jira API returned ${jiraResponse.status}`);
+                }
+
+                const jiraIssue = await jiraResponse.json();
+
+                // Extract description text from ADF format
+                let description = 'No description';
+                if (jiraIssue.fields.description?.content) {
+                  const textParts = [];
+                  const extractText = (node) => {
+                    if (node.type === 'text' && node.text) {
+                      textParts.push(node.text);
+                    }
+                    if (node.content) {
+                      node.content.forEach(extractText);
+                    }
+                  };
+                  jiraIssue.fields.description.content.forEach(extractText);
+                  description = textParts.join(' ').trim();
+                }
+
+                jiraIssues.push({
+                  key: jiraKey,
+                  summary: jiraIssue.fields.summary,
+                  description: description,
+                  status: jiraIssue.fields.status.name,
+                  type: jiraIssue.fields.issuetype.name,
+                  url: `${jiraBaseUrl}/browse/${jiraKey}`
+                });
+
+                console.log(`✅ Fetched ${jiraKey}: ${jiraIssue.fields.summary}`);
+              } catch (error) {
+                console.error(`Failed to fetch ${jiraKey}: ${error.message}`);
+              }
+            }
+
+            if (jiraIssues.length === 0) {
+              core.setFailed('Failed to fetch Jira details');
+              return;
+            }
+
+            const primaryJira = jiraIssues[0];
+
+            // Use Claude to generate PR title and description
+            let generated;
+            if (anthropicKey) {
+              console.log('Generating PR content with Claude...');
+
+              try {
+                const claudePrompt = `You are a technical writer helping to create a pull request description.
+
+                Jira Issue Details:
+                - Key: ${primaryJira.key}
+                - Summary: ${primaryJira.summary}
+                - Description: ${primaryJira.description}
+                - Type: ${primaryJira.type}
+                - Status: ${primaryJira.status}
+
+                Linked GitHub Issues:
+                ${linkedIssues.length > 0 ? linkedIssues.map(i => `- #${i.number}: ${i.title}`).join('\n') : 'None'}
+
+                Code Changes Summary:
+                ${prDiff.substring(0, 5000)}
+
+                Generate a concise, professional PR title and description following these rules:
+
+                PR Title Format:
+                - Start with: ${primaryJira.key}:
+                - Followed by a brief, clear summary of WHAT THIS PR ACTUALLY DOES (not the Jira issue title)
+                - Base the summary on the actual code changes shown above
+                - Use imperative mood (e.g., "Add", "Fix", "Update")
+                - Max 72 chars total
+                - Example: "SPEAKIFY-123: Add bidirectional Jira sync"
+
+                PR Description Format (NO code blocks, just plain markdown):
+                ## Description
+                [2-3 sentences describing what this PR does based on the actual code changes]
+
+                ## Jira Reference
+                - Issue: [${primaryJira.key}](${primaryJira.url})
+
+                ## Changes
+                - [Bullet point for each major change based on the diff]
+                - [Use the actual file changes and code modifications]
+                - [Be specific about what was added/modified]
+                ${linkedIssues.length > 0 ? `\n## Related Issues\nFixes #${linkedIssues[0].number}` : ''}
+
+                Return ONLY a JSON object with this exact structure:
+                {
+                "title": "SPEAKIFY-XXX: Brief summary based on actual changes",
+                "description": "Full markdown description without code blocks"
+                }`;
+
+                const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                  method: 'POST',
+                  headers: {
+                    'x-api-key': anthropicKey,
+                    'anthropic-version': '2023-06-01',
+                    'content-type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    model: 'claude-sonnet-4-5-20250929',
+                    max_tokens: 2048,
+                    messages: [{
+                      role: 'user',
+                      content: claudePrompt
+                    }]
+                  })
+                });
+
+                if (!claudeResponse.ok) {
+                  const errorBody = await claudeResponse.text();
+                  console.error(`Claude API error ${claudeResponse.status}: ${errorBody}`);
+                  throw new Error(`Claude API returned ${claudeResponse.status}`);
+                }
+
+                const claudeData = await claudeResponse.json();
+                const claudeText = claudeData.content[0].text;
+
+                // Extract JSON from response (handle markdown code blocks)
+                let jsonMatch = claudeText.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) {
+                  throw new Error('No JSON found in Claude response');
+                }
+
+                generated = JSON.parse(jsonMatch[0]);
+
+                console.log('✅ Claude generated:');
+                console.log('Title:', generated.title);
+                console.log('Description length:', generated.description.length);
+
+                // Update PR
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  title: generated.title,
+                  body: generated.description
+                });
+
+                console.log('✅ Updated PR title and description');
+
+              } catch (error) {
+                console.error(`Claude generation failed: ${error.message}`);
+
+                // Fallback: Use template-based description
+                let fallbackDescription = `## Description\n${primaryJira.summary}\n\n## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n\n## Description from Jira\n${primaryJira.description}`;
+
+                if (linkedIssues.length > 0) {
+                  fallbackDescription += `\n\n## Related Issues\nFixes #${linkedIssues[0].number}`;
+                }
+
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  title: `${primaryJira.key}: ${primaryJira.summary}`,
+                  body: fallbackDescription
+                });
+
+                console.log('✅ Updated PR with fallback template');
+              }
+            } else {
+              console.log('⚠️ ANTHROPIC_API_KEY not configured, using fallback');
+
+              // Fallback without Claude
+              let fallbackDescription = `## Description\n${primaryJira.summary}\n\n## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n\n## Description from Jira\n${primaryJira.description}`;
+
+              if (linkedIssues.length > 0) {
+                fallbackDescription += `\n\n## Related Issues\nFixes #${linkedIssues[0].number}`;
+              }
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                title: `${primaryJira.key}: ${primaryJira.summary}`,
+                body: fallbackDescription
+              });
+
+              console.log('✅ Updated PR with template');
+            }
+
+            // Add jira-linked label
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'jira-linked',
+                color: '0366d6',
+                description: 'PR is linked to a Jira issue'
+              });
+            } catch (error) {
+              // Label exists
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['jira-linked']
+            });
+
+            // Add comment to Jira issue linking the PR
+            console.log('Adding PR link to Jira issue...');
+            try {
+              const prUrl = context.payload.pull_request.html_url;
+              const prAuthor = context.payload.pull_request.user.login;
+
+              const jiraComment = {
+                body: {
+                  version: 1,
+                  type: 'doc',
+                  content: [
+                    {
+                      type: 'paragraph',
+                      content: [
+                        {
+                          type: 'text',
+                          text: '🔗 ',
+                          marks: []
+                        },
+                        {
+                          type: 'text',
+                          text: 'GitHub Pull Request',
+                          marks: [{ type: 'strong' }]
+                        }
+                      ]
+                    },
+                    {
+                      type: 'paragraph',
+                      content: [
+                        {
+                          type: 'text',
+                          text: `PR #${prNumber}: `,
+                          marks: []
+                        },
+                        {
+                          type: 'text',
+                          text: generated?.title || title,
+                          marks: [{ type: 'link', attrs: { href: prUrl } }]
+                        }
+                      ]
+                    },
+                    {
+                      type: 'paragraph',
+                      content: [
+                        {
+                          type: 'text',
+                          text: `Author: @${prAuthor}`,
+                          marks: []
+                        }
+                      ]
+                    },
+                    {
+                      type: 'paragraph',
+                      content: [
+                        {
+                          type: 'text',
+                          text: `Status: ${context.payload.pull_request.state}`,
+                          marks: []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              };
+
+              const jiraCommentResponse = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${primaryJira.key}/comment`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Basic ${authHeader}`,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jiraComment)
+              });
+
+              if (jiraCommentResponse.ok) {
+                console.log(`✅ Added PR link to Jira issue ${primaryJira.key}`);
+              } else {
+                const errorText = await jiraCommentResponse.text();
+                console.error(`Failed to add Jira comment: ${jiraCommentResponse.status} - ${errorText}`);
+              }
+            } catch (error) {
+              console.error(`Error adding Jira comment: ${error.message}`);
+            }
+
+            console.log('✅ Jira integration complete');
+
+  validate-commits:
+    name: Validate commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commits for Jira references
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const jiraPattern = /SPEAKIFY-\d+/;
+            const invalidCommits = [];
+
+            for (const commit of commits) {
+              const message = commit.commit.message;
+              const firstLine = message.split('\n')[0];
+
+              // Skip merge commits
+              if (firstLine.startsWith('Merge ')) {
+                continue;
+              }
+
+              if (!jiraPattern.test(firstLine)) {
+                invalidCommits.push(`❌ \`${commit.sha.substring(0, 7)}\`: ${firstLine.substring(0, 60)}...`);
+              }
+            }
+
+            if (invalidCommits.length > 0) {
+              console.log(`Found ${invalidCommits.length} commits without Jira references`);
+            }

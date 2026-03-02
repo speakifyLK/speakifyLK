@@ -1,5 +1,5 @@
 {
-  "name": "duolingo-clone",
+  "name": "speakify",
   "version": "1.0.1",
   "private": true,
   "scripts": {
@@ -22,16 +22,17 @@
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
-		"@vercel/config": "^0.0.33",
+    "@tanstack/react-query": "^5.90.21",
+    "@vercel/config": "^0.0.33",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "lucide-react": "^0.575.0",
     "next": "^15.5.10",
-    "ra-data-simple-rest": "^5.14.2",
+    "ra-data-simple-rest": "^5.14.3",
     "react": "^19.2.4",
-    "react-admin": "^4.16.20",
+    "react-admin": "^5.14.3",
     "react-circular-progressbar": "^2.2.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.2.4",
@@ -61,9 +62,9 @@
     "typescript": "^5"
   },
   "author": {
-    "name": "Sanidhya Kumar Verma",
-    "email": "sanidhya.verma12345@gmail.com",
-    "url": "https://github.com/sanidhyy"
+    "name": "SpeakifyLK",
+    "email": "speakifylk@gmail.com",
+    "url": "https://github.com/speakifyLK"
   },
   "description": "Interactive platform for language learning with lessons, quizzes, and progress tracking.",
   "keywords": [
@@ -71,14 +72,14 @@
     "nextjs",
     "vercel",
     "react",
-    "duolingo-clone",
+    "Speakify",
     "learn-language",
     "shadcn",
     "shadcn-ui",
     "radix-ui",
     "cn",
     "clsx",
-    "lingo",
+    "speakify",
     "postgresql",
     "sonner",
     "drizzle",
@@ -103,21 +104,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sanidhyy/duolingo-clone.git"
+    "url": "https://github.com/speakifyLK/speakifyLK"
   },
-  "homepage": "https://github.com/sanidhyy/duolingo-clone#readme",
+  "homepage": "https://github.com/speakifyLK/speakifyLK#readme",
   "bugs": {
-    "url": "https://github.com/sanidhyy/duolingo-clone/issues",
-    "email": "sanidhya.verma12345@gmail.com"
-  },
-  "funding": [
-    {
-      "type": "patreon",
-      "url": "https://www.patreon.com/sanidhy"
-    },
-    {
-      "type": "Buy me a coffee",
-      "url": "https://www.buymeacoffee.com/sanidhy"
-    }
-  ]
+    "url": "https://github.com/speakifyLK/speakifyLK/issues",
+    "email": "speakifylk@gmail.com"
+  }
 }

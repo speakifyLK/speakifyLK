@@ -1,0 +1,282 @@
+name: Close Jira on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  pull-requests: read
+  issues: read
+
+jobs:
+  close-jira-issue:
+    name: Close Jira issue when PR merged
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Extract and close Jira issues
+        uses: actions/github-script@v7
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
+          JIRA_BASE_URL: 'https://speakifylk.atlassian.net'
+          JIRA_EMAIL: 'desilvabethmin@gmail.com'
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const body = context.payload.pull_request.body || '';
+            const prNumber = context.issue.number;
+            const prUrl = context.payload.pull_request.html_url;
+            const mergedBy = context.payload.pull_request.merged_by?.login || 'Unknown';
+
+            console.log('=== PR Merged - Closing Jira Issues ===');
+            console.log(`PR #${prNumber}: ${title}`);
+            console.log(`Merged by: ${mergedBy}`);
+
+            // Extract issue references
+            const issueKeywords = ['fixes', 'closes', 'resolves', 'fix', 'close', 'resolve'];
+            const issuePattern = new RegExp(`(${issueKeywords.join('|')})\\s+#(\\d+)`, 'gi');
+            const issueMatches = [...body.matchAll(issuePattern)];
+
+            // Extract direct Jira references
+            const jiraPattern = /SPEAKIFY-\d+/g;
+            let jiraKeys = [...new Set((title + ' ' + body).match(jiraPattern) || [])];
+
+            // Fetch linked GitHub issues to extract Jira references
+            for (const match of issueMatches) {
+              const issueNumber = match[2];
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: parseInt(issueNumber)
+                });
+
+                const issueJiraKeys = (issue.title + ' ' + issue.body).match(jiraPattern) || [];
+                jiraKeys = [...new Set([...jiraKeys, ...issueJiraKeys])];
+              } catch (error) {
+                console.error(`Failed to fetch issue #${issueNumber}: ${error.message}`);
+              }
+            }
+
+            if (jiraKeys.length === 0) {
+              console.log('No Jira issues found to close');
+              return;
+            }
+
+            console.log(`Found Jira issues to close: ${jiraKeys.join(', ')}`);
+
+            const jiraToken = process.env.JIRA_API_TOKEN;
+            const jiraEmail = process.env.JIRA_EMAIL;
+            const jiraBaseUrl = process.env.JIRA_BASE_URL;
+
+            if (!jiraToken) {
+              console.log('⚠️ JIRA_API_TOKEN not configured');
+              return;
+            }
+
+            const authHeader = Buffer.from(`${jiraEmail}:${jiraToken}`).toString('base64');
+
+            // Close each Jira issue
+            for (const jiraKey of jiraKeys) {
+              try {
+                console.log(`Processing ${jiraKey}...`);
+
+                // First, get available transitions for the issue
+                const transitionsResponse = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${jiraKey}/transitions`, {
+                  headers: {
+                    'Authorization': `Basic ${authHeader}`,
+                    'Accept': 'application/json'
+                  }
+                });
+
+                if (!transitionsResponse.ok) {
+                  throw new Error(`Failed to get transitions: ${transitionsResponse.status}`);
+                }
+
+                const transitionsData = await transitionsResponse.json();
+                const transitions = transitionsData.transitions;
+
+                console.log(`Available transitions for ${jiraKey}:`, transitions.map(t => `${t.id}: ${t.name}`).join(', '));
+
+                // Find "Done" or "Closed" transition
+                const doneTransition = transitions.find(t =>
+                  t.name.toLowerCase() === 'done' ||
+                  t.name.toLowerCase() === 'closed' ||
+                  t.name.toLowerCase() === 'close' ||
+                  t.to?.name?.toLowerCase() === 'done' ||
+                  t.to?.name?.toLowerCase() === 'closed'
+                );
+
+                if (!doneTransition) {
+                  console.log(`⚠️ No "Done" or "Closed" transition available for ${jiraKey}`);
+                  console.log('Available transitions:', transitions.map(t => t.name).join(', '));
+
+                  // Add comment instead
+                  const commentBody = {
+                    body: {
+                      version: 1,
+                      type: 'doc',
+                      content: [
+                        {
+                          type: 'paragraph',
+                          content: [
+                            {
+                              type: 'text',
+                              text: '✅ ',
+                              marks: []
+                            },
+                            {
+                              type: 'text',
+                              text: 'Pull Request Merged',
+                              marks: [{ type: 'strong' }]
+                            }
+                          ]
+                        },
+                        {
+                          type: 'paragraph',
+                          content: [
+                            {
+                              type: 'text',
+                              text: `PR #${prNumber} has been merged by @${mergedBy}.`,
+                              marks: []
+                            }
+                          ]
+                        },
+                        {
+                          type: 'paragraph',
+                          content: [
+                            {
+                              type: 'text',
+                              text: 'View PR: ',
+                              marks: []
+                            },
+                            {
+                              type: 'text',
+                              text: prUrl,
+                              marks: [{ type: 'link', attrs: { href: prUrl } }]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  };
+
+                  const commentResponse = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${jiraKey}/comment`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Basic ${authHeader}`,
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(commentBody)
+                  });
+
+                  if (commentResponse.ok) {
+                    console.log(`✅ Added merge notification to ${jiraKey}`);
+                  }
+
+                  continue;
+                }
+
+                console.log(`Using transition: ${doneTransition.name} (ID: ${doneTransition.id})`);
+
+                // Transition the issue to Done
+                const transitionPayload = {
+                  transition: {
+                    id: doneTransition.id
+                  },
+                  update: {
+                    comment: [
+                      {
+                        add: {
+                          body: {
+                            version: 1,
+                            type: 'doc',
+                            content: [
+                              {
+                                type: 'paragraph',
+                                content: [
+                                  {
+                                    type: 'text',
+                                    text: '✅ ',
+                                    marks: []
+                                  },
+                                  {
+                                    type: 'text',
+                                    text: 'Automatically closed by merged PR',
+                                    marks: [{ type: 'strong' }]
+                                  }
+                                ]
+                              },
+                              {
+                                type: 'paragraph',
+                                content: [
+                                  {
+                                    type: 'text',
+                                    text: `PR #${prNumber} was merged by @${mergedBy}.`,
+                                    marks: []
+                                  }
+                                ]
+                              },
+                              {
+                                type: 'paragraph',
+                                content: [
+                                  {
+                                    type: 'text',
+                                    text: 'View PR: ',
+                                    marks: []
+                                  },
+                                  {
+                                    type: 'text',
+                                    text: prUrl,
+                                    marks: [{ type: 'link', attrs: { href: prUrl } }]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                };
+
+                const transitionResult = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${jiraKey}/transitions`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Basic ${authHeader}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(transitionPayload)
+                });
+
+                if (transitionResult.ok) {
+                  console.log(`✅ Successfully closed ${jiraKey}`);
+
+                  // Add success comment to PR
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    body: `✅ **Jira issue [${jiraKey}](${jiraBaseUrl}/browse/${jiraKey}) automatically closed**`
+                  });
+                } else {
+                  const errorText = await transitionResult.text();
+                  console.error(`Failed to transition ${jiraKey}: ${transitionResult.status} - ${errorText}`);
+
+                  // Add comment about the attempt
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    body: `⚠️ Could not automatically close [${jiraKey}](${jiraBaseUrl}/browse/${jiraKey}). Please close it manually.`
+                  });
+                }
+
+              } catch (error) {
+                console.error(`Error processing ${jiraKey}: ${error.message}`);
+              }
+            }
+
+            console.log('✅ Jira close automation complete');
