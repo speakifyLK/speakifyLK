@@ -46,7 +46,9 @@ jobs:
       github.event.action == 'opened' &&
       github.event.pull_request.draft == false &&
       github.event.pull_request.user.login != 'dependabot[bot]' &&
-      !startsWith(github.event.pull_request.head.ref, 'dependabot/')
+      !startsWith(github.event.pull_request.head.ref, 'dependabot/') &&
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      !startsWith(github.event.pull_request.head.ref, 'bot/')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -630,7 +632,9 @@ jobs:
     if: >-
       github.event_name == 'pull_request' &&
       github.event.action == 'reopened' &&
-      github.event.pull_request.user.login != 'dependabot[bot]'
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      !startsWith(github.event.pull_request.head.ref, 'bot/')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
