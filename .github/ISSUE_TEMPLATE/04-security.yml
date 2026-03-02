@@ -12,3 +12,9 @@ body:
       description: Describe the security concern. For sensitive vulnerabilities, consider using private disclosure instead.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop non-sensitive screenshots or evidence here. Do NOT include secrets, tokens, logs with PII, or customer data. For any sensitive artifacts, use the private disclosure process mentioned above instead of attaching them here.

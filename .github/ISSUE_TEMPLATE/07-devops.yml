@@ -12,3 +12,9 @@ body:
       description: Explain the DevOps issue or what needs to be changed.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any logs, screenshots, or files here.

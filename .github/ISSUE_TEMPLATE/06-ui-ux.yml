@@ -12,3 +12,9 @@ body:
       description: Explain the UI/UX issue and any suggestions for improvement.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any screenshots, recordings, or mockups here.
