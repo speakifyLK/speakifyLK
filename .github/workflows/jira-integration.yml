@@ -55,7 +55,7 @@ jobs:
             console.log('=== Starting Jira-GitHub Integration ===');
 
             // Check if both title has Jira format AND body has Jira reference section
-            const jiraTitlePattern = /^SPEAKIFYLK-\d+:/;
+            const jiraTitlePattern = /^TES-\d+:/;
             const jiraReferenceSection = /##\s*Jira Reference/i;
 
             if (jiraTitlePattern.test(title) && jiraReferenceSection.test(body)) {
@@ -69,7 +69,7 @@ jobs:
             const issueMatches = [...body.matchAll(issuePattern)];
 
             // Extract direct Jira references
-            const jiraPattern = /SPEAKIFYLK-\d+/g;
+            const jiraPattern = /TES-\d+/g;
             let jiraKeys = [...new Set((title + ' ' + body).match(jiraPattern) || [])];
 
             console.log(`Found ${issueMatches.length} GitHub issue references`);
@@ -359,7 +359,7 @@ jobs:
               pull_number: context.issue.number,
             });
 
-            const jiraPattern = /SPEAKIFYLK-\d+/;
+            const jiraPattern = /TES-\d+/;
             const invalidCommits = [];
 
             for (const commit of commits) {

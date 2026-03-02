@@ -38,7 +38,7 @@ jobs:
             const issueMatches = [...body.matchAll(issuePattern)];
 
             // Extract direct Jira references
-            const jiraPattern = /SPEAKIFYLK-\d+/g;
+            const jiraPattern = /TES-\d+/g;
             let jiraKeys = [...new Set((title + ' ' + body).match(jiraPattern) || [])];
 
             // Fetch linked GitHub issues to extract Jira references
