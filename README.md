@@ -79,6 +79,8 @@ speakify/
     |-- drizzle.ts
     |-- queries.ts
     |-- schema.ts
+  |- jira/
+    |-- jira.js
   |- lib/
     |-- admin.ts
     |-- stripe.ts
