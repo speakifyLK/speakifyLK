@@ -1,5 +1,6 @@
 "use client";
 
+import { QueryClient } from "@tanstack/react-query";
 import simpleRestProvider from "ra-data-simple-rest";
 import { Admin, Resource } from "react-admin";
 
@@ -21,9 +22,18 @@ import { UnitList } from "./unit/list";
 
 const dataProvider = simpleRestProvider("/api");
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
+
 const AppContent = () => {
   return (
-    <Admin dataProvider={dataProvider}>
+    <Admin dataProvider={dataProvider} queryClient={queryClient}>
       <Resource
         name="courses"
         recordRepresentation="title"
