@@ -12,3 +12,9 @@ body:
       description: Explain the performance issue and any relevant metrics.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any screenshots, profiling data, or files here.

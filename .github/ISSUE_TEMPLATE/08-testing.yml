@@ -12,3 +12,9 @@ body:
       description: Explain the testing issue or what needs test coverage.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any screenshots, test output, or files here.

@@ -12,3 +12,9 @@ body:
       description: Explain the bug and any steps to reproduce it.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any screenshots, recordings, or files here.

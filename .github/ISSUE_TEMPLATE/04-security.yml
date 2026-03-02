@@ -12,3 +12,9 @@ body:
       description: Describe the security concern. For sensitive vulnerabilities, consider using private disclosure instead.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any screenshots or evidence here.
