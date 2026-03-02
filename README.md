@@ -72,6 +72,9 @@ speakify/
     |-- user-progress.tsx
   |- config/
     |-- index.ts
+    |-- labeler.yml
+    |-- labels.yml
+    |-- prettier.json
   |- db/
     |-- drizzle.ts
     |-- queries.ts
@@ -90,6 +93,7 @@ speakify/
   |- .env.example
   |- .env/.env.local
   |- .gitignore
+  |- .gitmessage
   |- .prettierrc.json
   |- bun.lock
   |- components.json
