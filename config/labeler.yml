@@ -1,0 +1,81 @@
+# Frontend changes
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'frontend/**/*'
+      - 'client/**/*'
+      - '**/*.jsx'
+      - '**/*.tsx'
+
+# Backend changes
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'backend/**/*'
+      - 'server/**/*'
+      - 'api/**/*'
+
+# Terraform/Infrastructure changes
+terraform:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'terraform/**/*'
+      - 'infrastructure/**/*'
+      - '**/*.tf'
+      - '**/*.tfvars'
+
+# Documentation changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+# Database changes
+database:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/migrations/**/*'
+      - '**/seeds/**/*'
+      - '**/*.sql'
+
+# API changes
+api:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/api/**/*'
+      - '**/routes/**/*'
+      - '**/controllers/**/*'
+
+# CI/CD changes
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - 'Dockerfile*'
+      - 'docker-compose*.yml'
+
+# Testing changes
+testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.test.*'
+      - '**/*.spec.*'
+      - '**/tests/**/*'
+      - '**/test/**/*'
+
+# Dependencies
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/package.json'
+      - '**/package-lock.json'
+      - '**/yarn.lock'
+      - '**/pnpm-lock.yaml'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '**/requirements.txt'
+      - '**/Pipfile'
+      - '**/Gemfile'

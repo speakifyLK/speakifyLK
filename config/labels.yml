@@ -1,0 +1,141 @@
+# Type labels
+- name: bug
+  color: d73a4a
+  description: Something isn't working
+
+- name: enhancement
+  color: a2eeef
+  description: New feature or request
+
+- name: documentation
+  color: 0075ca
+  description: Improvements or additions to documentation
+
+- name: refactor
+  color: fbca04
+  description: Code refactoring
+
+- name: performance
+  color: f9d0c4
+  description: Performance improvements
+
+- name: testing
+  color: 1d76db
+  description: Related to testing
+
+- name: chore
+  color: fef2c0
+  description: Maintenance and chores
+
+- name: style
+  color: c5def5
+  description: Code style changes
+
+- name: ci/cd
+  color: 0e8a16
+  description: CI/CD related changes
+
+- name: build
+  color: 5319e7
+  description: Build system changes
+
+# Review time labels
+- name: '5min review'
+  color: 0e8a16
+  description: Quick review (< 100 lines)
+
+- name: '15min review'
+  color: fbca04
+  description: Short review (100-499 lines)
+
+- name: '30min review'
+  color: ff8c00
+  description: Medium review (500-1499 lines)
+
+- name: '1hr review'
+  color: d73a4a
+  description: Long review (1500+ lines)
+
+# Component labels
+- name: frontend
+  color: e99695
+  description: Frontend related changes
+
+- name: backend
+  color: c2e0c6
+  description: Backend related changes
+
+- name: terraform
+  color: 5c4ee5
+  description: Infrastructure/Terraform changes
+
+- name: database
+  color: 0052cc
+  description: Database related changes
+
+- name: api
+  color: 84b6eb
+  description: API changes
+
+# Status labels
+- name: wip
+  color: fbca04
+  description: Work in progress
+
+- name: ready-for-review
+  color: 0e8a16
+  description: Ready for review
+
+- name: needs-review
+  color: fbca04
+  description: Needs review
+
+- name: blocked
+  color: d93f0b
+  description: Blocked by something
+
+- name: needs-testing
+  color: d4c5f9
+  description: Needs testing
+
+# Priority labels
+- name: priority/critical
+  color: b60205
+  description: Critical priority
+
+- name: priority/high
+  color: d93f0b
+  description: High priority
+
+- name: priority/medium
+  color: fbca04
+  description: Medium priority
+
+- name: priority/low
+  color: 0e8a16
+  description: Low priority
+
+# Other labels
+- name: dependencies
+  color: 0366d6
+  description: Dependency updates
+
+- name: security
+  color: d73a4a
+  description: Security related changes
+
+- name: breaking-change
+  color: d73a4a
+  description: Contains breaking changes
+
+- name: automated
+  color: ededed
+  description: Automated PR
+
+- name: good-first-issue
+  color: 7057ff
+  description: Good for newcomers
+
+- name: help-wanted
+  color: 008672
+  description: Extra attention needed
