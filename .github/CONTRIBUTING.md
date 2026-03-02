@@ -56,8 +56,9 @@ Once you open the PR, workflows handle everything:
 | Comment posted on Jira issue with PR link | Yes |
 
 ### 6. Request a Code Review
-Comment `copilot-review` on the PR to get an AI-powered code review from GitHub Copilot.
+To request an AI-powered code review from GitHub Copilot, add a new comment on the PR that starts with the command `/copilot-review`.
 
+> Note: The workflow currently triggers on any comment that contains the phrase `copilot-review`, so avoid mentioning it in other contexts unless you intend to start a review.
 ### 7. Team Review & Merge
 Once approved, merge the PR. On merge:
 - Jira issue automatically transitions to **Done**
