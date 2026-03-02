@@ -20,8 +20,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Prettier
-        run: npm install --global prettier
+      - name: Install dependencies
+        run: npm ci
 
       - name: Format changed files with Prettier
         run: |
@@ -31,7 +31,7 @@ jobs:
           if [ -n "$CHANGED_FILES" ]; then
             echo "Formatting files:"
             echo "$CHANGED_FILES"
-            echo "$CHANGED_FILES" | xargs prettier --write --config config/prettier.json --ignore-unknown
+            echo "$CHANGED_FILES" | xargs npx prettier --write --config config/prettier.json --ignore-unknown
           else
             echo "No files to format"
           fi

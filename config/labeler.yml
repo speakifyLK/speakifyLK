@@ -1,19 +1,25 @@
-# Frontend changes
+# Frontend changes (UI, components, app routes)
 frontend:
   - changed-files:
     - any-glob-to-any-file:
-      - 'frontend/**/*'
-      - 'client/**/*'
+      - 'app/**/*'
+      - 'components/**/*'
+      - 'public/**/*'
+      - 'store/**/*'
+      - 'tailwind.config.ts'
       - '**/*.jsx'
       - '**/*.tsx'
 
-# Backend changes
+# Backend changes (server actions, utilities, middleware)
 backend:
   - changed-files:
     - any-glob-to-any-file:
-      - 'backend/**/*'
-      - 'server/**/*'
-      - 'api/**/*'
+      - 'actions/**/*'
+      - 'lib/**/*'
+      - 'middleware.ts'
+      - 'scripts/**/*'
+      - 'constants.ts'
+      - 'environment.d.ts'
 
 # Terraform/Infrastructure changes
 terraform:
@@ -31,21 +37,19 @@ documentation:
       - '**/*.md'
       - 'docs/**/*'
 
-# Database changes
+# Database changes (Drizzle ORM)
 database:
   - changed-files:
     - any-glob-to-any-file:
+      - 'db/**/*'
+      - 'drizzle.config.ts'
       - '**/migrations/**/*'
-      - '**/seeds/**/*'
-      - '**/*.sql'
 
-# API changes
+# API changes (Next.js API routes)
 api:
   - changed-files:
     - any-glob-to-any-file:
-      - '**/api/**/*'
-      - '**/routes/**/*'
-      - '**/controllers/**/*'
+      - 'app/api/**/*'
 
 # CI/CD changes
 ci/cd:
@@ -56,6 +60,16 @@ ci/cd:
       - '**/*.yaml'
       - 'Dockerfile*'
       - 'docker-compose*.yml'
+      - 'vercel.ts'
+      - 'eslint.config.mjs'
+
+# Build system changes
+build:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'next.config.ts'
+      - 'tsconfig.json'
+      - 'postcss.config.js'
 
 # Testing changes
 testing:
@@ -66,16 +80,12 @@ testing:
       - '**/tests/**/*'
       - '**/test/**/*'
 
-# Dependencies
+# Dependency changes
 dependencies:
   - changed-files:
     - any-glob-to-any-file:
       - '**/package.json'
       - '**/package-lock.json'
+      - '**/bun.lock'
       - '**/yarn.lock'
       - '**/pnpm-lock.yaml'
-      - '**/go.mod'
-      - '**/go.sum'
-      - '**/requirements.txt'
-      - '**/Pipfile'
-      - '**/Gemfile'
