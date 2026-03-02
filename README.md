@@ -39,7 +39,7 @@ Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
 ```bash
-speakifyLK/
+speakify/
   |- actions/
     |-- challenge-progress.ts
     |-- user-progress.ts
@@ -99,6 +99,7 @@ speakifyLK/
   |- eslint.config.mjs
   |- middleware.ts
   |- next.config.ts
+  |- package-lock.json
   |- package.json
   |- postcss.config.js
   |- tailwind.config.ts
@@ -239,6 +240,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.1.8
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
+- [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.90.21
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.3.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
@@ -258,9 +260,9 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [postcss](https://www.npmjs.com/package/postcss): ^8
 - [prettier](https://www.npmjs.com/package/prettier): ^3.8.1
 - [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.5.14
-- [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.2
+- [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.3
 - [react](https://www.npmjs.com/package/react): ^19.2.4
-- [react-admin](https://www.npmjs.com/package/react-admin): ^4.16.20
+- [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.3
 - [react-circular-progressbar](https://www.npmjs.com/package/react-circular-progressbar): ^2.2.0
 - [react-confetti](https://www.npmjs.com/package/react-confetti): ^6.4.0
 - [react-dom](https://www.npmjs.com/package/react-dom): ^19.2.4
