@@ -36,10 +36,10 @@ jobs:
             // Conventional commit pattern: type(scope): description OR MEDEASE-XXX: description
             // Examples: feat(api): add user endpoint, fix: resolve bug, MEDEASE-123: add feature
             const conventionalCommitPattern = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\(.+\))?:\s.+/i;
-            const jiraPattern = /^SPEAKIFY-\d+:\s.+/;
+            const jiraPattern = /^SPEAKIFYLK-\d+:\s.+/;
 
             if (!conventionalCommitPattern.test(title) && !jiraPattern.test(title)) {
-              core.setFailed('❌ PR title must follow conventional commit format OR include Jira key.\nExamples:\n- feat(api): add user endpoint\n- fix(auth): resolve login issue\n- SPEAKIFY-123: implement user authentication\n- docs: update README');
+              core.setFailed('❌ PR title must follow conventional commit format OR include Jira key.\nExamples:\n- feat(api): add user endpoint\n- fix(auth): resolve login issue\n- SPEAKIFYLK-123: implement user authentication\n- docs: update README');
             } else {
               console.log('✅ PR title format is valid');
             }
@@ -69,11 +69,11 @@ jobs:
             const body = context.payload.pull_request.body || '';
             const title = context.payload.pull_request.title;
 
-            // Check for SPEAKIFY-XXX pattern in either title or body
-            const jiraPattern = /SPEAKIFY-\d+/;
+            // Check for SPEAKIFYLK-XXX pattern in either title or body
+            const jiraPattern = /SPEAKIFYLK-\d+/;
 
             if (!jiraPattern.test(title) && !jiraPattern.test(body)) {
-              core.setFailed('❌ PR must reference a Jira issue (SPEAKIFY-XXX) in title or description.\nExample: SPEAKIFY-123: Add authentication feature');
+              core.setFailed('❌ PR must reference a Jira issue (SPEAKIFYLK-XXX) in title or description.\nExample: SPEAKIFYLK-123: Add authentication feature');
             } else {
               const jiraKey = (title.match(jiraPattern) || body.match(jiraPattern))[0];
               console.log(`✅ PR references Jira issue: ${jiraKey}`);
