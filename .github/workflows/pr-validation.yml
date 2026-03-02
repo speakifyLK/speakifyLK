@@ -33,8 +33,8 @@ jobs:
           script: |
             const title = context.payload.pull_request.title;
 
-            // Conventional commit pattern: type(scope): description OR MEDEASE-XXX: description
-            // Examples: feat(api): add user endpoint, fix: resolve bug, MEDEASE-123: add feature
+            // Conventional commit pattern: type(scope): description OR TES-XXX: description
+            // Examples: feat(api): add user endpoint, fix: resolve bug, TES-123: add feature
             const conventionalCommitPattern = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\(.+\))?:\s.+/i;
             const jiraPattern = /^TES-\d+:\s.+/;
 
