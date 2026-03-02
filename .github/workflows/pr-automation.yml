@@ -630,7 +630,7 @@ jobs:
     if: >-
       github.event_name == 'pull_request' &&
       github.event.action == 'reopened' &&
-      github.actor != 'dependabot[bot]'
+      github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
