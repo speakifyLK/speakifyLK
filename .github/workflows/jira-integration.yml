@@ -226,14 +226,6 @@ jobs:
               generatedDescription += `## Task Details\n${primaryJira.description}\n\n`;
             }
 
-            if (changeLines) {
-              generatedDescription += `## Changes\n${changeLines}\n\n`;
-            }
-
-            if (prStats) {
-              generatedDescription += `## Stats\n\`\`\`\n${prStats}\n\`\`\`\n\n`;
-            }
-
             if (linkedIssues.length > 0) {
               generatedDescription += `## Related Issues\nFixes #${linkedIssues[0].number}\n`;
             }
