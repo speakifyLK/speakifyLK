@@ -12,3 +12,9 @@ body:
       description: Explain the AI-related issue or feature.
     validations:
       required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Attachments
+      description: Drag and drop any screenshots, logs, or files here.
