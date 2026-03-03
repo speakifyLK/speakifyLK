@@ -5,7 +5,7 @@ on:
     types: [closed]
 
 permissions:
-  pull-requests: write
+  pull-requests: read
   issues: write
 
 jobs:
