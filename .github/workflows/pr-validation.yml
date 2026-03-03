@@ -63,7 +63,7 @@ jobs:
             }
 
       - name: Check validation results
-        if: steps.title_check.outcome == 'failure' || steps.jira_check.outcome == 'failure'
+        if: steps.title_check.outcome == 'failure' && steps.jira_check.outcome == 'failure'
         run: |
-          echo "::error::One or more PR validation checks failed"
+          echo "::error::PR validation failed: title must follow conventional commit format or include a Jira key reference"
           exit 1
