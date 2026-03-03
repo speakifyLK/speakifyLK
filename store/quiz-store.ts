@@ -9,7 +9,7 @@ type QuizQuestion = {
   [key: string]: unknown;
 };
 
-type Difficulty = "easy" | "medium" | "hard" | string;
+type Difficulty = "easy" | "medium" | "hard" | (string & {});
 
 type QuizState = {
   currentSessionId: number | null;
@@ -31,7 +31,7 @@ type QuizState = {
   decrementTimer: () => void;
 };
 
-export const useQuizStore = create<QuizState>((set, get) => ({
+export const useQuizStore = create<QuizState>((set) => ({
   currentSessionId: null,
   currentQuestionIndex: 0,
   questions: [],
@@ -42,23 +42,30 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   isQuizActive: false,
   difficulty: "easy",
 
-  startQuiz: (sessionId, questions, difficulty = "easy", initialTimeSeconds = 0) =>
-    set({
+  startQuiz: (sessionId, questions, difficulty = "easy", initialTimeSeconds = 0) => {
+    const hasPositiveTime = initialTimeSeconds > 0;
+    return set({
       currentSessionId: sessionId,
       currentQuestionIndex: 0,
       questions,
       selectedAnswer: null,
       isAnswerSubmitted: false,
       score: 0,
-      timeRemaining: initialTimeSeconds,
-      isQuizActive: true,
+      timeRemaining: hasPositiveTime ? initialTimeSeconds : 0,
+      isQuizActive: hasPositiveTime,
       difficulty,
-    }),
+    });
+  },
 
   selectAnswer: (answer) =>
-    set({
-      selectedAnswer: answer,
-      isAnswerSubmitted: false,
+    set((state) => {
+      if (state.isAnswerSubmitted) {
+        return state;
+      }
+      return {
+        ...state,
+        selectedAnswer: answer,
+      };
     }),
 
   submitAnswer: () =>
@@ -73,6 +80,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
         return {
           ...state,
           isAnswerSubmitted: true,
+          isQuizActive: false,
         };
       }
 
