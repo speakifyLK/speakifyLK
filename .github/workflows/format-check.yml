@@ -8,25 +8,34 @@ jobs:
   format-code:
     name: Format with Prettier
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
     permissions:
       contents: write
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: |
+          echo "Skipping format check for Dependabot PR"
+          exit 0
+
       - name: Checkout PR branch
+        if: github.actor != 'dependabot[bot]'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
+        if: github.actor != 'dependabot[bot]'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: github.actor != 'dependabot[bot]'
         run: npm ci
 
       - name: Format changed files with Prettier
+        if: github.actor != 'dependabot[bot]'
         run: |
           # Get list of changed files
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md|yml|yaml)$' || true)
@@ -40,6 +49,7 @@ jobs:
           fi
 
       - name: Check if files were modified
+        if: github.actor != 'dependabot[bot]'
         id: check_changes
         run: |
           if [[ -n $(git status --porcelain) ]]; then
