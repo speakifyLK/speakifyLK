@@ -121,20 +121,80 @@ jobs:
 
                 const jiraIssue = await jiraResponse.json();
 
-                // Extract description text from ADF format
+                // Convert ADF (Atlassian Document Format) to Markdown
                 let description = 'No description';
                 if (jiraIssue.fields.description?.content) {
-                  const textParts = [];
-                  const extractText = (node) => {
-                    if (node.type === 'text' && node.text) {
-                      textParts.push(node.text);
+                  const adfToMarkdown = (nodes, listType = null, depth = 0) => {
+                    let md = '';
+                    for (const node of nodes) {
+                      switch (node.type) {
+                        case 'heading': {
+                          const level = '#'.repeat(node.attrs?.level || 2);
+                          const text = adfToMarkdown(node.content || []);
+                          md += `${level} ${text.trim()}\n\n`;
+                          break;
+                        }
+                        case 'paragraph': {
+                          const text = adfToMarkdown(node.content || []);
+                          if (text.trim()) md += `${text.trim()}\n\n`;
+                          break;
+                        }
+                        case 'bulletList': {
+                          md += adfToMarkdown(node.content || [], 'bullet', depth);
+                          md += '\n';
+                          break;
+                        }
+                        case 'orderedList': {
+                          md += adfToMarkdown(node.content || [], 'ordered', depth);
+                          md += '\n';
+                          break;
+                        }
+                        case 'listItem': {
+                          const indent = '  '.repeat(depth);
+                          const bullet = listType === 'ordered' ? '1.' : '-';
+                          const children = (node.content || []).map(child => {
+                            if (child.type === 'paragraph') {
+                              return adfToMarkdown(child.content || []).trim();
+                            }
+                            return adfToMarkdown([child], listType, depth + 1).trim();
+                          });
+                          md += `${indent}${bullet} ${children.join('\n')}\n`;
+                          break;
+                        }
+                        case 'text': {
+                          let text = node.text || '';
+                          if (node.marks) {
+                            for (const mark of node.marks) {
+                              if (mark.type === 'strong') text = `**${text}**`;
+                              else if (mark.type === 'em') text = `*${text}*`;
+                              else if (mark.type === 'code') text = `\`${text}\``;
+                              else if (mark.type === 'link') text = `[${text}](${mark.attrs?.href || ''})`;
+                            }
+                          }
+                          md += text;
+                          break;
+                        }
+                        case 'hardBreak':
+                          md += '\n';
+                          break;
+                        case 'rule':
+                          md += '---\n\n';
+                          break;
+                        case 'codeBlock': {
+                          const lang = node.attrs?.language || '';
+                          const code = adfToMarkdown(node.content || []);
+                          md += `\`\`\`${lang}\n${code}\n\`\`\`\n\n`;
+                          break;
+                        }
+                        default:
+                          if (node.content) md += adfToMarkdown(node.content, listType, depth);
+                      }
                     }
-                    if (node.content) {
-                      node.content.forEach(extractText);
-                    }
+                    return md;
                   };
-                  jiraIssue.fields.description.content.forEach(extractText);
-                  description = textParts.join(' ').trim();
+
+                  description = adfToMarkdown(jiraIssue.fields.description.content).trim();
+                  if (!description) description = 'No description';
                 }
 
                 jiraIssues.push({
