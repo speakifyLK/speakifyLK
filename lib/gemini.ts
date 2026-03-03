@@ -6,11 +6,21 @@ import {
 } from "@google/generative-ai";
 
 /**
- * When set to '1', safety filters are disabled (BLOCK_NONE).
- * Otherwise, the default BLOCK_MEDIUM_AND_ABOVE threshold is used.
+ * When set to '1', safety filters are disabled (BLOCK_NONE) in non-production
+ * environments. In production, this override is ignored to avoid disabling
+ * safety filters by accident. Otherwise, the default
+ * BLOCK_MEDIUM_AND_ABOVE threshold is used.
  */
-const isUnsafeMode = process.env.GEMINI_UNSAFE_MODE === "1";
+const isUnsafeModeEnv = process.env.GEMINI_UNSAFE_MODE === "1";
+const isUnsafeMode =
+  isUnsafeModeEnv && process.env.NODE_ENV !== "production";
 
+if (isUnsafeModeEnv && process.env.NODE_ENV === "production") {
+  console.warn(
+    "GEMINI_UNSAFE_MODE=1 is set but ignored in production to prevent " +
+      "disabling Gemini safety filters."
+  );
+}
 const safetyThreshold = isUnsafeMode
   ? HarmBlockThreshold.BLOCK_NONE
   : HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE;
