@@ -25,45 +25,16 @@ jobs:
             });
             console.log('Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
 
-      - name: Validate PR title format
-        id: title_check
-        continue-on-error: true
+      - name: Validate Jira key in PR title
         uses: actions/github-script@v7
         with:
           script: |
             const title = context.payload.pull_request.title;
-
-            // Conventional commit pattern OR JIRA-XXX: description
-            const conventionalCommitPattern = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\(.+\))?:\s.+/i;
-            const jiraPattern = /^[A-Z][A-Z0-9]+-\d+:\s.+/;
-
-            if (!conventionalCommitPattern.test(title) && !jiraPattern.test(title)) {
-              core.setFailed('PR title must follow conventional commit format OR include Jira key.\nExamples:\n- feat(api): add user endpoint\n- fix(auth): resolve login issue\n- SPEAKLK-123: implement feature\n- docs: update README');
-            } else {
-              console.log('PR title format is valid');
-            }
-
-      - name: Validate Jira reference
-        id: jira_check
-        continue-on-error: true
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request.body || '';
-            const title = context.payload.pull_request.title;
-
-            // Check for any Jira key pattern in either title or body
             const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
 
-            if (!jiraPattern.test(title) && !jiraPattern.test(body)) {
-              core.setFailed('PR must reference a Jira issue in title or description.\nExample: SPEAKLK-123: Add authentication feature');
+            if (!jiraPattern.test(title)) {
+              core.setFailed('PR title must include a Jira issue key.\nExample: SPEAKLK-123: Add authentication feature');
             } else {
-              const jiraKey = (title.match(jiraPattern) || body.match(jiraPattern))[0];
-              console.log(`PR references Jira issue: ${jiraKey}`);
+              const jiraKey = title.match(jiraPattern)[0];
+              console.log(`PR title references Jira issue: ${jiraKey}`);
             }
-
-      - name: Check validation results
-        if: steps.title_check.outcome == 'failure' || steps.jira_check.outcome == 'failure'
-        run: |
-          echo "::error::One or more PR validation checks failed"
-          exit 1
