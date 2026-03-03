@@ -83,6 +83,7 @@ speakify/
     |-- jira.js
   |- lib/
     |-- admin.ts
+    |-- chat-prompt.ts
     |-- gemini.ts
     |-- stripe.ts
     |-- utils.ts
