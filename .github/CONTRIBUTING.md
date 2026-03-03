@@ -36,9 +36,9 @@ git commit -m "Fix quiz scoring logic"
 git push -u origin yourname/feature-description
 ```
 
-**PR Title must include the Jira key:**
-- `SPEAKLK-4: Create Gemini client utility` (Recommended)
-- `feat(chat): add streaming support` (Conventional commits also accepted)
+**PR Title must include the Jira key and a description:**
+- `SPEAKLK-4: Create Gemini client utility`
+- `SPEAKLK-12: Fix chat streaming bug`
 
 That's it. The PR title is the **only place** you need to reference the Jira key.
 
@@ -68,11 +68,11 @@ Once approved, merge the PR. On merge:
 
 ## What You Need to Remember
 
-**Only the PR title matters for Jira integration.** Include `SPEAKLK-XXX:` in your PR title and everything else is automated.
+**Only the PR title matters for Jira integration.** Use the format `SPEAKLK-XXX: description` in your PR title and everything else is automated.
 
 | | Required? |
 |---|---|
-| PR title has `SPEAKLK-XXX:` | **Yes** |
+| PR title format `SPEAKLK-XXX: description` | **Yes** |
 | Branch name has Jira key | No |
 | Commit messages have Jira key | No |
 | PR body has Jira reference | No (auto-generated) |
@@ -147,6 +147,5 @@ Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot
 
 - **Jira Board:** https://speakifylk.atlassian.net
 - **GitHub Repo:** https://github.com/speakifyLK/speakifyLK
-- **Conventional Commits Guide:** https://www.conventionalcommits.org/en/v1.0.0/
 
 For questions, contact the team lead.
