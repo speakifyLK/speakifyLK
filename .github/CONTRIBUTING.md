@@ -85,11 +85,9 @@ Once approved, merge the PR. On merge:
 **Valid formats:**
 - `SPEAKLK-4: Create Gemini client utility`
 - `SPEAKLK-12: Fix chat streaming bug`
-- `feat(api): add user endpoint` (conventional commits)
-- `fix: resolve session timeout`
 
 **Invalid:**
-- `Added new feature` (missing Jira key or conventional prefix)
+- `Added new feature` (missing Jira key)
 - `SPEAKIFYLK-4` (missing colon and description)
 
 ---
@@ -149,6 +147,6 @@ Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot
 
 - **Jira Board:** https://speakifylk.atlassian.net
 - **GitHub Repo:** https://github.com/speakifyLK/speakifyLK
-- **Conventional Commits:** https://www.conventionalcommits.org/
+- **Conventional Commits Guide:** https://www.conventionalcommits.org/en/v1.0.0/
 
 For questions, contact the team lead.
