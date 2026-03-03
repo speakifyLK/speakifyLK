@@ -5,8 +5,8 @@ on:
     types: [closed]
 
 permissions:
-  pull-requests: read
-  issues: read
+  pull-requests: write
+  issues: write
 
 jobs:
   close-jira-issue:
