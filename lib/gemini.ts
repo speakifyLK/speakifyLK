@@ -8,7 +8,7 @@ import {
 // Runtime check for API key
 if (!process.env.GEMINI_API_KEY) {
   throw new Error(
-    "GEMINI_API_KEY is missing. Please add it to your .env.local file.\n" +
+    "GEMINI_API_KEY is missing. Please add it to your .env file (or .env.local, depending on your setup).\n" +
       "Get your API key from: https://aistudio.google.com/apikey"
   );
 }
