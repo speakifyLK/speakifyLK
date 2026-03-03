@@ -87,7 +87,7 @@ Once approved, merge the PR. On merge:
 - `SPEAKLK-12: Fix chat streaming bug`
 
 **Invalid:**
-- `Added new feature` (missing Jira key or conventional prefix)
+- `Added new feature` (missing Jira key)
 - `SPEAKIFYLK-4` (missing colon and description)
 
 ---
