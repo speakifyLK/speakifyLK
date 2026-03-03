@@ -31,11 +31,11 @@ jobs:
         with:
           script: |
             const title = context.payload.pull_request.title;
-            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
+            const jiraPattern = /^[A-Z][A-Z0-9]+-\d+:\s.+/;
 
             if (!jiraPattern.test(title)) {
-              core.setFailed('PR title must include a Jira issue key.\nExample: SPEAKLK-123: Add authentication feature');
+              core.setFailed('PR title must follow the format: SPEAKLK-123: short description\nExample: SPEAKLK-24: Add Zustand store for quiz state');
             } else {
-              const jiraKey = title.match(jiraPattern)[0];
+              const jiraKey = title.match(/[A-Z][A-Z0-9]+-\d+/)[0];
               console.log(`PR title references Jira issue: ${jiraKey}`);
             }

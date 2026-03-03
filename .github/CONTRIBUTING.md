@@ -95,8 +95,8 @@ Once approved, merge the PR. On merge:
 ## Validation Checks
 
 Our CI pipeline checks:
-- PR title format (`SPEAKLK-XXX:` or conventional commit)
-- Jira reference exists in title or body
+- PR title format (`SPEAKLK-XXX: description` — Jira key required)
+- Jira reference exists in title
 
 If a check fails, update your PR title to include the Jira key.
 
@@ -132,7 +132,7 @@ Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot
 
 ## Troubleshooting
 
-**"PR title must follow conventional commit format"**
+**"PR title must follow the format: SPEAKLK-123: short description"**
 - Fix: Add Jira key to title: `SPEAKLK-4: Your description`
 
 **"PR must reference a Jira issue"**

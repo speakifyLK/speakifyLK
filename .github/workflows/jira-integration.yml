@@ -260,7 +260,7 @@ jobs:
                         },
                         {
                           type: 'text',
-                          text: generatedTitle,
+                          text: title,
                           marks: [{ type: 'link', attrs: { href: prUrl } }]
                         }
                       ]
