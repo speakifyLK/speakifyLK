@@ -147,5 +147,6 @@ Comment `copilot-review` on any PR to get automated feedback from GitHub Copilot
 
 - **Jira Board:** https://speakifylk.atlassian.net
 - **GitHub Repo:** https://github.com/speakifyLK/speakifyLK
+- **Conventional Commits Guide:** https://www.conventionalcommits.org/en/v1.0.0/
 
 For questions, contact the team lead.
