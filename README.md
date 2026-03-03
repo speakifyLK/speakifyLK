@@ -83,11 +83,13 @@ speakify/
     |-- jira.js
   |- lib/
     |-- admin.ts
+    |-- gemini.ts
     |-- stripe.ts
     |-- utils.ts
   |- public/
   |- scripts/
     |-- prod.ts
+    |-- test-gemini.ts
   |- store/
     |-- use-exit-modal.ts
     |-- use-hearts-modal.ts
@@ -240,6 +242,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.38.1
 - [@eslint/eslintrc](https://www.npmjs.com/package/@eslint/eslintrc): ^3
+- [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai): ^0.24.1
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
