@@ -92,6 +92,7 @@ speakify/
     |-- prod.ts
     |-- test-gemini.ts
   |- store/
+    |-- quiz-store.ts
     |-- use-exit-modal.ts
     |-- use-hearts-modal.ts
     |-- use-practice-modal.ts
