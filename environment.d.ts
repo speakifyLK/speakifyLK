@@ -19,6 +19,9 @@ declare global {
 
       // gemini ai api key
       GEMINI_API_KEY: string;
+
+      // set to '1' to disable safety filters (BLOCK_NONE)
+      GEMINI_UNSAFE_MODE?: string;
     }
   }
 }
