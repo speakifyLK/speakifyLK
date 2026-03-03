@@ -185,39 +185,8 @@ jobs:
 
             const primaryJira = jiraIssues[0];
 
-            // Build PR title and description from Jira + diff metadata
-            console.log('Generating PR content from Jira + diff metadata...');
-
-            // Determine action verb from Jira issue type
-            const typeVerb = {
-              'Story': 'Implement',
-              'Bug': 'Fix',
-              'Task': 'Add',
-              'Sub-task': 'Add',
-              'Epic': 'Implement'
-            };
-            const verb = typeVerb[primaryJira.type] || 'Update';
-            const generatedTitle = `${primaryJira.key}: ${verb} ${primaryJira.summary}`.substring(0, 72);
-
-            // Parse changed files into categories
-            const fileList = prFiles.split('\n').filter(f => f.trim());
-            const filesByDir = {};
-            for (const file of fileList) {
-              const dir = file.includes('/') ? file.split('/').slice(0, 2).join('/') : '.';
-              if (!filesByDir[dir]) filesByDir[dir] = [];
-              filesByDir[dir].push(file.split('/').pop());
-            }
-
-            // Build changes list from file categories
-            const changeLines = Object.entries(filesByDir)
-              .slice(0, 8)
-              .map(([dir, files]) => {
-                if (files.length <= 2) {
-                  return files.map(f => `- Modified \`${dir}/${f}\``).join('\n');
-                }
-                return `- Updated ${files.length} files in \`${dir}/\``;
-              })
-              .join('\n');
+            // Build PR description from Jira metadata
+            console.log('Generating PR description from Jira metadata...');
 
             let generatedDescription = `## Description\n${primaryJira.summary}\n\n`;
             generatedDescription += `## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n- Type: ${primaryJira.type}\n- Status: ${primaryJira.status}\n\n`;
@@ -230,16 +199,15 @@ jobs:
               generatedDescription += `## Related Issues\nFixes #${linkedIssues[0].number}\n`;
             }
 
-            // Update PR title and description
+            // Update PR description only (title is set manually)
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber,
-              title: generatedTitle,
               body: generatedDescription
             });
 
-            console.log('Updated PR title and description');
+            console.log('Updated PR description');
 
             // Add jira-linked label
             try {
