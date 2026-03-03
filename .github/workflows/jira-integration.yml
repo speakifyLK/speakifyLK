@@ -158,7 +158,16 @@ jobs:
                             }
                             return adfToMarkdown([child], listType, depth + 1).trim();
                           });
-                          md += `${indent}${bullet} ${children.join('\n')}\n`;
+                          const childrenText = children.join('\n');
+                          const lines = childrenText.split('\n');
+                          const firstLine = lines[0] || '';
+                          const rest = lines
+                            .slice(1)
+                            .map(line => `${indent}  ${line}`)
+                            .join('\n');
+                          md += `${indent}${bullet} ${firstLine}`;
+                          if (rest) md += `\n${rest}`;
+                          md += '\n';
                           break;
                         }
                         case 'text': {
