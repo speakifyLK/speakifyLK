@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
-// Load .env.local BEFORE importing gemini (which checks for the API key at load time)
-dotenv.config({ path: ".env.local" });
+// Load .env, then optional .env.local as an override, BEFORE importing gemini (which checks for the API key at load time)
+dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 
 async function testGemini() {
   console.log("Testing Gemini client...\n");
