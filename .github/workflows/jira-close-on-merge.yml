@@ -6,7 +6,7 @@ on:
 
 permissions:
   pull-requests: read
-  issues: read
+  issues: write
 
 jobs:
   close-jira-issue:

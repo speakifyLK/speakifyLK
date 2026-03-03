@@ -5,16 +5,20 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 permissions:
-  pull-requests: write
+  issues: write
 
 jobs:
   validate:
     name: Check PR requirements
     runs-on: ubuntu-latest
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "Skipping PR validation for Dependabot PR"
+
       - name: Auto-assign PR author if unassigned
+        if: github.actor != 'dependabot[bot]' && (github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]')
         uses: actions/github-script@v7
-        if: github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]'
         with:
           script: |
             await github.rest.issues.addAssignees({
@@ -26,15 +30,16 @@ jobs:
             console.log('Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
 
       - name: Validate Jira key in PR title
+        if: github.actor != 'dependabot[bot]'
         uses: actions/github-script@v7
         with:
           script: |
             const title = context.payload.pull_request.title;
-            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
+            const jiraPattern = /^[A-Z][A-Z0-9]+-\d+:\s.+/;
 
             if (!jiraPattern.test(title)) {
-              core.setFailed('PR title must include a Jira issue key.\nExample: SPEAKLK-123: Add authentication feature');
+              core.setFailed('PR title must follow the format: SPEAKLK-123: short description\nExample: SPEAKLK-24: Add Zustand store for quiz state');
             } else {
-              const jiraKey = title.match(jiraPattern)[0];
+              const jiraKey = title.match(/[A-Z][A-Z0-9]+-\d+/)[0];
               console.log(`PR title references Jira issue: ${jiraKey}`);
             }
