@@ -16,6 +16,12 @@ declare global {
 
       // clerk admin user id(s) (separated by comma(,) and space( )). Ex: "user_123, user_456, user_789"
       CLERK_ADMIN_IDS: string;
+
+      // gemini ai api key
+      GEMINI_API_KEY: string;
+
+      // set to '1' to disable safety filters (BLOCK_NONE)
+      GEMINI_UNSAFE_MODE?: string;
     }
   }
 }
