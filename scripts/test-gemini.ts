@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-// Load .env, then optional .env.local as an override, BEFORE importing gemini (which checks for the API key at load time)
+// Load .env, then optional .env.local as an override, BEFORE importing gemini
 dotenv.config();
 dotenv.config({ path: ".env.local", override: true });
 
@@ -8,19 +8,22 @@ async function testGemini() {
 
   try {
     // Dynamic import so dotenv loads first
-    const { getGeminiModel } = await import("../lib/gemini");
+    const { generateContent } = await import("../lib/gemini");
 
-    const model = getGeminiModel();
-    const result = await model.generateContent(
+    const response = await generateContent(
       "Say hello in three different languages. Keep it brief."
     );
-    const response = result.response;
-    const text = response.text();
+    const text = response.text;
 
     console.log("Gemini responded successfully:\n");
     console.log(text);
-  } catch (error) {
-    console.error("Gemini test failed:\n", error);
+  } catch (error: any) {
+    console.error("Gemini test failed:\n");
+    console.error("Status:", error.status);
+    console.error("Message:", error.message);
+    if (error.errorDetails) {
+      console.error("Details:", JSON.stringify(error.errorDetails, null, 2));
+    }
     process.exit(1);
   }
 }

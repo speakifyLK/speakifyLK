@@ -1,9 +1,9 @@
 import {
-  GoogleGenerativeAI,
+  GoogleGenAI,
   HarmCategory,
   HarmBlockThreshold,
   type Content,
-} from "@google/generative-ai";
+} from "@google/genai";
 
 /**
  * When set to '1', safety filters are disabled (BLOCK_NONE) in non-production
@@ -21,27 +21,16 @@ if (isUnsafeModeEnv && process.env.NODE_ENV === "production") {
       "disabling Gemini safety filters."
   );
 }
+
 const safetyThreshold = isUnsafeMode
   ? HarmBlockThreshold.BLOCK_NONE
   : HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE;
 
 const safetySettings = [
-  {
-    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-    threshold: safetyThreshold,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    threshold: safetyThreshold,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    threshold: safetyThreshold,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-    threshold: safetyThreshold,
-  },
+  { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: safetyThreshold },
+  { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: safetyThreshold },
+  { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: safetyThreshold },
+  { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: safetyThreshold },
 ];
 
 const generationConfig = {
@@ -50,39 +39,72 @@ const generationConfig = {
   maxOutputTokens: 1024,
 };
 
-/**
- * Lazily initialises and returns the Gemini GenerativeModel.
- * The model (and the API-key check) are deferred until the first
- * call, so the module can be imported safely even when the key
- * is not yet available (e.g. during build / lint).
- */
-let _model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]> | null = null;
+const MODEL_ID = "gemini-2.5-flash";
 
-function getOrCreateModel() {
-  if (!_model) {
-    if (!process.env.GEMINI_API_KEY) {
+/**
+ * Lazily initialises and returns the GoogleGenAI client.
+ * Supports two modes:
+ *   1. Vertex AI Express Mode — set GEMINI_API_KEY (Vertex AI API key)
+ *      Uses vertexai: true + apiKey for Vertex AI Express.
+ *   2. Gemini Developer API — set GEMINI_API_KEY (AI Studio key)
+ *      Uses apiKey only for the Gemini Developer API.
+ *
+ * Set GOOGLE_GENAI_USE_VERTEXAI=true to switch to Vertex AI mode.
+ */
+let _ai: GoogleGenAI | null = null;
+
+function getOrCreateClient(): GoogleGenAI {
+  if (!_ai) {
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
       throw new Error(
         "GEMINI_API_KEY environment variable is not set. " +
           "Add it to your .env or .env.local file.\n" +
-          "Get your API key from: https://aistudio.google.com/apikey"
+          "Get your API key from: https://aistudio.google.com/apikey (Gemini API) " +
+          "or https://console.cloud.google.com/ (Vertex AI)"
       );
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    _model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      safetySettings,
-      generationConfig,
-    });
+    const useVertexAI = process.env.GOOGLE_GENAI_USE_VERTEXAI === "true";
+
+    if (useVertexAI) {
+      // Vertex AI Express Mode — API key + vertexai flag
+      _ai = new GoogleGenAI({
+        vertexai: true,
+        apiKey,
+      });
+    } else {
+      // Gemini Developer API — API key only
+      _ai = new GoogleGenAI({ apiKey });
+    }
   }
-  return _model;
+
+  return _ai;
 }
 
 /**
- * Returns the configured Gemini model instance.
+ * Returns the GoogleGenAI client instance.
  */
-export function getGeminiModel() {
-  return getOrCreateModel();
+export function getGeminiClient() {
+  return getOrCreateClient();
+}
+
+/**
+ * Generates content using the configured Gemini model.
+ * @param prompt - The text prompt to send
+ */
+export async function generateContent(prompt: string) {
+  const ai = getOrCreateClient();
+  const response = await ai.models.generateContent({
+    model: MODEL_ID,
+    contents: prompt,
+    config: {
+      safetySettings,
+      ...generationConfig,
+    },
+  });
+  return response;
 }
 
 /**
@@ -90,7 +112,13 @@ export function getGeminiModel() {
  * @param history - Array of previous messages in the conversation
  */
 export function startChatSession(history: Content[] = []) {
-  return getOrCreateModel().startChat({
+  const ai = getOrCreateClient();
+  return ai.chats.create({
+    model: MODEL_ID,
     history,
+    config: {
+      safetySettings,
+      ...generationConfig,
+    },
   });
 }
