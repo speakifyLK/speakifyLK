@@ -85,6 +85,7 @@ speakify/
     |-- admin.ts
     |-- chat-prompt.ts
     |-- gemini.ts
+    |-- quiz-prompt.ts
     |-- stripe.ts
     |-- utils.ts
   |- public/
@@ -244,7 +245,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.38.1
 - [@eslint/eslintrc](https://www.npmjs.com/package/@eslint/eslintrc): ^3
-- [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai): ^0.24.1
+- [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.43.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
