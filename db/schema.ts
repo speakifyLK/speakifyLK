@@ -154,3 +154,40 @@ export const userSubscription = pgTable("user_subscription", {
   stripePriceId: text("stripe_price_id").notNull(),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
 });
+
+// ── Chatbot ──────────────────────────────────────────────────────────
+
+export const chatRoleEnum = pgEnum("chat_role", ["user", "assistant"]);
+
+export const chatConversations = pgTable("chat_conversations", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  title: text("title").notNull().default("New Conversation"),
+  language: text("language").notNull().default("sinhala"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const chatConversationsRelations = relations(
+  chatConversations,
+  ({ many }) => ({
+    messages: many(chatMessages),
+  })
+);
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id")
+    .references(() => chatConversations.id, { onDelete: "cascade" })
+    .notNull(),
+  role: chatRoleEnum("role").notNull(),
+  content: text("content").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  conversation: one(chatConversations, {
+    fields: [chatMessages.conversationId],
+    references: [chatConversations.id],
+  }),
+}));
