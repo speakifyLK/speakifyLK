@@ -1,16 +1,29 @@
 "use server";
 
-import { auth,currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import db from "@/db/drizzle";
 import { chatConversations, chatMessages } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
-//Creates a new conversation for the authenticated user.
+async function assertConversationOwner(conversationId: number, userId: string) {
+  const conversation = await db.query.chatConversations.findFirst({
+    where: (table, { and, eq }) => and(
+      eq(table.id, conversationId),
+      eq(table.userId, userId)
+    ),
+  });
+
+  if (!conversation) {
+    throw new Error("Unauthorized.");
+  }
+  
+  return conversation;
+}
+
 export const createConversation = async () => {
   const { userId } = await auth();
-  const user = await currentUser();
-  if (!userId || !user) throw new Error("Unauthorized.");
+  if (!userId) throw new Error("Unauthorized.");
 
   const [conversation] = await db.insert(chatConversations).values({
     userId,
@@ -22,21 +35,11 @@ export const createConversation = async () => {
 };
 
 
- //Saves a user message to the database
 export const sendMessage = async (conversationId: number, content: string) => {
   const { userId } = await auth();
-  const user = await currentUser();
-  if (!userId || !user) throw new Error("Unauthorized.");
+  if (!userId) throw new Error("Unauthorized.");
 
-  // 4. Security: Verify conversation ownership
-  const conversation = await db.query.chatConversations.findFirst({
-    where: (table, { and, eq }) => and(
-      eq(table.id, conversationId),
-      eq(table.userId, userId)
-    ),
-  });
-
-  if (!conversation) throw new Error("Unauthorized.");
+  await assertConversationOwner(conversationId, userId);
 
   const [message] = await db.insert(chatMessages).values({
     conversationId,
@@ -44,25 +47,20 @@ export const sendMessage = async (conversationId: number, content: string) => {
     content,
   }).returning();
 
+  await db.update(chatConversations)
+    .set({ updatedAt: new Date() })
+    .where(eq(chatConversations.id, conversationId));
+
   revalidatePath("/chat");
   return message;
 };
 
- //Saves the AI's response to the database.
+
 export const saveAssistantMessage = async (conversationId: number, content: string) => {
   const { userId } = await auth();
-  const user = await currentUser();
-  if (!userId || !user) throw new Error("Unauthorized.");
+  if (!userId) throw new Error("Unauthorized.");
 
-  // Security: Verify ownership before saving AI response
-  const conversation = await db.query.chatConversations.findFirst({
-    where: (table, { and, eq }) => and(
-      eq(table.id, conversationId),
-      eq(table.userId, userId)
-    ),
-  });
-
-  if (!conversation) throw new Error("Unauthorized.");
+  await assertConversationOwner(conversationId, userId);
 
   await db.insert(chatMessages).values({
     conversationId,
@@ -74,11 +72,9 @@ export const saveAssistantMessage = async (conversationId: number, content: stri
 };
 
 
-//Deletes a conversation and all its messages.
 export const deleteConversation = async (conversationId: number) => {
   const { userId } = await auth();
-  const user = await currentUser();
-  if (!userId || !user) throw new Error("Unauthorized.");
+  if (!userId) throw new Error("Unauthorized.");
 
   await db.delete(chatConversations).where(
     and(
@@ -91,15 +87,13 @@ export const deleteConversation = async (conversationId: number) => {
 };
 
 
- //Retrieves the most recent conversation or creates a new one.
 export const getOrCreateConversation = async () => {
   const { userId } = await auth();
-  const user = await currentUser();
-  if (!userId || !user) throw new Error("Unauthorized.");
+  if (!userId) throw new Error("Unauthorized.");
 
   const existingConversation = await db.query.chatConversations.findFirst({
     where: (table, { eq }) => eq(table.userId, userId),
-    orderBy: (table, { desc }) => [desc(table.createdAt)],
+    orderBy: (table, { desc }) => [desc(table.updatedAt)],
   });
 
   if (existingConversation) return existingConversation.id;
