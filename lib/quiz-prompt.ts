@@ -8,6 +8,19 @@
  */
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+/** Maximum number of questions allowed per prompt */
+const MAX_QUESTION_COUNT = 20;
+
+/** Maximum allowed length for the topic string */
+const MAX_TOPIC_LENGTH = 100;
+
+/** Pattern for allowed topic characters (letters, numbers, spaces, hyphens, apostrophes) */
+const SAFE_TOPIC_PATTERN = /^[\p{L}\p{N}\s'\-]+$/u;
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -112,7 +125,6 @@ Example response format:
  * ```json
  * {
  *   "sentence": "...",
- *   "blank": "___",
  *   "answer": "...",
  *   "hint": "...",
  *   "explanation": "..."
@@ -132,7 +144,6 @@ ${difficultyGuidelines[difficulty]}
 
 For each question, respond with an object that has:
 - "sentence": A Sinhala sentence with a blank represented by "___" where the missing word should be (string).
-- "blank": The literal string "___" indicating where the answer goes (string).
 - "answer": The correct Sinhala word that fills the blank (string).
 - "hint": A short English hint to help the learner guess the answer (string).
 - "explanation": A brief English explanation of the correct answer and any relevant grammar (string).
@@ -143,7 +154,6 @@ Example response format:
 [
   {
     "sentence": "මම ___ යනවා. (mama ___ yanawaa.)",
-    "blank": "___",
     "answer": "පාසලට (paasalata)",
     "hint": "A place where students go to study.",
     "explanation": "'පාසලට' means 'to school'. The suffix '-ට' (-ta) indicates direction/destination in Sinhala."
@@ -240,11 +250,44 @@ export function buildQuizPrompt(
   type: QuizType,
   params: QuizPromptParams
 ): string {
+  // --- Validate count ---
+  if (!Number.isInteger(params.count) || params.count < 1) {
+    throw new Error(
+      `"count" must be a positive integer, received: ${params.count}`
+    );
+  }
+  if (params.count > MAX_QUESTION_COUNT) {
+    throw new Error(
+      `"count" must not exceed ${MAX_QUESTION_COUNT}, received: ${params.count}`
+    );
+  }
+
+  // --- Validate & sanitise topic ---
+  const trimmedTopic = params.topic.trim();
+  if (trimmedTopic.length === 0) {
+    throw new Error('"topic" must not be empty.');
+  }
+  if (trimmedTopic.length > MAX_TOPIC_LENGTH) {
+    throw new Error(
+      `"topic" must not exceed ${MAX_TOPIC_LENGTH} characters, received ${trimmedTopic.length}.`
+    );
+  }
+  if (!SAFE_TOPIC_PATTERN.test(trimmedTopic)) {
+    throw new Error(
+      '"topic" contains invalid characters. Only letters, numbers, spaces, hyphens, and apostrophes are allowed.'
+    );
+  }
+
+  const sanitisedParams: QuizPromptParams = {
+    ...params,
+    topic: trimmedTopic,
+  };
+
   const builder = promptBuilders[type];
   if (!builder) {
     throw new Error(
       `Unknown quiz type "${type}". Expected one of: ${Object.keys(promptBuilders).join(", ")}`
     );
   }
-  return builder(params);
+  return builder(sanitisedParams);
 }
