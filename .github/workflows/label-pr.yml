@@ -22,7 +22,7 @@ jobs:
           configuration-path: config/labeler.yml
 
       - name: Add estimated review time
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pr = context.payload.pull_request;

@@ -18,7 +18,7 @@ jobs:
 
       - name: Auto-assign PR author if unassigned
         if: github.actor != 'dependabot[bot]' && (github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]')
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.issues.addAssignees({
@@ -31,7 +31,7 @@ jobs:
 
       - name: Validate Jira key in PR title
         if: github.actor != 'dependabot[bot]'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const title = context.payload.pull_request.title;
