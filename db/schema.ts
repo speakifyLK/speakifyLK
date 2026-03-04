@@ -165,7 +165,7 @@ export const chatConversations = pgTable("chat_conversations", {
   title: text("title").notNull().default("New Conversation"),
   language: text("language").notNull().default("sinhala"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 });
 
 export const chatConversationsRelations = relations(
