@@ -83,12 +83,17 @@ speakify/
     |-- jira.js
   |- lib/
     |-- admin.ts
+    |-- chat-prompt.ts
+    |-- gemini.ts
+    |-- quiz-prompt.ts
     |-- stripe.ts
     |-- utils.ts
   |- public/
   |- scripts/
     |-- prod.ts
+    |-- test-gemini.ts
   |- store/
+    |-- quiz-store.ts
     |-- use-exit-modal.ts
     |-- use-hearts-modal.ts
     |-- use-practice-modal.ts
@@ -240,6 +245,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.38.1
 - [@eslint/eslintrc](https://www.npmjs.com/package/@eslint/eslintrc): ^3
+- [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.43.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
@@ -250,22 +256,22 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.3.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
-- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.33
+- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.36
 - [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.24
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
 - [dotenv](https://www.npmjs.com/package/dotenv): ^17.3.1
 - [drizzle-kit](https://www.npmjs.com/package/drizzle-kit): ^0.31.9
 - [drizzle-orm](https://www.npmjs.com/package/drizzle-orm): ^0.45.1
-- [eslint](https://www.npmjs.com/package/eslint): ^9
+- [eslint](https://www.npmjs.com/package/eslint): ^10
 - [eslint-config-next](https://www.npmjs.com/package/eslint-config-next): 16.1.6
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.575.0
-- [next](https://www.npmjs.com/package/next): ^15.5.10
+- [next](https://www.npmjs.com/package/next): ^16.1.6
 - [pg](https://www.npmjs.com/package/pg): ^8.18.0
 - [postcss](https://www.npmjs.com/package/postcss): ^8
 - [prettier](https://www.npmjs.com/package/prettier): ^3.8.1
-- [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.5.14
+- [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.7.2
 - [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.3
 - [react](https://www.npmjs.com/package/react): ^19.2.4
 - [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.3

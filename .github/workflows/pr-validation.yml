@@ -5,6 +5,7 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 permissions:
+  issues: write
   pull-requests: write
 
 jobs:
@@ -12,9 +13,13 @@ jobs:
     name: Check PR requirements
     runs-on: ubuntu-latest
     steps:
+      - name: Skip for Dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "Skipping PR validation for Dependabot PR"
+
       - name: Auto-assign PR author if unassigned
-        uses: actions/github-script@v7
-        if: github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]'
+        if: github.actor != 'dependabot[bot]' && (github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]')
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.issues.addAssignees({
@@ -25,45 +30,17 @@ jobs:
             });
             console.log('Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
 
-      - name: Validate PR title format
-        id: title_check
-        continue-on-error: true
-        uses: actions/github-script@v7
+      - name: Validate Jira key in PR title
+        if: github.actor != 'dependabot[bot]'
+        uses: actions/github-script@v8
         with:
           script: |
             const title = context.payload.pull_request.title;
-
-            // Conventional commit pattern OR JIRA-XXX: description
-            const conventionalCommitPattern = /^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\(.+\))?:\s.+/i;
             const jiraPattern = /^[A-Z][A-Z0-9]+-\d+:\s.+/;
 
-            if (!conventionalCommitPattern.test(title) && !jiraPattern.test(title)) {
-              core.setFailed('PR title must follow conventional commit format OR include Jira key.\nExamples:\n- feat(api): add user endpoint\n- fix(auth): resolve login issue\n- SPEAKLK-123: implement feature\n- docs: update README');
+            if (!jiraPattern.test(title)) {
+              core.setFailed('PR title must follow the format: SPEAKLK-123: short description\nExample: SPEAKLK-24: Add Zustand store for quiz state');
             } else {
-              console.log('PR title format is valid');
+              const jiraKey = title.match(/[A-Z][A-Z0-9]+-\d+/)[0];
+              console.log(`PR title references Jira issue: ${jiraKey}`);
             }
-
-      - name: Validate Jira reference
-        id: jira_check
-        continue-on-error: true
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request.body || '';
-            const title = context.payload.pull_request.title;
-
-            // Check for any Jira key pattern in either title or body
-            const jiraPattern = /[A-Z][A-Z0-9]+-\d+/;
-
-            if (!jiraPattern.test(title) && !jiraPattern.test(body)) {
-              core.setFailed('PR must reference a Jira issue in title or description.\nExample: SPEAKLK-123: Add authentication feature');
-            } else {
-              const jiraKey = (title.match(jiraPattern) || body.match(jiraPattern))[0];
-              console.log(`PR references Jira issue: ${jiraKey}`);
-            }
-
-      - name: Check validation results
-        if: steps.title_check.outcome == 'failure' || steps.jira_check.outcome == 'failure'
-        run: |
-          echo "::error::One or more PR validation checks failed"
-          exit 1

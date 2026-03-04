@@ -14,43 +14,17 @@ jobs:
     name: Sync PR with Jira
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get PR diff stats
-        id: diff
-        run: |
-          git fetch origin ${{ github.base_ref }}
-
-          # Get list of changed files
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Get diff stats (insertions/deletions per file)
-          STATS=$(git diff --stat origin/${{ github.base_ref }}...HEAD)
-          echo "stats<<EOF" >> $GITHUB_OUTPUT
-          echo "$STATS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Sync PR with Jira
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
           JIRA_BASE_URL: 'https://speakifylk.atlassian.net'
           JIRA_EMAIL: 'desilvabethmin@gmail.com'
-          PR_FILES: ${{ steps.diff.outputs.files }}
-          PR_STATS: ${{ steps.diff.outputs.stats }}
         with:
           script: |
             const title = context.payload.pull_request.title;
             const body = context.payload.pull_request.body || '';
             const prNumber = context.issue.number;
-            const prFiles = process.env.PR_FILES || '';
-            const prStats = process.env.PR_STATS || '';
 
             console.log('=== Starting Jira-GitHub Integration ===');
 
@@ -147,20 +121,89 @@ jobs:
 
                 const jiraIssue = await jiraResponse.json();
 
-                // Extract description text from ADF format
+                // Convert ADF (Atlassian Document Format) to Markdown
                 let description = 'No description';
                 if (jiraIssue.fields.description?.content) {
-                  const textParts = [];
-                  const extractText = (node) => {
-                    if (node.type === 'text' && node.text) {
-                      textParts.push(node.text);
+                  const adfToMarkdown = (nodes, listType = null, depth = 0) => {
+                    let md = '';
+                    for (const node of nodes) {
+                      switch (node.type) {
+                        case 'heading': {
+                          const level = '#'.repeat(node.attrs?.level || 2);
+                          const text = adfToMarkdown(node.content || []);
+                          md += `${level} ${text.trim()}\n\n`;
+                          break;
+                        }
+                        case 'paragraph': {
+                          const text = adfToMarkdown(node.content || []);
+                          if (text.trim()) md += `${text.trim()}\n\n`;
+                          break;
+                        }
+                        case 'bulletList': {
+                          md += adfToMarkdown(node.content || [], 'bullet', depth);
+                          md += '\n';
+                          break;
+                        }
+                        case 'orderedList': {
+                          md += adfToMarkdown(node.content || [], 'ordered', depth);
+                          md += '\n';
+                          break;
+                        }
+                        case 'listItem': {
+                          const indent = '  '.repeat(depth);
+                          const bullet = listType === 'ordered' ? '1.' : '-';
+                          const children = (node.content || []).map(child => {
+                            if (child.type === 'paragraph') {
+                              return adfToMarkdown(child.content || []).trim();
+                            }
+                            return adfToMarkdown([child], listType, depth + 1).trim();
+                          });
+                          const childrenText = children.join('\n');
+                          const lines = childrenText.split('\n');
+                          const firstLine = lines[0] || '';
+                          const rest = lines
+                            .slice(1)
+                            .map(line => `${indent}  ${line}`)
+                            .join('\n');
+                          md += `${indent}${bullet} ${firstLine}`;
+                          if (rest) md += `\n${rest}`;
+                          md += '\n';
+                          break;
+                        }
+                        case 'text': {
+                          let text = node.text || '';
+                          if (node.marks) {
+                            for (const mark of node.marks) {
+                              if (mark.type === 'strong') text = `**${text}**`;
+                              else if (mark.type === 'em') text = `*${text}*`;
+                              else if (mark.type === 'code') text = `\`${text}\``;
+                              else if (mark.type === 'link') text = `[${text}](${mark.attrs?.href || ''})`;
+                            }
+                          }
+                          md += text;
+                          break;
+                        }
+                        case 'hardBreak':
+                          md += '\n';
+                          break;
+                        case 'rule':
+                          md += '---\n\n';
+                          break;
+                        case 'codeBlock': {
+                          const lang = node.attrs?.language || '';
+                          const code = adfToMarkdown(node.content || []);
+                          md += `\`\`\`${lang}\n${code}\n\`\`\`\n\n`;
+                          break;
+                        }
+                        default:
+                          if (node.content) md += adfToMarkdown(node.content, listType, depth);
+                      }
                     }
-                    if (node.content) {
-                      node.content.forEach(extractText);
-                    }
+                    return md;
                   };
-                  jiraIssue.fields.description.content.forEach(extractText);
-                  description = textParts.join(' ').trim();
+
+                  description = adfToMarkdown(jiraIssue.fields.description.content).trim();
+                  if (!description) description = 'No description';
                 }
 
                 jiraIssues.push({
@@ -185,39 +228,8 @@ jobs:
 
             const primaryJira = jiraIssues[0];
 
-            // Build PR title and description from Jira + diff metadata
-            console.log('Generating PR content from Jira + diff metadata...');
-
-            // Determine action verb from Jira issue type
-            const typeVerb = {
-              'Story': 'Implement',
-              'Bug': 'Fix',
-              'Task': 'Add',
-              'Sub-task': 'Add',
-              'Epic': 'Implement'
-            };
-            const verb = typeVerb[primaryJira.type] || 'Update';
-            const generatedTitle = `${primaryJira.key}: ${verb} ${primaryJira.summary}`.substring(0, 72);
-
-            // Parse changed files into categories
-            const fileList = prFiles.split('\n').filter(f => f.trim());
-            const filesByDir = {};
-            for (const file of fileList) {
-              const dir = file.includes('/') ? file.split('/').slice(0, 2).join('/') : '.';
-              if (!filesByDir[dir]) filesByDir[dir] = [];
-              filesByDir[dir].push(file.split('/').pop());
-            }
-
-            // Build changes list from file categories
-            const changeLines = Object.entries(filesByDir)
-              .slice(0, 8)
-              .map(([dir, files]) => {
-                if (files.length <= 2) {
-                  return files.map(f => `- Modified \`${dir}/${f}\``).join('\n');
-                }
-                return `- Updated ${files.length} files in \`${dir}/\``;
-              })
-              .join('\n');
+            // Build PR description from Jira metadata
+            console.log('Generating PR description from Jira metadata...');
 
             let generatedDescription = `## Description\n${primaryJira.summary}\n\n`;
             generatedDescription += `## Jira Reference\n- Issue: [${primaryJira.key}](${primaryJira.url})\n- Type: ${primaryJira.type}\n- Status: ${primaryJira.status}\n\n`;
@@ -230,16 +242,15 @@ jobs:
               generatedDescription += `## Related Issues\nFixes #${linkedIssues[0].number}\n`;
             }
 
-            // Update PR title and description
+            // Update PR description only (title is set manually)
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber,
-              title: generatedTitle,
               body: generatedDescription
             });
 
-            console.log('Updated PR title and description');
+            console.log('Updated PR description');
 
             // Add jira-linked label
             try {
@@ -292,7 +303,7 @@ jobs:
                         },
                         {
                           type: 'text',
-                          text: generatedTitle,
+                          text: title,
                           marks: [{ type: 'link', attrs: { href: prUrl } }]
                         }
                       ]
@@ -348,7 +359,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check commits for Jira references
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { data: commits } = await github.rest.pulls.listCommits({

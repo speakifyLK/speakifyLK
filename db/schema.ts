@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
+  json,
   pgEnum,
   pgTable,
   serial,
@@ -20,6 +21,7 @@ export const courses = pgTable("courses", {
 export const coursesRelations = relations(courses, ({ many }) => ({
   userProgress: many(userProgress),
   units: many(units),
+  aiQuizSessions: many(aiQuizSessions),
 }));
 
 export const units = pgTable("units", {
@@ -154,3 +156,105 @@ export const userSubscription = pgTable("user_subscription", {
   stripePriceId: text("stripe_price_id").notNull(),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
 });
+
+// ── Chatbot ──────────────────────────────────────────────────────────
+
+export const chatRoleEnum = pgEnum("chat_role", ["user", "assistant"]);
+
+export const chatConversations = pgTable("chat_conversations", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  title: text("title").notNull().default("New Conversation"),
+  language: text("language").notNull().default("sinhala"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+});
+
+export const chatConversationsRelations = relations(
+  chatConversations,
+  ({ many }) => ({
+    messages: many(chatMessages),
+  })
+);
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id")
+    .references(() => chatConversations.id, { onDelete: "cascade" })
+    .notNull(),
+  role: chatRoleEnum("role").notNull(),
+  content: text("content").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  conversation: one(chatConversations, {
+    fields: [chatMessages.conversationId],
+    references: [chatConversations.id],
+  }),
+}));
+
+// ── AI Quiz ──────────────────────────────────────────────────────────
+
+export const quizDifficultyEnum = pgEnum("quiz_difficulty", [
+  "beginner",
+  "intermediate",
+  "advanced",
+]);
+
+export const quizQuestionTypeEnum = pgEnum("quiz_question_type", [
+  "mcq",
+  "fill_blank",
+  "translation",
+]);
+
+export const aiQuizSessions = pgTable("ai_quiz_sessions", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  topic: text("topic").notNull(),
+  difficulty: quizDifficultyEnum("difficulty").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull().default(0),
+  score: integer("score").notNull().default(0),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  courseId: integer("course_id")
+    .references(() => courses.id, { onDelete: "cascade" })
+    .notNull(),
+});
+
+export const aiQuizSessionsRelations = relations(
+  aiQuizSessions,
+  ({ one, many }) => ({
+    course: one(courses, {
+      fields: [aiQuizSessions.courseId],
+      references: [courses.id],
+    }),
+    questions: many(aiQuizQuestions),
+  })
+);
+
+export const aiQuizQuestions = pgTable("ai_quiz_questions", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id")
+    .references(() => aiQuizSessions.id, { onDelete: "cascade" })
+    .notNull(),
+  type: quizQuestionTypeEnum("type").notNull(),
+  question: text("question").notNull(),
+  options: json("options"),
+  correctAnswer: text("correct_answer").notNull(),
+  userAnswer: text("user_answer"),
+  isCorrect: boolean("is_correct"),
+  explanation: text("explanation").notNull(),
+  order: integer("order").notNull(),
+});
+
+export const aiQuizQuestionsRelations = relations(
+  aiQuizQuestions,
+  ({ one }) => ({
+    session: one(aiQuizSessions, {
+      fields: [aiQuizQuestions.sessionId],
+      references: [aiQuizSessions.id],
+    }),
+  })
+);
