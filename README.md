@@ -85,6 +85,7 @@ speakify/
     |-- admin.ts
     |-- chat-prompt.ts
     |-- gemini.ts
+    |-- quiz-prompt.ts
     |-- stripe.ts
     |-- utils.ts
   |- public/
