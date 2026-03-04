@@ -67,6 +67,9 @@ export const saveAssistantMessage = async (conversationId: number, content: stri
     role: "assistant",
     content,
   });
+  await db.update(chatConversations)
+    .set({ updatedAt: new Date() })
+    .where(eq(chatConversations.id, conversationId));
 
   revalidatePath("/chat");
 };
@@ -76,6 +79,7 @@ export const deleteConversation = async (conversationId: number) => {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
+  await assertConversationOwner(conversationId, userId);
   await db.delete(chatConversations).where(
     and(
       eq(chatConversations.id, conversationId),
@@ -96,7 +100,10 @@ export const getOrCreateConversation = async () => {
     orderBy: (table, { desc }) => [desc(table.updatedAt)],
   });
 
-  if (existingConversation) return existingConversation.id;
+  if (existingConversation) {
+    revalidatePath("/chat");
+    return existingConversation.id;
+  }
 
   return await createConversation();
 };
