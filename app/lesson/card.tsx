@@ -30,7 +30,7 @@ export const Card = ({
   disabled,
   type,
 }: CardProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [audio, _, controls] = useAudio({ src: audioSrc || "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" });
 
   const handleClick = useCallback(() => {

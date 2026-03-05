@@ -21,7 +21,7 @@ export const HeartsModal = () => {
   const [isClient, setIsClient] = useState(false);
   const { isOpen, close } = useHeartsModal();
 
-  useEffect(() => setIsClient(true), []);
+  useEffect(() => { setIsClient(true); }, []);
 
   const onClick = () => {
     close();

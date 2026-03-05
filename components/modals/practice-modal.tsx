@@ -19,7 +19,7 @@ export const PracticeModal = () => {
   const [isClient, setIsClient] = useState(false);
   const { isOpen, close } = usePracticeModal();
 
-  useEffect(() => setIsClient(true), []);
+  useEffect(() => { setIsClient(true); }, []);
 
   if (!isClient) return null;
 
