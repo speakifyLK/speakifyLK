@@ -245,9 +245,9 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - Flagpack: https://flagpack.xyz/
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
-- [@eslint/eslintrc](https://www.npmjs.com/package/@eslint/eslintrc): ^3
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
+- [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.1.6
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
 - [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.1.8
@@ -264,9 +264,9 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [dotenv](https://www.npmjs.com/package/dotenv): ^17.3.1
 - [drizzle-kit](https://www.npmjs.com/package/drizzle-kit): ^0.31.9
 - [drizzle-orm](https://www.npmjs.com/package/drizzle-orm): ^0.45.1
-- [eslint](https://www.npmjs.com/package/eslint): ^10
-- [eslint-config-next](https://www.npmjs.com/package/eslint-config-next): 16.1.6
+- [eslint](https://www.npmjs.com/package/eslint): ^9
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
+- [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
 - [next](https://www.npmjs.com/package/next): ^16.1.6
 - [pg](https://www.npmjs.com/package/pg): ^8.20.0
@@ -287,6 +287,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [tailwindcss-animate](https://www.npmjs.com/package/tailwindcss-animate): ^1.0.7
 - [tsx](https://www.npmjs.com/package/tsx): ^4.21.0
 - [typescript](https://www.npmjs.com/package/typescript): ^5
+- [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.56.1
 - [zustand](https://www.npmjs.com/package/zustand): ^5.0.11
 
 <!--- DEPENDENCIES_END --->
