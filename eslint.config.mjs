@@ -23,8 +23,6 @@ export default tseslint.config(
         "error",
         { varsIgnorePattern: "^_", argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
       ],
-      // Demote to warning: intentional SSR hydration-guard pattern (useEffect + setState with empty deps)
-      "react-hooks/set-state-in-effect": "warn",
     },
   },
   // Ignore generated/build output and non-app tooling scripts
