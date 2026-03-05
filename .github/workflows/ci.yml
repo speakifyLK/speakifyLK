@@ -11,7 +11,6 @@ jobs:
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -31,7 +30,6 @@ jobs:
   lint:
     name: ESLint Check
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -51,11 +49,8 @@ jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
     env:
       NEXT_TELEMETRY_DISABLED: 1
-      # Secrets are not exposed to PRs from forks (GitHub default).
-      # Configure these in: Settings → Secrets and variables → Actions
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
