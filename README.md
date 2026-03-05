@@ -257,7 +257,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.36
-- [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.24
+- [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.27
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
 - [dotenv](https://www.npmjs.com/package/dotenv): ^17.3.1
@@ -266,7 +266,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [eslint](https://www.npmjs.com/package/eslint): ^10
 - [eslint-config-next](https://www.npmjs.com/package/eslint-config-next): 16.1.6
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
-- [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.575.0
+- [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
 - [next](https://www.npmjs.com/package/next): ^16.1.6
 - [pg](https://www.npmjs.com/package/pg): ^8.18.0
 - [postcss](https://www.npmjs.com/package/postcss): ^8
@@ -282,7 +282,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [sonner](https://www.npmjs.com/package/sonner): ^2.0.7
 - [stripe](https://www.npmjs.com/package/stripe): ^20.3.1
 - [tailwind-merge](https://www.npmjs.com/package/tailwind-merge): ^2.6.1
-- [tailwindcss](https://www.npmjs.com/package/tailwindcss): ^3.4.19
+- [tailwindcss](https://www.npmjs.com/package/tailwindcss): ^4.2.1
 - [tailwindcss-animate](https://www.npmjs.com/package/tailwindcss-animate): ^1.0.7
 - [tsx](https://www.npmjs.com/package/tsx): ^4.21.0
 - [typescript](https://www.npmjs.com/package/typescript): ^5
