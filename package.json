@@ -15,7 +15,7 @@
     "db:prod": "tsx ./scripts/prod.ts"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.1",
+    "@clerk/nextjs": "^6.12.12",
     "@google/genai": "^1.43.0",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -58,7 +58,7 @@
     "postcss": "^8",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "^4.2.1",
+    "tailwindcss": "^3.4.19",
     "tsx": "^4.21.0",
     "typescript": "^5"
   },
