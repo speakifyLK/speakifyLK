@@ -9,7 +9,7 @@ type QuizQuestion = {
   [key: string]: unknown;
 };
 
-type Difficulty = "easy" | "medium" | "hard" | (string & {});
+type Difficulty = "easy" | "medium" | "hard";
 
 type QuizState = {
   currentSessionId: number | null;
@@ -70,16 +70,17 @@ export const useQuizStore = create<QuizState>((set) => ({
 
   submitAnswer: () =>
     set((state) => {
-      if (state.isAnswerSubmitted || !state.isQuizActive) {
+      if (state.isAnswerSubmitted) {
         return state;
       }
 
       const currentQuestion = state.questions[state.currentQuestionIndex];
 
       if (!currentQuestion) {
+        // No valid current question found. End the quiz without marking an answer as submitted,
+        // since there is nothing to grade.
         return {
           ...state,
-          isAnswerSubmitted: true,
           isQuizActive: false,
         };
       }

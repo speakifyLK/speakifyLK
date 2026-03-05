@@ -265,7 +265,7 @@ export function buildQuizPrompt(
   // --- Validate & sanitise topic ---
   const trimmedTopic = params.topic.trim();
   if (trimmedTopic.length === 0) {
-    throw new Error('"topic" must not be empty.');
+    throw new Error(`"topic" must not be empty.`);
   }
   if (trimmedTopic.length > MAX_TOPIC_LENGTH) {
     throw new Error(
@@ -274,7 +274,7 @@ export function buildQuizPrompt(
   }
   if (!SAFE_TOPIC_PATTERN.test(trimmedTopic)) {
     throw new Error(
-      '"topic" contains invalid characters. Only letters, numbers, spaces, hyphens, and apostrophes are allowed.'
+      `"topic" contains invalid characters. Only letters, numbers, spaces, hyphens, and apostrophes are allowed.`
     );
   }
 

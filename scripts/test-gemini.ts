@@ -17,13 +17,37 @@ async function testGemini() {
 
     console.log("Gemini responded successfully:\n");
     console.log(text);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Gemini test failed:\n");
-    console.error("Status:", error.status);
-    console.error("Message:", error.message);
-    if (error.errorDetails) {
-      console.error("Details:", JSON.stringify(error.errorDetails, null, 2));
+
+    // Log the raw error for debugging
+    console.error("Raw error:", error);
+
+    // Safely try to extract structured information
+    if (typeof error === "object" && error !== null) {
+      const anyError = error as { status?: unknown; message?: unknown; errorDetails?: unknown };
+
+      if ("status" in anyError && anyError.status !== undefined) {
+        console.error("Status:", anyError.status);
+      }
+
+      if ("message" in anyError && typeof anyError.message === "string") {
+        console.error("Message:", anyError.message);
+      } else if (error instanceof Error) {
+        console.error("Message:", error.message);
+      }
+
+      if ("errorDetails" in anyError && anyError.errorDetails !== undefined) {
+        try {
+          console.error("Details:", JSON.stringify(anyError.errorDetails, null, 2));
+        } catch {
+          console.error("Details:", anyError.errorDetails);
+        }
+      }
+    } else if (error instanceof Error) {
+      console.error("Message:", error.message);
     }
+
     process.exit(1);
   }
 }

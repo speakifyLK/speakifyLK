@@ -6,6 +6,19 @@ import db from "@/db/drizzle";
 import { chatConversations, chatMessages } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
+const MAX_CONTENT_LENGTH = 4000;
+
+function validateMessageContent(content: string): string {
+  const trimmed = content.trim();
+  if (!trimmed) {
+    throw new Error("Message content cannot be empty.");
+  }
+  if (trimmed.length > MAX_CONTENT_LENGTH) {
+    throw new Error("Message content is too long.");
+  }
+  return trimmed;
+}
+
 async function assertConversationOwner(conversationId: number, userId: string) {
   const conversation = await db.query.chatConversations.findFirst({
     where: (table, { and, eq }) => and(
@@ -41,10 +54,12 @@ export const sendMessage = async (conversationId: number, content: string) => {
 
   await assertConversationOwner(conversationId, userId);
 
+  const trimmedContent = validateMessageContent(content);
+
   const [message] = await db.insert(chatMessages).values({
     conversationId,
     role: "user",
-    content,
+    content: trimmedContent,
   }).returning();
 
   await db.update(chatConversations)
@@ -62,10 +77,12 @@ export const saveAssistantMessage = async (conversationId: number, content: stri
 
   await assertConversationOwner(conversationId, userId);
 
+  const trimmedContent = validateMessageContent(content);
+
   await db.insert(chatMessages).values({
     conversationId,
     role: "assistant",
-    content,
+    content: trimmedContent,
   });
   await db.update(chatConversations)
     .set({ updatedAt: new Date() })
@@ -100,10 +117,8 @@ export const getOrCreateConversation = async () => {
     orderBy: (table, { desc }) => [desc(table.updatedAt)],
   });
 
-  if (existingConversation) {
-    revalidatePath("/chat");
-    return existingConversation.id;
-  }
+  const conversationId = existingConversation?.id ?? await createConversation();
 
-  return await createConversation();
+  revalidatePath("/chat");
+  return conversationId;
 };
