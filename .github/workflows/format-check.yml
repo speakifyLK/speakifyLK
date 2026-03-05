@@ -28,7 +28,7 @@ jobs:
         if: github.actor != 'dependabot[bot]'
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         if: github.actor != 'dependabot[bot]'
