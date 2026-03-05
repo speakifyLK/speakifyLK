@@ -2,6 +2,8 @@ import { getCourses, getUserProgress } from "@/db/queries";
 
 import { List } from "./list";
 
+export const dynamic = "force-dynamic";
+
 const CoursesPage = async () => {
   const coursesData = getCourses();
   const userProgressData = getUserProgress();
