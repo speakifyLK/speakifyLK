@@ -42,6 +42,7 @@ Here is the folder structure of this app.
 speakify/
   |- actions/
     |-- challenge-progress.ts
+    |-- chat.ts
     |-- user-progress.ts
     |-- user-subscription.ts
   |- app/
