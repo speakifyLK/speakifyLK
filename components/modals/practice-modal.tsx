@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import Image from "next/image";
 
@@ -16,10 +16,8 @@ import {
 import { usePracticeModal } from "@/store/use-practice-modal";
 
 export const PracticeModal = () => {
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useSyncExternalStore(() => () => {}, () => true, () => false);
   const { isOpen, close } = usePracticeModal();
-
-  useEffect(() => { setIsClient(true); }, []);
 
   if (!isClient) return null;
 
