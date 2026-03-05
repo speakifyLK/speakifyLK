@@ -1,7 +1,7 @@
 import { cache } from "react";
 
 import { auth } from "@clerk/nextjs/server";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc } from "drizzle-orm";
 
 import db from "./drizzle";
 import {
@@ -256,7 +256,7 @@ export const getConversations = cache(async () => {
 
   const data = await db.query.chatConversations.findMany({
     where: eq(chatConversations.userId, userId),
-    orderBy: [desc(chatConversations.updatedAt)],
+    orderBy: (chatConversations, { desc }) => [desc(chatConversations.updatedAt)],
   });
 
   return data;
@@ -268,16 +268,18 @@ export const getConversationById = cache(async (conversationId: number) => {
   if (!userId) return null;
 
   const data = await db.query.chatConversations.findFirst({
-    where: eq(chatConversations.id, conversationId),
+    where: and(
+      eq(chatConversations.id, conversationId),
+      eq(chatConversations.userId, userId)
+    ),
     with: {
       messages: {
-        orderBy: [asc(chatMessages.timestamp)],
+        orderBy: (messages, { asc }) => [asc(messages.timestamp)],
       },
     },
   });
 
-  // Ensure the conversation belongs to the current user
-  if (!data || data.userId !== userId) return null;
+  if (!data) return null;
 
   return data;
 });
@@ -288,16 +290,19 @@ export const getMessagesByConversation = cache(
 
     if (!userId) return [];
 
-    // Verify conversation ownership first
+    // Verify conversation ownership at DB level
     const conversation = await db.query.chatConversations.findFirst({
-      where: eq(chatConversations.id, conversationId),
+      where: and(
+        eq(chatConversations.id, conversationId),
+        eq(chatConversations.userId, userId)
+      ),
     });
 
-    if (!conversation || conversation.userId !== userId) return [];
+    if (!conversation) return [];
 
     const data = await db.query.chatMessages.findMany({
       where: eq(chatMessages.conversationId, conversationId),
-      orderBy: [asc(chatMessages.timestamp)],
+      orderBy: (messages, { asc }) => [asc(messages.timestamp)],
       limit,
       offset,
     });
