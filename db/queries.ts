@@ -1,11 +1,13 @@
 import { cache } from "react";
 
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { eq, desc, asc } from "drizzle-orm";
 
 import db from "./drizzle";
 import {
   challengeProgress,
+  chatConversations,
+  chatMessages,
   courses,
   lessons,
   units,
@@ -244,3 +246,62 @@ export const getTopTenUsers = cache(async () => {
 
   return data;
 });
+
+// ── Chat Queries ─────────────────────────────────────────────────────
+
+export const getConversations = cache(async () => {
+  const { userId } = await auth();
+
+  if (!userId) return [];
+
+  const data = await db.query.chatConversations.findMany({
+    where: eq(chatConversations.userId, userId),
+    orderBy: [desc(chatConversations.updatedAt)],
+  });
+
+  return data;
+});
+
+export const getConversationById = cache(async (conversationId: number) => {
+  const { userId } = await auth();
+
+  if (!userId) return null;
+
+  const data = await db.query.chatConversations.findFirst({
+    where: eq(chatConversations.id, conversationId),
+    with: {
+      messages: {
+        orderBy: [asc(chatMessages.timestamp)],
+      },
+    },
+  });
+
+  // Ensure the conversation belongs to the current user
+  if (!data || data.userId !== userId) return null;
+
+  return data;
+});
+
+export const getMessagesByConversation = cache(
+  async (conversationId: number, limit = 20, offset = 0) => {
+    const { userId } = await auth();
+
+    if (!userId) return [];
+
+    // Verify conversation ownership first
+    const conversation = await db.query.chatConversations.findFirst({
+      where: eq(chatConversations.id, conversationId),
+    });
+
+    if (!conversation || conversation.userId !== userId) return [];
+
+    const data = await db.query.chatMessages.findMany({
+      where: eq(chatMessages.conversationId, conversationId),
+      orderBy: [asc(chatMessages.timestamp)],
+      limit,
+      offset,
+    });
+
+    return data;
+  }
+);
