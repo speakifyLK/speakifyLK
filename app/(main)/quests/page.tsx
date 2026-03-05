@@ -1,8 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Promo } from "@/components/promo";
 import { StickyWrapper } from "@/components/sticky-wrapper";
@@ -10,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { UserProgress } from "@/components/user-progress";
 import { QUESTS } from "@/constants";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
+
+export const dynamic = "force-dynamic";
 
 const QuestsPage = async () => {
   const userProgressData = getUserProgress();

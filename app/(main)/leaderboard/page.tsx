@@ -1,8 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
@@ -15,6 +13,8 @@ import {
   getUserProgress,
   getUserSubscription,
 } from "@/db/queries";
+
+export const dynamic = "force-dynamic";
 
 const LeaderboardPage = async () => {
   const userProgressData = getUserProgress();

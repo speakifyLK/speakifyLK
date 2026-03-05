@@ -5,6 +5,7 @@ import { getLesson, getUserProgress, getUserSubscription } from "@/db/queries";
 import { Quiz } from "./quiz";
 
 export const dynamic = "force-dynamic";
+
 const LessonPage = async () => {
   const lessonData = getLesson();
   const userProgressData = getUserProgress();

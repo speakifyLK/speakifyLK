@@ -11,96 +11,75 @@ jobs:
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     steps:
-      - name: Skip for Dependabot
-        if: github.actor == 'dependabot[bot]'
-        run: echo "Skipping CI for Dependabot PR"
-
       - name: Checkout code
-        if: github.actor != 'dependabot[bot]'
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        if: github.actor != 'dependabot[bot]'
         uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        if: github.actor != 'dependabot[bot]'
         run: npm ci
 
       - name: Run TypeScript type check
-        if: github.actor != 'dependabot[bot]'
         run: npx tsc --noEmit
 
   lint:
     name: ESLint Check
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     steps:
-      - name: Skip for Dependabot
-        if: github.actor == 'dependabot[bot]'
-        run: echo "Skipping CI for Dependabot PR"
-
       - name: Checkout code
-        if: github.actor != 'dependabot[bot]'
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        if: github.actor != 'dependabot[bot]'
         uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        if: github.actor != 'dependabot[bot]'
         run: npm ci
 
       - name: Run ESLint
-        if: github.actor != 'dependabot[bot]'
         run: npm run lint
 
   build:
     name: Build Check
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     env:
       NEXT_TELEMETRY_DISABLED: 1
-      # Configure these secrets in your GitHub repo settings:
-      # Settings → Secrets and variables → Actions
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      # Use non-sensitive dummy values for PR build validation.
+      # Real secrets should only be used in trusted workflows (e.g., push to main).
+      DATABASE_URL: postgres://user:pass@localhost:5432/db
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dummy
+      CLERK_SECRET_KEY: sk_test_dummy
       NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
       NEXT_PUBLIC_CLERK_SIGN_UP_URL: /sign-up
       NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: /
       NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: /
-      STRIPE_API_SECRET_KEY: ${{ secrets.STRIPE_API_SECRET_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
-      CLERK_ADMIN_IDS: ${{ secrets.CLERK_ADMIN_IDS }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      STRIPE_API_SECRET_KEY: sk_test_dummy
+      STRIPE_WEBHOOK_SECRET: whsec_dummy
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      CLERK_ADMIN_IDS: user_dummy
+      GEMINI_API_KEY: dummy_gemini_key
     steps:
-      - name: Skip for Dependabot
-        if: github.actor == 'dependabot[bot]'
-        run: echo "Skipping CI for Dependabot PR"
-
       - name: Checkout code
-        if: github.actor != 'dependabot[bot]'
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        if: github.actor != 'dependabot[bot]'
         uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        if: github.actor != 'dependabot[bot]'
         run: npm ci
 
       - name: Build Next.js app
-        if: github.actor != 'dependabot[bot]'
         run: npm run build
