@@ -1,22 +1,24 @@
 name: Update README Dependencies and Structure
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'README.md'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
 
 jobs:
   update-readme:
-    permissions:
-      contents: write
-      pull-requests: write
+    name: Update README on PR branch
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout PR branch
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -124,20 +126,20 @@ jobs:
           fs.writeFileSync(readmePath, readme);
           "
 
-      - name: Create Pull Request
-        id: create-pr
-        uses: peter-evans/create-pull-request@v8
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: update dependencies and folder structure in README"
-          branch: bot/update-readme
-          delete-branch: true
-          title: "docs: update dependencies and folder structure in README"
-          body: "Automated README update triggered by a push to `main`."
-          labels: documentation
+      - name: Check for README changes
+        id: check_changes
+        run: |
+          if [[ -n $(git diff --name-only -- README.md) ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Enable auto-merge on README PR
-        if: steps.create-pr.outputs.pull-request-operation == 'created' || steps.create-pr.outputs.pull-request-operation == 'updated'
-        run: gh pr merge --auto --squash "${{ steps.create-pr.outputs.pull-request-url }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit updated README
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git commit -m "docs: update dependencies and folder structure in README"
+          git push
