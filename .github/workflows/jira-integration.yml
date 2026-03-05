@@ -13,6 +13,7 @@ jobs:
   sync-with-jira:
     name: Sync PR with Jira
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]' && github.actor != 'copilot[bot]'
     steps:
       - name: Sync PR with Jira
         uses: actions/github-script@v8
@@ -357,6 +358,7 @@ jobs:
   validate-commits:
     name: Validate commit messages
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]' && github.actor != 'copilot[bot]'
     steps:
       - name: Check commits for Jira references
         uses: actions/github-script@v8
