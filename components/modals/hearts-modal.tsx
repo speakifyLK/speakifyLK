@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -18,10 +18,8 @@ import { useHeartsModal } from "@/store/use-hearts-modal";
 
 export const HeartsModal = () => {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useSyncExternalStore(() => () => {}, () => true, () => false);
   const { isOpen, close } = useHeartsModal();
-
-  useEffect(() => setIsClient(true), []);
 
   const onClick = () => {
     close();

@@ -43,9 +43,9 @@ export const Quiz = ({
   initialLessonChallenges,
   userSubscription,
 }: QuizProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [incorrectAudio, _i, incorrectControls] = useAudio({
     src: "/incorrect.wav",
   });

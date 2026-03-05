@@ -14,6 +14,8 @@ import {
   getUserSubscription,
 } from "@/db/queries";
 
+export const dynamic = "force-dynamic";
+
 const LeaderboardPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();

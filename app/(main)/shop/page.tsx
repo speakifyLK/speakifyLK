@@ -9,6 +9,8 @@ import { getUserProgress, getUserSubscription } from "@/db/queries";
 
 import { Items } from "./items";
 
+export const dynamic = "force-dynamic";
+
 const ShopPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
