@@ -12,6 +12,7 @@ jobs:
   update-readme:
     name: Update README on PR branch
     runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
 
     steps:
       - name: Check if triggered by bot commit
