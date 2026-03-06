@@ -88,8 +88,8 @@ const MAX_CONTEXT_ITEM_LENGTH = 80;
  */
 function sanitiseContextItem(raw: string): string {
   return raw
-    .replace(/[\r\n\t]+/g, " ")       // collapse newlines / tabs → space
-    .replace(/[^\P{C}\s]/gu, "")       // strip remaining control chars
+    .replace(/[\r\n\t]+/g, " ") // collapse newlines / tabs → space
+    .replace(/[^\P{C}\s]/gu, "") // strip remaining control chars
     .trim()
     .slice(0, MAX_CONTEXT_ITEM_LENGTH);
 }
@@ -118,14 +118,10 @@ function buildLearningContextBlock(ctx: LearningContext | undefined): string {
   ];
 
   if (completed.length > 0) {
-    lines.push(
-      `- Topics they have completed: ${completed.join(", ")}.`
-    );
+    lines.push(`- Topics they have completed: ${completed.join(", ")}.`);
   }
   if (weak.length > 0) {
-    lines.push(
-      `- Topics they STRUGGLE with (focus more questions here): ${weak.join(", ")}.`
-    );
+    lines.push(`- Topics they STRUGGLE with (focus more questions here): ${weak.join(", ")}.`);
   }
   if (strong.length > 0) {
     lines.push(
@@ -313,10 +309,7 @@ Example response format:
 // ---------------------------------------------------------------------------
 
 /** Map of quiz type to its prompt builder (Map avoids prototype-chain lookups) */
-const promptBuilders = new Map<
-  QuizType,
-  (params: QuizPromptParams) => string
->([
+const promptBuilders = new Map<QuizType, (params: QuizPromptParams) => string>([
   ["MULTIPLE_CHOICE", buildMultipleChoicePrompt],
   ["FILL_IN_BLANK", buildFillInBlankPrompt],
   ["TRANSLATION", buildTranslationPrompt],
@@ -336,20 +329,13 @@ const promptBuilders = new Map<
  * });
  * ```
  */
-export function buildQuizPrompt(
-  type: QuizType,
-  params: QuizPromptParams
-): string {
+export function buildQuizPrompt(type: QuizType, params: QuizPromptParams): string {
   // --- Validate count ---
   if (!Number.isInteger(params.count) || params.count < 1) {
-    throw new Error(
-      `"count" must be a positive integer, received: ${params.count}`
-    );
+    throw new Error(`"count" must be a positive integer, received: ${params.count}`);
   }
   if (params.count > MAX_QUESTION_COUNT) {
-    throw new Error(
-      `"count" must not exceed ${MAX_QUESTION_COUNT}, received: ${params.count}`
-    );
+    throw new Error(`"count" must not exceed ${MAX_QUESTION_COUNT}, received: ${params.count}`);
   }
 
   // --- Validate & sanitise topic ---

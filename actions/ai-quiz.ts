@@ -41,10 +41,7 @@ interface GeneratedQuestion {
 // ---------------------------------------------------------------------------
 
 /** Assert a field is a non-empty string, or throw with a clear message. */
-function requireString(
-  value: unknown,
-  label: string
-): string {
+function requireString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.trim().length === 0) {
     throw new Error(
       `Invalid AI response: "${label}" must be a non-empty string, received: ${JSON.stringify(value)}`
@@ -58,28 +55,20 @@ function normaliseMultipleChoice(raw: Record<string, unknown>): GeneratedQuestio
   const explanation = requireString(raw.explanation, "explanation");
 
   if (!Array.isArray(raw.options)) {
-    throw new Error(
-      "Invalid AI response: \"options\" must be an array."
-    );
+    throw new Error('Invalid AI response: "options" must be an array.');
   }
   if (raw.options.length !== 4) {
-    throw new Error(
-      `Invalid AI response: expected 4 options, received ${raw.options.length}.`
-    );
+    throw new Error(`Invalid AI response: expected 4 options, received ${raw.options.length}.`);
   }
 
   const options = raw.options.map((o: unknown, i: number) => {
     if (o === null || typeof o !== "object") {
-      throw new Error(
-        `Invalid AI response: option at index ${i} is not an object.`
-      );
+      throw new Error(`Invalid AI response: option at index ${i} is not an object.`);
     }
     const opt = o as { text?: unknown; isCorrect?: unknown };
     const text = requireString(opt.text, `options[${i}].text`);
     if (typeof opt.isCorrect !== "boolean") {
-      throw new Error(
-        `Invalid AI response: options[${i}].isCorrect must be a boolean.`
-      );
+      throw new Error(`Invalid AI response: options[${i}].isCorrect must be a boolean.`);
     }
     return { text, isCorrect: opt.isCorrect };
   });
@@ -131,10 +120,7 @@ function normaliseTranslation(raw: Record<string, unknown>): GeneratedQuestion {
   };
 }
 
-const normalisers: Record<
-  QuizType,
-  (raw: Record<string, unknown>) => GeneratedQuestion
-> = {
+const normalisers: Record<QuizType, (raw: Record<string, unknown>) => GeneratedQuestion> = {
   MULTIPLE_CHOICE: normaliseMultipleChoice,
   FILL_IN_BLANK: normaliseFillInBlank,
   TRANSLATION: normaliseTranslation,
