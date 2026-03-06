@@ -9,6 +9,8 @@ import { UserProgress } from "@/components/user-progress";
 import { QUESTS } from "@/constants";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 
+export const dynamic = "force-dynamic";
+
 const QuestsPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();

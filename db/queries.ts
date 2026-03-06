@@ -1,11 +1,13 @@
 import { cache } from "react";
 
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 import db from "./drizzle";
 import {
   challengeProgress,
+  chatConversations,
+  chatMessages,
   courses,
   lessons,
   units,
@@ -244,3 +246,72 @@ export const getTopTenUsers = cache(async () => {
 
   return data;
 });
+
+// ── Chat Queries ─────────────────────────────────────────────────────
+
+export const getConversations = cache(async () => {
+  const { userId } = await auth();
+
+  if (!userId) return [];
+
+  const data = await db.query.chatConversations.findMany({
+    where: eq(chatConversations.userId, userId),
+    orderBy: (chatConversations, { desc }) => [desc(chatConversations.updatedAt)],
+  });
+
+  return data;
+});
+
+export const getConversationById = cache(async (conversationId: number) => {
+  const { userId } = await auth();
+
+  if (!userId) return null;
+
+  const data = await db.query.chatConversations.findFirst({
+    where: and(
+      eq(chatConversations.id, conversationId),
+      eq(chatConversations.userId, userId)
+    ),
+    with: {
+      messages: {
+        orderBy: (messages, { asc }) => [asc(messages.timestamp)],
+      },
+    },
+  });
+
+  if (!data) return null;
+
+  return data;
+});
+
+export const getMessagesByConversation = cache(
+  async (conversationId: number, limit = 20, offset = 0) => {
+    const { userId } = await auth();
+
+    if (!userId) return [];
+
+    // Verify conversation ownership at DB level
+    const conversation = await db.query.chatConversations.findFirst({
+      where: and(
+        eq(chatConversations.id, conversationId),
+        eq(chatConversations.userId, userId)
+      ),
+    });
+
+    if (!conversation) return [];
+
+    // Clamp pagination parameters to prevent expensive or invalid queries
+    const MAX_LIMIT = 100;
+    const safeLimit = Math.min(Math.max(1, Math.floor(limit)), MAX_LIMIT);
+    const safeOffset = Math.max(0, Math.floor(offset));
+
+    const data = await db.query.chatMessages.findMany({
+      where: eq(chatMessages.conversationId, conversationId),
+      orderBy: (messages, { asc }) => [asc(messages.timestamp)],
+      limit: safeLimit,
+      offset: safeOffset,
+    });
+
+    return data;
+  }
+);
