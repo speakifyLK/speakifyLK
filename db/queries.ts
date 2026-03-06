@@ -300,11 +300,16 @@ export const getMessagesByConversation = cache(
 
     if (!conversation) return [];
 
+    // Clamp pagination parameters to prevent expensive or invalid queries
+    const MAX_LIMIT = 100;
+    const safeLimit = Math.min(Math.max(1, Math.floor(limit)), MAX_LIMIT);
+    const safeOffset = Math.max(0, Math.floor(offset));
+
     const data = await db.query.chatMessages.findMany({
       where: eq(chatMessages.conversationId, conversationId),
       orderBy: (messages, { asc }) => [asc(messages.timestamp)],
-      limit,
-      offset,
+      limit: safeLimit,
+      offset: safeOffset,
     });
 
     return data;
