@@ -27,6 +27,20 @@ const SAFE_TOPIC_PATTERN = /^[\p{L}\p{N}\s'\-]+$/u;
 export type QuizType = "MULTIPLE_CHOICE" | "FILL_IN_BLANK" | "TRANSLATION";
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
+/** Context about what the user has already learned in the platform. */
+export interface LearningContext {
+  /** Lesson/topic names the user has fully completed */
+  completedTopics: string[];
+  /** Topics where the user scored below 50 % */
+  weakTopics: string[];
+  /** Topics where the user scored 80 %+ */
+  strongTopics: string[];
+  /** Sinhala words/phrases the user frequently gets wrong */
+  frequentlyMissedWords: string[];
+  /** Derived overall proficiency level */
+  overallLevel: Difficulty;
+}
+
 export interface QuizPromptParams {
   /** Topic area, e.g. 'greetings', 'colours', 'numbers', 'food' */
   topic: string;
@@ -34,6 +48,8 @@ export interface QuizPromptParams {
   difficulty: Difficulty;
   /** Number of questions to generate */
   count: number;
+  /** Optional – when provided, Gemini tailors questions to the learner */
+  learningContext?: LearningContext;
 }
 
 // ---------------------------------------------------------------------------
@@ -62,6 +78,49 @@ const difficultyGuidelines: Record<Difficulty, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// Learning-context block injected into every prompt when available
+// ---------------------------------------------------------------------------
+
+function buildLearningContextBlock(ctx: LearningContext | undefined): string {
+  if (!ctx) return "";
+
+  const lines: string[] = [
+    "",
+    "PERSONALISATION — this learner's progress in the SpeakifyLK platform:",
+  ];
+
+  if (ctx.completedTopics.length > 0) {
+    lines.push(
+      `- Topics they have completed: ${ctx.completedTopics.join(", ")}.`
+    );
+  }
+  if (ctx.weakTopics.length > 0) {
+    lines.push(
+      `- Topics they STRUGGLE with (focus more questions here): ${ctx.weakTopics.join(", ")}.`
+    );
+  }
+  if (ctx.strongTopics.length > 0) {
+    lines.push(
+      `- Topics they are STRONG in (include a few review questions): ${ctx.strongTopics.join(", ")}.`
+    );
+  }
+  if (ctx.frequentlyMissedWords.length > 0) {
+    lines.push(
+      `- Words they frequently get wrong (try to include some of these): ${ctx.frequentlyMissedWords.join(", ")}.`
+    );
+  }
+  lines.push(`- Overall proficiency level: ${ctx.overallLevel}.`);
+  lines.push("");
+  lines.push(
+    "Use the information above to personalise the questions. " +
+      "Only use vocabulary and concepts from topics the learner has already studied. " +
+      "Prioritise their weak areas so they can improve."
+  );
+
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------
 // Template builders
 // ---------------------------------------------------------------------------
 
@@ -81,7 +140,7 @@ const difficultyGuidelines: Record<Difficulty, string> = {
  * ```
  */
 function buildMultipleChoicePrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count } = params;
+  const { topic, difficulty, count, learningContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -90,6 +149,7 @@ Generate exactly ${count} MULTIPLE-CHOICE question(s) about the topic "${topic}"
 
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
+${buildLearningContextBlock(learningContext)}
 
 For each question, respond with an object that has:
 - "question": A clear Sinhala-language question (string).
@@ -132,7 +192,7 @@ Example response format:
  * ```
  */
 function buildFillInBlankPrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count } = params;
+  const { topic, difficulty, count, learningContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -141,6 +201,7 @@ Generate exactly ${count} FILL-IN-THE-BLANK question(s) about the topic "${topic
 
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
+${buildLearningContextBlock(learningContext)}
 
 For each question, respond with an object that has:
 - "sentence": A Sinhala sentence with a blank represented by "___" where the missing word should be (string).
@@ -177,7 +238,7 @@ Example response format:
  * ```
  */
 function buildTranslationPrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count } = params;
+  const { topic, difficulty, count, learningContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -186,6 +247,7 @@ Generate exactly ${count} TRANSLATION question(s) about the topic "${topic}".
 
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
+${buildLearningContextBlock(learningContext)}
 
 Mix the translation direction: some questions should be Sinhala-to-English, others English-to-Sinhala.
 
