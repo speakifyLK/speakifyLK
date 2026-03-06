@@ -41,6 +41,7 @@ Here is the folder structure of this app.
 ```bash
 speakify/
   |- actions/
+    |-- ai-quiz.ts
     |-- challenge-progress.ts
     |-- chat.ts
     |-- user-progress.ts
