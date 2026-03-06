@@ -312,15 +312,15 @@ Example response format:
 // Public API
 // ---------------------------------------------------------------------------
 
-/** Map of quiz type to its prompt builder */
-const promptBuilders: Record<
+/** Map of quiz type to its prompt builder (Map avoids prototype-chain lookups) */
+const promptBuilders = new Map<
   QuizType,
   (params: QuizPromptParams) => string
-> = {
-  MULTIPLE_CHOICE: buildMultipleChoicePrompt,
-  FILL_IN_BLANK: buildFillInBlankPrompt,
-  TRANSLATION: buildTranslationPrompt,
-};
+>([
+  ["MULTIPLE_CHOICE", buildMultipleChoicePrompt],
+  ["FILL_IN_BLANK", buildFillInBlankPrompt],
+  ["TRANSLATION", buildTranslationPrompt],
+]);
 
 /**
  * Returns a fully-formed prompt string for the given quiz type and parameters.
@@ -373,11 +373,11 @@ export function buildQuizPrompt(
     topic: trimmedTopic,
   };
 
-  const builder = promptBuilders[type];
-  if (!builder) {
+  if (!promptBuilders.has(type)) {
     throw new Error(
-      `Unknown quiz type "${type}". Expected one of: ${Object.keys(promptBuilders).join(", ")}`
+      `Unknown quiz type "${type}". Expected one of: ${[...promptBuilders.keys()].join(", ")}`
     );
   }
+  const builder = promptBuilders.get(type)!;
   return builder(sanitisedParams);
 }
