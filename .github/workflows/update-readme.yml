@@ -48,7 +48,7 @@ jobs:
         if: steps.check_bot.outputs.is_bot != 'true'
         uses: actions/setup-node@v6
         with:
-          node-version: 'lts/*'
+          node-version: "lts/*"
 
       - name: Update README.md
         if: steps.check_bot.outputs.is_bot != 'true'

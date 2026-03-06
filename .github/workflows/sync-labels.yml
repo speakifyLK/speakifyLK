@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'config/labels.yml'
+      - "config/labels.yml"
   workflow_dispatch:
 
 jobs:

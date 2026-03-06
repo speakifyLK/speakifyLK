@@ -19,8 +19,8 @@ jobs:
         uses: actions/github-script@v8
         env:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
-          JIRA_BASE_URL: 'https://speakifylk.atlassian.net'
-          JIRA_EMAIL: 'desilvabethmin@gmail.com'
+          JIRA_BASE_URL: "https://speakifylk.atlassian.net"
+          JIRA_EMAIL: "desilvabethmin@gmail.com"
         with:
           script: |
             const title = context.payload.pull_request.title;
