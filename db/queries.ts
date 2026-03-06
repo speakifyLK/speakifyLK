@@ -450,34 +450,32 @@ export const getUserLearningProfile = cache(
     }));
 
     // ── 4. Gather frequently-missed words from AI-quiz answers ──
-    const wrongAnswers = await db.query.aiQuizQuestions.findMany({
-      where: eq(aiQuizQuestions.isCorrect, false),
-      columns: {
-        correctAnswer: true,
-        sessionId: true,
-      },
-      limit: 50,
+    // First get all this user's session IDs, then query wrong answers
+    // scoped to those sessions (avoids reading other users' data).
+    const userSessions = await db.query.aiQuizSessions.findMany({
+      where: eq(aiQuizSessions.userId, userId),
+      columns: { id: true },
     });
+    const userSessionIds = userSessions.map((s) => s.id);
 
-    // Filter to only this user's sessions
-    const userSessionIds = new Set(
-      recentSessions.length > 0
-        ? (
-            await db.query.aiQuizSessions.findMany({
-              where: eq(aiQuizSessions.userId, userId),
-              columns: { id: true },
-            })
-          ).map((s) => s.id)
-        : []
-    );
+    let frequentlyMissedWords: string[] = [];
 
-    const frequentlyMissedWords = [
-      ...new Set(
-        wrongAnswers
-          .filter((a) => userSessionIds.has(a.sessionId))
-          .map((a) => a.correctAnswer)
-      ),
-    ].slice(0, 20);
+    if (userSessionIds.length > 0) {
+      // Fetch wrong answers only for this user's sessions
+      const allWrong: string[] = [];
+      for (const sid of userSessionIds) {
+        const wrong = await db.query.aiQuizQuestions.findMany({
+          where: and(
+            eq(aiQuizQuestions.sessionId, sid),
+            eq(aiQuizQuestions.isCorrect, false)
+          ),
+          columns: { correctAnswer: true },
+          limit: 50,
+        });
+        allWrong.push(...wrong.map((w) => w.correctAnswer));
+      }
+      frequentlyMissedWords = [...new Set(allWrong)].slice(0, 20);
+    }
 
     // ── 5. Derive overall level ──
     const completionRatio =
