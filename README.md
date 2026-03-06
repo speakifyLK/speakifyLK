@@ -244,7 +244,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - Elevenlabs AI: https://elevenlabs.io/
 - Flagpack: https://flagpack.xyz/
 <!--- DEPENDENCIES_START --->
-- [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
+- [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^7.0.1
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.1.6
