@@ -37,38 +37,97 @@ interface GeneratedQuestion {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers – normalise Gemini's JSON into a uniform shape
+// Helpers – validate & normalise Gemini's JSON into a uniform shape
 // ---------------------------------------------------------------------------
 
+/** Assert a field is a non-empty string, or throw with a clear message. */
+function requireString(
+  value: unknown,
+  label: string
+): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(
+      `Invalid AI response: "${label}" must be a non-empty string, received: ${JSON.stringify(value)}`
+    );
+  }
+  return value.trim();
+}
+
 function normaliseMultipleChoice(raw: Record<string, unknown>): GeneratedQuestion {
-  const options = raw.options as { text: string; isCorrect: boolean }[];
-  const correct = options.find((o) => o.isCorrect);
+  const question = requireString(raw.question, "question");
+  const explanation = requireString(raw.explanation, "explanation");
+
+  if (!Array.isArray(raw.options)) {
+    throw new Error(
+      "Invalid AI response: \"options\" must be an array."
+    );
+  }
+  if (raw.options.length !== 4) {
+    throw new Error(
+      `Invalid AI response: expected 4 options, received ${raw.options.length}.`
+    );
+  }
+
+  const options = raw.options.map((o: unknown, i: number) => {
+    if (o === null || typeof o !== "object") {
+      throw new Error(
+        `Invalid AI response: option at index ${i} is not an object.`
+      );
+    }
+    const opt = o as { text?: unknown; isCorrect?: unknown };
+    const text = requireString(opt.text, `options[${i}].text`);
+    if (typeof opt.isCorrect !== "boolean") {
+      throw new Error(
+        `Invalid AI response: options[${i}].isCorrect must be a boolean.`
+      );
+    }
+    return { text, isCorrect: opt.isCorrect };
+  });
+
+  const correctOptions = options.filter((o) => o.isCorrect);
+  if (correctOptions.length !== 1) {
+    throw new Error(
+      `Invalid AI response: expected exactly 1 correct option, found ${correctOptions.length}.`
+    );
+  }
+
   return {
-    question: raw.question as string,
-    correctAnswer: correct?.text ?? "",
+    question,
+    correctAnswer: correctOptions[0].text,
     options,
-    explanation: raw.explanation as string,
+    explanation,
   };
 }
 
 function normaliseFillInBlank(raw: Record<string, unknown>): GeneratedQuestion {
+  const question = requireString(raw.sentence, "sentence");
+  const correctAnswer = requireString(raw.answer, "answer");
+  const explanation = requireString(raw.explanation, "explanation");
+
   return {
-    question: raw.sentence as string,
-    correctAnswer: raw.answer as string,
-    options: { hint: raw.hint },
-    explanation: raw.explanation as string,
+    question,
+    correctAnswer,
+    options: { hint: typeof raw.hint === "string" ? raw.hint.trim() : "" },
+    explanation,
   };
 }
 
 function normaliseTranslation(raw: Record<string, unknown>): GeneratedQuestion {
+  const question = requireString(raw.sourceText, "sourceText");
+  const correctAnswer = requireString(raw.correctTranslation, "correctTranslation");
+  const explanation = requireString(raw.explanation, "explanation");
+  requireString(raw.sourceLanguage, "sourceLanguage");
+
   return {
-    question: raw.sourceText as string,
-    correctAnswer: raw.correctTranslation as string,
+    question,
+    correctAnswer,
     options: {
       sourceLanguage: raw.sourceLanguage,
-      acceptableAlternatives: raw.acceptableAlternatives,
+      acceptableAlternatives: Array.isArray(raw.acceptableAlternatives)
+        ? raw.acceptableAlternatives
+        : [],
     },
-    explanation: raw.explanation as string,
+    explanation,
   };
 }
 
