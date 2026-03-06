@@ -77,36 +77,64 @@ const difficultyGuidelines: Record<Difficulty, string> = {
     "Do not include transliteration.",
 };
 
-// ---------------------------------------------------------------------------
-// Learning-context block injected into every prompt when available
-// ---------------------------------------------------------------------------
+/** Max items per list to prevent token bloat */
+const MAX_CONTEXT_LIST_ITEMS = 15;
+/** Max length per individual item string */
+const MAX_CONTEXT_ITEM_LENGTH = 80;
+
+/**
+ * Sanitise a single context string: strip control characters, collapse
+ * whitespace, and truncate to a safe length.
+ */
+function sanitiseContextItem(raw: string): string {
+  return raw
+    .replace(/[\r\n\t]+/g, " ")       // collapse newlines / tabs → space
+    .replace(/[^\P{C}\s]/gu, "")       // strip remaining control chars
+    .trim()
+    .slice(0, MAX_CONTEXT_ITEM_LENGTH);
+}
+
+/**
+ * Sanitise and cap a list of context strings.
+ */
+function sanitiseContextList(items: string[]): string[] {
+  return items
+    .slice(0, MAX_CONTEXT_LIST_ITEMS)
+    .map(sanitiseContextItem)
+    .filter((s) => s.length > 0);
+}
 
 function buildLearningContextBlock(ctx: LearningContext | undefined): string {
   if (!ctx) return "";
+
+  const completed = sanitiseContextList(ctx.completedTopics);
+  const weak = sanitiseContextList(ctx.weakTopics);
+  const strong = sanitiseContextList(ctx.strongTopics);
+  const missed = sanitiseContextList(ctx.frequentlyMissedWords);
 
   const lines: string[] = [
     "",
     "PERSONALISATION — this learner's progress in the SpeakifyLK platform:",
   ];
 
-  if (ctx.completedTopics.length > 0) {
+  if (completed.length > 0) {
     lines.push(
-      `- Topics they have completed: ${ctx.completedTopics.join(", ")}.`
+      `- Topics they have completed: ${completed.join(", ")}.`
     );
   }
-  if (ctx.weakTopics.length > 0) {
+  if (weak.length > 0) {
     lines.push(
-      `- Topics they STRUGGLE with (focus more questions here): ${ctx.weakTopics.join(", ")}.`
+      `- Topics they STRUGGLE with (focus more questions here): ${weak.join(", ")}.`
     );
   }
-  if (ctx.strongTopics.length > 0) {
+  if (strong.length > 0) {
     lines.push(
-      `- Topics they are STRONG in (include a few review questions): ${ctx.strongTopics.join(", ")}.`
+      `- Topics they are STRONG in (include a few review questions): ${strong.join(", ")}.`
     );
   }
-  if (ctx.frequentlyMissedWords.length > 0) {
+  if (missed.length > 0) {
     lines.push(
-      `- Words they frequently get wrong (try to include some of these): ${ctx.frequentlyMissedWords.join(", ")}.`
+      `- Words they frequently get wrong (try to include some of these): ${missed.join(", ")}.`
     );
   }
   lines.push(`- Overall proficiency level: ${ctx.overallLevel}.`);
