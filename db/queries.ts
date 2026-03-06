@@ -450,11 +450,13 @@ export const getUserLearningProfile = cache(
     }));
 
     // ── 4. Gather frequently-missed words from AI-quiz answers ──
-    // First get all this user's session IDs, then query wrong answers
-    // scoped to those sessions (avoids reading other users' data).
+    // First get this user's most recent session IDs (bounded),
+    // then query wrong answers scoped to those sessions.
     const userSessions = await db.query.aiQuizSessions.findMany({
       where: eq(aiQuizSessions.userId, userId),
+      orderBy: (s, { desc }) => [desc(s.startedAt)],
       columns: { id: true },
+      limit: 20,
     });
     const userSessionIds = userSessions.map((s) => s.id);
 
