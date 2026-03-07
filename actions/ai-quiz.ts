@@ -83,10 +83,7 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
   const responseText = geminiResponse.text ?? "";
 
   // ── 3. Parse & normalise questions (shared logic) ──
-  const questions: ParsedQuestion[] = parseGeminiQuizResponse(
-    responseText,
-    input.type
-  );
+  const questions: ParsedQuestion[] = parseGeminiQuizResponse(responseText, input.type);
 
   // ── 4. Save to database ──
   const [session] = await db
