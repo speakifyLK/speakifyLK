@@ -38,13 +38,13 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
     |-- ai-quiz.ts
     |-- challenge-progress.ts
     |-- chat.ts
+    |-- quiz.ts
     |-- user-progress.ts
     |-- user-subscription.ts
   |- app/
@@ -120,7 +120,6 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />

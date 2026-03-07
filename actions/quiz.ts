@@ -19,7 +19,7 @@ function normalizeString(str: string): string {
   return str
     .trim()
     .toLowerCase()
-    .replace(/[^\w\s]/g, "") // Remove punctuation
+    .replace(/[\p{P}\p{S}]/gu, "") // Remove punctuation and symbols (Unicode-aware)
     .replace(/\s+/g, " ") // Replace multiple spaces with single space
     .trim();
 }
@@ -178,6 +178,10 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
+  const normalizedUserAnswer = userAnswer?.trim();
+  if (!normalizedUserAnswer) {
+    throw new Error("Answer cannot be empty.");
+  }
   // Fetch the question with its session
   const question = await db.query.aiQuizQuestions.findFirst({
     where: eq(aiQuizQuestions.id, questionId),
@@ -308,4 +312,3 @@ export async function completeQuizSession(sessionId: number) {
 
   return completedSession;
 }
-
