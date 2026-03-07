@@ -242,19 +242,22 @@ const normalisers = new Map<
 
 /**
  * Calls Gemini and parses the JSON response.
- * Retries up to `MAX_RETRIES` times if the response is malformed JSON.
+ * Retries up to `MAX_RETRIES` times **only** if the response is malformed
+ * JSON or fails validation. Network / API errors are thrown immediately.
  */
 async function callGeminiWithRetry(
   prompt: string,
   quizType: QuizType
 ): Promise<ParsedQuestion[]> {
-  let lastError: Error | null = null;
+  let lastParseError: Error | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const geminiResponse = await generateContent(prompt);
-      const responseText = geminiResponse.text ?? "";
+    // ── Call Gemini (NOT retried – network / API errors propagate) ──
+    const geminiResponse = await generateContent(prompt);
+    const responseText = geminiResponse.text ?? "";
 
+    // ── Parse & validate (retried on failure) ──
+    try {
       // Strip potential markdown fences
       const cleaned = responseText
         .replace(/```json\s*/gi, "")
@@ -281,9 +284,8 @@ async function callGeminiWithRetry(
         return normalise(item as Record<string, unknown>);
       });
     } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-
-      // Only retry on parse / validation errors, not network errors
+      lastParseError = err instanceof Error ? err : new Error(String(err));
+      // Retry only if we have attempts remaining
       if (attempt < MAX_RETRIES) {
         continue;
       }
@@ -291,7 +293,7 @@ async function callGeminiWithRetry(
   }
 
   throw new Error(
-    `Failed to get valid response from AI after ${MAX_RETRIES + 1} attempts. Last error: ${lastError?.message}`
+    `Failed to get valid response from AI after ${MAX_RETRIES + 1} attempts. Last error: ${lastParseError?.message}`
   );
 }
 
