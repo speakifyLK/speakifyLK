@@ -19,7 +19,7 @@ function normalizeString(str: string): string {
   return str
     .trim()
     .toLowerCase()
-    .replace(/[^\w\s]/g, "") // Remove punctuation
+    .replace(/[\p{P}\p{S}]/gu, "") // Remove punctuation and symbols (Unicode-aware)
     .replace(/\s+/g, " ") // Replace multiple spaces with single space
     .trim();
 }
