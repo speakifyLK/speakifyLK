@@ -598,10 +598,8 @@ export const getQuizStats = cache(async () => {
     const firstHalf = sortedSessions.slice(0, midpoint);
     const secondHalf = sortedSessions.slice(midpoint);
 
-    const firstHalfAvg =
-      firstHalf.reduce((sum, s) => sum + s.score, 0) / firstHalf.length;
-    const secondHalfAvg =
-      secondHalf.reduce((sum, s) => sum + s.score, 0) / secondHalf.length;
+    const firstHalfAvg = firstHalf.reduce((sum, s) => sum + s.score, 0) / firstHalf.length;
+    const secondHalfAvg = secondHalf.reduce((sum, s) => sum + s.score, 0) / secondHalf.length;
 
     const difference = secondHalfAvg - firstHalfAvg;
 
