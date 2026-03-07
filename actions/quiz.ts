@@ -116,12 +116,14 @@ function isAnswerCorrect(
  * @param topic - The quiz topic (e.g., "greetings", "verbs")
  * @param difficulty - Difficulty level: "beginner" | "intermediate" | "advanced"
  * @param courseId - The course ID
+ * @param totalQuestions - The total number of questions in this quiz session
  * @returns The created session record
  */
 export async function createQuizSession(
   topic: string,
   difficulty: "beginner" | "intermediate" | "advanced",
-  courseId: number
+  courseId: number,
+  totalQuestions: number
 ) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
@@ -132,13 +134,17 @@ export async function createQuizSession(
     throw new Error("Invalid course or access denied.");
   }
 
+  if (totalQuestions <= 0) {
+    throw new Error("totalQuestions must be greater than 0.");
+  }
+
   const [session] = await db
     .insert(aiQuizSessions)
     .values({
       userId,
       topic,
       difficulty,
-      totalQuestions: 0, // Will be updated when questions are added
+      totalQuestions,
       courseId,
     })
     .returning();
