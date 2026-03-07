@@ -480,3 +480,142 @@ export const getUserLearningProfile = cache(async (): Promise<UserLearningProfil
     overallLevel,
   };
 });
+
+// ---------------------------------------------------------------------------
+// Quiz Queries
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the user's last 20 quiz sessions with score and topic
+ */
+export const getQuizHistory = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) return [];
+
+  const sessions = await db.query.aiQuizSessions.findMany({
+    where: eq(aiQuizSessions.userId, userId),
+    orderBy: (sessions, { desc }) => [desc(sessions.startedAt)],
+    limit: 20,
+    columns: {
+      id: true,
+      topic: true,
+      difficulty: true,
+      score: true,
+      totalQuestions: true,
+      correctAnswers: true,
+      startedAt: true,
+      completedAt: true,
+    },
+  });
+
+  return sessions;
+});
+
+/**
+ * Returns a session with all its questions for the review screen
+ */
+export const getQuizSessionWithQuestions = cache(async (sessionId: number) => {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const session = await db.query.aiQuizSessions.findFirst({
+    where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+    with: {
+      questions: {
+        orderBy: (questions, { asc }) => [asc(questions.order)],
+      },
+    },
+  });
+
+  return session;
+});
+
+/**
+ * Returns aggregate statistics for the user's quiz performance
+ */
+export const getQuizStats = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) {
+    return {
+      totalQuizzes: 0,
+      averageScore: 0,
+      favouriteTopic: null,
+      improvementTrend: "stable" as const,
+    };
+  }
+
+  // Get all sessions for the user
+  const allSessions = await db.query.aiQuizSessions.findMany({
+    where: eq(aiQuizSessions.userId, userId),
+    columns: {
+      id: true,
+      topic: true,
+      score: true,
+      startedAt: true,
+      completedAt: true,
+    },
+  });
+
+  // Filter to only completed sessions (where completedAt is not null)
+  const completedSessions = allSessions.filter((s) => s.completedAt !== null);
+
+  const totalQuizzes = completedSessions.length;
+
+  if (totalQuizzes === 0) {
+    return {
+      totalQuizzes: 0,
+      averageScore: 0,
+      favouriteTopic: null,
+      improvementTrend: "stable" as const,
+    };
+  }
+
+  // Calculate average score
+  const totalScore = completedSessions.reduce((sum, s) => sum + s.score, 0);
+  const averageScore = Math.round(totalScore / totalQuizzes);
+
+  // Find favourite topic (most frequently attempted)
+  const topicCounts: Record<string, number> = {};
+  completedSessions.forEach((s) => {
+    topicCounts[s.topic] = (topicCounts[s.topic] || 0) + 1;
+  });
+
+  const favouriteTopic =
+    Object.keys(topicCounts).length > 0
+      ? Object.entries(topicCounts).reduce((a, b) => (a[1] > b[1] ? a : b))[0]
+      : null;
+
+  // Calculate improvement trend
+  // Compare average of first half vs second half of sessions
+  const sortedSessions = [...completedSessions].sort(
+    (a, b) => (a.startedAt?.getTime() || 0) - (b.startedAt?.getTime() || 0)
+  );
+
+  let improvementTrend: "improving" | "declining" | "stable" = "stable";
+
+  if (sortedSessions.length >= 4) {
+    const midpoint = Math.floor(sortedSessions.length / 2);
+    const firstHalf = sortedSessions.slice(0, midpoint);
+    const secondHalf = sortedSessions.slice(midpoint);
+
+    const firstHalfAvg =
+      firstHalf.reduce((sum, s) => sum + s.score, 0) / firstHalf.length;
+    const secondHalfAvg =
+      secondHalf.reduce((sum, s) => sum + s.score, 0) / secondHalf.length;
+
+    const difference = secondHalfAvg - firstHalfAvg;
+
+    if (difference > 5) {
+      improvementTrend = "improving";
+    } else if (difference < -5) {
+      improvementTrend = "declining";
+    }
+  }
+
+  return {
+    totalQuizzes,
+    averageScore,
+    favouriteTopic,
+    improvementTrend,
+  };
+});
