@@ -547,10 +547,7 @@ export const getQuizStats = cache(async () => {
   // Get completed sessions for the user (filtered at SQL level)
   // Limit to last 100 sessions for performance - enough for accurate stats and trend analysis
   const completedSessions = await db.query.aiQuizSessions.findMany({
-    where: and(
-      eq(aiQuizSessions.userId, userId),
-      isNotNull(aiQuizSessions.completedAt)
-    ),
+    where: and(eq(aiQuizSessions.userId, userId), isNotNull(aiQuizSessions.completedAt)),
     columns: {
       id: true,
       topic: true,
