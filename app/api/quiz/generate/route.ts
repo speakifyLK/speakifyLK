@@ -22,11 +22,7 @@ const MAX_QUESTION_COUNT = 15;
 const MAX_RETRIES = 2;
 
 /** Allowed values for the questionTypes body field */
-const VALID_QUESTION_TYPES = new Set<string>([
-  "mcq",
-  "fill_blank",
-  "translation",
-]);
+const VALID_QUESTION_TYPES = new Set<string>(["mcq", "fill_blank", "translation"]);
 
 /** Map request-level type names to internal QuizType */
 const dbTypeToQuizType = new Map<string, QuizType>([
@@ -42,11 +38,7 @@ const quizTypeToDbType = new Map<string, "mcq" | "fill_blank" | "translation">([
   ["TRANSLATION", "translation"],
 ]);
 
-const VALID_DIFFICULTIES = new Set<string>([
-  "beginner",
-  "intermediate",
-  "advanced",
-]);
+const VALID_DIFFICULTIES = new Set<string>(["beginner", "intermediate", "advanced"]);
 
 // ---------------------------------------------------------------------------
 // Validation helpers
@@ -64,10 +56,7 @@ function validateRequestBody(body: unknown): ValidatedBody {
     throw new Error("Request body must be a JSON object.");
   }
 
-  const { topic, difficulty, questionCount, questionTypes } = body as Record<
-    string,
-    unknown
-  >;
+  const { topic, difficulty, questionCount, questionTypes } = body as Record<string, unknown>;
 
   // topic
   if (typeof topic !== "string" || topic.trim().length === 0) {
@@ -76,9 +65,7 @@ function validateRequestBody(body: unknown): ValidatedBody {
 
   // difficulty
   if (typeof difficulty !== "string" || !VALID_DIFFICULTIES.has(difficulty)) {
-    throw new Error(
-      `"difficulty" must be one of: ${[...VALID_DIFFICULTIES].join(", ")}.`
-    );
+    throw new Error(`"difficulty" must be one of: ${[...VALID_DIFFICULTIES].join(", ")}.`);
   }
 
   // questionCount
@@ -95,9 +82,7 @@ function validateRequestBody(body: unknown): ValidatedBody {
 
   // questionTypes
   if (!Array.isArray(questionTypes) || questionTypes.length === 0) {
-    throw new Error(
-      '"questionTypes" must be a non-empty array of question type strings.'
-    );
+    throw new Error('"questionTypes" must be a non-empty array of question type strings.');
   }
 
   const mapped: QuizType[] = [];
@@ -128,9 +113,7 @@ function validateRequestBody(body: unknown): ValidatedBody {
 /** Assert a field is a non-empty string. */
 function requireString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(
-      `Invalid AI response: "${label}" must be a non-empty string.`
-    );
+    throw new Error(`Invalid AI response: "${label}" must be a non-empty string.`);
   }
   return value.trim();
 }
@@ -142,9 +125,7 @@ interface ParsedQuestion {
   explanation: string;
 }
 
-function normaliseMultipleChoice(
-  raw: Record<string, unknown>
-): ParsedQuestion {
+function normaliseMultipleChoice(raw: Record<string, unknown>): ParsedQuestion {
   const question = requireString(raw.question, "question");
   const explanation = requireString(raw.explanation, "explanation");
 
@@ -152,23 +133,17 @@ function normaliseMultipleChoice(
     throw new Error('Invalid AI response: "options" must be an array.');
   }
   if (raw.options.length !== 4) {
-    throw new Error(
-      `Invalid AI response: expected 4 options, received ${raw.options.length}.`
-    );
+    throw new Error(`Invalid AI response: expected 4 options, received ${raw.options.length}.`);
   }
 
   const options = raw.options.map((o: unknown, i: number) => {
     if (o === null || typeof o !== "object") {
-      throw new Error(
-        `Invalid AI response: option at index ${i} is not an object.`
-      );
+      throw new Error(`Invalid AI response: option at index ${i} is not an object.`);
     }
     const opt = o as { text?: unknown; isCorrect?: unknown };
     const text = requireString(opt.text, `options[${i}].text`);
     if (typeof opt.isCorrect !== "boolean") {
-      throw new Error(
-        `Invalid AI response: options[${i}].isCorrect must be a boolean.`
-      );
+      throw new Error(`Invalid AI response: options[${i}].isCorrect must be a boolean.`);
     }
     return { text, isCorrect: opt.isCorrect };
   });
@@ -188,9 +163,7 @@ function normaliseMultipleChoice(
   };
 }
 
-function normaliseFillInBlank(
-  raw: Record<string, unknown>
-): ParsedQuestion {
+function normaliseFillInBlank(raw: Record<string, unknown>): ParsedQuestion {
   const question = requireString(raw.sentence, "sentence");
   const correctAnswer = requireString(raw.answer, "answer");
   const explanation = requireString(raw.explanation, "explanation");
@@ -203,14 +176,9 @@ function normaliseFillInBlank(
   };
 }
 
-function normaliseTranslation(
-  raw: Record<string, unknown>
-): ParsedQuestion {
+function normaliseTranslation(raw: Record<string, unknown>): ParsedQuestion {
   const question = requireString(raw.sourceText, "sourceText");
-  const correctAnswer = requireString(
-    raw.correctTranslation,
-    "correctTranslation"
-  );
+  const correctAnswer = requireString(raw.correctTranslation, "correctTranslation");
   const explanation = requireString(raw.explanation, "explanation");
   requireString(raw.sourceLanguage, "sourceLanguage");
 
@@ -227,10 +195,7 @@ function normaliseTranslation(
   };
 }
 
-const normalisers = new Map<
-  QuizType,
-  (raw: Record<string, unknown>) => ParsedQuestion
->([
+const normalisers = new Map<QuizType, (raw: Record<string, unknown>) => ParsedQuestion>([
   ["MULTIPLE_CHOICE", normaliseMultipleChoice],
   ["FILL_IN_BLANK", normaliseFillInBlank],
   ["TRANSLATION", normaliseTranslation],
@@ -247,7 +212,8 @@ const normalisers = new Map<
  */
 async function callGeminiWithRetry(
   prompt: string,
-  quizType: QuizType
+  quizType: QuizType,
+  expectedCount: number
 ): Promise<ParsedQuestion[]> {
   let lastParseError: Error | null = null;
 
@@ -270,6 +236,12 @@ async function callGeminiWithRetry(
         throw new Error("Gemini response is not a JSON array.");
       }
 
+      if (parsed.length !== expectedCount) {
+        throw new Error(
+          `Expected ${expectedCount} questions but Gemini returned ${parsed.length}.`
+        );
+      }
+
       if (!normalisers.has(quizType)) {
         throw new Error(`No normaliser found for quiz type "${quizType}".`);
       }
@@ -277,9 +249,7 @@ async function callGeminiWithRetry(
 
       return parsed.map((item: unknown, idx: number) => {
         if (item === null || typeof item !== "object") {
-          throw new Error(
-            `Gemini response item at index ${idx} is not an object.`
-          );
+          throw new Error(`Gemini response item at index ${idx} is not an object.`);
         }
         return normalise(item as Record<string, unknown>);
       });
@@ -370,7 +340,7 @@ export async function POST(request: Request) {
 
     // Call Gemini — errors here are upstream failures (502)
     try {
-      const questions = await callGeminiWithRetry(prompt, quizType);
+      const questions = await callGeminiWithRetry(prompt, quizType, count);
       allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
     } catch (err) {
       const message =
@@ -380,10 +350,7 @@ export async function POST(request: Request) {
   }
 
   if (allQuestions.length === 0) {
-    return NextResponse.json(
-      { error: "No questions were generated." },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
   }
 
   // ── 5. Save session to database ──
