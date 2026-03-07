@@ -98,13 +98,13 @@ export function normaliseTranslation(raw: Record<string, unknown>): ParsedQuesti
   const question = requireString(raw.sourceText, "sourceText");
   const correctAnswer = requireString(raw.correctTranslation, "correctTranslation");
   const explanation = requireString(raw.explanation, "explanation");
-  requireString(raw.sourceLanguage, "sourceLanguage");
+  const sourceLanguage = requireString(raw.sourceLanguage, "sourceLanguage");
 
   return {
     question,
     correctAnswer,
     options: {
-      sourceLanguage: raw.sourceLanguage,
+      sourceLanguage,
       acceptableAlternatives: Array.isArray(raw.acceptableAlternatives)
         ? raw.acceptableAlternatives
         : [],

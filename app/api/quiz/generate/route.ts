@@ -221,29 +221,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
   }
 
-  // ── 5. Save session to database ──
-  const [session] = await db
-    .insert(aiQuizSessions)
-    .values({
-      userId,
-      topic: body.topic,
-      difficulty: body.difficulty,
-      totalQuestions: allQuestions.length,
-      courseId: userProgress.activeCourseId,
-    })
-    .returning({ id: aiQuizSessions.id });
+  // ── 5. Save session and questions to database atomically ──
+  const session = await db.transaction(async (tx) => {
+    const [createdSession] = await tx
+      .insert(aiQuizSessions)
+      .values({
+        userId,
+        topic: body.topic,
+        difficulty: body.difficulty,
+        totalQuestions: allQuestions.length,
+        courseId: userProgress.activeCourseId!,
+      })
+      .returning({ id: aiQuizSessions.id });
 
-  await db.insert(aiQuizQuestions).values(
-    allQuestions.map((q, idx) => ({
-      sessionId: session.id,
-      type: quizTypeToDbType.get(q.type) ?? "mcq",
-      question: q.question,
-      options: q.options ?? null,
-      correctAnswer: q.correctAnswer,
-      explanation: q.explanation,
-      order: idx + 1,
-    }))
-  );
+    await tx.insert(aiQuizQuestions).values(
+      allQuestions.map((q, idx) => ({
+        sessionId: createdSession.id,
+        type: quizTypeToDbType.get(q.type) ?? "mcq",
+        question: q.question,
+        options: q.options ?? null,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        order: idx + 1,
+      }))
+    );
+
+    return createdSession;
+  });
 
   // ── 6. Return response ──
   return NextResponse.json({

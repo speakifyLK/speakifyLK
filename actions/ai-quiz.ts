@@ -85,29 +85,33 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
   // ── 3. Parse & normalise questions (shared logic) ──
   const questions: ParsedQuestion[] = parseGeminiQuizResponse(responseText, input.type);
 
-  // ── 4. Save to database ──
-  const [session] = await db
-    .insert(aiQuizSessions)
-    .values({
-      userId,
-      topic: input.topic,
-      difficulty: input.difficulty,
-      totalQuestions: questions.length,
-      courseId: userProgress.activeCourseId,
-    })
-    .returning({ id: aiQuizSessions.id });
+  // ── 4. Save session and questions to database atomically ──
+  const session = await db.transaction(async (tx) => {
+    const [createdSession] = await tx
+      .insert(aiQuizSessions)
+      .values({
+        userId,
+        topic: input.topic,
+        difficulty: input.difficulty,
+        totalQuestions: questions.length,
+        courseId: userProgress.activeCourseId!,
+      })
+      .returning({ id: aiQuizSessions.id });
 
-  await db.insert(aiQuizQuestions).values(
-    questions.map((q, idx) => ({
-      sessionId: session.id,
-      type: quizTypeToDbType.get(input.type) ?? "mcq",
-      question: q.question,
-      options: q.options ?? null,
-      correctAnswer: q.correctAnswer,
-      explanation: q.explanation,
-      order: idx + 1,
-    }))
-  );
+    await tx.insert(aiQuizQuestions).values(
+      questions.map((q, idx) => ({
+        sessionId: createdSession.id,
+        type: quizTypeToDbType.get(input.type) ?? "mcq",
+        question: q.question,
+        options: q.options ?? null,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        order: idx + 1,
+      }))
+    );
+
+    return createdSession;
+  });
 
   revalidatePath("/learn");
 
