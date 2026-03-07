@@ -157,6 +157,10 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
+  const normalizedUserAnswer = userAnswer?.trim();
+  if (!normalizedUserAnswer) {
+    throw new Error("Answer cannot be empty.");
+  }
   // Fetch the question with its session
   const question = await db.query.aiQuizQuestions.findFirst({
     where: eq(aiQuizQuestions.id, questionId),
