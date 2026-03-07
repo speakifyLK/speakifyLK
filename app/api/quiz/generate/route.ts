@@ -250,7 +250,7 @@ export async function POST(request: Request) {
     sessionId: session.id,
     questions: allQuestions.map((q, idx) => ({
       id: idx + 1,
-      type: quizTypeToDbType.get(q.type),
+      type: quizTypeToDbType.get(q.type) ?? "mcq",
       question: q.question,
       correctAnswer: q.correctAnswer,
       options: q.options,
