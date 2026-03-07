@@ -7,6 +7,12 @@ import { getUserLearningProfile, getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
 import { generateContent } from "@/lib/gemini";
 import {
+  dbTypeToQuizType,
+  parseGeminiQuizResponse,
+  quizTypeToDbType,
+  type ParsedQuestion,
+} from "@/lib/quiz-normalise";
+import {
   buildQuizPrompt,
   type Difficulty,
   type LearningContext,
@@ -23,25 +29,10 @@ const MAX_RETRIES = 2;
 
 /** Allowed values for the questionTypes body field */
 const VALID_QUESTION_TYPES = new Set<string>(["mcq", "fill_blank", "translation"]);
-
-/** Map request-level type names to internal QuizType */
-const dbTypeToQuizType = new Map<string, QuizType>([
-  ["mcq", "MULTIPLE_CHOICE"],
-  ["fill_blank", "FILL_IN_BLANK"],
-  ["translation", "TRANSLATION"],
-]);
-
-/** Map internal QuizType back to DB enum values */
-const quizTypeToDbType = new Map<string, "mcq" | "fill_blank" | "translation">([
-  ["MULTIPLE_CHOICE", "mcq"],
-  ["FILL_IN_BLANK", "fill_blank"],
-  ["TRANSLATION", "translation"],
-]);
-
 const VALID_DIFFICULTIES = new Set<string>(["beginner", "intermediate", "advanced"]);
 
 // ---------------------------------------------------------------------------
-// Validation helpers
+// Request body validation
 // ---------------------------------------------------------------------------
 
 interface ValidatedBody {
@@ -58,17 +49,14 @@ function validateRequestBody(body: unknown): ValidatedBody {
 
   const { topic, difficulty, questionCount, questionTypes } = body as Record<string, unknown>;
 
-  // topic
   if (typeof topic !== "string" || topic.trim().length === 0) {
     throw new Error('"topic" is required and must be a non-empty string.');
   }
 
-  // difficulty
   if (typeof difficulty !== "string" || !VALID_DIFFICULTIES.has(difficulty)) {
     throw new Error(`"difficulty" must be one of: ${[...VALID_DIFFICULTIES].join(", ")}.`);
   }
 
-  // questionCount
   if (
     typeof questionCount !== "number" ||
     !Number.isInteger(questionCount) ||
@@ -80,7 +68,6 @@ function validateRequestBody(body: unknown): ValidatedBody {
     );
   }
 
-  // questionTypes
   if (!Array.isArray(questionTypes) || questionTypes.length === 0) {
     throw new Error('"questionTypes" must be a non-empty array of question type strings.');
   }
@@ -107,101 +94,6 @@ function validateRequestBody(body: unknown): ValidatedBody {
 }
 
 // ---------------------------------------------------------------------------
-// Gemini response parsing helpers
-// ---------------------------------------------------------------------------
-
-/** Assert a field is a non-empty string. */
-function requireString(value: unknown, label: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`Invalid AI response: "${label}" must be a non-empty string.`);
-  }
-  return value.trim();
-}
-
-interface ParsedQuestion {
-  question: string;
-  correctAnswer: string;
-  options?: unknown;
-  explanation: string;
-}
-
-function normaliseMultipleChoice(raw: Record<string, unknown>): ParsedQuestion {
-  const question = requireString(raw.question, "question");
-  const explanation = requireString(raw.explanation, "explanation");
-
-  if (!Array.isArray(raw.options)) {
-    throw new Error('Invalid AI response: "options" must be an array.');
-  }
-  if (raw.options.length !== 4) {
-    throw new Error(`Invalid AI response: expected 4 options, received ${raw.options.length}.`);
-  }
-
-  const options = raw.options.map((o: unknown, i: number) => {
-    if (o === null || typeof o !== "object") {
-      throw new Error(`Invalid AI response: option at index ${i} is not an object.`);
-    }
-    const opt = o as { text?: unknown; isCorrect?: unknown };
-    const text = requireString(opt.text, `options[${i}].text`);
-    if (typeof opt.isCorrect !== "boolean") {
-      throw new Error(`Invalid AI response: options[${i}].isCorrect must be a boolean.`);
-    }
-    return { text, isCorrect: opt.isCorrect };
-  });
-
-  const correctOptions = options.filter((o) => o.isCorrect);
-  if (correctOptions.length !== 1) {
-    throw new Error(
-      `Invalid AI response: expected exactly 1 correct option, found ${correctOptions.length}.`
-    );
-  }
-
-  return {
-    question,
-    correctAnswer: correctOptions[0].text,
-    options,
-    explanation,
-  };
-}
-
-function normaliseFillInBlank(raw: Record<string, unknown>): ParsedQuestion {
-  const question = requireString(raw.sentence, "sentence");
-  const correctAnswer = requireString(raw.answer, "answer");
-  const explanation = requireString(raw.explanation, "explanation");
-
-  return {
-    question,
-    correctAnswer,
-    options: { hint: typeof raw.hint === "string" ? raw.hint.trim() : "" },
-    explanation,
-  };
-}
-
-function normaliseTranslation(raw: Record<string, unknown>): ParsedQuestion {
-  const question = requireString(raw.sourceText, "sourceText");
-  const correctAnswer = requireString(raw.correctTranslation, "correctTranslation");
-  const explanation = requireString(raw.explanation, "explanation");
-  requireString(raw.sourceLanguage, "sourceLanguage");
-
-  return {
-    question,
-    correctAnswer,
-    options: {
-      sourceLanguage: raw.sourceLanguage,
-      acceptableAlternatives: Array.isArray(raw.acceptableAlternatives)
-        ? raw.acceptableAlternatives
-        : [],
-    },
-    explanation,
-  };
-}
-
-const normalisers = new Map<QuizType, (raw: Record<string, unknown>) => ParsedQuestion>([
-  ["MULTIPLE_CHOICE", normaliseMultipleChoice],
-  ["FILL_IN_BLANK", normaliseFillInBlank],
-  ["TRANSLATION", normaliseTranslation],
-]);
-
-// ---------------------------------------------------------------------------
 // Gemini call with retry logic
 // ---------------------------------------------------------------------------
 
@@ -224,38 +116,17 @@ async function callGeminiWithRetry(
 
     // ── Parse & validate (retried on failure) ──
     try {
-      // Strip potential markdown fences
-      const cleaned = responseText
-        .replace(/```json\s*/gi, "")
-        .replace(/```\s*/g, "")
-        .trim();
+      const questions = parseGeminiQuizResponse(responseText, quizType);
 
-      const parsed = JSON.parse(cleaned) as unknown;
-
-      if (!Array.isArray(parsed)) {
-        throw new Error("Gemini response is not a JSON array.");
-      }
-
-      if (parsed.length !== expectedCount) {
+      if (questions.length !== expectedCount) {
         throw new Error(
-          `Expected ${expectedCount} questions but Gemini returned ${parsed.length}.`
+          `Expected ${expectedCount} questions but Gemini returned ${questions.length}.`
         );
       }
 
-      if (!normalisers.has(quizType)) {
-        throw new Error(`No normaliser found for quiz type "${quizType}".`);
-      }
-      const normalise = normalisers.get(quizType)!;
-
-      return parsed.map((item: unknown, idx: number) => {
-        if (item === null || typeof item !== "object") {
-          throw new Error(`Gemini response item at index ${idx} is not an object.`);
-        }
-        return normalise(item as Record<string, unknown>);
-      });
+      return questions;
     } catch (err) {
       lastParseError = err instanceof Error ? err : new Error(String(err));
-      // Retry only if we have attempts remaining
       if (attempt < MAX_RETRIES) {
         continue;
       }
@@ -310,7 +181,6 @@ export async function POST(request: Request) {
   }
 
   // ── 4. Generate questions for each requested type ──
-  // Distribute questionCount across question types as evenly as possible
   const typeCount = body.questionTypes.length;
   const basePerType = Math.floor(body.questionCount / typeCount);
   const remainder = body.questionCount % typeCount;
@@ -333,8 +203,7 @@ export async function POST(request: Request) {
         learningContext,
       });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Invalid quiz parameters.";
+      const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -343,8 +212,7 @@ export async function POST(request: Request) {
       const questions = await callGeminiWithRetry(prompt, quizType, count);
       allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to generate quiz.";
+      const message = err instanceof Error ? err.message : "Failed to generate quiz.";
       return NextResponse.json({ error: message }, { status: 502 });
     }
   }

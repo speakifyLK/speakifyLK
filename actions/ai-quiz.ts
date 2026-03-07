@@ -8,6 +8,11 @@ import { getUserLearningProfile, getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
 import { generateContent } from "@/lib/gemini";
 import {
+  parseGeminiQuizResponse,
+  quizTypeToDbType,
+  type ParsedQuestion,
+} from "@/lib/quiz-normalise";
+import {
   buildQuizPrompt,
   type Difficulty,
   type LearningContext,
@@ -28,110 +33,6 @@ interface GenerateQuizInput {
   /** How many questions to generate */
   count: number;
 }
-
-interface GeneratedQuestion {
-  question: string;
-  correctAnswer: string;
-  options?: unknown;
-  explanation: string;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers – validate & normalise Gemini's JSON into a uniform shape
-// ---------------------------------------------------------------------------
-
-/** Assert a field is a non-empty string, or throw with a clear message. */
-function requireString(value: unknown, label: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(
-      `Invalid AI response: "${label}" must be a non-empty string, received: ${JSON.stringify(value)}`
-    );
-  }
-  return value.trim();
-}
-
-function normaliseMultipleChoice(raw: Record<string, unknown>): GeneratedQuestion {
-  const question = requireString(raw.question, "question");
-  const explanation = requireString(raw.explanation, "explanation");
-
-  if (!Array.isArray(raw.options)) {
-    throw new Error('Invalid AI response: "options" must be an array.');
-  }
-  if (raw.options.length !== 4) {
-    throw new Error(`Invalid AI response: expected 4 options, received ${raw.options.length}.`);
-  }
-
-  const options = raw.options.map((o: unknown, i: number) => {
-    if (o === null || typeof o !== "object") {
-      throw new Error(`Invalid AI response: option at index ${i} is not an object.`);
-    }
-    const opt = o as { text?: unknown; isCorrect?: unknown };
-    const text = requireString(opt.text, `options[${i}].text`);
-    if (typeof opt.isCorrect !== "boolean") {
-      throw new Error(`Invalid AI response: options[${i}].isCorrect must be a boolean.`);
-    }
-    return { text, isCorrect: opt.isCorrect };
-  });
-
-  const correctOptions = options.filter((o) => o.isCorrect);
-  if (correctOptions.length !== 1) {
-    throw new Error(
-      `Invalid AI response: expected exactly 1 correct option, found ${correctOptions.length}.`
-    );
-  }
-
-  return {
-    question,
-    correctAnswer: correctOptions[0].text,
-    options,
-    explanation,
-  };
-}
-
-function normaliseFillInBlank(raw: Record<string, unknown>): GeneratedQuestion {
-  const question = requireString(raw.sentence, "sentence");
-  const correctAnswer = requireString(raw.answer, "answer");
-  const explanation = requireString(raw.explanation, "explanation");
-
-  return {
-    question,
-    correctAnswer,
-    options: { hint: typeof raw.hint === "string" ? raw.hint.trim() : "" },
-    explanation,
-  };
-}
-
-function normaliseTranslation(raw: Record<string, unknown>): GeneratedQuestion {
-  const question = requireString(raw.sourceText, "sourceText");
-  const correctAnswer = requireString(raw.correctTranslation, "correctTranslation");
-  const explanation = requireString(raw.explanation, "explanation");
-  requireString(raw.sourceLanguage, "sourceLanguage");
-
-  return {
-    question,
-    correctAnswer,
-    options: {
-      sourceLanguage: raw.sourceLanguage,
-      acceptableAlternatives: Array.isArray(raw.acceptableAlternatives)
-        ? raw.acceptableAlternatives
-        : [],
-    },
-    explanation,
-  };
-}
-
-const normalisers: Record<QuizType, (raw: Record<string, unknown>) => GeneratedQuestion> = {
-  MULTIPLE_CHOICE: normaliseMultipleChoice,
-  FILL_IN_BLANK: normaliseFillInBlank,
-  TRANSLATION: normaliseTranslation,
-};
-
-/** Map external QuizType to DB enum value */
-const quizTypeToDbType: Record<QuizType, "mcq" | "fill_blank" | "translation"> = {
-  MULTIPLE_CHOICE: "mcq",
-  FILL_IN_BLANK: "fill_blank",
-  TRANSLATION: "translation",
-};
 
 // ---------------------------------------------------------------------------
 // Main server action
@@ -181,28 +82,11 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
   const geminiResponse = await generateContent(prompt);
   const responseText = geminiResponse.text ?? "";
 
-  // Strip potential markdown fences
-  const cleaned = responseText
-    .replace(/```json\s*/gi, "")
-    .replace(/```\s*/g, "")
-    .trim();
-
-  let parsed: Record<string, unknown>[];
-  try {
-    parsed = JSON.parse(cleaned) as Record<string, unknown>[];
-  } catch {
-    throw new Error(
-      "Failed to parse Gemini response as JSON. The AI returned an unexpected format."
-    );
-  }
-
-  if (!Array.isArray(parsed)) {
-    throw new Error("Gemini response is not an array.");
-  }
-
-  // ── 3. Normalise questions ──
-  const normalise = normalisers[input.type];
-  const questions: GeneratedQuestion[] = parsed.map(normalise);
+  // ── 3. Parse & normalise questions (shared logic) ──
+  const questions: ParsedQuestion[] = parseGeminiQuizResponse(
+    responseText,
+    input.type
+  );
 
   // ── 4. Save to database ──
   const [session] = await db
@@ -219,7 +103,7 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
   await db.insert(aiQuizQuestions).values(
     questions.map((q, idx) => ({
       sessionId: session.id,
-      type: quizTypeToDbType[input.type],
+      type: quizTypeToDbType.get(input.type) ?? "mcq",
       question: q.question,
       options: q.options ?? null,
       correctAnswer: q.correctAnswer,
