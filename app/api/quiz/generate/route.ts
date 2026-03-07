@@ -347,27 +347,36 @@ export async function POST(request: Request) {
 
   const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
 
-  try {
-    for (let i = 0; i < body.questionTypes.length; i++) {
-      const quizType = body.questionTypes[i];
-      const count = basePerType + (i < remainder ? 1 : 0);
+  for (let i = 0; i < body.questionTypes.length; i++) {
+    const quizType = body.questionTypes[i];
+    const count = basePerType + (i < remainder ? 1 : 0);
 
-      if (count === 0) continue;
+    if (count === 0) continue;
 
-      const prompt = buildQuizPrompt(quizType, {
+    // Build prompt — errors here are client input problems (400)
+    let prompt: string;
+    try {
+      prompt = buildQuizPrompt(quizType, {
         topic: body.topic,
         difficulty: body.difficulty,
         count,
         learningContext,
       });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Invalid quiz parameters.";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
 
+    // Call Gemini — errors here are upstream failures (502)
+    try {
       const questions = await callGeminiWithRetry(prompt, quizType);
       allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to generate quiz.";
+      return NextResponse.json({ error: message }, { status: 502 });
     }
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Failed to generate quiz.";
-    return NextResponse.json({ error: message }, { status: 502 });
   }
 
   if (allQuestions.length === 0) {
