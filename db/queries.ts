@@ -1,7 +1,7 @@
 import { cache } from "react";
 
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 
 import db from "./drizzle";
 import {
@@ -544,9 +544,13 @@ export const getQuizStats = cache(async () => {
     };
   }
 
-  // Get all sessions for the user
-  const allSessions = await db.query.aiQuizSessions.findMany({
-    where: eq(aiQuizSessions.userId, userId),
+  // Get completed sessions for the user (filtered at SQL level)
+  // Limit to last 100 sessions for performance - enough for accurate stats and trend analysis
+  const completedSessions = await db.query.aiQuizSessions.findMany({
+    where: and(
+      eq(aiQuizSessions.userId, userId),
+      isNotNull(aiQuizSessions.completedAt)
+    ),
     columns: {
       id: true,
       topic: true,
@@ -554,10 +558,9 @@ export const getQuizStats = cache(async () => {
       startedAt: true,
       completedAt: true,
     },
+    orderBy: (sessions, { desc }) => [desc(sessions.startedAt)],
+    limit: 100,
   });
-
-  // Filter to only completed sessions (where completedAt is not null)
-  const completedSessions = allSessions.filter((s) => s.completedAt !== null);
 
   const totalQuizzes = completedSessions.length;
 

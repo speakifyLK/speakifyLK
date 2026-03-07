@@ -56,6 +56,19 @@ function levenshteinDistance(str1: string, str2: string): number {
 }
 
 /**
+ * Calculates a dynamic Levenshtein distance threshold based on string length.
+ * Uses 25% of the string length, with a minimum of 1 and maximum of 3.
+ * This prevents overly lenient matching for short strings while allowing
+ * reasonable tolerance for typos in longer strings.
+ */
+function getLevenshteinThreshold(str: string): number {
+  const length = str.length;
+  if (length === 0) return 0;
+  // Use 25% of length, minimum 1, maximum 3
+  return Math.max(1, Math.min(3, Math.floor(length * 0.25)));
+}
+
+/**
  * Checks if user answer matches correct answer or any acceptable alternative
  * using fuzzy matching for FILL_IN_BLANK and TRANSLATION types
  */
@@ -90,8 +103,9 @@ function isAnswerCorrect(
           if (normalizedUser === normalizedAlt) {
             return true;
           }
-          // Check Levenshtein distance (within 2)
-          if (levenshteinDistance(normalizedUser, normalizedAlt) <= 2) {
+          // Check Levenshtein distance with dynamic threshold
+          const threshold = getLevenshteinThreshold(normalizedAlt);
+          if (levenshteinDistance(normalizedUser, normalizedAlt) <= threshold) {
             return true;
           }
         }
@@ -99,8 +113,9 @@ function isAnswerCorrect(
     }
   }
 
-  // Check Levenshtein distance against correct answer (within 2)
-  if (levenshteinDistance(normalizedUser, normalizedCorrect) <= 2) {
+  // Check Levenshtein distance against correct answer with dynamic threshold
+  const threshold = getLevenshteinThreshold(normalizedCorrect);
+  if (levenshteinDistance(normalizedUser, normalizedCorrect) <= threshold) {
     return true;
   }
 
