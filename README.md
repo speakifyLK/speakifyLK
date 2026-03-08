@@ -45,6 +45,7 @@ speakify/
     |-- ai-quiz.ts
     |-- challenge-progress.ts
     |-- chat.ts
+    |-- quiz.ts
     |-- user-progress.ts
     |-- user-subscription.ts
   |- app/
@@ -88,6 +89,7 @@ speakify/
     |-- admin.ts
     |-- chat-prompt.ts
     |-- gemini.ts
+    |-- quiz-normalise.ts
     |-- quiz-prompt.ts
     |-- stripe.ts
     |-- utils.ts
