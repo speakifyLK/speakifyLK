@@ -107,3 +107,21 @@ export const getOrCreateConversation = async () => {
 
   return await createConversation();
 };
+
+/**
+ * Retrieves all messages for a specific conversation.
+ */
+export const getMessages = async (conversationId: number) => {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized.");
+
+  // Security: Check ownership
+  await assertConversationOwner(conversationId, userId);
+
+  const messages = await db.query.chatMessages.findMany({
+    where: eq(chatMessages.conversationId, conversationId),
+    orderBy: (table, { asc }) => [asc(table.timestamp)], // Show oldest to newest
+  });
+
+  return messages;
+};
