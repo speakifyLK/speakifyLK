@@ -77,7 +77,10 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       }
 
       const data = await response.json();
-      router.push(`/quiz/${data.sessionId}`);
+      toast.success("Quiz generated successfully!");
+      // TODO: Redirect to quiz session page when /quiz/[sessionId] route is created
+      // For now, redirect back to quiz config page
+      router.push("/quiz");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to start quiz"
