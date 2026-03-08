@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
-import { getOrCreateConversation, sendMessage, getMessages } from "@/actions/chat";
+import { getOrCreateConversation, getMessages } from "@/actions/chat";
 import { toast } from "sonner";
 
 export default function ChatPage() {
-  const [conversationId, setConversationId] = useState<number | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [_conversationId, setConversationId] = useState<number | null>(null);
+  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string; createdAt: Date; timestamp?: Date }[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load the conversation and history when the page opens
@@ -25,7 +25,7 @@ export default function ChatPage() {
             createdAt: msg.timestamp,
           }))
         );
-      } catch (error) {
+      } catch (_error) {
         toast.error("Could not load chat history");
       } finally {
         setLoading(false);

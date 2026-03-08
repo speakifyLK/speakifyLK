@@ -3,10 +3,6 @@
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface ChatWindowProps {
-  children: React.ReactNode;
-}
-
 export function ChatWindow({ children }: { children: React.ReactNode }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
