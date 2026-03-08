@@ -1,0 +1,264 @@
+import { NextResponse } from "next/server";
+
+import { auth } from "@clerk/nextjs/server";
+
+import db from "@/db/drizzle";
+import { getUserLearningProfile, getUserProgress } from "@/db/queries";
+import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
+import { generateContent } from "@/lib/gemini";
+import {
+  dbTypeToQuizType,
+  parseGeminiQuizResponse,
+  quizTypeToDbType,
+  type ParsedQuestion,
+} from "@/lib/quiz-normalise";
+import {
+  buildQuizPrompt,
+  type Difficulty,
+  type LearningContext,
+  type QuizType,
+} from "@/lib/quiz-prompt";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const MIN_QUESTION_COUNT = 5;
+const MAX_QUESTION_COUNT = 15;
+const MAX_RETRIES = 2;
+
+/** Allowed values for the questionTypes body field */
+const VALID_QUESTION_TYPES = new Set<string>(["mcq", "fill_blank", "translation"]);
+const VALID_DIFFICULTIES = new Set<string>(["beginner", "intermediate", "advanced"]);
+
+// ---------------------------------------------------------------------------
+// Request body validation
+// ---------------------------------------------------------------------------
+
+interface ValidatedBody {
+  topic: string;
+  difficulty: Difficulty;
+  questionCount: number;
+  questionTypes: QuizType[];
+}
+
+function validateRequestBody(body: unknown): ValidatedBody {
+  if (!body || typeof body !== "object") {
+    throw new Error("Request body must be a JSON object.");
+  }
+
+  const { topic, difficulty, questionCount, questionTypes } = body as Record<string, unknown>;
+
+  if (typeof topic !== "string" || topic.trim().length === 0) {
+    throw new Error('"topic" is required and must be a non-empty string.');
+  }
+
+  if (typeof difficulty !== "string" || !VALID_DIFFICULTIES.has(difficulty)) {
+    throw new Error(`"difficulty" must be one of: ${[...VALID_DIFFICULTIES].join(", ")}.`);
+  }
+
+  if (
+    typeof questionCount !== "number" ||
+    !Number.isInteger(questionCount) ||
+    questionCount < MIN_QUESTION_COUNT ||
+    questionCount > MAX_QUESTION_COUNT
+  ) {
+    throw new Error(
+      `"questionCount" must be an integer between ${MIN_QUESTION_COUNT} and ${MAX_QUESTION_COUNT}.`
+    );
+  }
+
+  if (!Array.isArray(questionTypes) || questionTypes.length === 0) {
+    throw new Error('"questionTypes" must be a non-empty array of question type strings.');
+  }
+
+  const mapped: QuizType[] = [];
+  for (const qt of questionTypes) {
+    if (typeof qt !== "string" || !VALID_QUESTION_TYPES.has(qt)) {
+      throw new Error(
+        `Invalid question type "${qt}". Allowed values: ${[...VALID_QUESTION_TYPES].join(", ")}.`
+      );
+    }
+    const internal = dbTypeToQuizType.get(qt);
+    if (internal && !mapped.includes(internal)) {
+      mapped.push(internal);
+    }
+  }
+
+  return {
+    topic: topic.trim(),
+    difficulty: difficulty as Difficulty,
+    questionCount,
+    questionTypes: mapped,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Gemini call with retry logic
+// ---------------------------------------------------------------------------
+
+/**
+ * Calls Gemini and parses the JSON response.
+ * Retries up to `MAX_RETRIES` times **only** if the response is malformed
+ * JSON or fails validation. Network / API errors are thrown immediately.
+ */
+async function callGeminiWithRetry(
+  prompt: string,
+  quizType: QuizType,
+  expectedCount: number
+): Promise<ParsedQuestion[]> {
+  let lastParseError: Error | null = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    // ── Call Gemini (NOT retried – network / API errors propagate) ──
+    const geminiResponse = await generateContent(prompt);
+    const responseText = geminiResponse.text ?? "";
+
+    // ── Parse & validate (retried on failure) ──
+    try {
+      const questions = parseGeminiQuizResponse(responseText, quizType);
+
+      if (questions.length !== expectedCount) {
+        throw new Error(
+          `Expected ${expectedCount} questions but Gemini returned ${questions.length}.`
+        );
+      }
+
+      return questions;
+    } catch (err) {
+      lastParseError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < MAX_RETRIES) {
+        continue;
+      }
+    }
+  }
+
+  throw new Error(
+    `Failed to get valid response from AI after ${MAX_RETRIES + 1} attempts. Last error: ${lastParseError?.message}`
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Route handler
+// ---------------------------------------------------------------------------
+
+export async function POST(request: Request) {
+  // ── 1. Authenticate ──
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  // ── 2. Parse & validate request body ──
+  let body: ValidatedBody;
+  try {
+    const rawBody: unknown = await request.json();
+    body = validateRequestBody(rawBody);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Invalid request body.";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  // ── 3. Get user progress & learning context ──
+  const userProgress = await getUserProgress();
+  if (!userProgress?.activeCourseId) {
+    return NextResponse.json(
+      { error: "No active course found. Please select a course first." },
+      { status: 400 }
+    );
+  }
+
+  const profile = await getUserLearningProfile();
+  let learningContext: LearningContext | undefined;
+  if (profile) {
+    learningContext = {
+      completedTopics: profile.completedLessons,
+      weakTopics: profile.weakTopics,
+      strongTopics: profile.strongTopics,
+      frequentlyMissedWords: profile.frequentlyMissedWords,
+      overallLevel: profile.overallLevel,
+    };
+  }
+
+  // ── 4. Generate questions for each requested type ──
+  const typeCount = body.questionTypes.length;
+  const basePerType = Math.floor(body.questionCount / typeCount);
+  const remainder = body.questionCount % typeCount;
+
+  const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
+
+  for (let i = 0; i < body.questionTypes.length; i++) {
+    const quizType = body.questionTypes[i];
+    const count = basePerType + (i < remainder ? 1 : 0);
+
+    if (count === 0) continue;
+
+    // Build prompt — errors here are client input problems (400)
+    let prompt: string;
+    try {
+      prompt = buildQuizPrompt(quizType, {
+        topic: body.topic,
+        difficulty: body.difficulty,
+        count,
+        learningContext,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+
+    // Call Gemini — errors here are upstream failures (502)
+    try {
+      const questions = await callGeminiWithRetry(prompt, quizType, count);
+      allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to generate quiz.";
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
+  }
+
+  if (allQuestions.length === 0) {
+    return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
+  }
+
+  // ── 5. Save session and questions to database atomically ──
+  const session = await db.transaction(async (tx) => {
+    const [createdSession] = await tx
+      .insert(aiQuizSessions)
+      .values({
+        userId,
+        topic: body.topic,
+        difficulty: body.difficulty,
+        totalQuestions: allQuestions.length,
+        courseId: userProgress.activeCourseId!,
+      })
+      .returning({ id: aiQuizSessions.id });
+
+    await tx.insert(aiQuizQuestions).values(
+      allQuestions.map((q, idx) => ({
+        sessionId: createdSession.id,
+        type: quizTypeToDbType.get(q.type) ?? "mcq",
+        question: q.question,
+        options: q.options ?? null,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        order: idx + 1,
+      }))
+    );
+
+    return createdSession;
+  });
+
+  // ── 6. Return response ──
+  return NextResponse.json({
+    sessionId: session.id,
+    questions: allQuestions.map((q, idx) => ({
+      id: idx + 1,
+      type: quizTypeToDbType.get(q.type) ?? "mcq",
+      question: q.question,
+      correctAnswer: q.correctAnswer,
+      options: q.options,
+      explanation: q.explanation,
+    })),
+  });
+}

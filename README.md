@@ -41,8 +41,10 @@ Here is the folder structure of this app.
 ```bash
 speakify/
   |- actions/
+    |-- ai-quiz.ts
     |-- challenge-progress.ts
     |-- chat.ts
+    |-- quiz.ts
     |-- user-progress.ts
     |-- user-subscription.ts
   |- app/
@@ -51,6 +53,7 @@ speakify/
     |-- (marketing)/
     |-- admin/
     |-- api/
+    |-- chat/
     |-- lesson/
     |-- apple-icon.png
     |-- favicon.ico
@@ -59,6 +62,7 @@ speakify/
     |-- icon2.png
     |-- layout.tsx
   |- components/
+    |-- chat/
     |-- modals/
     |-- ui/
     |-- banner.tsx
@@ -86,6 +90,7 @@ speakify/
     |-- admin.ts
     |-- chat-prompt.ts
     |-- gemini.ts
+    |-- quiz-normalise.ts
     |-- quiz-prompt.ts
     |-- stripe.ts
     |-- utils.ts
@@ -251,10 +256,11 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
 - [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.1.8
+- [@radix-ui/react-scroll-area](https://www.npmjs.com/package/@radix-ui/react-scroll-area): ^1.2.10
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.90.21
-- [@types/node](https://www.npmjs.com/package/@types/node): ^25.3.3
+- [@types/node](https://www.npmjs.com/package/@types/node): ^25.3.5
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.37
