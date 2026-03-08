@@ -77,7 +77,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
         throw new Error(error.error || "Failed to generate quiz");
       }
 
-      const data = await response.json();
+      await response.json();
       toast.success("Quiz generated successfully!");
       // TODO: Redirect to quiz session page when /quiz/[sessionId] route is created
       // For now, redirect back to quiz config page
