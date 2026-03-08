@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { units, lessons } from "@/db/schema";
+import { units } from "@/db/schema";
 import type { Difficulty } from "@/lib/quiz-prompt";
 
-type Unit = typeof units.$inferSelect & {
-  lessons: (typeof lessons.$inferSelect & { completed: boolean })[];
+type Unit = Pick<typeof units.$inferSelect, "id" | "title" | "description" | "order" | "courseId"> & {
+  lessons: Array<{ id: number; completed: boolean }>;
 };
 
 type QuizConfigProps = {

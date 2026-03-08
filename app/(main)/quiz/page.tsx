@@ -6,7 +6,7 @@ import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
-import { getUnits, getUserProgress, getUserSubscription } from "@/db/queries";
+import { getUnitsForQuiz, getUserProgress, getUserSubscription } from "@/db/queries";
 
 import { Header } from "../learn/header";
 
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 const QuizPage = async () => {
   const userProgressData = getUserProgress();
-  const unitsData = getUnits();
+  const unitsData = getUnitsForQuiz();
   const userSubscriptionData = getUserSubscription();
 
   const [userProgress, units, userSubscription] = await Promise.all([
