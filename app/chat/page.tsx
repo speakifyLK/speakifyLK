@@ -9,7 +9,9 @@ import { toast } from "sonner";
 
 export default function ChatPage() {
   const [conversationId, setConversationId] = useState<number | null>(null);
-  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string; createdAt: Date; timestamp?: Date }[]>([]);
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string; createdAt: Date; timestamp?: Date }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 

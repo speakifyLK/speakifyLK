@@ -19,7 +19,7 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
     //Prevent submission of empty messages
     if (!content.trim() || isLoading) return;
     onSend(content);
-    setContent(""); 
+    setContent("");
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -31,8 +31,8 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
   };
 
   return (
-    <div className="sticky bottom-0 w-full bg-white border-t p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-      <div className="max-w-3xl mx-auto flex items-end gap-x-2 relative">
+    <div className="sticky bottom-0 w-full border-t bg-white p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="relative mx-auto flex max-w-3xl items-end gap-x-2">
         <Textarea
           disabled={isLoading}
           value={content}
@@ -40,9 +40,9 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
           onKeyDown={onKeyDown}
           placeholder="Type your message in Sinhala or English..."
           className={cn(
-            "min-h-[44px] max-h-[150px] resize-none pr-12 py-3",
+            "max-h-[150px] min-h-[44px] resize-none py-3 pr-12",
             //noto_sinhala.className, // Requirement: Support Sinhala characters
-            "text-sm lg:text-base border-zinc-200 focus-visible:ring-green-500"
+            "border-zinc-200 text-sm focus-visible:ring-green-500 lg:text-base"
           )}
         />
         <Button
@@ -50,7 +50,7 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
           disabled={isLoading || !content.trim()}
           size="icon"
           className={cn(
-            "absolute right-2 bottom-2 h-8 w-8 transition-all",
+            "absolute bottom-2 right-2 h-8 w-8 transition-all",
             isLoading && "animate-pulse"
           )}
         >
