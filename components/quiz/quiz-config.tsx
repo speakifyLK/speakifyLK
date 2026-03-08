@@ -95,11 +95,14 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       {/* Topic Selector Grid */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Select Topic</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label="Select topic">
           {units.map((unit) => (
             <button
               key={unit.id}
               onClick={() => setSelectedTopic(unit.id)}
+              role="radio"
+              aria-checked={selectedTopic === unit.id}
+              aria-pressed={selectedTopic === unit.id}
               className={`
                 flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all
                 ${
@@ -129,9 +132,12 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       {/* Difficulty Picker */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Difficulty Level</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3" role="radiogroup" aria-label="Select difficulty level">
           <button
             onClick={() => setDifficulty("beginner")}
+            role="radio"
+            aria-checked={difficulty === "beginner"}
+            aria-pressed={difficulty === "beginner"}
             className={`
               flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all
               ${
@@ -149,6 +155,9 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
           </button>
           <button
             onClick={() => setDifficulty("intermediate")}
+            role="radio"
+            aria-checked={difficulty === "intermediate"}
+            aria-pressed={difficulty === "intermediate"}
             className={`
               flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all
               ${
@@ -166,6 +175,9 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
           </button>
           <button
             onClick={() => setDifficulty("advanced")}
+            role="radio"
+            aria-checked={difficulty === "advanced"}
+            aria-pressed={difficulty === "advanced"}
             className={`
               flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all
               ${
@@ -187,11 +199,15 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       {/* Question Count Selector */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Number of Questions</h2>
-        <div className="flex gap-4">
+        <div className="flex gap-4" role="radiogroup" aria-label="Select number of questions">
           {[5, 10, 15].map((count) => (
             <button
               key={count}
               onClick={() => setQuestionCount(count)}
+              role="radio"
+              aria-checked={questionCount === count}
+              aria-pressed={questionCount === count}
+              aria-label={`${count} questions`}
               className={`
                 flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all
                 ${
