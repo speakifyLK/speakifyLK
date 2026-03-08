@@ -32,22 +32,22 @@ export default function ChatPage() {
     initChat();
   }, []);
 
-  const handleSendMessage = async (text: string) => {
-    if (!conversationId) return;
+  // const handleSendMessage = async (text: string) => {
+  //   if (!conversationId) return;
 
-    // 1. Optimistically update UI
-    const userMsg = { role: "user", content: text, createdAt: new Date() };
-    setMessages((prev) => [...prev, userMsg]);
+  //   // 1. Optimistically update UI
+  //   const userMsg = { role: "user", content: text, createdAt: new Date() };
+  //   setMessages((prev) => [...prev, userMsg]);
 
-    try {
-      // 2. Save to PostgreSQL via Server Action
-      await sendMessage(conversationId, text);
+  //   try {
+  //     // 2. Save to PostgreSQL via Server Action
+  //     await sendMessage(conversationId, text);
       
-      // 3. Trigger your AI logic here (e.g., calling Gemini API)
-    } catch (error) {
-      toast.error("Failed to send message");
-    }
-  };
+  //     // 3. Trigger your AI logic here (e.g., calling Gemini API)
+  //   } catch (error) {
+  //     toast.error("Failed to send message");
+  //   }
+  // };
 
   if (loading) return <div>Loading Tutor...</div>;
 
