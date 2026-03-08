@@ -38,7 +38,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -89,6 +88,7 @@ speakify/
     |-- admin.ts
     |-- chat-prompt.ts
     |-- gemini.ts
+    |-- quiz-normalise.ts
     |-- quiz-prompt.ts
     |-- stripe.ts
     |-- utils.ts
@@ -121,7 +121,6 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
