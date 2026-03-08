@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
@@ -53,7 +53,6 @@ export default function ChatPage() {
 
       // TODO: Call Gemini API for response in the next task
       setTimeout(() => setIsGenerating(false), 1000);
-      
     } catch (_error) {
       toast.error("Failed to send message");
       setIsGenerating(false);
