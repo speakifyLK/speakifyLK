@@ -38,7 +38,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -54,6 +53,7 @@ speakify/
     |-- (marketing)/
     |-- admin/
     |-- api/
+    |-- chat/
     |-- lesson/
     |-- apple-icon.png
     |-- favicon.ico
@@ -62,6 +62,7 @@ speakify/
     |-- icon2.png
     |-- layout.tsx
   |- components/
+    |-- chat/
     |-- modals/
     |-- ui/
     |-- banner.tsx
@@ -122,7 +123,6 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -256,6 +256,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
 - [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.1.8
+- [@radix-ui/react-scroll-area](https://www.npmjs.com/package/@radix-ui/react-scroll-area): ^1.2.10
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.90.21
