@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
-import { getOrCreateConversation, sendMessage, getMessages } from "@/actions/chat"; 
+import { getOrCreateConversation, sendMessage, getMessages } from "@/actions/chat";
 import { toast } from "sonner";
 
 export default function ChatPage() {
@@ -18,11 +18,13 @@ export default function ChatPage() {
         const id = await getOrCreateConversation();
         setConversationId(id);
         const history = await getMessages(id);
-        setMessages(history.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-          createdAt: msg.timestamp
-        })));
+        setMessages(
+          history.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+            createdAt: msg.timestamp,
+          }))
+        );
       } catch (error) {
         toast.error("Could not load chat history");
       } finally {
@@ -42,7 +44,7 @@ export default function ChatPage() {
   //   try {
   //     // 2. Save to PostgreSQL via Server Action
   //     await sendMessage(conversationId, text);
-      
+
   //     // 3. Trigger your AI logic here (e.g., calling Gemini API)
   //   } catch (error) {
   //     toast.error("Failed to send message");
@@ -52,9 +54,9 @@ export default function ChatPage() {
   if (loading) return <div>Loading Tutor...</div>;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">AI Sinhala Tutor</h1>
-      
+    <div className="mx-auto flex h-[calc(100vh-80px)] max-w-2xl flex-col p-4">
+      <h1 className="mb-4 text-center text-2xl font-bold">AI Sinhala Tutor</h1>
+
       <ChatWindow>
         <div className="flex flex-col gap-y-2">
           {messages.map((msg, index) => (
@@ -67,7 +69,7 @@ export default function ChatPage() {
           ))}
         </div>
       </ChatWindow>
-      
+
       {/* <ChatInput onSend={handleSendMessage} /> */}
     </div>
   );

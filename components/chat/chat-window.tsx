@@ -13,7 +13,7 @@ export function ChatWindow({ children }: { children: React.ReactNode }) {
   // Auto-scroll to bottom when new messages (children) are added
   useEffect(() => {
     if (scrollRef.current) {
-      const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      const scrollContainer = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]");
       if (scrollContainer) {
         scrollContainer.scrollTo({
           top: scrollContainer.scrollHeight,
@@ -24,13 +24,11 @@ export function ChatWindow({ children }: { children: React.ReactNode }) {
   }, [children]);
 
   return (
-    <ScrollArea 
-      ref={scrollRef} 
-      className="flex-1 pr-4 border rounded-lg p-4 bg-slate-50/50 min-h-[400px]"
+    <ScrollArea
+      ref={scrollRef}
+      className="min-h-[400px] flex-1 rounded-lg border bg-slate-50/50 p-4 pr-4"
     >
-      <div className="flex flex-col gap-y-2">
-        {children}
-      </div>
+      <div className="flex flex-col gap-y-2">{children}</div>
     </ScrollArea>
   );
 }
