@@ -3,9 +3,12 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
+# Note: Dependabot uses the npm ecosystem to update package.json and package-lock.json.
+# The sync-lockfiles workflow automatically syncs bun.lock when package.json changes.
+
 version: 2
 updates:
-  - package-ecosystem: "bun"
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "daily"
