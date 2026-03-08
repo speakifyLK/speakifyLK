@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 import { units } from "@/db/schema";
 import type { Difficulty } from "@/lib/quiz-prompt";
 
-type Unit = Pick<typeof units.$inferSelect, "id" | "title" | "description" | "order" | "courseId"> & {
+type Unit = Pick<
+  typeof units.$inferSelect,
+  "id" | "title" | "description" | "order" | "courseId"
+> & {
   lessons: Array<{ id: number; completed: boolean }>;
 };
 
@@ -32,9 +35,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
 
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) =>
-      prev.includes(type)
-        ? prev.filter((t) => t !== type)
-        : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
   };
 
@@ -82,9 +83,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       // For now, redirect back to quiz config page
       router.push("/quiz");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to start quiz"
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to start quiz");
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +94,11 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       {/* Topic Selector Grid */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Select Topic</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label="Select topic">
+        <div
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          role="radiogroup"
+          aria-label="Select topic"
+        >
           {units.map((unit) => (
             <button
               key={unit.id}
@@ -103,23 +106,15 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
               role="radio"
               aria-checked={selectedTopic === unit.id}
               aria-pressed={selectedTopic === unit.id}
-              className={`
-                flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all
-                ${
-                  selectedTopic === unit.id
-                    ? "border-green-500 bg-green-50"
-                    : "border-slate-200 bg-white hover:bg-slate-50"
-                }
-                active:border-b-2
-              `}
+              className={`flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all ${
+                selectedTopic === unit.id
+                  ? "border-green-500 bg-green-50"
+                  : "border-slate-200 bg-white hover:bg-slate-50"
+              } active:border-b-2`}
             >
               <div className="w-full">
-                <h3 className="text-lg font-bold text-neutral-700">
-                  {unit.title}
-                </h3>
-                <p className="mt-1 text-sm text-neutral-500">
-                  {unit.description}
-                </p>
+                <h3 className="text-lg font-bold text-neutral-700">{unit.title}</h3>
+                <p className="mt-1 text-sm text-neutral-500">{unit.description}</p>
               </div>
               <div className="mt-4 text-sm font-semibold text-neutral-600">
                 {unit.lessons.length} lesson{unit.lessons.length !== 1 ? "s" : ""} available
@@ -132,66 +127,52 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       {/* Difficulty Picker */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Difficulty Level</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3" role="radiogroup" aria-label="Select difficulty level">
+        <div
+          className="grid grid-cols-1 gap-4 md:grid-cols-3"
+          role="radiogroup"
+          aria-label="Select difficulty level"
+        >
           <button
             onClick={() => setDifficulty("beginner")}
             role="radio"
             aria-checked={difficulty === "beginner"}
             aria-pressed={difficulty === "beginner"}
-            className={`
-              flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all
-              ${
-                difficulty === "beginner"
-                  ? "border-green-500 bg-green-500 text-white"
-                  : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
-              }
-              active:border-b-2
-            `}
+            className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all ${
+              difficulty === "beginner"
+                ? "border-green-500 bg-green-500 text-white"
+                : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
+            } active:border-b-2`}
           >
             <span className="text-xl font-bold">Beginner</span>
-            <span className="mt-2 text-sm">
-              Simple vocabulary and basic phrases
-            </span>
+            <span className="mt-2 text-sm">Simple vocabulary and basic phrases</span>
           </button>
           <button
             onClick={() => setDifficulty("intermediate")}
             role="radio"
             aria-checked={difficulty === "intermediate"}
             aria-pressed={difficulty === "intermediate"}
-            className={`
-              flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all
-              ${
-                difficulty === "intermediate"
-                  ? "border-yellow-500 bg-yellow-500 text-white"
-                  : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
-              }
-              active:border-b-2
-            `}
+            className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all ${
+              difficulty === "intermediate"
+                ? "border-yellow-500 bg-yellow-500 text-white"
+                : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+            } active:border-b-2`}
           >
             <span className="text-xl font-bold">Intermediate</span>
-            <span className="mt-2 text-sm">
-              Sentence construction and grammar
-            </span>
+            <span className="mt-2 text-sm">Sentence construction and grammar</span>
           </button>
           <button
             onClick={() => setDifficulty("advanced")}
             role="radio"
             aria-checked={difficulty === "advanced"}
             aria-pressed={difficulty === "advanced"}
-            className={`
-              flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all
-              ${
-                difficulty === "advanced"
-                  ? "border-red-500 bg-red-500 text-white"
-                  : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
-              }
-              active:border-b-2
-            `}
+            className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all ${
+              difficulty === "advanced"
+                ? "border-red-500 bg-red-500 text-white"
+                : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
+            } active:border-b-2`}
           >
             <span className="text-xl font-bold">Advanced</span>
-            <span className="mt-2 text-sm">
-              Complex conversations and idioms
-            </span>
+            <span className="mt-2 text-sm">Complex conversations and idioms</span>
           </button>
         </div>
       </div>
@@ -208,15 +189,11 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
               aria-checked={questionCount === count}
               aria-pressed={questionCount === count}
               aria-label={`${count} questions`}
-              className={`
-                flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all
-                ${
-                  questionCount === count
-                    ? "border-sky-500 bg-sky-500 text-white"
-                    : "border-slate-200 bg-white text-neutral-700 hover:bg-slate-50"
-                }
-                active:border-b-2
-              `}
+              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all ${
+                questionCount === count
+                  ? "border-sky-500 bg-sky-500 text-white"
+                  : "border-slate-200 bg-white text-neutral-700 hover:bg-slate-50"
+              } active:border-b-2`}
             >
               {count}
             </button>
@@ -244,9 +221,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
               onChange={() => toggleQuestionType("fill_blank")}
               className="h-5 w-5 rounded border-2 border-slate-300 text-green-500 focus:ring-2 focus:ring-green-500"
             />
-            <span className="text-lg font-semibold text-neutral-700">
-              Fill-in-the-blank
-            </span>
+            <span className="text-lg font-semibold text-neutral-700">Fill-in-the-blank</span>
           </label>
           <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-slate-200 p-4 hover:bg-slate-50">
             <input
@@ -255,9 +230,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
               onChange={() => toggleQuestionType("translation")}
               className="h-5 w-5 rounded border-2 border-slate-300 text-green-500 focus:ring-2 focus:ring-green-500"
             />
-            <span className="text-lg font-semibold text-neutral-700">
-              Translation
-            </span>
+            <span className="text-lg font-semibold text-neutral-700">Translation</span>
           </label>
         </div>
       </div>
@@ -275,4 +248,3 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
     </div>
   );
 };
-
