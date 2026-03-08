@@ -9,7 +9,9 @@ import { toast } from "sonner";
 
 export default function ChatPage() {
   const [conversationId, setConversationId] = useState<number | null>(null);
-  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string; createdAt: Date; timestamp?: Date }[]>([]);
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string; createdAt: Date; timestamp?: Date }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -51,7 +53,6 @@ export default function ChatPage() {
 
       // TODO: Call Gemini API for response in the next task
       setTimeout(() => setIsGenerating(false), 1000);
-      
     } catch (error) {
       toast.error("Failed to send message");
       setIsGenerating(false);
