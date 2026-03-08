@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
-import { getOrCreateConversation, getMessages } from "@/actions/chat";
+import { ChatInput } from "@/components/chat/chat-input";
+import { getOrCreateConversation, getMessages, sendMessage } from "@/actions/chat";
 import { toast } from "sonner";
 
 export default function ChatPage() {
-  const [_conversationId, setConversationId] = useState<number | null>(null);
+  const [conversationId, setConversationId] = useState<number | null>(null);
   const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string; createdAt: Date; timestamp?: Date }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  // Load the conversation and history when the page opens
+  // Load history on mount
   useEffect(() => {
     const initChat = async () => {
       try {
@@ -34,22 +36,27 @@ export default function ChatPage() {
     initChat();
   }, []);
 
-  // const handleSendMessage = async (text: string) => {
-  //   if (!conversationId) return;
+  // 4. Handle sending messages
+  const handleSendMessage = async (text: string) => {
+    if (!conversationId) return;
 
-  //   // 1. Optimistically update UI
-  //   const userMsg = { role: "user", content: text, createdAt: new Date() };
-  //   setMessages((prev) => [...prev, userMsg]);
+    // Optimistically update UI
+    const userMsg = { role: "user" as const, content: text, createdAt: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
+    setIsGenerating(true);
 
-  //   try {
-  //     // 2. Save to PostgreSQL via Server Action
-  //     await sendMessage(conversationId, text);
+    try {
+      // Save to Database via Server Action
+      await sendMessage(conversationId, text);
 
-  //     // 3. Trigger your AI logic here (e.g., calling Gemini API)
-  //   } catch (error) {
-  //     toast.error("Failed to send message");
-  //   }
-  // };
+      // TODO: Call Gemini API for response in the next task
+      setTimeout(() => setIsGenerating(false), 1000);
+      
+    } catch (error) {
+      toast.error("Failed to send message");
+      setIsGenerating(false);
+    }
+  };
 
   if (loading) return <div>Loading Tutor...</div>;
 
@@ -70,7 +77,8 @@ export default function ChatPage() {
         </div>
       </ChatWindow>
 
-      {/* <ChatInput onSend={handleSendMessage} /> */}
+      {/* 5. Render the ChatInput with required props */}
+      <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
     </div>
   );
 }
