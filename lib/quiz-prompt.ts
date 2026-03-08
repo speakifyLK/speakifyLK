@@ -27,6 +27,20 @@ const SAFE_TOPIC_PATTERN = /^[\p{L}\p{N}\s'\-]+$/u;
 export type QuizType = "MULTIPLE_CHOICE" | "FILL_IN_BLANK" | "TRANSLATION";
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
+/** Context about what the user has already learned in the platform. */
+export interface LearningContext {
+  /** Lesson/topic names the user has fully completed */
+  completedTopics: string[];
+  /** Topics where the user scored below 50 % */
+  weakTopics: string[];
+  /** Topics where the user scored 80 %+ */
+  strongTopics: string[];
+  /** Sinhala words/phrases the user frequently gets wrong */
+  frequentlyMissedWords: string[];
+  /** Derived overall proficiency level */
+  overallLevel: Difficulty;
+}
+
 export interface QuizPromptParams {
   /** Topic area, e.g. 'greetings', 'colours', 'numbers', 'food' */
   topic: string;
@@ -34,6 +48,8 @@ export interface QuizPromptParams {
   difficulty: Difficulty;
   /** Number of questions to generate */
   count: number;
+  /** Optional – when provided, Gemini tailors questions to the learner */
+  learningContext?: LearningContext;
 }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +77,73 @@ const difficultyGuidelines: Record<Difficulty, string> = {
     "Do not include transliteration.",
 };
 
+/** Max items per list to prevent token bloat */
+const MAX_CONTEXT_LIST_ITEMS = 15;
+/** Max length per individual item string */
+const MAX_CONTEXT_ITEM_LENGTH = 80;
+
+/**
+ * Sanitise a single context string: strip control characters, collapse
+ * whitespace, and truncate to a safe length.
+ */
+function sanitiseContextItem(raw: string): string {
+  return raw
+    .replace(/[\r\n\t]+/g, " ") // collapse newlines / tabs → space
+    .replace(/[^\P{C}\s]/gu, "") // strip remaining control chars
+    .trim()
+    .slice(0, MAX_CONTEXT_ITEM_LENGTH);
+}
+
+/**
+ * Sanitise and cap a list of context strings.
+ */
+function sanitiseContextList(items: string[]): string[] {
+  return items
+    .slice(0, MAX_CONTEXT_LIST_ITEMS)
+    .map(sanitiseContextItem)
+    .filter((s) => s.length > 0);
+}
+
+function buildLearningContextBlock(ctx: LearningContext | undefined): string {
+  if (!ctx) return "";
+
+  const completed = sanitiseContextList(ctx.completedTopics);
+  const weak = sanitiseContextList(ctx.weakTopics);
+  const strong = sanitiseContextList(ctx.strongTopics);
+  const missed = sanitiseContextList(ctx.frequentlyMissedWords);
+
+  const lines: string[] = [
+    "",
+    "PERSONALISATION — this learner's progress in the SpeakifyLK platform:",
+  ];
+
+  if (completed.length > 0) {
+    lines.push(`- Topics they have completed: ${completed.join(", ")}.`);
+  }
+  if (weak.length > 0) {
+    lines.push(`- Topics they STRUGGLE with (focus more questions here): ${weak.join(", ")}.`);
+  }
+  if (strong.length > 0) {
+    lines.push(
+      `- Topics they are STRONG in (include a few review questions): ${strong.join(", ")}.`
+    );
+  }
+  if (missed.length > 0) {
+    lines.push(
+      `- Words they frequently get wrong (try to include some of these): ${missed.join(", ")}.`
+    );
+  }
+  lines.push(`- Overall proficiency level: ${ctx.overallLevel}.`);
+  lines.push("");
+  lines.push(
+    "Use the information above to personalise the questions. " +
+      "Only use vocabulary and concepts from topics the learner has already studied. " +
+      "Prioritise their weak areas so they can improve."
+  );
+
+  return lines.join("\n");
+}
+
 // ---------------------------------------------------------------------------
 // Template builders
 // ---------------------------------------------------------------------------
@@ -81,7 +164,7 @@ const difficultyGuidelines: Record<Difficulty, string> = {
  * ```
  */
 function buildMultipleChoicePrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count } = params;
+  const { topic, difficulty, count, learningContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -90,6 +173,7 @@ Generate exactly ${count} MULTIPLE-CHOICE question(s) about the topic "${topic}"
 
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
+${buildLearningContextBlock(learningContext)}
 
 For each question, respond with an object that has:
 - "question": A clear Sinhala-language question (string).
@@ -132,7 +216,7 @@ Example response format:
  * ```
  */
 function buildFillInBlankPrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count } = params;
+  const { topic, difficulty, count, learningContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -141,6 +225,7 @@ Generate exactly ${count} FILL-IN-THE-BLANK question(s) about the topic "${topic
 
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
+${buildLearningContextBlock(learningContext)}
 
 For each question, respond with an object that has:
 - "sentence": A Sinhala sentence with a blank represented by "___" where the missing word should be (string).
@@ -177,7 +262,7 @@ Example response format:
  * ```
  */
 function buildTranslationPrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count } = params;
+  const { topic, difficulty, count, learningContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -186,6 +271,7 @@ Generate exactly ${count} TRANSLATION question(s) about the topic "${topic}".
 
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
+${buildLearningContextBlock(learningContext)}
 
 Mix the translation direction: some questions should be Sinhala-to-English, others English-to-Sinhala.
 
@@ -222,15 +308,12 @@ Example response format:
 // Public API
 // ---------------------------------------------------------------------------
 
-/** Map of quiz type to its prompt builder */
-const promptBuilders: Record<
-  QuizType,
-  (params: QuizPromptParams) => string
-> = {
-  MULTIPLE_CHOICE: buildMultipleChoicePrompt,
-  FILL_IN_BLANK: buildFillInBlankPrompt,
-  TRANSLATION: buildTranslationPrompt,
-};
+/** Map of quiz type to its prompt builder (Map avoids prototype-chain lookups) */
+const promptBuilders = new Map<QuizType, (params: QuizPromptParams) => string>([
+  ["MULTIPLE_CHOICE", buildMultipleChoicePrompt],
+  ["FILL_IN_BLANK", buildFillInBlankPrompt],
+  ["TRANSLATION", buildTranslationPrompt],
+]);
 
 /**
  * Returns a fully-formed prompt string for the given quiz type and parameters.
@@ -246,20 +329,13 @@ const promptBuilders: Record<
  * });
  * ```
  */
-export function buildQuizPrompt(
-  type: QuizType,
-  params: QuizPromptParams
-): string {
+export function buildQuizPrompt(type: QuizType, params: QuizPromptParams): string {
   // --- Validate count ---
   if (!Number.isInteger(params.count) || params.count < 1) {
-    throw new Error(
-      `"count" must be a positive integer, received: ${params.count}`
-    );
+    throw new Error(`"count" must be a positive integer, received: ${params.count}`);
   }
   if (params.count > MAX_QUESTION_COUNT) {
-    throw new Error(
-      `"count" must not exceed ${MAX_QUESTION_COUNT}, received: ${params.count}`
-    );
+    throw new Error(`"count" must not exceed ${MAX_QUESTION_COUNT}, received: ${params.count}`);
   }
 
   // --- Validate & sanitise topic ---
@@ -283,11 +359,11 @@ export function buildQuizPrompt(
     topic: trimmedTopic,
   };
 
-  const builder = promptBuilders[type];
-  if (!builder) {
+  if (!promptBuilders.has(type)) {
     throw new Error(
-      `Unknown quiz type "${type}". Expected one of: ${Object.keys(promptBuilders).join(", ")}`
+      `Unknown quiz type "${type}". Expected one of: ${[...promptBuilders.keys()].join(", ")}`
     );
   }
+  const builder = promptBuilders.get(type)!;
   return builder(sanitisedParams);
 }

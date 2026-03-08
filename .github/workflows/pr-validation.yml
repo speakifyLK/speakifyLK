@@ -12,13 +12,10 @@ jobs:
   validate:
     name: Check PR requirements
     runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
-      - name: Skip for Dependabot
-        if: github.actor == 'dependabot[bot]'
-        run: echo "Skipping PR validation for Dependabot PR"
-
       - name: Auto-assign PR author if unassigned
-        if: github.actor != 'dependabot[bot]' && (github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]')
+        if: github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]'
         uses: actions/github-script@v8
         with:
           script: |
@@ -31,7 +28,6 @@ jobs:
             console.log('Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
 
       - name: Validate Jira key in PR title
-        if: github.actor != 'dependabot[bot]'
         uses: actions/github-script@v8
         with:
           script: |
