@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { units, lessons } from "@/db/schema";
+import type { Difficulty } from "@/lib/quiz-prompt";
 
 type Unit = typeof units.$inferSelect & {
   lessons: (typeof lessons.$inferSelect & { completed: boolean })[];
@@ -15,7 +16,6 @@ type QuizConfigProps = {
   units: Unit[];
 };
 
-type Difficulty = "beginner" | "intermediate" | "advanced";
 type QuestionType = "mcq" | "fill_blank" | "translation";
 
 export const QuizConfig = ({ units }: QuizConfigProps) => {
