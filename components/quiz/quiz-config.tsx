@@ -77,11 +77,13 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
         throw new Error(error.error || "Failed to generate quiz");
       }
 
-      await response.json();
+      const data = await response.json();
+      const sessionId = data?.sessionId;
+      if (!sessionId) {
+        throw new Error("Failed to start quiz: missing session ID");
+      }
       toast.success("Quiz generated successfully!");
-      // TODO: Redirect to quiz session page when /quiz/[sessionId] route is created
-      // For now, redirect back to quiz config page
-      router.push("/quiz");
+      router.push(`/quiz/${sessionId}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to start quiz");
     } finally {
