@@ -83,7 +83,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
         throw new Error("Failed to start quiz: missing session ID");
       }
       toast.success("Quiz generated successfully!");
-      router.push(`/quiz/${sessionId}`);
+      router.push(`/quiz?sessionId=${encodeURIComponent(sessionId)}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to start quiz");
     } finally {
