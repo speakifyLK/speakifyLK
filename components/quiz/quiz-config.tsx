@@ -50,15 +50,15 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
       return;
     }
 
+    const selectedUnit = units.find((u) => u.id === selectedTopic);
+    if (!selectedUnit) {
+      toast.error("Selected topic not found");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const selectedUnit = units.find((u) => u.id === selectedTopic);
-      if (!selectedUnit) {
-        toast.error("Selected topic not found");
-        return;
-      }
-
       const response = await fetch("/api/quiz/generate", {
         method: "POST",
         headers: {
