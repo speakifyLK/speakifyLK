@@ -1,0 +1,128 @@
+import { auth } from "@clerk/nextjs/server";
+import { getGeminiClient } from "@/lib/gemini";
+import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
+import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
+
+const MODEL_ID = "gemini-2.5-flash";
+
+export async function POST(req: Request) {
+  // ── 1. Authenticate ──
+  const { userId } = await auth();
+  if (!userId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // ── 2. Parse request body ──
+  let conversationId: number;
+  let message: string;
+
+  try {
+    const body = await req.json();
+    conversationId = body.conversationId;
+    message = body.message;
+
+    if (!conversationId || !message?.trim()) {
+      return Response.json(
+        { error: "Missing conversationId or message" },
+        { status: 400 }
+      );
+    }
+  } catch {
+    return Response.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  // ── 3. Save user message to DB ──
+  try {
+    await sendMessage(conversationId, message);
+  } catch (err) {
+    console.error(`[Chat] Failed to save user message:`, err);
+    return Response.json(
+      { error: "Failed to save message" },
+      { status: 500 }
+    );
+  }
+
+  // ── 4. Load conversation history ──
+  let history;
+  try {
+    history = await getMessages(conversationId);
+  } catch (err) {
+    console.error(`[Chat] Failed to load history:`, err);
+    return Response.json(
+      { error: "Failed to load conversation" },
+      { status: 500 }
+    );
+  }
+
+  // ── 5. Format history for Gemini ──
+  const geminiHistory = history.map((msg) => ({
+    role: msg.role === "assistant" ? ("model" as const) : ("user" as const),
+    parts: [{ text: msg.content }],
+  }));
+
+  // ── 6. Call Gemini with streaming ──
+  try {
+    const ai = getGeminiClient();
+
+    const response = await ai.models.generateContentStream({
+      model: MODEL_ID,
+      contents: [
+        { role: "user", parts: [{ text: SINHALA_TUTOR_PROMPT }] },
+        { role: "model", parts: [{ text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" }] },
+        ...geminiHistory,
+      ],
+      config: {
+        temperature: 0.7,
+        topP: 0.9,
+        maxOutputTokens: 1024,
+      },
+    });
+
+    // ── 7. Stream response to client ──
+    let fullResponse = "";
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of response) {
+            const text = chunk.text ?? "";
+            if (text) {
+              fullResponse += text;
+              controller.enqueue(new TextEncoder().encode(text));
+            }
+          }
+
+          // ── 8. Save complete assistant response to DB ──
+          if (fullResponse.trim()) {
+            await saveAssistantMessage(conversationId, fullResponse);
+          }
+
+          controller.close();
+        } catch (err) {
+          console.error(
+            `[Chat] Gemini streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
+            err
+          );
+          controller.error(err);
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-cache",
+      },
+    });
+  } catch (err) {
+    console.error(
+      `[Chat] Gemini API failure | userId: ${userId} | time: ${new Date().toISOString()}`,
+      err
+    );
+    return Response.json(
+      { error: "AI service temporarily unavailable. Please try again." },
+      { status: 503 }
+    );
+  }
+}
