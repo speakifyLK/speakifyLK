@@ -36,7 +36,7 @@ Here is the folder structure of this app.
 <!--- FOLDER_STRUCTURE_START --->
 
 ```bash
-speakify/
+speakifyLK/
   |- actions/
     |-- ai-quiz.ts
     |-- challenge-progress.ts
@@ -52,11 +52,7 @@ speakify/
     |-- api/
     |-- chat/
     |-- lesson/
-    |-- apple-icon.png
-    |-- favicon.ico
     |-- globals.css
-    |-- icon1.png
-    |-- icon2.png
     |-- layout.tsx
   |- components/
     |-- chat/
@@ -101,7 +97,6 @@ speakify/
     |-- use-hearts-modal.ts
     |-- use-practice-modal.ts
   |- .env.example
-  |- .env/.env.local
   |- .gitignore
   |- .gitmessage
   |- .prettierrc.json
@@ -113,7 +108,6 @@ speakify/
   |- eslint.config.mjs
   |- middleware.ts
   |- next.config.ts
-  |- package-lock.json
   |- package.json
   |- postcss.config.js
   |- tailwind.config.ts
@@ -142,8 +136,14 @@ NEXT_TELEMETRY_DISABLED=1
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 CLERK_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+# clerk redirect urls
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL="/"
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL="/"
+
 # neon db uri
-DATABASE_URL="postgresql://<user>:<password>@<host>:<post>/speakify?sslmode=require"
+DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/Speakify?sslmode=require"
 
 # stripe api key and webhook
 STRIPE_API_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -156,6 +156,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # or CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, user_xxxxxxxxxxxxxxxxxxxxxx" for multiple admins.
 
+# gemini ai api key
+GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# set to '1' to disable safety filters (BLOCK_NONE) — optional
+# GEMINI_UNSAFE_MODE=1
 ```
 
 5. Obtain Clerk Authentication Keys
@@ -186,7 +191,14 @@ CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
    1. **Procedure**:
       - Replace `http://localhost:3000` with the URL of your deployed application.
 
-9. Identify Clerk Admin User IDs
+9. Obtain Gemini AI API Key
+   1. **Source**: Google AI Studio
+   2. **Procedure**:
+      - Go to Google AI Studio.
+      - Create or select a project.
+      - Generate an API key and copy the `GEMINI_API_KEY`.
+
+10. Identify Clerk Admin User IDs
    1. **Source**: Clerk Dashboard or Settings Page
    2. **Procedure**:
       - Log in to your Clerk account.
@@ -194,12 +206,12 @@ CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       - Find the section related to admin user IDs.
       - Copy the user IDs provided, ensuring they are separated by commas and spaces.
 
-10. Save and Secure:
+11. Save and Secure:
     - Save the changes to the `.env` file.
 
-11. Install Project Dependencies using `bun install --legacy-peer-deps`.
+12. Install Project Dependencies using `bun install --legacy-peer-deps`.
 
-12. Run the Seed Script:
+13. Run the Seed Script:
 
 In the same terminal, run the following command to execute the seed script:
 
@@ -209,11 +221,11 @@ bun run db:push && bun run db:prod
 
 This command uses `bun` to execute the Typescript file (`scripts/prod.ts`) and writes challenges data in database.
 
-13. Verify Data in Database:
+14. Verify Data in Database:
 
 Once the script completes, check your database to ensure that the challenges data has been successfully seeded.
 
-14. Now app is fully configured 👍 and you can start using this app using either one of `bun dev`.
+15. Now app is fully configured 👍 and you can start using this app using either one of `bun dev`.
 
 **NOTE:** Please make sure to keep your API keys and configuration values secure and do not expose them publicly.
 
@@ -229,11 +241,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 
 Useful resources and dependencies that are used in SpeakifyLK.
 
-- Special Thanks to Code with Antonio: https://codewithantonio.com/
-- Kenney Assets: https://kenney.nl/
-- Freesound: https://freesound.org/
-- Elevenlabs AI: https://elevenlabs.io/
-- Flagpack: https://flagpack.xyz/
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
