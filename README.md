@@ -34,9 +34,8 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
-speakifyLK/
+speakify/
   |- actions/
     |-- ai-quiz.ts
     |-- challenge-progress.ts
@@ -52,7 +51,11 @@ speakifyLK/
     |-- api/
     |-- chat/
     |-- lesson/
+    |-- apple-icon.png
+    |-- favicon.ico
     |-- globals.css
+    |-- icon1.png
+    |-- icon2.png
     |-- layout.tsx
   |- components/
     |-- chat/
@@ -97,6 +100,7 @@ speakifyLK/
     |-- use-hearts-modal.ts
     |-- use-practice-modal.ts
   |- .env.example
+  |- .env/.env.local
   |- .gitignore
   |- .gitmessage
   |- .prettierrc.json
@@ -108,13 +112,13 @@ speakifyLK/
   |- eslint.config.mjs
   |- middleware.ts
   |- next.config.ts
+  |- package-lock.json
   |- package.json
   |- postcss.config.js
   |- tailwind.config.ts
   |- tsconfig.json
   |- vercel.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
