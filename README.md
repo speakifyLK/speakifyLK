@@ -34,6 +34,7 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
+
 ```bash
 speakify/
   |- actions/
@@ -119,6 +120,7 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
+
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -203,19 +205,19 @@ GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       - Generate an API key and copy the `GEMINI_API_KEY`.
 
 10. Identify Clerk Admin User IDs
-   1. **Source**: Clerk Dashboard or Settings Page
-   2. **Procedure**:
-      - Log in to your Clerk account.
-      - Navigate to the dashboard or settings page.
-      - Find the section related to admin user IDs.
-      - Copy the user IDs provided, ensuring they are separated by commas and spaces.
+11. **Source**: Clerk Dashboard or Settings Page
+12. **Procedure**:
+    - Log in to your Clerk account.
+    - Navigate to the dashboard or settings page.
+    - Find the section related to admin user IDs.
+    - Copy the user IDs provided, ensuring they are separated by commas and spaces.
 
-11. Save and Secure:
+13. Save and Secure:
     - Save the changes to the `.env` file.
 
-12. Install Project Dependencies using `bun install --legacy-peer-deps`.
+14. Install Project Dependencies using `bun install --legacy-peer-deps`.
 
-13. Run the Seed Script:
+15. Run the Seed Script:
 
 In the same terminal, run the following command to execute the seed script:
 
@@ -246,6 +248,7 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
+
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
