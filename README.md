@@ -162,8 +162,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # or CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, user_xxxxxxxxxxxxxxxxxxxxxx" for multiple admins.
 
-# gemini ai api key
+# gemini ai api key (works with both Google AI Studio and Vertex AI Express)
 GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# set to 'true' to use Vertex AI mode instead of Gemini Developer API — optional
+# GOOGLE_GENAI_USE_VERTEXAI=true
 
 # set to '1' to disable safety filters (BLOCK_NONE) — optional
 # GEMINI_UNSAFE_MODE=1
@@ -198,11 +201,11 @@ GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       - Replace `http://localhost:3000` with the URL of your deployed application.
 
 9. Obtain Gemini AI API Key
-   1. **Source**: Google AI Studio
+   1. **Source**: Google AI Studio or Google Cloud Console (Vertex AI)
    2. **Procedure**:
-      - Go to Google AI Studio.
-      - Create or select a project.
-      - Generate an API key and copy the `GEMINI_API_KEY`.
+      - **Option A — Gemini Developer API**: Go to Google AI Studio, create or select a project, and generate an API key.
+      - **Option B — Vertex AI Express Mode**: Go to Google Cloud Console, enable the Vertex AI API, and create an API key. Then set `GOOGLE_GENAI_USE_VERTEXAI=true` in your `.env`.
+      - Copy the key into `GEMINI_API_KEY`.
 
 10. Identify Clerk Admin User IDs
 11. **Source**: Clerk Dashboard or Settings Page
