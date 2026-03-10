@@ -2,7 +2,6 @@
 
 # SpeakifyLK - Interactive platform for language learning.
 
-
 [![GitHub license](https://flat.badgen.net/github/license/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/blob/main/LICENSE "GitHub license")
 [![Maintenance](https://flat.badgen.net/static/Maintained/yes?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/commits/main "Maintenance")
 [![GitHub branches](https://flat.badgen.net/github/branches/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/branches "GitHub branches")
@@ -35,6 +34,7 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
+
 ```bash
 speakify/
   |- actions/
@@ -120,6 +120,7 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
+
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
