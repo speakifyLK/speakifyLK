@@ -2,8 +2,6 @@
 
 # SpeakifyLK - Interactive platform for language learning.
 
-![SpeakifyLK - Interactive platform for language learning.](/.github/images/img_main.png "SpeakifyLK - Interactive platform for language learning.")
-
 [![GitHub license](https://flat.badgen.net/github/license/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/blob/main/LICENSE "GitHub license")
 [![Maintenance](https://flat.badgen.net/static/Maintained/yes?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/commits/main "Maintenance")
 [![GitHub branches](https://flat.badgen.net/github/branches/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/branches "GitHub branches")
@@ -22,9 +20,7 @@
 
 - [Folder Structure](#bangbang-folder-structure)
 - [Getting Started](#toolbox-getting-started)
-- [Screenshots](#camera-screenshots)
 - [Tech Stack](#gear-tech-stack)
-- [Stats](#wrench-stats)
 - [Contribute](#raised_hands-contribute)
 - [Acknowledgements](#gem-acknowledgements)
 - [Learn More](#books-learn-more)
@@ -147,8 +143,14 @@ NEXT_TELEMETRY_DISABLED=1
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 CLERK_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+# clerk redirect urls
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL="/"
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL="/"
+
 # neon db uri
-DATABASE_URL="postgresql://<user>:<password>@<host>:<post>/speakify?sslmode=require"
+DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/Speakify?sslmode=require"
 
 # stripe api key and webhook
 STRIPE_API_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -161,6 +163,14 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # or CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, user_xxxxxxxxxxxxxxxxxxxxxx" for multiple admins.
 
+# gemini ai api key (works with both Google AI Studio and Vertex AI Express)
+GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# set to 'true' to use Vertex AI mode instead of Gemini Developer API — optional
+# GOOGLE_GENAI_USE_VERTEXAI=true
+
+# set to '1' to disable safety filters (BLOCK_NONE) — optional
+# GEMINI_UNSAFE_MODE=1
 ```
 
 5. Obtain Clerk Authentication Keys
@@ -191,20 +201,27 @@ CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
    1. **Procedure**:
       - Replace `http://localhost:3000` with the URL of your deployed application.
 
-9. Identify Clerk Admin User IDs
-   1. **Source**: Clerk Dashboard or Settings Page
+9. Obtain Gemini AI API Key
+   1. **Source**: Google AI Studio or Google Cloud Console (Vertex AI)
    2. **Procedure**:
-      - Log in to your Clerk account.
-      - Navigate to the dashboard or settings page.
-      - Find the section related to admin user IDs.
-      - Copy the user IDs provided, ensuring they are separated by commas and spaces.
+      - **Option A — Gemini Developer API**: Go to Google AI Studio, create or select a project, and generate an API key.
+      - **Option B — Vertex AI Express Mode**: Go to Google Cloud Console, enable the Vertex AI API, and create an API key. Then set `GOOGLE_GENAI_USE_VERTEXAI=true` in your `.env`.
+      - Copy the key into `GEMINI_API_KEY`.
 
-10. Save and Secure:
+10. Identify Clerk Admin User IDs
+11. **Source**: Clerk Dashboard or Settings Page
+12. **Procedure**:
+    - Log in to your Clerk account.
+    - Navigate to the dashboard or settings page.
+    - Find the section related to admin user IDs.
+    - Copy the user IDs provided, ensuring they are separated by commas and spaces.
+
+13. Save and Secure:
     - Save the changes to the `.env` file.
 
-11. Install Project Dependencies using `bun install --legacy-peer-deps`.
+14. Install Project Dependencies using `bun install --legacy-peer-deps`.
 
-12. Run the Seed Script:
+15. Run the Seed Script:
 
 In the same terminal, run the following command to execute the seed script:
 
@@ -214,29 +231,17 @@ bun run db:push && bun run db:prod
 
 This command uses `bun` to execute the Typescript file (`scripts/prod.ts`) and writes challenges data in database.
 
-13. Verify Data in Database:
+14. Verify Data in Database:
 
 Once the script completes, check your database to ensure that the challenges data has been successfully seeded.
 
-14. Now app is fully configured 👍 and you can start using this app using either one of `bun dev`.
+15. Now app is fully configured 👍 and you can start using this app using either one of `bun dev`.
 
 **NOTE:** Please make sure to keep your API keys and configuration values secure and do not expose them publicly.
 
-## :camera: Screenshots
-
-![Modern UI/UX](/.github/images/img1.png "Modern UI/UX")
-
-![Quests](/.github/images/img2.png "Quests")
-
-![Shop](/.github/images/img3.png "Shop")
-
 ## :gear: Tech Stack
 
-[![React JS](https://skillicons.dev/icons?i=react "React JS")](https://react.dev/ "React JS") [![Next JS](https://skillicons.dev/icons?i=next "Next JS")](https://nextjs.org/ "Next JS") [![Typescript](https://skillicons.dev/icons?i=ts "Typescript")](https://www.typescriptlang.org/ "Typescript") [![Tailwind CSS](https://skillicons.dev/icons?i=tailwind "Tailwind CSS")](https://tailwindcss.com/ "Tailwind CSS") [![Vercel](https://skillicons.dev/icons?i=vercel "Vercel")](https://vercel.app/ "Vercel") [![Postgresql](https://skillicons.dev/icons?i=postgres "Postgresql")](https://www.postgresql.org/ "Postgresql")
-
-## :wrench: Stats
-
-[![Stats for SpeakifyLK](/.github/images/stats.svg "Stats for SpeakifyLK")](https://pagespeed.web.dev/analysis?url=https://speakifylk.vercel.app/ "Stats for SpeakifyLK")
+[![React JS](https://skillicons.dev/icons?i=react "React JS")](https://react.dev/ "React JS") [![Next JS](https://skillicons.dev/icons?i=next "Next JS")](https://nextjs.org/ "Next JS") [![Typescript](https://skillicons.dev/icons?i=ts "Typescript")](https://www.typescriptlang.org/ "Typescript") [![Tailwind CSS](https://skillicons.dev/icons?i=tailwind "Tailwind CSS")](https://tailwindcss.com/ "Tailwind CSS") [![Bun](https://skillicons.dev/icons?i=bun "Bun")](https://bun.sh/ "Bun") [![GCP](https://skillicons.dev/icons?i=gcp "Gemini")](https://ai.google.dev/ "Gemini") [![Vercel](https://skillicons.dev/icons?i=vercel "Vercel")](https://vercel.app/ "Vercel") [![Postgresql](https://skillicons.dev/icons?i=postgres "Postgresql")](https://www.postgresql.org/ "Postgresql")
 
 ## :raised_hands: Contribute
 
@@ -246,12 +251,8 @@ You might encounter some bugs while using this app. You are more than welcome to
 
 Useful resources and dependencies that are used in SpeakifyLK.
 
-- Special Thanks to Code with Antonio: https://codewithantonio.com/
-- Kenney Assets: https://kenney.nl/
-- Freesound: https://freesound.org/
-- Elevenlabs AI: https://elevenlabs.io/
-- Flagpack: https://flagpack.xyz/
 <!--- DEPENDENCIES_START --->
+
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
