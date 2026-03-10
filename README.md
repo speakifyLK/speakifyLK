@@ -2,7 +2,6 @@
 
 # SpeakifyLK - Interactive platform for language learning.
 
-![SpeakifyLK - Interactive platform for language learning.](/.github/images/img_main.png "SpeakifyLK - Interactive platform for language learning.")
 
 [![GitHub license](https://flat.badgen.net/github/license/speakifyLK/speakifyLK?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/blob/main/LICENSE "GitHub license")
 [![Maintenance](https://flat.badgen.net/static/Maintained/yes?icon=github&color=black&scale=1.01)](https://github.com/speakifyLK/speakifyLK/commits/main "Maintenance")
@@ -22,9 +21,7 @@
 
 - [Folder Structure](#bangbang-folder-structure)
 - [Getting Started](#toolbox-getting-started)
-- [Screenshots](#camera-screenshots)
 - [Tech Stack](#gear-tech-stack)
-- [Stats](#wrench-stats)
 - [Contribute](#raised_hands-contribute)
 - [Acknowledgements](#gem-acknowledgements)
 - [Learn More](#books-learn-more)
@@ -219,21 +216,9 @@ Once the script completes, check your database to ensure that the challenges dat
 
 **NOTE:** Please make sure to keep your API keys and configuration values secure and do not expose them publicly.
 
-## :camera: Screenshots
-
-![Modern UI/UX](/.github/images/img1.png "Modern UI/UX")
-
-![Quests](/.github/images/img2.png "Quests")
-
-![Shop](/.github/images/img3.png "Shop")
-
 ## :gear: Tech Stack
 
 [![React JS](https://skillicons.dev/icons?i=react "React JS")](https://react.dev/ "React JS") [![Next JS](https://skillicons.dev/icons?i=next "Next JS")](https://nextjs.org/ "Next JS") [![Typescript](https://skillicons.dev/icons?i=ts "Typescript")](https://www.typescriptlang.org/ "Typescript") [![Tailwind CSS](https://skillicons.dev/icons?i=tailwind "Tailwind CSS")](https://tailwindcss.com/ "Tailwind CSS") [![Vercel](https://skillicons.dev/icons?i=vercel "Vercel")](https://vercel.app/ "Vercel") [![Postgresql](https://skillicons.dev/icons?i=postgres "Postgresql")](https://www.postgresql.org/ "Postgresql")
-
-## :wrench: Stats
-
-[![Stats for SpeakifyLK](/.github/images/stats.svg "Stats for SpeakifyLK")](https://pagespeed.web.dev/analysis?url=https://speakifylk.vercel.app/ "Stats for SpeakifyLK")
 
 ## :raised_hands: Contribute
 
