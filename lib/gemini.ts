@@ -1,9 +1,4 @@
-import {
-  GoogleGenAI,
-  HarmCategory,
-  HarmBlockThreshold,
-  type Content,
-} from "@google/genai";
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold, type Content } from "@google/genai";
 
 /**
  * When set to '1', safety filters are disabled (BLOCK_NONE) in non-production
@@ -12,8 +7,7 @@ import {
  * BLOCK_MEDIUM_AND_ABOVE threshold is used.
  */
 const isUnsafeModeEnv = process.env.GEMINI_UNSAFE_MODE === "1";
-const isUnsafeMode =
-  isUnsafeModeEnv && process.env.NODE_ENV !== "production";
+const isUnsafeMode = isUnsafeModeEnv && process.env.NODE_ENV !== "production";
 
 if (isUnsafeModeEnv && process.env.NODE_ENV === "production") {
   console.warn(
@@ -26,20 +20,20 @@ const safetyThreshold = isUnsafeMode
   ? HarmBlockThreshold.BLOCK_NONE
   : HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE;
 
-const safetySettings = [
+export const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: safetyThreshold },
   { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: safetyThreshold },
   { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: safetyThreshold },
   { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: safetyThreshold },
 ];
 
-const generationConfig = {
+export const generationConfig = {
   temperature: 0.7,
   topP: 0.9,
   maxOutputTokens: 1024,
 };
 
-const MODEL_ID = "gemini-2.5-flash";
+export const MODEL_ID = "gemini-2.5-flash";
 
 /**
  * Lazily initialises and returns the GoogleGenAI client.
