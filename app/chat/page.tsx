@@ -87,6 +87,20 @@ export default function ChatPage() {
           return updated;
         });
       }
+
+      // Flush any remaining buffered bytes (e.g. partial multi-byte Sinhala characters)
+      const remaining = decoder.decode();
+      if (remaining) {
+        fullText += remaining;
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: fullText,
+          };
+          return updated;
+        });
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to get AI response");
       // Remove the empty assistant bubble on error
