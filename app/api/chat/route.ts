@@ -1,9 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
-import { getGeminiClient } from "@/lib/gemini";
+import { getGeminiClient, MODEL_ID, safetySettings, generationConfig } from "@/lib/gemini";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
 
-const MODEL_ID = "gemini-2.5-flash";
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
@@ -18,12 +17,28 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    conversationId = body.conversationId;
+    const rawConversationId = body.conversationId;
+    const parsedConversationId =
+      typeof rawConversationId === "string"
+        ? Number(rawConversationId)
+        : rawConversationId;
+
+    if (
+      !Number.isFinite(parsedConversationId) ||
+      !Number.isInteger(parsedConversationId)
+    ) {
+      return Response.json(
+        { error: "Invalid conversationId; expected a finite integer" },
+        { status: 400 }
+      );
+    }
+
+    conversationId = parsedConversationId;
     message = body.message;
 
-    if (!conversationId || !message?.trim()) {
+    if (typeof message !== "string" || !message.trim()) {
       return Response.json(
-        { error: "Missing conversationId or message" },
+        { error: "Missing or invalid message" },
         { status: 400 }
       );
     }
@@ -72,14 +87,14 @@ export async function POST(req: Request) {
         ...geminiHistory,
       ],
       config: {
-        temperature: 0.7,
-        topP: 0.9,
-        maxOutputTokens: 1024,
+        safetySettings,
+        ...generationConfig,
       },
     });
 
     // ── 7. Stream response to client ──
     let fullResponse = "";
+    const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -88,7 +103,7 @@ export async function POST(req: Request) {
             const text = chunk.text ?? "";
             if (text) {
               fullResponse += text;
-              controller.enqueue(new TextEncoder().encode(text));
+              controller.enqueue(encoder.encode(text));
             }
           }
 

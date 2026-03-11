@@ -26,20 +26,20 @@ const safetyThreshold = isUnsafeMode
   ? HarmBlockThreshold.BLOCK_NONE
   : HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE;
 
-const safetySettings = [
+export const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: safetyThreshold },
   { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: safetyThreshold },
   { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: safetyThreshold },
   { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: safetyThreshold },
 ];
 
-const generationConfig = {
+export const generationConfig = {
   temperature: 0.7,
   topP: 0.9,
   maxOutputTokens: 1024,
 };
 
-const MODEL_ID = "gemini-2.5-flash";
+export const MODEL_ID = "gemini-2.5-flash";
 
 /**
  * Lazily initialises and returns the GoogleGenAI client.

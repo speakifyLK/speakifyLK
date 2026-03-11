@@ -42,14 +42,12 @@ export default function ChatPage() {
   const handleSendMessage = async (text: string) => {
     if (!conversationId) return;
 
-    // Optimistically update UI with user message
+    // Optimistically update UI with user message and placeholder assistant message
     const userMsg = { role: "user" as const, content: text, createdAt: new Date() };
-    setMessages((prev) => [...prev, userMsg]);
-    setIsGenerating(true);
-
-    // Add an empty assistant bubble that we'll stream into
     const assistantMsg = { role: "assistant" as const, content: "", createdAt: new Date() };
-    setMessages((prev) => [...prev, assistantMsg]);
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setIsGenerating(true);
+    // Assistant bubble will be streamed into as the response arrives
 
     try {
       const response = await fetch("/api/chat", {
