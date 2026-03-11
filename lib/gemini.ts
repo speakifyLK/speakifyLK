@@ -1,9 +1,4 @@
-import {
-  GoogleGenAI,
-  HarmCategory,
-  HarmBlockThreshold,
-  type Content,
-} from "@google/genai";
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold, type Content } from "@google/genai";
 
 /**
  * When set to '1', safety filters are disabled (BLOCK_NONE) in non-production
@@ -12,8 +7,7 @@ import {
  * BLOCK_MEDIUM_AND_ABOVE threshold is used.
  */
 const isUnsafeModeEnv = process.env.GEMINI_UNSAFE_MODE === "1";
-const isUnsafeMode =
-  isUnsafeModeEnv && process.env.NODE_ENV !== "production";
+const isUnsafeMode = isUnsafeModeEnv && process.env.NODE_ENV !== "production";
 
 if (isUnsafeModeEnv && process.env.NODE_ENV === "production") {
   console.warn(

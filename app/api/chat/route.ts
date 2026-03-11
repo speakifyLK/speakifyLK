@@ -3,7 +3,6 @@ import { getGeminiClient, MODEL_ID, safetySettings, generationConfig } from "@/l
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
 
-
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
   const { userId } = await auth();
@@ -19,14 +18,9 @@ export async function POST(req: Request) {
     const body = await req.json();
     const rawConversationId = body.conversationId;
     const parsedConversationId =
-      typeof rawConversationId === "string"
-        ? Number(rawConversationId)
-        : rawConversationId;
+      typeof rawConversationId === "string" ? Number(rawConversationId) : rawConversationId;
 
-    if (
-      !Number.isFinite(parsedConversationId) ||
-      !Number.isInteger(parsedConversationId)
-    ) {
+    if (!Number.isFinite(parsedConversationId) || !Number.isInteger(parsedConversationId)) {
       return Response.json(
         { error: "Invalid conversationId; expected a finite integer" },
         { status: 400 }
@@ -37,10 +31,7 @@ export async function POST(req: Request) {
     message = body.message;
 
     if (typeof message !== "string" || !message.trim()) {
-      return Response.json(
-        { error: "Missing or invalid message" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Missing or invalid message" }, { status: 400 });
     }
   } catch {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
@@ -51,10 +42,7 @@ export async function POST(req: Request) {
     await sendMessage(conversationId, message);
   } catch (err) {
     console.error(`[Chat] Failed to save user message:`, err);
-    return Response.json(
-      { error: "Failed to save message" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to save message" }, { status: 500 });
   }
 
   // ── 4. Load conversation history ──
@@ -63,10 +51,7 @@ export async function POST(req: Request) {
     history = await getMessages(conversationId);
   } catch (err) {
     console.error(`[Chat] Failed to load history:`, err);
-    return Response.json(
-      { error: "Failed to load conversation" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to load conversation" }, { status: 500 });
   }
 
   // ── 5. Format history for Gemini ──
@@ -83,7 +68,12 @@ export async function POST(req: Request) {
       model: MODEL_ID,
       contents: [
         { role: "user", parts: [{ text: SINHALA_TUTOR_PROMPT }] },
-        { role: "model", parts: [{ text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" }] },
+        {
+          role: "model",
+          parts: [
+            { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
+          ],
+        },
         ...geminiHistory,
       ],
       config: {
