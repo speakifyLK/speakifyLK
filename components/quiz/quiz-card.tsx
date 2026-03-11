@@ -46,16 +46,13 @@ const McqOptions = ({
       const isSelected = selectedAnswer === opt.text;
       const isCorrectOption = opt.text === correctAnswer;
 
-      let variant:
-        | "default"
-        | "primary"
-        | "secondary"
-        | "danger"
-        | "locked" = "default";
+      let variant: "default" | "primary" | "secondary" | "danger" | "locked" = "default";
 
       if (isSubmitted) {
-        if (isCorrectOption) variant = "secondary"; // green
-        else if (isSelected) variant = "danger"; // red
+        if (isCorrectOption)
+          variant = "secondary"; // green
+        else if (isSelected)
+          variant = "danger"; // red
         else variant = "locked"; // greyed out
       } else if (isSelected) {
         variant = "primary"; // blue highlight
@@ -73,7 +70,7 @@ const McqOptions = ({
             isSubmitted && isCorrectOption && "ring-2 ring-green-400"
           )}
         >
-          <span className="mr-2 font-bold text-xs opacity-60">
+          <span className="mr-2 text-xs font-bold opacity-60">
             {String.fromCharCode(65 + idx)}.
           </span>
           {opt.text}
@@ -100,15 +97,12 @@ const FillInBlankInput = ({
   const [showHint, setShowHint] = useState(false);
 
   // Replace underscores / blank placeholder with a visible gap
-  const displaySentence = sentence.replace(
-    /_{2,}|\[blank\]|\[___\]/gi,
-    " _______ "
-  );
+  const displaySentence = sentence.replace(/_{2,}|\[blank\]|\[___\]/gi, " _______ ");
 
   return (
     <div className="space-y-4">
       {/* Sentence with blank */}
-      <p className="rounded-xl bg-slate-50 border-2 border-slate-200 p-5 text-lg font-medium text-neutral-800 leading-relaxed">
+      <p className="rounded-xl border-2 border-slate-200 bg-slate-50 p-5 text-lg font-medium leading-relaxed text-neutral-800">
         {displaySentence}
       </p>
 
@@ -119,7 +113,7 @@ const FillInBlankInput = ({
         onChange={(e) => !isSubmitted && onChange(e.target.value)}
         disabled={isSubmitted}
         placeholder="Type your answer here…"
-        className="w-full rounded-xl border-2 border-slate-200 border-b-4 p-4 text-lg focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+        className="w-full rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       />
 
       {/* Hint button */}
@@ -128,14 +122,14 @@ const FillInBlankInput = ({
           <button
             type="button"
             onClick={() => setShowHint((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600 transition-colors hover:text-amber-700"
           >
             <Lightbulb className="h-4 w-4" />
             {showHint ? "Hide hint" : "Show hint"}
           </button>
 
           {showHint && (
-            <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+            <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               💡 {hint}
             </div>
           )}
@@ -164,13 +158,11 @@ const TranslationInput = ({
   return (
     <div className="space-y-4">
       {/* Source text with language label */}
-      <div className="rounded-xl bg-indigo-50 border-2 border-indigo-200 p-5">
-        <span className="mb-2 inline-block rounded-full bg-indigo-200 px-3 py-0.5 text-xs font-bold uppercase text-indigo-700 tracking-wider">
+      <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50 p-5">
+        <span className="mb-2 inline-block rounded-full bg-indigo-200 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-indigo-700">
           {sourceLanguage}
         </span>
-        <p className="text-lg font-medium text-neutral-800 leading-relaxed mt-2">
-          {sourceText}
-        </p>
+        <p className="mt-2 text-lg font-medium leading-relaxed text-neutral-800">{sourceText}</p>
       </div>
 
       {/* Translation textarea */}
@@ -185,14 +177,12 @@ const TranslationInput = ({
           disabled={isSubmitted}
           placeholder="Type your translation here…"
           rows={3}
-          className="w-full rounded-xl border-2 border-slate-200 border-b-4 p-4 text-lg focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 resize-none transition-colors"
+          className="w-full resize-none rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         />
         <span
           className={cn(
             "absolute bottom-4 right-4 text-xs font-medium",
-            value.length > MAX_CHARS * 0.9
-              ? "text-rose-500"
-              : "text-slate-400"
+            value.length > MAX_CHARS * 0.9 ? "text-rose-500" : "text-slate-400"
           )}
         >
           {value.length}/{MAX_CHARS}
@@ -236,25 +226,21 @@ const ExplanationPanel = ({
 
       {/* Collapsible explanation */}
       {explanation && (
-        <div className="rounded-xl border-2 border-sky-200 bg-sky-50 overflow-hidden">
+        <div className="overflow-hidden rounded-xl border-2 border-sky-200 bg-sky-50">
           <button
             type="button"
             onClick={() => setIsOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+            className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-sky-700 transition-colors hover:bg-sky-100"
           >
             <span className="flex items-center gap-1.5">
               <HelpCircle className="h-4 w-4" />
               Explanation
             </span>
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
+            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
           {isOpen && (
-            <div className="border-t border-sky-200 px-4 py-3 text-sm text-sky-900 leading-relaxed">
+            <div className="border-t border-sky-200 px-4 py-3 text-sm leading-relaxed text-sky-900">
               {explanation}
             </div>
           )}
@@ -295,9 +281,7 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
     question.options &&
     typeof question.options === "object" &&
     "sourceLanguage" in question.options
-      ? String(
-          (question.options as { sourceLanguage?: string }).sourceLanguage ?? ""
-        )
+      ? String((question.options as { sourceLanguage?: string }).sourceLanguage ?? "")
       : "Sinhala";
 
   const handleSubmit = () => {
@@ -314,9 +298,7 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
         setIsSubmitted(true);
         onAnswerSubmitted?.(result.isCorrect);
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to submit answer."
-        );
+        toast.error(error instanceof Error ? error.message : "Failed to submit answer.");
       }
     });
   };
@@ -324,9 +306,7 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
   return (
     <div className="space-y-6">
       {/* ── Question text ── */}
-      <h2 className="text-2xl font-bold text-neutral-800">
-        {question.question}
-      </h2>
+      <h2 className="text-2xl font-bold text-neutral-800">{question.question}</h2>
 
       {/* ── Type-specific input ── */}
       {question.type === "mcq" && mcqOptions && (
