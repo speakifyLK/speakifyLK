@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
-import { getOrCreateConversation, getMessages, sendMessage } from "@/actions/chat";
+import { getOrCreateConversation, getMessages } from "@/actions/chat";
 import { toast } from "sonner";
 
 export default function ChatPage() {
@@ -42,19 +42,68 @@ export default function ChatPage() {
   const handleSendMessage = async (text: string) => {
     if (!conversationId) return;
 
-    // Optimistically update UI
+    // Optimistically update UI with user message and placeholder assistant message
     const userMsg = { role: "user" as const, content: text, createdAt: new Date() };
-    setMessages((prev) => [...prev, userMsg]);
+    const assistantMsg = { role: "assistant" as const, content: "", createdAt: new Date() };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsGenerating(true);
+    // Assistant bubble will be streamed into as the response arrives
 
     try {
-      // Save to Database via Server Action
-      await sendMessage(conversationId, text);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, message: text }),
+      });
 
-      // TODO: Call Gemini API for response in the next task
-      setTimeout(() => setIsGenerating(false), 1000);
-    } catch (_error) {
-      toast.error("Failed to send message");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
+
+      // Read the streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error("No response stream");
+
+      let fullText = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        fullText += chunk;
+
+        // Update the last message (assistant bubble) with streamed text
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: fullText,
+          };
+          return updated;
+        });
+      }
+
+      // Flush any remaining buffered bytes (e.g. partial multi-byte Sinhala characters)
+      const remaining = decoder.decode();
+      if (remaining) {
+        fullText += remaining;
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: fullText,
+          };
+          return updated;
+        });
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to get AI response");
+      // Remove the empty assistant bubble on error
+      setMessages((prev) => prev.filter((msg) => msg.content !== ""));
+    } finally {
       setIsGenerating(false);
     }
   };

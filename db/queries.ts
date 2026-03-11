@@ -87,6 +87,46 @@ export const getUnits = cache(async () => {
   return normalizedData;
 });
 
+/**
+ * Lightweight query for quiz page - only fetches unit metadata and lesson counts.
+ * Much more efficient than getUnits() which fetches all lessons, challenges, and progress.
+ */
+export const getUnitsForQuiz = cache(async () => {
+  const userProgress = await getUserProgress();
+
+  if (!userProgress?.activeCourseId) return [];
+
+  const data = await db.query.units.findMany({
+    where: eq(units.courseId, userProgress.activeCourseId),
+    orderBy: (units, { asc }) => [asc(units.order)],
+    columns: {
+      id: true,
+      title: true,
+      description: true,
+      order: true,
+      courseId: true,
+    },
+    with: {
+      lessons: {
+        columns: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  // Map to include lessons with completed property for type compatibility
+  // Only the length is used by QuizConfig, so we keep the structure minimal
+  return data.map((unit) => ({
+    id: unit.id,
+    title: unit.title,
+    description: unit.description,
+    order: unit.order,
+    courseId: unit.courseId,
+    lessons: unit.lessons.map((lesson) => ({ id: lesson.id, completed: false })),
+  })) as Array<typeof units.$inferSelect & { lessons: Array<{ id: number; completed: boolean }> }>;
+});
+
 export const getCourseById = cache(async (courseId: number) => {
   const data = await db.query.courses.findFirst({
     where: eq(courses.id, courseId),

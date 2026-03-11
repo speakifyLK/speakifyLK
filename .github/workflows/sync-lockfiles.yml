@@ -1,6 +1,10 @@
 name: Sync Lockfiles
 
 on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - "package.json"
   pull_request:
     branches: [main]
     paths:
@@ -19,10 +23,11 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
+            const sha = context.payload.pull_request?.head?.sha || context.sha;
             const { data: commit } = await github.rest.repos.getCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.payload.pull_request.head.sha
+              ref: sha
             });
             const isBot = commit.author?.login === 'speakify-bot[bot]';
             core.setOutput('is_bot', isBot.toString());
@@ -36,11 +41,11 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Checkout PR branch
+      - name: Checkout branch
         if: steps.check_bot.outputs.is_bot != 'true'
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
@@ -79,4 +84,5 @@ jobs:
           git config --local user.name "speakify-bot[bot]"
           git add bun.lock package-lock.json
           git commit -m "chore: sync lockfiles with package.json"
+          git pull --rebase
           git push

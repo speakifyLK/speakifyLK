@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -61,6 +60,7 @@ speakify/
   |- components/
     |-- chat/
     |-- modals/
+    |-- quiz/
     |-- ui/
     |-- banner.tsx
     |-- feed-wrapper.tsx
@@ -120,7 +120,6 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -251,7 +250,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
@@ -263,10 +261,10 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.90.21
-- [@types/node](https://www.npmjs.com/package/@types/node): ^25.3.5
+- [@types/node](https://www.npmjs.com/package/@types/node): ^25.4.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
-- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.37
+- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.39
 - [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.27
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
@@ -284,19 +282,19 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.7.2
 - [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.3
 - [react](https://www.npmjs.com/package/react): ^19.2.4
-- [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.3
+- [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.4
 - [react-circular-progressbar](https://www.npmjs.com/package/react-circular-progressbar): ^2.2.0
 - [react-confetti](https://www.npmjs.com/package/react-confetti): ^6.4.0
 - [react-dom](https://www.npmjs.com/package/react-dom): ^19.2.4
 - [react-use](https://www.npmjs.com/package/react-use): ^17.6.0
 - [sonner](https://www.npmjs.com/package/sonner): ^2.0.7
-- [stripe](https://www.npmjs.com/package/stripe): ^20.4.0
+- [stripe](https://www.npmjs.com/package/stripe): ^20.4.1
 - [tailwind-merge](https://www.npmjs.com/package/tailwind-merge): ^3.5.0
 - [tailwindcss](https://www.npmjs.com/package/tailwindcss): ^3.4.19
 - [tailwindcss-animate](https://www.npmjs.com/package/tailwindcss-animate): ^1.0.7
 - [tsx](https://www.npmjs.com/package/tsx): ^4.21.0
 - [typescript](https://www.npmjs.com/package/typescript): ^5
-- [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.56.1
+- [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.57.0
 - [zustand](https://www.npmjs.com/package/zustand): ^5.0.11
 
 <!--- DEPENDENCIES_END --->
