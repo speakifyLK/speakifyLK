@@ -84,4 +84,5 @@ jobs:
           git config --local user.name "speakify-bot[bot]"
           git add bun.lock package-lock.json
           git commit -m "chore: sync lockfiles with package.json"
+          git pull --rebase
           git push
