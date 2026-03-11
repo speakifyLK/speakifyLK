@@ -39,6 +39,35 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
     );
   };
 
+  // Keyboard navigation for single-select button groups
+  const handleButtonGroupKeyDown = <T,>(
+    e: React.KeyboardEvent,
+    options: Array<{ value: T }>,
+    currentValue: T,
+    setValue: (value: T) => void
+  ) => {
+    const currentIndex = options.findIndex((opt) => opt.value === currentValue);
+    let nextIndex = currentIndex;
+
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % options.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      nextIndex = currentIndex === 0 ? options.length - 1 : currentIndex - 1;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      nextIndex = options.length - 1;
+    }
+
+    if (nextIndex !== currentIndex && nextIndex >= 0) {
+      setValue(options[nextIndex].value);
+    }
+  };
+
   const handleStartQuiz = async () => {
     if (!selectedTopic) {
       toast.error("Please select a topic");
@@ -98,17 +127,35 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
         <h2 className="text-2xl font-bold text-neutral-700">Select Topic</h2>
         <div
           className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-          role="radiogroup"
+          role="group"
           aria-label="Select topic"
         >
-          {units.map((unit) => (
+          {units.map((unit, index) => (
             <button
               key={unit.id}
               onClick={() => setSelectedTopic(unit.id)}
-              role="radio"
-              aria-checked={selectedTopic === unit.id}
               aria-pressed={selectedTopic === unit.id}
-              className={`flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all ${
+              onKeyDown={(e) => {
+                if (selectedTopic === null && units.length > 0) {
+                  // If nothing is selected, start with first item
+                  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "Home") {
+                    e.preventDefault();
+                    setSelectedTopic(units[0].id);
+                  } else if (e.key === "End") {
+                    e.preventDefault();
+                    setSelectedTopic(units[units.length - 1].id);
+                  }
+                } else if (selectedTopic !== null) {
+                  handleButtonGroupKeyDown(
+                    e,
+                    units.map((u) => ({ value: u.id })),
+                    selectedTopic,
+                    setSelectedTopic
+                  );
+                }
+              }}
+              tabIndex={selectedTopic === unit.id || (selectedTopic === null && index === 0) ? 0 : -1}
+              className={`flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 selectedTopic === unit.id
                   ? "border-green-500 bg-green-50"
                   : "border-slate-200 bg-white hover:bg-slate-50"
@@ -131,67 +178,74 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
         <h2 className="text-2xl font-bold text-neutral-700">Difficulty Level</h2>
         <div
           className="grid grid-cols-1 gap-4 md:grid-cols-3"
-          role="radiogroup"
+          role="group"
           aria-label="Select difficulty level"
         >
-          <button
-            onClick={() => setDifficulty("beginner")}
-            role="radio"
-            aria-checked={difficulty === "beginner"}
-            aria-pressed={difficulty === "beginner"}
-            className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all ${
-              difficulty === "beginner"
-                ? "border-green-500 bg-green-500 text-white"
-                : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
-            } active:border-b-2`}
-          >
-            <span className="text-xl font-bold">Beginner</span>
-            <span className="mt-2 text-sm">Simple vocabulary and basic phrases</span>
-          </button>
-          <button
-            onClick={() => setDifficulty("intermediate")}
-            role="radio"
-            aria-checked={difficulty === "intermediate"}
-            aria-pressed={difficulty === "intermediate"}
-            className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all ${
-              difficulty === "intermediate"
-                ? "border-yellow-500 bg-yellow-500 text-white"
-                : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
-            } active:border-b-2`}
-          >
-            <span className="text-xl font-bold">Intermediate</span>
-            <span className="mt-2 text-sm">Sentence construction and grammar</span>
-          </button>
-          <button
-            onClick={() => setDifficulty("advanced")}
-            role="radio"
-            aria-checked={difficulty === "advanced"}
-            aria-pressed={difficulty === "advanced"}
-            className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all ${
-              difficulty === "advanced"
-                ? "border-red-500 bg-red-500 text-white"
-                : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
-            } active:border-b-2`}
-          >
-            <span className="text-xl font-bold">Advanced</span>
-            <span className="mt-2 text-sm">Complex conversations and idioms</span>
-          </button>
+          {(["beginner", "intermediate", "advanced"] as Difficulty[]).map((level) => (
+            <button
+              key={level}
+              onClick={() => setDifficulty(level)}
+              aria-pressed={difficulty === level}
+              onKeyDown={(e) =>
+                handleButtonGroupKeyDown(
+                  e,
+                  [
+                    { value: "beginner" as Difficulty },
+                    { value: "intermediate" as Difficulty },
+                    { value: "advanced" as Difficulty },
+                  ],
+                  difficulty,
+                  setDifficulty
+                )
+              }
+              tabIndex={difficulty === level ? 0 : -1}
+              className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                level === "beginner"
+                  ? difficulty === level
+                    ? "border-green-500 bg-green-500 text-white focus:ring-green-500"
+                    : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
+                  : level === "intermediate"
+                  ? difficulty === level
+                    ? "border-yellow-500 bg-yellow-500 text-white focus:ring-yellow-500"
+                    : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+                  : difficulty === level
+                  ? "border-red-500 bg-red-500 text-white focus:ring-red-500"
+                  : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
+              } active:border-b-2`}
+            >
+              <span className="text-xl font-bold capitalize">{level}</span>
+              <span className="mt-2 text-sm">
+                {level === "beginner"
+                  ? "Simple vocabulary and basic phrases"
+                  : level === "intermediate"
+                  ? "Sentence construction and grammar"
+                  : "Complex conversations and idioms"}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Question Count Selector */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Number of Questions</h2>
-        <div className="flex gap-4" role="radiogroup" aria-label="Select number of questions">
+        <div className="flex gap-4" role="group" aria-label="Select number of questions">
           {[5, 10, 15].map((count) => (
             <button
               key={count}
               onClick={() => setQuestionCount(count)}
-              role="radio"
-              aria-checked={questionCount === count}
               aria-pressed={questionCount === count}
               aria-label={`${count} questions`}
-              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all ${
+              onKeyDown={(e) =>
+                handleButtonGroupKeyDown(
+                  e,
+                  [5, 10, 15].map((c) => ({ value: c })),
+                  questionCount,
+                  setQuestionCount
+                )
+              }
+              tabIndex={questionCount === count ? 0 : -1}
+              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 ${
                 questionCount === count
                   ? "border-sky-500 bg-sky-500 text-white"
                   : "border-slate-200 bg-white text-neutral-700 hover:bg-slate-50"
