@@ -261,7 +261,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.90.21
-- [@types/node](https://www.npmjs.com/package/@types/node): ^25.3.5
+- [@types/node](https://www.npmjs.com/package/@types/node): ^25.4.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.37
@@ -294,7 +294,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [tailwindcss-animate](https://www.npmjs.com/package/tailwindcss-animate): ^1.0.7
 - [tsx](https://www.npmjs.com/package/tsx): ^4.21.0
 - [typescript](https://www.npmjs.com/package/typescript): ^5
-- [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.56.1
+- [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.57.0
 - [zustand](https://www.npmjs.com/package/zustand): ^5.0.11
 
 <!--- DEPENDENCIES_END --->
