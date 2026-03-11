@@ -60,6 +60,7 @@ speakify/
   |- components/
     |-- chat/
     |-- modals/
+    |-- quiz/
     |-- ui/
     |-- banner.tsx
     |-- feed-wrapper.tsx
