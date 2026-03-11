@@ -264,7 +264,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.4.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
-- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.37
+- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.39
 - [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.27
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
@@ -282,7 +282,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.7.2
 - [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.3
 - [react](https://www.npmjs.com/package/react): ^19.2.4
-- [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.3
+- [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.4
 - [react-circular-progressbar](https://www.npmjs.com/package/react-circular-progressbar): ^2.2.0
 - [react-confetti](https://www.npmjs.com/package/react-confetti): ^6.4.0
 - [react-dom](https://www.npmjs.com/package/react-dom): ^19.2.4
