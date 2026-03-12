@@ -143,6 +143,7 @@ async function callGeminiWithRetry(
 // ---------------------------------------------------------------------------
 
 export async function POST(request: Request) {
+  try {
   // ── 1. Authenticate ──
   const { userId } = await auth();
   if (!userId) {
@@ -261,4 +262,9 @@ export async function POST(request: Request) {
       explanation: q.explanation,
     })),
   });
+  } catch (err) {
+    console.error("[quiz/generate] Unhandled error:", err);
+    const message = err instanceof Error ? err.message : "Internal server error.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
