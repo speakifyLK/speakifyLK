@@ -91,7 +91,7 @@ export default function ChatPage() {
           return updated;
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // Remove the empty/failed assistant bubble
       setMessages((prev) => prev.slice(0, -1));
       
