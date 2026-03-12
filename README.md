@@ -280,7 +280,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [postcss](https://www.npmjs.com/package/postcss): ^8
 - [prettier](https://www.npmjs.com/package/prettier): ^3.8.1
 - [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.7.2
-- [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.3
+- [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.14.4
 - [react](https://www.npmjs.com/package/react): ^19.2.4
 - [react-admin](https://www.npmjs.com/package/react-admin): ^5.14.4
 - [react-circular-progressbar](https://www.npmjs.com/package/react-circular-progressbar): ^2.2.0
