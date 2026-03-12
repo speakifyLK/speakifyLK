@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { ChevronDown, ChevronUp, HelpCircle, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,6 +17,13 @@ type Question = typeof aiQuizQuestions.$inferSelect;
 
 type McqOption = { text: string; isCorrect: boolean };
 
+/** Map stored lowercase language keys to human-friendly labels. */
+const LANGUAGE_LABELS: Record<string, string> = {
+  sinhala: "Sinhala",
+  english: "English",
+  tamil: "Tamil",
+};
+
 type QuizCardProps = {
   question: Question;
   /** Called after the user submits (so the parent can track progress) */
@@ -32,24 +39,21 @@ const McqOptions = ({
   options,
   selectedAnswer,
   isSubmitted,
-  correctAnswer,
   onSelect,
 }: {
   options: McqOption[];
   selectedAnswer: string;
   isSubmitted: boolean;
-  correctAnswer: string;
   onSelect: (text: string) => void;
 }) => (
   <div className="grid grid-cols-2 gap-3">
     {options.map((opt, idx) => {
       const isSelected = selectedAnswer === opt.text;
-      const isCorrectOption = opt.text === correctAnswer;
 
       let variant: "default" | "primary" | "secondary" | "danger" | "locked" = "default";
 
       if (isSubmitted) {
-        if (isCorrectOption)
+        if (opt.isCorrect)
           variant = "secondary"; // green
         else if (isSelected)
           variant = "danger"; // red
@@ -67,7 +71,7 @@ const McqOptions = ({
           onClick={() => onSelect(opt.text)}
           className={cn(
             "h-auto min-h-[56px] whitespace-normal text-left normal-case tracking-normal",
-            isSubmitted && isCorrectOption && "ring-2 ring-green-400"
+            isSubmitted && opt.isCorrect && "ring-2 ring-green-400"
           )}
         >
           <span className="mr-2 text-xs font-bold opacity-60">
@@ -160,7 +164,7 @@ const TranslationInput = ({
       {/* Source text with language label */}
       <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50 p-5">
         <span className="mb-2 inline-block rounded-full bg-indigo-200 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-indigo-700">
-          {sourceLanguage}
+          {LANGUAGE_LABELS[sourceLanguage.toLowerCase()] ?? sourceLanguage}
         </span>
         <p className="mt-2 text-lg font-medium leading-relaxed text-neutral-800">{sourceText}</p>
       </div>
@@ -260,6 +264,14 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  // Reset local state whenever the question changes (e.g. parent reuses the
+  // same component instance across multiple questions).
+  useEffect(() => {
+    setUserAnswer("");
+    setIsSubmitted(false);
+    setIsCorrect(false);
+  }, [question.id]);
+
   // Parse MCQ options
   const mcqOptions: McqOption[] | null =
     question.type === "mcq" && Array.isArray(question.options)
@@ -314,7 +326,6 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
           options={mcqOptions}
           selectedAnswer={userAnswer}
           isSubmitted={isSubmitted}
-          correctAnswer={question.correctAnswer}
           onSelect={setUserAnswer}
         />
       )}
