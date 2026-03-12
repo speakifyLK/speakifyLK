@@ -4,10 +4,7 @@ import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
 import { generateContent } from "@/lib/gemini";
-import {
-  parseGeminiQuizResponse,
-  quizTypeToDbType,
-} from "@/lib/quiz-normalise";
+import { parseGeminiQuizResponse, quizTypeToDbType } from "@/lib/quiz-normalise";
 import { buildQuizPrompt } from "@/lib/quiz-prompt";
 
 export async function GET() {
@@ -34,13 +31,15 @@ export async function GET() {
       topic: "greetings",
       difficulty: "beginner",
       count: 1,
-      learningContext: profile ? {
-        completedTopics: profile.completedLessons,
-        weakTopics: profile.weakTopics,
-        strongTopics: profile.strongTopics,
-        frequentlyMissedWords: profile.frequentlyMissedWords,
-        overallLevel: profile.overallLevel,
-      } : undefined,
+      learningContext: profile
+        ? {
+            completedTopics: profile.completedLessons,
+            weakTopics: profile.weakTopics,
+            strongTopics: profile.strongTopics,
+            frequentlyMissedWords: profile.frequentlyMissedWords,
+            overallLevel: profile.overallLevel,
+          }
+        : undefined,
     });
     steps.push("4. Prompt built OK, length: " + prompt.length);
 
@@ -91,11 +90,14 @@ export async function GET() {
   } catch (err: unknown) {
     const error = err as Error;
     steps.push("ERROR: " + error.message);
-    return NextResponse.json({
-      success: false,
-      steps,
-      error: error.message,
-      stack: error.stack?.split("\n").slice(0, 8),
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        steps,
+        error: error.message,
+        stack: error.stack?.split("\n").slice(0, 8),
+      },
+      { status: 500 }
+    );
   }
 }
