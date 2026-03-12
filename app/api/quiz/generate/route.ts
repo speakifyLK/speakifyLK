@@ -222,33 +222,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
   }
 
-  // ── 5. Save session and questions to database atomically ──
-  const session = await db.transaction(async (tx) => {
-    const [createdSession] = await tx
-      .insert(aiQuizSessions)
-      .values({
-        userId,
-        topic: body.topic,
-        difficulty: body.difficulty,
-        totalQuestions: allQuestions.length,
-        courseId: userProgress.activeCourseId!,
-      })
-      .returning({ id: aiQuizSessions.id });
+  // ── 5. Save session and questions to the database ──
+  // Note: neon-http driver does not support transactions, so we use
+  // sequential inserts. The session is created first, then questions
+  // reference the session ID via a foreign key.
+  const [session] = await db
+    .insert(aiQuizSessions)
+    .values({
+      userId,
+      topic: body.topic,
+      difficulty: body.difficulty,
+      totalQuestions: allQuestions.length,
+      courseId: userProgress.activeCourseId!,
+    })
+    .returning({ id: aiQuizSessions.id });
 
-    await tx.insert(aiQuizQuestions).values(
-      allQuestions.map((q, idx) => ({
-        sessionId: createdSession.id,
-        type: quizTypeToDbType.get(q.type) ?? "mcq",
-        question: q.question,
-        options: q.options ?? null,
-        correctAnswer: q.correctAnswer,
-        explanation: q.explanation,
-        order: idx + 1,
-      }))
-    );
-
-    return createdSession;
-  });
+  await db.insert(aiQuizQuestions).values(
+    allQuestions.map((q, idx) => ({
+      sessionId: session.id,
+      type: quizTypeToDbType.get(q.type) ?? "mcq",
+      question: q.question,
+      options: q.options ?? null,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      order: idx + 1,
+    }))
+  );
 
   // ── 6. Return response ──
   return NextResponse.json({

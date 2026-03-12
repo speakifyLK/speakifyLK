@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { ChevronDown, ChevronUp, HelpCircle, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
@@ -266,11 +266,15 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
 
   // Reset local state whenever the question changes (e.g. parent reuses the
   // same component instance across multiple questions).
-  useEffect(() => {
+  // Uses the render-time comparison pattern instead of useEffect to avoid
+  // cascading renders (react-hooks/set-state-in-effect).
+  const [prevQuestionId, setPrevQuestionId] = useState(question.id);
+  if (prevQuestionId !== question.id) {
+    setPrevQuestionId(question.id);
     setUserAnswer("");
     setIsSubmitted(false);
     setIsCorrect(false);
-  }, [question.id]);
+  }
 
   // Parse MCQ options
   const mcqOptions: McqOption[] | null =
