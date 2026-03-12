@@ -94,7 +94,7 @@ export default function ChatPage() {
     } catch (_error) {
       // Remove the empty/failed assistant bubble
       setMessages((prev) => prev.slice(0, -1));
-      
+
       //Sonner toast with Retry button
       toast.error("Tutor connection failed", {
         description: "Could not get a response. Try again?",
@@ -119,35 +119,33 @@ export default function ChatPage() {
     await startStreaming(conversationId, text);
   };
 
-  if (loading) return <div className="flex h-full items-center justify-center">Loading Tutor...</div>;
+  if (loading)
+    return <div className="flex h-full items-center justify-center">Loading Tutor...</div>;
 
   return (
-  // Fixed: Changed p-4 to pt-4 px-4 pb-0 to remove bottom padding
-  // Added overflow-hidden to prevent the whole page from scrolling
-  <div className="mx-auto flex h-[calc(100vh-40px)] max-w-4xl flex-col pt-4 px-4 pb-0 overflow-hidden">
-    <h1 className="mb-2 text-center text-2xl font-bold">AI Sinhala Tutor</h1>
+    // Fixed: Changed p-4 to pt-4 px-4 pb-0 to remove bottom padding
+    // Added overflow-hidden to prevent the whole page from scrolling
+    <div className="mx-auto flex h-[calc(100vh-40px)] max-w-4xl flex-col overflow-hidden px-4 pb-0 pt-4">
+      <h1 className="mb-2 text-center text-2xl font-bold">AI Sinhala Tutor</h1>
 
-    {/* The ChatWindow now takes all available space between the header and input */}
-    <ChatWindow 
-      isEmpty={messages.length === 0} 
-      isTyping={isGenerating}
-    >
-      <div className="flex flex-col gap-y-2">
-        {messages.map((msg, index) => (
-          <ChatBubble
-            key={index}
-            role={msg.role}
-            content={msg.content}
-            timestamp={msg.timestamp || msg.createdAt}
-          />
-        ))}
+      {/* The ChatWindow now takes all available space between the header and input */}
+      <ChatWindow isEmpty={messages.length === 0} isTyping={isGenerating}>
+        <div className="flex flex-col gap-y-2">
+          {messages.map((msg, index) => (
+            <ChatBubble
+              key={index}
+              role={msg.role}
+              content={msg.content}
+              timestamp={msg.timestamp || msg.createdAt}
+            />
+          ))}
+        </div>
+      </ChatWindow>
+
+      {/* Pushes the input to the very bottom of the container */}
+      <div className="mt-auto">
+        <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
       </div>
-    </ChatWindow>
-
-    {/* Pushes the input to the very bottom of the container */}
-    <div className="mt-auto">
-      <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
     </div>
-  </div>
-);
+  );
 }
