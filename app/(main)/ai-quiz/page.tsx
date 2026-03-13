@@ -34,16 +34,12 @@ const AIQuizPage = async ({ searchParams }: Props) => {
   const params = await searchParams;
   const sessionId = params.sessionId ? parseInt(params.sessionId, 10) : null;
 
-  const userProgressData = getUserProgress();
-  const unitsData = getUnitsForQuiz();
-  const userSubscriptionData = getUserSubscription();
-  const quizHistoryData = getQuizHistory();
+  const userProgressPromise = getUserProgress();
+  const userSubscriptionPromise = getUserSubscription();
 
-  const [userProgress, units, userSubscription, quizHistory] = await Promise.all([
-    userProgressData,
-    unitsData,
-    userSubscriptionData,
-    quizHistoryData,
+  const [userProgress, userSubscription] = await Promise.all([
+    userProgressPromise,
+    userSubscriptionPromise,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -78,6 +74,11 @@ const AIQuizPage = async ({ searchParams }: Props) => {
       </div>
     );
   }
+
+  const [units, quizHistory] = await Promise.all([
+    getUnitsForQuiz(),
+    getQuizHistory(),
+  ]);
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
