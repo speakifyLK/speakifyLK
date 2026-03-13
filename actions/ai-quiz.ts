@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
@@ -79,28 +80,30 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
     learningContext,
   });
 
-  const geminiResponse = await generateContent(prompt);
+  const geminiResponse = await generateContent(prompt, { maxOutputTokens: 8192 });
   const responseText = geminiResponse.text ?? "";
 
   // ── 3. Parse & normalise questions (shared logic) ──
   const questions: ParsedQuestion[] = parseGeminiQuizResponse(responseText, input.type);
 
-  // ── 4. Save session and questions to database atomically ──
-  const session = await db.transaction(async (tx) => {
-    const [createdSession] = await tx
-      .insert(aiQuizSessions)
-      .values({
-        userId,
-        topic: input.topic,
-        difficulty: input.difficulty,
-        totalQuestions: questions.length,
-        courseId: userProgress.activeCourseId!,
-      })
-      .returning({ id: aiQuizSessions.id });
+  // ── 4. Save session and questions to the database ──
+  // Note: neon-http driver does not support transactions, so we use
+  // sequential inserts.
+  const [session] = await db
+    .insert(aiQuizSessions)
+    .values({
+      userId,
+      topic: input.topic,
+      difficulty: input.difficulty,
+      totalQuestions: questions.length,
+      courseId: userProgress.activeCourseId!,
+    })
+    .returning({ id: aiQuizSessions.id });
 
-    await tx.insert(aiQuizQuestions).values(
+  try {
+    await db.insert(aiQuizQuestions).values(
       questions.map((q, idx) => ({
-        sessionId: createdSession.id,
+        sessionId: session.id,
         type: quizTypeToDbType.get(input.type) ?? "mcq",
         question: q.question,
         options: q.options ?? null,
@@ -109,9 +112,14 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
         order: idx + 1,
       }))
     );
-
-    return createdSession;
-  });
+  } catch (error) {
+    // Best-effort cleanup of the orphaned session
+    await db
+      .delete(aiQuizSessions)
+      .where(eq(aiQuizSessions.id, session.id))
+      .catch(() => {});
+    throw error;
+  }
 
   revalidatePath("/learn");
 

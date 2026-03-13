@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
@@ -111,7 +112,7 @@ async function callGeminiWithRetry(
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     // ── Call Gemini (NOT retried – network / API errors propagate) ──
-    const geminiResponse = await generateContent(prompt);
+    const geminiResponse = await generateContent(prompt, { maxOutputTokens: 8192 });
     const responseText = geminiResponse.text ?? "";
 
     // ── Parse & validate (retried on failure) ──
@@ -143,87 +144,90 @@ async function callGeminiWithRetry(
 // ---------------------------------------------------------------------------
 
 export async function POST(request: Request) {
-  // ── 1. Authenticate ──
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  }
-
-  // ── 2. Parse & validate request body ──
-  let body: ValidatedBody;
   try {
-    const rawBody: unknown = await request.json();
-    body = validateRequestBody(rawBody);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Invalid request body.";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
+    // ── 1. Authenticate ──
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
 
-  // ── 3. Get user progress & learning context ──
-  const userProgress = await getUserProgress();
-  if (!userProgress?.activeCourseId) {
-    return NextResponse.json(
-      { error: "No active course found. Please select a course first." },
-      { status: 400 }
-    );
-  }
-
-  const profile = await getUserLearningProfile();
-  let learningContext: LearningContext | undefined;
-  if (profile) {
-    learningContext = {
-      completedTopics: profile.completedLessons,
-      weakTopics: profile.weakTopics,
-      strongTopics: profile.strongTopics,
-      frequentlyMissedWords: profile.frequentlyMissedWords,
-      overallLevel: profile.overallLevel,
-    };
-  }
-
-  // ── 4. Generate questions for each requested type ──
-  const typeCount = body.questionTypes.length;
-  const basePerType = Math.floor(body.questionCount / typeCount);
-  const remainder = body.questionCount % typeCount;
-
-  const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
-
-  for (let i = 0; i < body.questionTypes.length; i++) {
-    const quizType = body.questionTypes[i];
-    const count = basePerType + (i < remainder ? 1 : 0);
-
-    if (count === 0) continue;
-
-    // Build prompt — errors here are client input problems (400)
-    let prompt: string;
+    // ── 2. Parse & validate request body ──
+    let body: ValidatedBody;
     try {
-      prompt = buildQuizPrompt(quizType, {
-        topic: body.topic,
-        difficulty: body.difficulty,
-        count,
-        learningContext,
-      });
+      const rawBody: unknown = await request.json();
+      body = validateRequestBody(rawBody);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
+      const message = err instanceof Error ? err.message : "Invalid request body.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    // Call Gemini — errors here are upstream failures (502)
-    try {
-      const questions = await callGeminiWithRetry(prompt, quizType, count);
-      allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to generate quiz.";
-      return NextResponse.json({ error: message }, { status: 502 });
+    // ── 3. Get user progress & learning context ──
+    const userProgress = await getUserProgress();
+    if (!userProgress?.activeCourseId) {
+      return NextResponse.json(
+        { error: "No active course found. Please select a course first." },
+        { status: 400 }
+      );
     }
-  }
 
-  if (allQuestions.length === 0) {
-    return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
-  }
+    const profile = await getUserLearningProfile();
+    let learningContext: LearningContext | undefined;
+    if (profile) {
+      learningContext = {
+        completedTopics: profile.completedLessons,
+        weakTopics: profile.weakTopics,
+        strongTopics: profile.strongTopics,
+        frequentlyMissedWords: profile.frequentlyMissedWords,
+        overallLevel: profile.overallLevel,
+      };
+    }
 
-  // ── 5. Save session and questions to database atomically ──
-  const session = await db.transaction(async (tx) => {
-    const [createdSession] = await tx
+    // ── 4. Generate questions for each requested type ──
+    const typeCount = body.questionTypes.length;
+    const basePerType = Math.floor(body.questionCount / typeCount);
+    const remainder = body.questionCount % typeCount;
+
+    const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
+
+    for (let i = 0; i < body.questionTypes.length; i++) {
+      const quizType = body.questionTypes[i];
+      const count = basePerType + (i < remainder ? 1 : 0);
+
+      if (count === 0) continue;
+
+      // Build prompt — errors here are client input problems (400)
+      let prompt: string;
+      try {
+        prompt = buildQuizPrompt(quizType, {
+          topic: body.topic,
+          difficulty: body.difficulty,
+          count,
+          learningContext,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
+        return NextResponse.json({ error: message }, { status: 400 });
+      }
+
+      // Call Gemini — errors here are upstream failures (502)
+      try {
+        const questions = await callGeminiWithRetry(prompt, quizType, count);
+        allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to generate quiz.";
+        return NextResponse.json({ error: message }, { status: 502 });
+      }
+    }
+
+    if (allQuestions.length === 0) {
+      return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
+    }
+
+    // ── 5. Save session and questions to the database ──
+    // Note: neon-http driver does not support transactions, so we use
+    // sequential inserts. The session is created first, then questions
+    // reference the session ID via a foreign key.
+    const [session] = await db
       .insert(aiQuizSessions)
       .values({
         userId,
@@ -234,31 +238,41 @@ export async function POST(request: Request) {
       })
       .returning({ id: aiQuizSessions.id });
 
-    await tx.insert(aiQuizQuestions).values(
-      allQuestions.map((q, idx) => ({
-        sessionId: createdSession.id,
+    try {
+      await db.insert(aiQuizQuestions).values(
+        allQuestions.map((q, idx) => ({
+          sessionId: session.id,
+          type: quizTypeToDbType.get(q.type) ?? "mcq",
+          question: q.question,
+          options: q.options ?? null,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          order: idx + 1,
+        }))
+      );
+    } catch (error) {
+      await db
+        .delete(aiQuizSessions)
+        .where(eq(aiQuizSessions.id, session.id))
+        .catch(() => {});
+      throw error;
+    }
+
+    // ── 6. Return response ──
+    return NextResponse.json({
+      sessionId: session.id,
+      questions: allQuestions.map((q, idx) => ({
+        id: idx + 1,
         type: quizTypeToDbType.get(q.type) ?? "mcq",
         question: q.question,
-        options: q.options ?? null,
         correctAnswer: q.correctAnswer,
+        options: q.options,
         explanation: q.explanation,
-        order: idx + 1,
-      }))
-    );
-
-    return createdSession;
-  });
-
-  // ── 6. Return response ──
-  return NextResponse.json({
-    sessionId: session.id,
-    questions: allQuestions.map((q, idx) => ({
-      id: idx + 1,
-      type: quizTypeToDbType.get(q.type) ?? "mcq",
-      question: q.question,
-      correctAnswer: q.correctAnswer,
-      options: q.options,
-      explanation: q.explanation,
-    })),
-  });
+      })),
+    });
+  } catch (err) {
+    console.error("[quiz/generate] Unhandled error:", err);
+    const message = err instanceof Error ? err.message : "Internal server error.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
