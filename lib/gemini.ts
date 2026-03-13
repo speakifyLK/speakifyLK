@@ -88,7 +88,10 @@ export function getGeminiClient() {
  * Generates content using the configured Gemini model.
  * @param prompt - The text prompt to send
  */
-export async function generateContent(prompt: string) {
+export async function generateContent(
+  prompt: string,
+  customConfig?: Partial<typeof generationConfig>
+) {
   const ai = getOrCreateClient();
   const response = await ai.models.generateContent({
     model: MODEL_ID,
@@ -96,6 +99,7 @@ export async function generateContent(prompt: string) {
     config: {
       safetySettings,
       ...generationConfig,
+      ...customConfig,
     },
   });
   return response;
