@@ -118,7 +118,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
       </StickyWrapper>
       <FeedWrapper>
         <Header title="AI Quiz" />
-        <QuizConfig units={units} />
+        <QuizConfig units={units} basePath="/ai-quiz" />
       </FeedWrapper>
     </div>
   );
