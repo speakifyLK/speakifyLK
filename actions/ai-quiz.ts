@@ -114,7 +114,10 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
     );
   } catch (error) {
     // Best-effort cleanup of the orphaned session
-    await db.delete(aiQuizSessions).where(eq(aiQuizSessions.id, session.id)).catch(() => {});
+    await db
+      .delete(aiQuizSessions)
+      .where(eq(aiQuizSessions.id, session.id))
+      .catch(() => {});
     throw error;
   }
 

@@ -251,7 +251,10 @@ export async function POST(request: Request) {
         }))
       );
     } catch (error) {
-      await db.delete(aiQuizSessions).where(eq(aiQuizSessions.id, session.id)).catch(() => {});
+      await db
+        .delete(aiQuizSessions)
+        .where(eq(aiQuizSessions.id, session.id))
+        .catch(() => {});
       throw error;
     }
 
