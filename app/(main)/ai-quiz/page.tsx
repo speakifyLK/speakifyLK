@@ -75,10 +75,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
     );
   }
 
-  const [units, quizHistory] = await Promise.all([
-    getUnitsForQuiz(),
-    getQuizHistory(),
-  ]);
+  const [units, quizHistory] = await Promise.all([getUnitsForQuiz(), getQuizHistory()]);
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -91,7 +88,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
         />
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />
-        
+
         {/* Stats Display: Recent Quiz History */}
         <div className="mt-4 rounded-xl border-2 border-slate-200 p-4">
           <h3 className="text-lg font-bold text-neutral-700">Quiz History</h3>
@@ -100,12 +97,15 @@ const AIQuizPage = async ({ searchParams }: Props) => {
           ) : (
             <div className="mt-4 space-y-3">
               {quizHistory.slice(0, 5).map((quiz) => (
-                <div key={quiz.id} className="flex items-center justify-between rounded-lg border-2 p-3">
+                <div
+                  key={quiz.id}
+                  className="flex items-center justify-between rounded-lg border-2 p-3"
+                >
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold text-neutral-700 truncate max-w-[120px]">
+                    <span className="max-w-[120px] truncate text-sm font-bold text-neutral-700">
                       {quiz.topic}
                     </span>
-                    <span className="text-xs text-neutral-500 capitalize">{quiz.difficulty}</span>
+                    <span className="text-xs capitalize text-neutral-500">{quiz.difficulty}</span>
                   </div>
                   <div className="flex items-center gap-1 text-sm font-bold text-green-500">
                     {Math.round(quiz.score)}%
