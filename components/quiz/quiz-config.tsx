@@ -17,11 +17,12 @@ type Unit = Pick<
 
 type QuizConfigProps = {
   units: Unit[];
+  basePath?: string;
 };
 
 type QuestionType = "mcq" | "fill_blank" | "translation";
 
-export const QuizConfig = ({ units }: QuizConfigProps) => {
+export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
   const router = useRouter();
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("beginner");
@@ -112,7 +113,7 @@ export const QuizConfig = ({ units }: QuizConfigProps) => {
         throw new Error("Failed to start quiz: missing session ID");
       }
       toast.success("Quiz generated successfully!");
-      router.push(`/quiz?sessionId=${encodeURIComponent(sessionId)}`);
+      router.push(`${basePath || "/quiz"}?sessionId=${encodeURIComponent(sessionId)}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to start quiz");
     } finally {

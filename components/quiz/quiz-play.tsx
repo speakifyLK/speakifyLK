@@ -14,9 +14,10 @@ type Session = typeof aiQuizSessions.$inferSelect & {
 
 type QuizPlayProps = {
   session: Session;
+  backHref?: string;
 };
 
-export const QuizPlay = ({ session }: QuizPlayProps) => {
+export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -66,7 +67,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
         try {
           await completeQuizSession(session.id);
           toast.success("Quiz completed!");
-          router.push("/quiz");
+          router.push(backHref || "/quiz");
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
         }
@@ -93,7 +94,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
           </p>
           <p className="text-2xl font-bold text-green-600">{scorePercentage}%</p>
         </div>
-        <Button onClick={() => router.push("/quiz")} size="lg">
+        <Button onClick={() => router.push(backHref || "/quiz")} size="lg">
           Start New Quiz
         </Button>
       </div>
@@ -104,7 +105,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg text-neutral-600">No questions available</p>
-        <Button onClick={() => router.push("/quiz")}>Back to Quiz Config</Button>
+        <Button onClick={() => router.push(backHref || "/quiz")}>Back to Quiz Config</Button>
       </div>
     );
   }
