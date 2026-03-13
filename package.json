@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.12",
-    "@google/genai": "^1.44.0",
+    "@google/genai": "^1.45.0",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",

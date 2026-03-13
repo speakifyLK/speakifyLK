@@ -14,9 +14,10 @@ type Session = typeof aiQuizSessions.$inferSelect & {
 
 type QuizPlayProps = {
   session: Session;
+  backHref?: string;
 };
 
-export const QuizPlay = ({ session }: QuizPlayProps) => {
+export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -30,9 +31,12 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
 
   // Parse options if they exist (for MCQ questions)
   // Options are stored as an array of { text: string, isCorrect: boolean }
-  const options = currentQuestion?.options && Array.isArray(currentQuestion.options)
-    ? (currentQuestion.options as Array<{ text: string; isCorrect: boolean }>).map((opt) => opt.text)
-    : null;
+  const options =
+    currentQuestion?.options && Array.isArray(currentQuestion.options)
+      ? (currentQuestion.options as Array<{ text: string; isCorrect: boolean }>).map(
+          (opt) => opt.text
+        )
+      : null;
 
   const handleSubmitAnswer = () => {
     if (!currentQuestion || !userAnswer.trim()) {
@@ -66,7 +70,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
         try {
           await completeQuizSession(session.id);
           toast.success("Quiz completed!");
-          router.push("/quiz");
+          router.push(backHref || "/quiz");
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
         }
@@ -80,9 +84,10 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
   };
 
   if (isCompleted) {
-    const scorePercentage = session.totalQuestions > 0
-      ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
-      : 0;
+    const scorePercentage =
+      session.totalQuestions > 0
+        ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
+        : 0;
 
     return (
       <div className="flex flex-col items-center justify-center gap-6 p-6">
@@ -93,7 +98,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
           </p>
           <p className="text-2xl font-bold text-green-600">{scorePercentage}%</p>
         </div>
-        <Button onClick={() => router.push("/quiz")} size="lg">
+        <Button onClick={() => router.push(backHref || "/quiz")} size="lg">
           Start New Quiz
         </Button>
       </div>
@@ -104,7 +109,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg text-neutral-600">No questions available</p>
-        <Button onClick={() => router.push("/quiz")}>Back to Quiz Config</Button>
+        <Button onClick={() => router.push(backHref || "/quiz")}>Back to Quiz Config</Button>
       </div>
     );
   }
@@ -114,7 +119,9 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
       {/* Progress indicator */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-neutral-600">
-          <span>Question {currentQuestionIndex + 1} of {session.questions.length}</span>
+          <span>
+            Question {currentQuestionIndex + 1} of {session.questions.length}
+          </span>
           <span>Topic: {session.topic}</span>
         </div>
         <div className="h-2 w-full rounded-full bg-neutral-200">
@@ -142,8 +149,8 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
                     ? isCorrect === true
                       ? "border-green-500 bg-green-50"
                       : isCorrect === false
-                      ? "border-red-500 bg-red-50"
-                      : "border-sky-500 bg-sky-50"
+                        ? "border-red-500 bg-red-50"
+                        : "border-sky-500 bg-sky-50"
                     : "border-neutral-200 bg-white hover:bg-neutral-50"
                 } ${isAnswerSubmitted ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
               >
@@ -174,9 +181,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
               isCorrect ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
             }`}
           >
-            <p className="font-semibold">
-              {isCorrect ? "✓ Correct!" : "✗ Incorrect"}
-            </p>
+            <p className="font-semibold">{isCorrect ? "✓ Correct!" : "✗ Incorrect"}</p>
             <p className="mt-2 text-sm text-neutral-700">
               <span className="font-semibold">Correct answer:</span> {currentQuestion.correctAnswer}
             </p>
@@ -201,12 +206,7 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
             Submit Answer
           </Button>
         ) : (
-          <Button
-            onClick={handleNext}
-            disabled={pending}
-            size="lg"
-            className="flex-1"
-          >
+          <Button onClick={handleNext} disabled={pending} size="lg" className="flex-1">
             {isLastQuestion ? "Complete Quiz" : "Next Question"}
           </Button>
         )}
@@ -214,4 +214,3 @@ export const QuizPlay = ({ session }: QuizPlayProps) => {
     </div>
   );
 };
-
