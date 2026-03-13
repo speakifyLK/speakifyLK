@@ -155,7 +155,9 @@ export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
                   );
                 }
               }}
-              tabIndex={selectedTopic === unit.id || (selectedTopic === null && index === 0) ? 0 : -1}
+              tabIndex={
+                selectedTopic === unit.id || (selectedTopic === null && index === 0) ? 0 : -1
+              }
               className={`flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 selectedTopic === unit.id
                   ? "border-green-500 bg-green-50"
@@ -206,12 +208,12 @@ export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
                     ? "border-green-500 bg-green-500 text-white focus:ring-green-500"
                     : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
                   : level === "intermediate"
-                  ? difficulty === level
-                    ? "border-yellow-500 bg-yellow-500 text-white focus:ring-yellow-500"
-                    : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
-                  : difficulty === level
-                  ? "border-red-500 bg-red-500 text-white focus:ring-red-500"
-                  : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
+                    ? difficulty === level
+                      ? "border-yellow-500 bg-yellow-500 text-white focus:ring-yellow-500"
+                      : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+                    : difficulty === level
+                      ? "border-red-500 bg-red-500 text-white focus:ring-red-500"
+                      : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
               } active:border-b-2`}
             >
               <span className="text-xl font-bold capitalize">{level}</span>
@@ -219,8 +221,8 @@ export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
                 {level === "beginner"
                   ? "Simple vocabulary and basic phrases"
                   : level === "intermediate"
-                  ? "Sentence construction and grammar"
-                  : "Complex conversations and idioms"}
+                    ? "Sentence construction and grammar"
+                    : "Complex conversations and idioms"}
               </span>
             </button>
           ))}
