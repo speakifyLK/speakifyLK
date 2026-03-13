@@ -37,22 +37,18 @@ const AIQuizPage = async ({ searchParams }: Props) => {
   const userProgressPromise = getUserProgress();
   const userSubscriptionPromise = getUserSubscription();
   const sessionPromise =
-    sessionId && !isNaN(sessionId)
-      ? getQuizSessionWithQuestions(sessionId)
-      : Promise.resolve(null);
-  const unitsPromise =
-    !sessionId || isNaN(sessionId) ? getUnitsForQuiz() : Promise.resolve([]);
+    sessionId && !isNaN(sessionId) ? getQuizSessionWithQuestions(sessionId) : Promise.resolve(null);
+  const unitsPromise = !sessionId || isNaN(sessionId) ? getUnitsForQuiz() : Promise.resolve([]);
   const quizHistoryPromise =
     !sessionId || isNaN(sessionId) ? getQuizHistory() : Promise.resolve([]);
 
-  const [userProgress, userSubscription, session, units, quizHistory] =
-    await Promise.all([
-      userProgressPromise,
-      userSubscriptionPromise,
-      sessionPromise,
-      unitsPromise,
-      quizHistoryPromise,
-    ]);
+  const [userProgress, userSubscription, session, units, quizHistory] = await Promise.all([
+    userProgressPromise,
+    userSubscriptionPromise,
+    sessionPromise,
+    unitsPromise,
+    quizHistoryPromise,
+  ]);
 
   if (!userProgress || !userProgress.activeCourse) {
     redirect("/courses");
@@ -71,7 +67,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
     mainContent = <QuizPlay session={session} backHref="/ai-quiz" />;
   } else {
     mainContent = <QuizConfig units={units} basePath="/ai-quiz" />;
-    
+
     sidebarStats = (
       <div className="mt-4 rounded-xl border-2 border-slate-200 p-4">
         <h3 className="text-lg font-bold text-neutral-700">Quiz History</h3>
