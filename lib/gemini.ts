@@ -30,7 +30,7 @@ export const safetySettings = [
 export const generationConfig = {
   temperature: 0.7,
   topP: 0.9,
-  maxOutputTokens: 8192,
+  maxOutputTokens: 1024,
 };
 
 export const MODEL_ID = "gemini-2.5-flash";
@@ -88,7 +88,10 @@ export function getGeminiClient() {
  * Generates content using the configured Gemini model.
  * @param prompt - The text prompt to send
  */
-export async function generateContent(prompt: string) {
+export async function generateContent(
+  prompt: string,
+  customConfig?: Partial<typeof generationConfig>
+) {
   const ai = getOrCreateClient();
   const response = await ai.models.generateContent({
     model: MODEL_ID,
@@ -96,6 +99,7 @@ export async function generateContent(prompt: string) {
     config: {
       safetySettings,
       ...generationConfig,
+      ...customConfig,
     },
   });
   return response;

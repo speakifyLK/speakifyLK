@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
@@ -79,7 +80,7 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
     learningContext,
   });
 
-  const geminiResponse = await generateContent(prompt);
+  const geminiResponse = await generateContent(prompt, { maxOutputTokens: 8192 });
   const responseText = geminiResponse.text ?? "";
 
   // ── 3. Parse & normalise questions (shared logic) ──
@@ -99,17 +100,23 @@ export async function generatePersonalizedQuiz(input: GenerateQuizInput) {
     })
     .returning({ id: aiQuizSessions.id });
 
-  await db.insert(aiQuizQuestions).values(
-    questions.map((q, idx) => ({
-      sessionId: session.id,
-      type: quizTypeToDbType.get(input.type) ?? "mcq",
-      question: q.question,
-      options: q.options ?? null,
-      correctAnswer: q.correctAnswer,
-      explanation: q.explanation,
-      order: idx + 1,
-    }))
-  );
+  try {
+    await db.insert(aiQuizQuestions).values(
+      questions.map((q, idx) => ({
+        sessionId: session.id,
+        type: quizTypeToDbType.get(input.type) ?? "mcq",
+        question: q.question,
+        options: q.options ?? null,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        order: idx + 1,
+      }))
+    );
+  } catch (error) {
+    // Best-effort cleanup of the orphaned session
+    await db.delete(aiQuizSessions).where(eq(aiQuizSessions.id, session.id)).catch(() => {});
+    throw error;
+  }
 
   revalidatePath("/learn");
 

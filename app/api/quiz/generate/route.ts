@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
@@ -111,7 +112,7 @@ async function callGeminiWithRetry(
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     // ── Call Gemini (NOT retried – network / API errors propagate) ──
-    const geminiResponse = await generateContent(prompt);
+    const geminiResponse = await generateContent(prompt, { maxOutputTokens: 8192 });
     const responseText = geminiResponse.text ?? "";
 
     // ── Parse & validate (retried on failure) ──
@@ -237,17 +238,22 @@ export async function POST(request: Request) {
       })
       .returning({ id: aiQuizSessions.id });
 
-    await db.insert(aiQuizQuestions).values(
-      allQuestions.map((q, idx) => ({
-        sessionId: session.id,
-        type: quizTypeToDbType.get(q.type) ?? "mcq",
-        question: q.question,
-        options: q.options ?? null,
-        correctAnswer: q.correctAnswer,
-        explanation: q.explanation,
-        order: idx + 1,
-      }))
-    );
+    try {
+      await db.insert(aiQuizQuestions).values(
+        allQuestions.map((q, idx) => ({
+          sessionId: session.id,
+          type: quizTypeToDbType.get(q.type) ?? "mcq",
+          question: q.question,
+          options: q.options ?? null,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          order: idx + 1,
+        }))
+      );
+    } catch (error) {
+      await db.delete(aiQuizSessions).where(eq(aiQuizSessions.id, session.id)).catch(() => {});
+      throw error;
+    }
 
     // ── 6. Return response ──
     return NextResponse.json({

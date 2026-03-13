@@ -180,6 +180,7 @@ const TranslationInput = ({
           }}
           disabled={isSubmitted}
           placeholder="Type your translation here…"
+          aria-label="Type your translation"
           rows={3}
           className="w-full resize-none rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         />
@@ -264,17 +265,9 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  // Reset local state whenever the question changes (e.g. parent reuses the
-  // same component instance across multiple questions).
-  // Uses the render-time comparison pattern instead of useEffect to avoid
-  // cascading renders (react-hooks/set-state-in-effect).
-  const [prevQuestionId, setPrevQuestionId] = useState(question.id);
-  if (prevQuestionId !== question.id) {
-    setPrevQuestionId(question.id);
-    setUserAnswer("");
-    setIsSubmitted(false);
-    setIsCorrect(false);
-  }
+  // Reset local state whenever the question changes using useEffect
+  // The parent should pass `key={question.id}` instead.
+  // We no longer manually clear state here to avoid react-hooks/set-state-in-effect issues.
 
   // Parse MCQ options
   const mcqOptions: McqOption[] | null =
@@ -322,7 +315,9 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
   return (
     <div className="space-y-6">
       {/* ── Question text ── */}
-      <h2 className="text-2xl font-bold text-neutral-800">{question.question}</h2>
+      {question.type !== "fill_blank" && question.type !== "translation" && (
+        <h2 className="text-2xl font-bold text-neutral-800">{question.question}</h2>
+      )}
 
       {/* ── Type-specific input ── */}
       {question.type === "mcq" && mcqOptions && (
