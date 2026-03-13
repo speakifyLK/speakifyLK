@@ -73,7 +73,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
         </StickyWrapper>
         <FeedWrapper>
           <Header title="AI Quiz" />
-          <QuizPlay session={session} />
+          <QuizPlay session={session} backHref="/ai-quiz" />
         </FeedWrapper>
       </div>
     );
