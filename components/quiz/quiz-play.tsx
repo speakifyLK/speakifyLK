@@ -102,9 +102,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     // Set time up state to disable inputs
     setIsTimeUp(true);
 
-    // Auto-submit whatever answer they have, or use a placeholder if empty
-    // The placeholder will be marked as incorrect by the server
-    const answerToSubmit = userAnswer.trim() || "__TIME_UP_NO_ANSWER__";
+    // Auto-submit whatever answer they have (may be empty on timeout)
+    const answerToSubmit = userAnswer.trim();
 
     startTransition(async () => {
       try {
