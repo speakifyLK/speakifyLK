@@ -51,13 +51,13 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     if (isAnswerSubmitted || isSubmitting) return;
 
     // Lock submission immediately to avoid races with the timer/onTimeUp
-    setIsAnswerSubmitted(true);
     setIsSubmitting(true);
 
     startTransition(async () => {
       try {
         const result = await submitQuizAnswer(currentQuestion.id, userAnswer.trim());
         setIsCorrect(result.isCorrect);
+        setIsAnswerSubmitted(true);
 
         // Update score if answer is correct
         if (result.isCorrect) {
