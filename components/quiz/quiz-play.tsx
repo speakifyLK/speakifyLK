@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { completeQuizSession, submitQuizAnswer } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
+import { QuizTimer } from "./quiz-timer";
 
 type Session = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
@@ -24,6 +25,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const [userAnswer, setUserAnswer] = useState("");
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [score, setScore] = useState(session.correctAnswers || 0);
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
@@ -52,7 +55,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         setIsCorrect(result.isCorrect);
         setIsAnswerSubmitted(true);
 
+        // Update score if answer is correct
         if (result.isCorrect) {
+          setScore((prev) => prev + 1);
           toast.success("Correct!");
         } else {
           toast.error("Incorrect. Try again!");
@@ -80,7 +85,37 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       setUserAnswer("");
       setIsAnswerSubmitted(false);
       setIsCorrect(null);
+      setIsTimeUp(false);
     }
+  };
+
+  const handleTimeUp = () => {
+    // Don't do anything if answer is already submitted
+    if (isAnswerSubmitted || !currentQuestion) return;
+
+    // Set time up state to disable inputs
+    setIsTimeUp(true);
+
+    // Auto-submit whatever answer they have, or use a placeholder if empty
+    // The placeholder will be marked as incorrect by the server
+    const answerToSubmit = userAnswer.trim() || "__TIME_UP_NO_ANSWER__";
+    
+    startTransition(async () => {
+      try {
+        const result = await submitQuizAnswer(currentQuestion.id, answerToSubmit);
+        setIsCorrect(result.isCorrect);
+        setIsAnswerSubmitted(true);
+
+        if (result.isCorrect) {
+          setScore((prev) => prev + 1);
+          toast.success("Time's up! Correct answer!");
+        } else {
+          toast.error("Time's up! Incorrect answer.");
+        }
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Failed to submit answer");
+      }
+    });
   };
 
   if (isCompleted) {
@@ -116,6 +151,16 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
   return (
     <div className="flex flex-col gap-8 p-6">
+      {/* Quiz Timer Component */}
+      <QuizTimer
+        difficulty={session.difficulty}
+        score={score}
+        totalQuestions={session.totalQuestions}
+        isAnswerSubmitted={isAnswerSubmitted}
+        onTimeUp={handleTimeUp}
+        resetKey={currentQuestionIndex}
+      />
+
       {/* Progress indicator */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-neutral-600">
@@ -142,8 +187,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
             {options.map((option, index) => (
               <button
                 key={index}
-                onClick={() => !isAnswerSubmitted && setUserAnswer(option)}
-                disabled={isAnswerSubmitted}
+                onClick={() => !isAnswerSubmitted && !isTimeUp && setUserAnswer(option)}
+                disabled={isAnswerSubmitted || isTimeUp}
                 className={`rounded-lg border-2 border-b-4 p-4 text-left transition-all ${
                   userAnswer === option
                     ? isCorrect === true
@@ -152,7 +197,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
                         ? "border-red-500 bg-red-50"
                         : "border-sky-500 bg-sky-50"
                     : "border-neutral-200 bg-white hover:bg-neutral-50"
-                } ${isAnswerSubmitted ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
+                } ${isAnswerSubmitted || isTimeUp ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
               >
                 {option}
               </button>
@@ -166,29 +211,43 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
             <input
               type="text"
               value={userAnswer}
-              onChange={(e) => !isAnswerSubmitted && setUserAnswer(e.target.value)}
-              disabled={isAnswerSubmitted}
+              onChange={(e) => !isAnswerSubmitted && !isTimeUp && setUserAnswer(e.target.value)}
+              disabled={isAnswerSubmitted || isTimeUp}
               placeholder="Type your answer here..."
               className="w-full rounded-lg border-2 border-neutral-200 p-4 text-lg focus:border-sky-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
             />
           </div>
         )}
 
-        {/* Show explanation after answer is submitted */}
-        {isAnswerSubmitted && (
+        {/* Show explanation after answer is submitted or time is up */}
+        {(isAnswerSubmitted || isTimeUp) && (
           <div
             className={`rounded-lg border-2 p-4 ${
-              isCorrect ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
+              isTimeUp
+                ? "border-orange-500 bg-orange-50"
+                : isCorrect
+                  ? "border-green-500 bg-green-50"
+                  : "border-red-500 bg-red-50"
             }`}
           >
-            <p className="font-semibold">{isCorrect ? "✓ Correct!" : "✗ Incorrect"}</p>
-            <p className="mt-2 text-sm text-neutral-700">
-              <span className="font-semibold">Correct answer:</span> {currentQuestion.correctAnswer}
+            <p className="font-semibold">
+              {isTimeUp
+                ? "⏰ Time's up!"
+                : isCorrect
+                  ? "✓ Correct!"
+                  : "✗ Incorrect"}
             </p>
-            {currentQuestion.explanation && (
-              <p className="mt-2 text-sm text-neutral-600">
-                <span className="font-semibold">Explanation:</span> {currentQuestion.explanation}
-              </p>
+            {(isAnswerSubmitted || isTimeUp) && (
+              <>
+                <p className="mt-2 text-sm text-neutral-700">
+                  <span className="font-semibold">Correct answer:</span> {currentQuestion.correctAnswer}
+                </p>
+                {currentQuestion.explanation && (
+                  <p className="mt-2 text-sm text-neutral-600">
+                    <span className="font-semibold">Explanation:</span> {currentQuestion.explanation}
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}
@@ -196,7 +255,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
       {/* Action buttons */}
       <div className="flex gap-4">
-        {!isAnswerSubmitted ? (
+        {!isAnswerSubmitted && !isTimeUp ? (
           <Button
             onClick={handleSubmitAnswer}
             disabled={pending || !userAnswer.trim()}
