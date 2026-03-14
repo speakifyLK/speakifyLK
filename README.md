@@ -251,7 +251,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
-- [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.44.0
+- [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.45.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.1.6
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
@@ -261,7 +261,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.90.21
-- [@types/node](https://www.npmjs.com/package/@types/node): ^25.4.0
+- [@types/node](https://www.npmjs.com/package/@types/node): ^25.5.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.39
