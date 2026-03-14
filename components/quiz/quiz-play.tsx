@@ -119,6 +119,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           toast.error("Time's up! Incorrect answer.");
         }
       } catch (error) {
+        // Reset time-up state so the user can try again after a failed auto-submit
+        setIsTimeUp(false);
         toast.error(error instanceof Error ? error.message : "Failed to submit answer");
       }
     });
