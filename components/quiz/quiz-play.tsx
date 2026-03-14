@@ -99,6 +99,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     // Don't do anything if answer is already submitted or a submission is in-flight
     if (isAnswerSubmitted || pending || !currentQuestion) return;
 
+    // Lock submission immediately to avoid races with manual submit
+    setIsAnswerSubmitted(true);
+
     // Set time up state to disable inputs
     setIsTimeUp(true);
 
@@ -109,7 +112,6 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       try {
         const result = await submitQuizAnswer(currentQuestion.id, answerToSubmit);
         setIsCorrect(result.isCorrect);
-        setIsAnswerSubmitted(true);
 
         if (result.isCorrect) {
           setScore((prev) => prev + 1);
@@ -120,6 +122,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       } catch (error) {
         // Reset time-up state so the user can try again after a failed auto-submit
         setIsTimeUp(false);
+        setIsAnswerSubmitted(false);
         toast.error(error instanceof Error ? error.message : "Failed to submit answer");
       }
     });
