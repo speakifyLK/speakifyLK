@@ -24,6 +24,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState(session.correctAnswers || 0);
   const [isTimeUp, setIsTimeUp] = useState(false);
@@ -47,13 +48,16 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       return;
     }
 
-    if (isAnswerSubmitted) return;
+    if (isAnswerSubmitted || isSubmitting) return;
+
+    // Lock submission immediately to avoid races with the timer/onTimeUp
+    setIsAnswerSubmitted(true);
+    setIsSubmitting(true);
 
     startTransition(async () => {
       try {
         const result = await submitQuizAnswer(currentQuestion.id, userAnswer.trim());
         setIsCorrect(result.isCorrect);
-        setIsAnswerSubmitted(true);
 
         // Update score if answer is correct
         if (result.isCorrect) {
@@ -64,6 +68,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         }
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to submit answer");
+      } finally {
+        setIsSubmitting(false);
       }
     });
   };
