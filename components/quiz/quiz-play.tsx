@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -140,6 +140,18 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     );
   }
 
+  const timeUpHandlerRef = useRef(handleTimeUp);
+
+  useEffect(() => {
+    timeUpHandlerRef.current = handleTimeUp;
+  }, [handleTimeUp]);
+
+  const stableOnTimeUp = useCallback(() => {
+    if (timeUpHandlerRef.current) {
+      timeUpHandlerRef.current();
+    }
+  }, []);
+
   if (!currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-6">
@@ -157,7 +169,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         score={score}
         totalQuestions={session.totalQuestions}
         isAnswerSubmitted={isAnswerSubmitted}
-        onTimeUp={handleTimeUp}
+        onTimeUp={stableOnTimeUp}
         resetKey={currentQuestionIndex}
       />
 
