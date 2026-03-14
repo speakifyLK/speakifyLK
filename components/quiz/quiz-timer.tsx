@@ -30,14 +30,22 @@ export const QuizTimer = ({
   const timeLimit = TIME_LIMITS[difficulty];
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const prevResetKeyRef = useRef(resetKey);
 
-  // Reset timer when question changes (resetKey changes) or when answer is submitted
+  // Countdown logic with reset handling
   useEffect(() => {
-    setTimeRemaining(timeLimit);
-  }, [resetKey, timeLimit]);
+    // Reset timer when question changes (resetKey changes)
+    if (prevResetKeyRef.current !== resetKey) {
+      prevResetKeyRef.current = resetKey;
+      // Clear any existing interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      // Reset timer state
+      setTimeRemaining(timeLimit);
+    }
 
-  // Countdown logic
-  useEffect(() => {
     if (isAnswerSubmitted) {
       // Stop timer when answer is submitted
       if (intervalRef.current) {
@@ -69,7 +77,7 @@ export const QuizTimer = ({
         intervalRef.current = null;
       }
     };
-  }, [isAnswerSubmitted, onTimeUp, resetKey]);
+  }, [isAnswerSubmitted, onTimeUp, resetKey, timeLimit]);
 
   // Calculate progress percentage (0 to 100)
   const progress = (timeRemaining / timeLimit) * 100;
