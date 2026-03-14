@@ -29,7 +29,7 @@ export const QuizTimer = ({
 }: QuizTimerProps) => {
   const timeLimit = TIME_LIMITS[difficulty];
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevResetKeyRef = useRef(resetKey);
   const onTimeUpRef = useRef(onTimeUp);
 
