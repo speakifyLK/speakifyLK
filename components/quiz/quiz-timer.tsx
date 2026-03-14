@@ -31,6 +31,11 @@ export const QuizTimer = ({
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const prevResetKeyRef = useRef(resetKey);
+  const onTimeUpRef = useRef(onTimeUp);
+
+  useEffect(() => {
+    onTimeUpRef.current = onTimeUp;
+  }, [onTimeUp]);
 
   // Countdown logic with reset handling
   useEffect(() => {
@@ -64,7 +69,7 @@ export const QuizTimer = ({
             clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
-          onTimeUp?.();
+          onTimeUpRef.current?.();
           return 0;
         }
         return prev - 1;
@@ -77,7 +82,7 @@ export const QuizTimer = ({
         intervalRef.current = null;
       }
     };
-  }, [isAnswerSubmitted, onTimeUp, resetKey, timeLimit]);
+  }, [isAnswerSubmitted, resetKey, timeLimit]);
 
   // Calculate progress percentage (0 to 100)
   const progress = (timeRemaining / timeLimit) * 100;
