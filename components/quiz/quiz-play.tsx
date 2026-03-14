@@ -99,7 +99,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     // Auto-submit whatever answer they have, or use a placeholder if empty
     // The placeholder will be marked as incorrect by the server
     const answerToSubmit = userAnswer.trim() || "__TIME_UP_NO_ANSWER__";
-    
+
     startTransition(async () => {
       try {
         const result = await submitQuizAnswer(currentQuestion.id, answerToSubmit);
@@ -231,20 +231,18 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
             }`}
           >
             <p className="font-semibold">
-              {isTimeUp
-                ? "⏰ Time's up!"
-                : isCorrect
-                  ? "✓ Correct!"
-                  : "✗ Incorrect"}
+              {isTimeUp ? "⏰ Time's up!" : isCorrect ? "✓ Correct!" : "✗ Incorrect"}
             </p>
             {(isAnswerSubmitted || isTimeUp) && (
               <>
                 <p className="mt-2 text-sm text-neutral-700">
-                  <span className="font-semibold">Correct answer:</span> {currentQuestion.correctAnswer}
+                  <span className="font-semibold">Correct answer:</span>{" "}
+                  {currentQuestion.correctAnswer}
                 </p>
                 {currentQuestion.explanation && (
                   <p className="mt-2 text-sm text-neutral-600">
-                    <span className="font-semibold">Explanation:</span> {currentQuestion.explanation}
+                    <span className="font-semibold">Explanation:</span>{" "}
+                    {currentQuestion.explanation}
                   </p>
                 )}
               </>
