@@ -97,7 +97,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
   const handleTimeUp = () => {
     // Don't do anything if answer is already submitted or a submission is in-flight
-    if (isAnswerSubmitted || isPending || !currentQuestion) return;
+    if (isAnswerSubmitted || pending || !currentQuestion) return;
 
     // Set time up state to disable inputs
     setIsTimeUp(true);
