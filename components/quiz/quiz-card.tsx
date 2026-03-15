@@ -29,7 +29,7 @@ type QuizCardProps = {
   isLastQuestion?: boolean;
   /** Called after the user submits (so the parent can track progress) */
   onAnswerSubmittedAction?: (isCorrect: boolean) => void;
-  onNextAction?: () => void;
+  onNextAction: () => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -295,6 +295,7 @@ export const QuizCard = ({
   const [isCorrect, setIsCorrect] = useState(false);
   const [explanationAcknowledged, setExplanationAcknowledged] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [isNextPending, setIsNextPending] = useState(false);
 
   // Reset local state whenever the question changes using useEffect
   // The parent should pass `key={question.id}` instead.
@@ -344,6 +345,19 @@ export const QuizCard = ({
         toast.error(error instanceof Error ? error.message : "Failed to submit answer.");
       }
     });
+  };
+
+  const handleNextClick = async () => {
+    // Guard against concurrent clicks and respect existing gating condition.
+    if (isNextPending || (!isCorrect && !explanationAcknowledged)) {
+      return;
+    }
+    setIsNextPending(true);
+    try {
+      await onNextAction();
+    } finally {
+      setIsNextPending(false);
+    }
   };
 
   return (
@@ -407,8 +421,8 @@ export const QuizCard = ({
         </Button>
       ) : (
         <Button
-          onClick={onNextAction}
-          disabled={!isCorrect && !explanationAcknowledged}
+          onClick={handleNextClick}
+          disabled={(!isCorrect && !explanationAcknowledged) || isNextPending}
           size="lg"
           className={cn(
             "h-14 w-full text-lg font-bold transition-all",
