@@ -29,7 +29,7 @@ type QuizCardProps = {
   isLastQuestion?: boolean;
   /** Called after the user submits (so the parent can track progress) */
   onAnswerSubmittedAction?: (isCorrect: boolean) => void;
-  onNextAction: () => void | Promise<void>;
+  onNextAction: () => Promise<void>;
 };
 
 // ---------------------------------------------------------------------------
@@ -360,7 +360,21 @@ export const QuizCard = ({
     }
     setIsNextPending(true);
     try {
-      await onNextAction();
+      const result = onNextAction();
+      if (
+        result &&
+        typeof result === "object" &&
+        "then" in result &&
+        typeof (result as { then: unknown }).then === "function"
+      ) {
+        await result;
+      } else {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn(
+            "[QuizCard] onNextAction should return a Promise that resolves only after navigation/completion finishes."
+          );
+        }
+      }
     } finally {
       setIsNextPending(false);
     }

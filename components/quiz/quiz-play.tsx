@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -20,25 +20,23 @@ type QuizPlayProps = {
 
 export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const router = useRouter();
-  const [, startTransition] = useTransition();
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
   const isCompleted = !!session.completedAt;
 
-  const handleNext = () => {
+  const handleNext = async (): Promise<void> => {
     if (isLastQuestion) {
       // Complete the quiz
-      startTransition(async () => {
-        try {
-          await completeQuizSession(session.id);
-          toast.success("Quiz completed!");
-          router.push(backHref || "/quiz");
-        } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
-        }
-      });
+      try {
+        await completeQuizSession(session.id);
+        toast.success("Quiz completed!");
+        router.push(backHref || "/quiz");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
+      }
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
