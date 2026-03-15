@@ -36,7 +36,11 @@ jobs:
             const fs = require('fs');
             let output = fs.readFileSync('tsc-output.txt', 'utf8').trim();
             if (output.length > 3000) output = output.slice(0, 3000) + '\n... (truncated)';
+            output = output.replace(/```/g, '` ` `');
+
+            const marker = '<!-- ci-typecheck-comment -->';
             const body = [
+              marker,
               '## TypeScript Check Failed',
               '',
               'There are type errors that need to be fixed before this PR can be merged.',
@@ -52,12 +56,29 @@ jobs:
               '',
               '**How to fix:** Run `bunx tsc --noEmit` locally to see all errors and fix them.'
             ].join('\n');
-            await github.rest.issues.createComment({
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Fail if typecheck failed
         if: steps.typecheck.outcome == 'failure'
@@ -90,7 +111,11 @@ jobs:
             const fs = require('fs');
             let output = fs.readFileSync('lint-output.txt', 'utf8').trim();
             if (output.length > 3000) output = output.slice(0, 3000) + '\n... (truncated)';
+            output = output.replace(/```/g, '` ` `');
+
+            const marker = '<!-- ci-lint-comment -->';
             const body = [
+              marker,
               '## ESLint Check Failed',
               '',
               'There are linting errors that need to be fixed before this PR can be merged.',
@@ -106,12 +131,29 @@ jobs:
               '',
               '**How to fix:** Run `bun run lint` locally to see all errors. Many can be auto-fixed with `bun run lint --fix`.'
             ].join('\n');
-            await github.rest.issues.createComment({
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Fail if lint failed
         if: steps.lint.outcome == 'failure'
@@ -158,7 +200,11 @@ jobs:
             const fs = require('fs');
             let output = fs.readFileSync('build-output.txt', 'utf8').trim();
             if (output.length > 3000) output = '... (truncated)\n' + output.slice(-3000);
+            output = output.replace(/```/g, '` ` `');
+
+            const marker = '<!-- ci-build-comment -->';
             const body = [
+              marker,
               '## Build Failed',
               '',
               'The Next.js build failed. Please fix the errors below before this PR can be merged.',
@@ -174,12 +220,29 @@ jobs:
               '',
               '**How to fix:** Run `bun run build` locally to reproduce and fix the errors.'
             ].join('\n');
-            await github.rest.issues.createComment({
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Fail if build failed
         if: steps.build.outcome == 'failure'
