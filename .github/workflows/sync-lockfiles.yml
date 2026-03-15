@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - name: Check if triggered by bot commit
@@ -61,11 +62,11 @@ jobs:
 
       - name: Update bun.lock
         if: steps.check_bot.outputs.is_bot != 'true'
-        run: bun install
+        run: bun install 2>&1 | tee bun-install-output.txt
 
       - name: Update package-lock.json
         if: steps.check_bot.outputs.is_bot != 'true'
-        run: npm install --package-lock-only
+        run: npm install --package-lock-only 2>&1 | tee npm-install-output.txt
 
       - name: Check if lockfiles changed
         if: steps.check_bot.outputs.is_bot != 'true'
@@ -85,4 +86,49 @@ jobs:
           git add bun.lock package-lock.json
           git commit -m "chore: sync lockfiles with package.json"
           git pull --rebase
-          git push
+          git push 2>&1 | tee sync-push-output.txt
+
+      - name: Comment on PR if sync failed
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let bunLog = '';
+            let npmLog = '';
+            let pushLog = '';
+            try { bunLog = fs.readFileSync('bun-install-output.txt', 'utf8').trim(); } catch {}
+            try { npmLog = fs.readFileSync('npm-install-output.txt', 'utf8').trim(); } catch {}
+            try { pushLog = fs.readFileSync('sync-push-output.txt', 'utf8').trim(); } catch {}
+            let logs = [bunLog, npmLog, pushLog].filter(Boolean).join('\n\n');
+            if (logs.length > 3000) logs = '... (truncated)\n' + logs.slice(-3000);
+            const body = [
+              '## Lockfile Sync Failed',
+              '',
+              'The automatic lockfile sync workflow failed.',
+              '',
+              'This may be caused by:',
+              '- Conflicting dependency versions in `package.json`',
+              '- A rebase conflict when pushing the updated lockfiles',
+              '',
+              '<details>',
+              '<summary>Failure logs (click to expand)</summary>',
+              '',
+              '```',
+              logs,
+              '```',
+              '',
+              '</details>',
+              '',
+              '**How to fix:**',
+              '1. Run `bun install` and `npm install --package-lock-only` locally',
+              '2. Commit the updated `bun.lock` and `package-lock.json`',
+              '',
+              'Check the [workflow logs](' + context.payload.repository.html_url + '/actions/runs/' + context.runId + ') for details.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
