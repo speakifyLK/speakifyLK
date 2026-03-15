@@ -2,6 +2,6 @@ Formatting files:
 README.md
 components/quiz/quiz-card.tsx
 components/quiz/quiz-play.tsx
-[90mREADME.md[39m 96ms (unchanged)
-[90mcomponents/quiz/quiz-card.tsx[39m 423ms (unchanged)
-[90mcomponents/quiz/quiz-play.tsx[39m 36ms (unchanged)
+README.md 115ms
+[90mcomponents/quiz/quiz-card.tsx[39m 440ms (unchanged)
+components/quiz/quiz-play.tsx 37ms

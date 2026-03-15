@@ -27,8 +27,6 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
   const isCompleted = !!session.completedAt;
 
-
-
   const handleNext = () => {
     if (isLastQuestion) {
       // Complete the quiz
