@@ -18,8 +18,8 @@ jobs:
         uses: actions/github-script@v8
         env:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
-          JIRA_BASE_URL: 'https://speakifylk.atlassian.net'
-          JIRA_EMAIL: 'desilvabethmin@gmail.com'
+          JIRA_BASE_URL: "https://speakifylk.atlassian.net"
+          JIRA_EMAIL: "desilvabethmin@gmail.com"
         with:
           script: |
             const title = context.payload.pull_request.title;
@@ -70,7 +70,7 @@ jobs:
             const jiraBaseUrl = process.env.JIRA_BASE_URL;
 
             if (!jiraToken) {
-              console.log('⚠️ JIRA_API_TOKEN not configured');
+              console.log('JIRA_API_TOKEN not configured');
               return;
             }
 
@@ -108,7 +108,7 @@ jobs:
                 );
 
                 if (!doneTransition) {
-                  console.log(`⚠️ No "Done" or "Closed" transition available for ${jiraKey}`);
+                  console.log(`No "Done" or "Closed" transition available for ${jiraKey}`);
                   console.log('Available transitions:', transitions.map(t => t.name).join(', '));
 
                   // Add comment instead
@@ -120,11 +120,6 @@ jobs:
                         {
                           type: 'paragraph',
                           content: [
-                            {
-                              type: 'text',
-                              text: '✅ ',
-                              marks: []
-                            },
                             {
                               type: 'text',
                               text: 'Pull Request Merged',
@@ -172,7 +167,7 @@ jobs:
                   });
 
                   if (commentResponse.ok) {
-                    console.log(`✅ Added merge notification to ${jiraKey}`);
+                    console.log(`Added merge notification to ${jiraKey}`);
                   }
 
                   continue;
@@ -196,11 +191,6 @@ jobs:
                               {
                                 type: 'paragraph',
                                 content: [
-                                  {
-                                    type: 'text',
-                                    text: '✅ ',
-                                    marks: []
-                                  },
                                   {
                                     type: 'text',
                                     text: 'Automatically closed by merged PR',
@@ -252,14 +242,14 @@ jobs:
                 });
 
                 if (transitionResult.ok) {
-                  console.log(`✅ Successfully closed ${jiraKey}`);
+                  console.log(`Successfully closed ${jiraKey}`);
 
                   // Add success comment to PR
                   await github.rest.issues.createComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: prNumber,
-                    body: `✅ **Jira issue [${jiraKey}](${jiraBaseUrl}/browse/${jiraKey}) automatically closed**`
+                    body: `**Jira issue [${jiraKey}](${jiraBaseUrl}/browse/${jiraKey}) automatically closed**`
                   });
                 } else {
                   const errorText = await transitionResult.text();
@@ -270,7 +260,7 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: prNumber,
-                    body: `⚠️ Could not automatically close [${jiraKey}](${jiraBaseUrl}/browse/${jiraKey}). Please close it manually.`
+                    body: `Could not automatically close [${jiraKey}](${jiraBaseUrl}/browse/${jiraKey}). Please close it manually.`
                   });
                 }
 
@@ -279,4 +269,4 @@ jobs:
               }
             }
 
-            console.log('✅ Jira close automation complete');
+            console.log('Jira close automation complete');
