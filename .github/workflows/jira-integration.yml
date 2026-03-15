@@ -435,7 +435,7 @@ jobs:
               }
 
               if (!jiraPattern.test(firstLine)) {
-                invalidCommits.push(`❌ \`${commit.sha.substring(0, 7)}\`: ${firstLine.substring(0, 60)}...`);
+                invalidCommits.push(`\`${commit.sha.substring(0, 7)}\`: ${firstLine.substring(0, 60)}...`);
               }
             }
 
