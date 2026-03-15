@@ -62,11 +62,13 @@ jobs:
 
       - name: Update bun.lock
         if: steps.check_bot.outputs.is_bot != 'true'
-        run: bun install 2>&1 | tee bun-install-output.txt
+        shell: bash
+        run: set -o pipefail && bun install 2>&1 | tee bun-install-output.txt
 
       - name: Update package-lock.json
         if: steps.check_bot.outputs.is_bot != 'true'
-        run: npm install --package-lock-only 2>&1 | tee npm-install-output.txt
+        shell: bash
+        run: set -o pipefail && npm install --package-lock-only 2>&1 | tee npm-install-output.txt
 
       - name: Check if lockfiles changed
         if: steps.check_bot.outputs.is_bot != 'true'
@@ -80,7 +82,9 @@ jobs:
 
       - name: Commit updated lockfiles
         if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
+        shell: bash
         run: |
+          set -o pipefail
           git config --local user.email "speakify-bot[bot]@users.noreply.github.com"
           git config --local user.name "speakify-bot[bot]"
           git add bun.lock package-lock.json
@@ -102,7 +106,11 @@ jobs:
             try { pushLog = fs.readFileSync('sync-push-output.txt', 'utf8').trim(); } catch {}
             let logs = [bunLog, npmLog, pushLog].filter(Boolean).join('\n\n');
             if (logs.length > 3000) logs = '... (truncated)\n' + logs.slice(-3000);
+            logs = logs.replace(/```/g, '` ` `');
+
+            const marker = '<!-- sync-lockfiles-comment -->';
             const body = [
+              marker,
               '## Lockfile Sync Failed',
               '',
               'The automatic lockfile sync workflow failed.',
@@ -126,9 +134,26 @@ jobs:
               '',
               'Check the [workflow logs](' + context.payload.repository.html_url + '/actions/runs/' + context.runId + ') for details.'
             ].join('\n');
-            await github.rest.issues.createComment({
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

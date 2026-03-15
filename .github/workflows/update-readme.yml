@@ -167,4 +167,5 @@ jobs:
           git config --local user.name "speakify-bot[bot]"
           git add README.md
           git commit -m "docs: update dependencies and folder structure in README"
+          git pull --rebase
           git push

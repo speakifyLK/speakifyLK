@@ -54,7 +54,9 @@ jobs:
       - name: Format changed files with Prettier
         id: format
         if: steps.check_bot.outputs.is_bot != 'true'
+        shell: bash
         run: |
+          set -o pipefail
           # Get list of changed files
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md|yml|yaml)$' || true)
 
@@ -79,11 +81,14 @@ jobs:
       - name: Commit formatted code
         id: commit
         if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
+        shell: bash
         run: |
+          set -o pipefail
           git config --local user.email "speakify-bot[bot]@users.noreply.github.com"
           git config --local user.name "speakify-bot[bot]"
           git add .
           git commit -m "style: auto-format code with Prettier"
+          git pull --rebase
           git push 2>&1 | tee commit-output.txt
 
       - name: Comment on PR if formatting failed
@@ -98,7 +103,11 @@ jobs:
             try { commitLog = fs.readFileSync('commit-output.txt', 'utf8').trim(); } catch {}
             let logs = [formatLog, commitLog].filter(Boolean).join('\n\n');
             if (logs.length > 3000) logs = '... (truncated)\n' + logs.slice(-3000);
+            logs = logs.replace(/```/g, '` ` `');
+
+            const marker = '<!-- format-check-comment -->';
             const body = [
+              marker,
               '## Auto-Format Failed',
               '',
               'The Prettier auto-format workflow encountered an error and could not complete.',
@@ -120,9 +129,26 @@ jobs:
               '',
               'Check the [workflow logs](' + context.payload.repository.html_url + '/actions/runs/' + context.runId + ') for details.'
             ].join('\n');
-            await github.rest.issues.createComment({
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

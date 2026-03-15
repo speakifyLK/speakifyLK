@@ -50,12 +50,16 @@ jobs:
         with:
           script: |
             const title = context.payload.pull_request.title;
+            const safeTitle = title.replace(/`/g, "'").replace(/[<>]/g, '');
+
+            const marker = '<!-- pr-title-validation-comment -->';
             const body = [
+              marker,
               '## Invalid PR Title',
               '',
               'Your PR title does not match the required format.',
               '',
-              '**Current title:** `' + title + '`',
+              '**Current title:** `' + safeTitle + '`',
               '',
               '**Required format:** `SPEAKLK-123: short description`',
               '',
@@ -63,9 +67,26 @@ jobs:
               '',
               'Please edit the PR title to include a valid Jira issue key.'
             ].join('\n');
-            await github.rest.issues.createComment({
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
