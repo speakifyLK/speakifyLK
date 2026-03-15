@@ -27,13 +27,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
   const isCompleted = !!session.completedAt;
 
-  const handleAnswerSubmitted = (correct: boolean) => {
-    if (correct) {
-      toast.success("Correct!");
-    } else {
-      toast.error("Incorrect. Try again!");
-    }
-  };
+
 
   const handleNext = () => {
     if (isLastQuestion) {
@@ -106,7 +100,6 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         key={currentQuestion.id}
         question={currentQuestion}
         isLastQuestion={isLastQuestion}
-        onAnswerSubmittedAction={handleAnswerSubmitted}
         onNextAction={handleNext}
       />
     </div>

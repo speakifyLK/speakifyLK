@@ -229,7 +229,8 @@ const ExplanationPanel = ({
       {/* Collapsible explanation */}
       {explanation && (
         <div className="overflow-hidden rounded-xl border-2 border-sky-300 bg-sky-50">
-          <div
+          <button
+            type="button"
             className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-sm font-semibold text-sky-800 transition-colors hover:bg-sky-100"
             onClick={() => setIsOpen((prev) => !prev)}
           >
@@ -238,7 +239,7 @@ const ExplanationPanel = ({
               <span className="text-base">AI Explanation</span>
             </span>
             {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-          </div>
+          </button>
 
           {isOpen && (
             <div className="space-y-4 border-t border-sky-200 px-4 py-4 text-sm leading-relaxed text-sky-900">
