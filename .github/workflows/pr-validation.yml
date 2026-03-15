@@ -28,6 +28,7 @@ jobs:
             console.log('Auto-assigned PR to author: ' + context.payload.pull_request.user.login);
 
       - name: Validate Jira key in PR title
+        id: validate_title
         uses: actions/github-script@v8
         with:
           script: |
@@ -35,8 +36,36 @@ jobs:
             const jiraPattern = /^[A-Z][A-Z0-9]+-\d+:\s.+/;
 
             if (!jiraPattern.test(title)) {
-              core.setFailed('PR title must follow the format: SPEAKLK-123: short description\nExample: SPEAKLK-24: Add Zustand store for quiz state');
+              core.setOutput('valid', 'false');
+              core.setFailed('PR title must follow the format: SPEAKLK-123: short description');
             } else {
+              core.setOutput('valid', 'true');
               const jiraKey = title.match(/[A-Z][A-Z0-9]+-\d+/)[0];
-              console.log(`PR title references Jira issue: ${jiraKey}`);
+              console.log('PR title references Jira issue: ' + jiraKey);
             }
+
+      - name: Comment on PR if title invalid
+        if: failure() && steps.validate_title.outputs.valid == 'false'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const body = [
+              '## Invalid PR Title',
+              '',
+              'Your PR title does not match the required format.',
+              '',
+              '**Current title:** `' + title + '`',
+              '',
+              '**Required format:** `SPEAKLK-123: short description`',
+              '',
+              '**Example:** `SPEAKLK-24: Add Zustand store for quiz state`',
+              '',
+              'Please edit the PR title to include a valid Jira issue key.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
