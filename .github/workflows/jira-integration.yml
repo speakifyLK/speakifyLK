@@ -353,6 +353,59 @@ jobs:
               console.error(`Error adding Jira comment: ${error.message}`);
             }
 
+            // Transition Jira issue to "In Review" when PR is opened
+            if (['opened', 'reopened'].includes(context.payload.action)) {
+              console.log(`Transitioning ${primaryJira.key} to In Review...`);
+              try {
+                const transitionsResponse = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${primaryJira.key}/transitions`, {
+                  headers: {
+                    'Authorization': `Basic ${authHeader}`,
+                    'Accept': 'application/json'
+                  }
+                });
+
+                if (!transitionsResponse.ok) {
+                  throw new Error(`Failed to get transitions: ${transitionsResponse.status}`);
+                }
+
+                const transitionsData = await transitionsResponse.json();
+                const transitions = transitionsData.transitions;
+
+                console.log(`Available transitions for ${primaryJira.key}:`, transitions.map(t => `${t.id}: ${t.name}`).join(', '));
+
+                const inReviewTransition = transitions.find(t =>
+                  t.name.toLowerCase() === 'in review' ||
+                  t.to?.name?.toLowerCase() === 'in review'
+                );
+
+                if (inReviewTransition) {
+                  const transitionResult = await fetch(`${jiraBaseUrl}/rest/api/3/issue/${primaryJira.key}/transitions`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Basic ${authHeader}`,
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      transition: { id: inReviewTransition.id }
+                    })
+                  });
+
+                  if (transitionResult.ok) {
+                    console.log(`Transitioned ${primaryJira.key} to In Review`);
+                  } else {
+                    const errorText = await transitionResult.text();
+                    console.error(`Failed to transition ${primaryJira.key}: ${transitionResult.status} - ${errorText}`);
+                  }
+                } else {
+                  console.log(`No "In Review" transition available for ${primaryJira.key}`);
+                  console.log('Available transitions:', transitions.map(t => t.name).join(', '));
+                }
+              } catch (error) {
+                console.error(`Error transitioning ${primaryJira.key}: ${error.message}`);
+              }
+            }
+
             console.log('Jira integration complete');
 
   validate-commits:
