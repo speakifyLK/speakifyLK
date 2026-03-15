@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     if: github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - name: Check if triggered by bot commit
@@ -51,6 +52,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Format changed files with Prettier
+        id: format
         if: steps.check_bot.outputs.is_bot != 'true'
         run: |
           # Get list of changed files
@@ -62,7 +64,7 @@ jobs:
             echo "$CHANGED_FILES" | xargs bunx prettier --write --config config/prettier.json --ignore-unknown
           else
             echo "No files to format"
-          fi
+          fi 2>&1 | tee format-output.txt
 
       - name: Check if files were modified
         if: steps.check_bot.outputs.is_bot != 'true'
@@ -75,10 +77,52 @@ jobs:
           fi
 
       - name: Commit formatted code
+        id: commit
         if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
         run: |
           git config --local user.email "speakify-bot[bot]@users.noreply.github.com"
           git config --local user.name "speakify-bot[bot]"
           git add .
           git commit -m "style: auto-format code with Prettier"
-          git push
+          git push 2>&1 | tee commit-output.txt
+
+      - name: Comment on PR if formatting failed
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let formatLog = '';
+            let commitLog = '';
+            try { formatLog = fs.readFileSync('format-output.txt', 'utf8').trim(); } catch {}
+            try { commitLog = fs.readFileSync('commit-output.txt', 'utf8').trim(); } catch {}
+            let logs = [formatLog, commitLog].filter(Boolean).join('\n\n');
+            if (logs.length > 3000) logs = '... (truncated)\n' + logs.slice(-3000);
+            const body = [
+              '## Auto-Format Failed',
+              '',
+              'The Prettier auto-format workflow encountered an error and could not complete.',
+              '',
+              'This may be caused by:',
+              '- A syntax error preventing Prettier from parsing a file',
+              '- A conflict when pushing the formatted commit',
+              '',
+              '<details>',
+              '<summary>Failure logs (click to expand)</summary>',
+              '',
+              '```',
+              logs,
+              '```',
+              '',
+              '</details>',
+              '',
+              '**How to fix:** Run `bunx prettier --write --config config/prettier.json .` locally and commit the changes.',
+              '',
+              'Check the [workflow logs](' + context.payload.repository.html_url + '/actions/runs/' + context.runId + ') for details.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });

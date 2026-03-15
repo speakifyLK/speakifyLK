@@ -2,6 +2,7 @@ name: CI
 
 permissions:
   contents: read
+  pull-requests: write
 
 on:
   pull_request:
@@ -22,7 +23,44 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run TypeScript type check
-        run: bunx tsc --noEmit
+        id: typecheck
+        run: bunx tsc --noEmit 2>&1 | tee tsc-output.txt
+        continue-on-error: true
+
+      - name: Comment on PR if typecheck failed
+        if: steps.typecheck.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let output = fs.readFileSync('tsc-output.txt', 'utf8').trim();
+            if (output.length > 3000) output = output.slice(0, 3000) + '\n... (truncated)';
+            const body = [
+              '## TypeScript Check Failed',
+              '',
+              'There are type errors that need to be fixed before this PR can be merged.',
+              '',
+              '<details>',
+              '<summary>TypeScript errors (click to expand)</summary>',
+              '',
+              '```',
+              output,
+              '```',
+              '',
+              '</details>',
+              '',
+              '**How to fix:** Run `bunx tsc --noEmit` locally to see all errors and fix them.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Fail if typecheck failed
+        if: steps.typecheck.outcome == 'failure'
+        run: exit 1
 
   lint:
     name: ESLint Check
@@ -38,7 +76,44 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run ESLint
-        run: bun run lint
+        id: lint
+        run: bun run lint 2>&1 | tee lint-output.txt
+        continue-on-error: true
+
+      - name: Comment on PR if lint failed
+        if: steps.lint.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let output = fs.readFileSync('lint-output.txt', 'utf8').trim();
+            if (output.length > 3000) output = output.slice(0, 3000) + '\n... (truncated)';
+            const body = [
+              '## ESLint Check Failed',
+              '',
+              'There are linting errors that need to be fixed before this PR can be merged.',
+              '',
+              '<details>',
+              '<summary>ESLint errors (click to expand)</summary>',
+              '',
+              '```',
+              output,
+              '```',
+              '',
+              '</details>',
+              '',
+              '**How to fix:** Run `bun run lint` locally to see all errors. Many can be auto-fixed with `bun run lint --fix`.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Fail if lint failed
+        if: steps.lint.outcome == 'failure'
+        run: exit 1
 
   build:
     name: Build Check
@@ -68,4 +143,41 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build Next.js app
-        run: bun run build
+        id: build
+        run: bun run build 2>&1 | tee build-output.txt
+        continue-on-error: true
+
+      - name: Comment on PR if build failed
+        if: steps.build.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let output = fs.readFileSync('build-output.txt', 'utf8').trim();
+            if (output.length > 3000) output = '... (truncated)\n' + output.slice(-3000);
+            const body = [
+              '## Build Failed',
+              '',
+              'The Next.js build failed. Please fix the errors below before this PR can be merged.',
+              '',
+              '<details>',
+              '<summary>Build output (click to expand)</summary>',
+              '',
+              '```',
+              output,
+              '```',
+              '',
+              '</details>',
+              '',
+              '**How to fix:** Run `bun run build` locally to reproduce and fix the errors.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Fail if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
