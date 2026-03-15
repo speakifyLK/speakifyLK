@@ -62,11 +62,13 @@ jobs:
 
       - name: Update bun.lock
         if: steps.check_bot.outputs.is_bot != 'true'
-        run: bun install 2>&1 | tee bun-install-output.txt
+        shell: bash
+        run: set -o pipefail && bun install 2>&1 | tee bun-install-output.txt
 
       - name: Update package-lock.json
         if: steps.check_bot.outputs.is_bot != 'true'
-        run: npm install --package-lock-only 2>&1 | tee npm-install-output.txt
+        shell: bash
+        run: set -o pipefail && npm install --package-lock-only 2>&1 | tee npm-install-output.txt
 
       - name: Check if lockfiles changed
         if: steps.check_bot.outputs.is_bot != 'true'
@@ -80,7 +82,9 @@ jobs:
 
       - name: Commit updated lockfiles
         if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
+        shell: bash
         run: |
+          set -o pipefail
           git config --local user.email "speakify-bot[bot]@users.noreply.github.com"
           git config --local user.name "speakify-bot[bot]"
           git add bun.lock package-lock.json

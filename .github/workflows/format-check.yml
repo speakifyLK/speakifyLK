@@ -54,7 +54,9 @@ jobs:
       - name: Format changed files with Prettier
         id: format
         if: steps.check_bot.outputs.is_bot != 'true'
+        shell: bash
         run: |
+          set -o pipefail
           # Get list of changed files
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md|yml|yaml)$' || true)
 
@@ -79,7 +81,9 @@ jobs:
       - name: Commit formatted code
         id: commit
         if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
+        shell: bash
         run: |
+          set -o pipefail
           git config --local user.email "speakify-bot[bot]@users.noreply.github.com"
           git config --local user.name "speakify-bot[bot]"
           git add .
