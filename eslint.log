@@ -1,0 +1,13 @@
+
+> speakify@1.0.1 lint
+> eslint
+
+
+C:\Users\Thevindu Kevin\Desktop\University\speakify\speakifyLK\components\quiz\quiz-play.tsx
+  23:10  error  'pending' is assigned a value but never used. Allowed unused vars must match /^_/u            @typescript-eslint/no-unused-vars
+  25:10  error  'userAnswer' is assigned a value but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+  26:10  error  'isAnswerSubmitted' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  27:10  error  'isCorrect' is assigned a value but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+
+✖ 4 problems (4 errors, 0 warnings)
+

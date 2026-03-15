@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { completeQuizSession, submitQuizAnswer } from "@/actions/quiz";
+import { completeQuizSession } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
 import { QuizCard } from "./quiz-card";
 
@@ -20,29 +20,16 @@ type QuizPlayProps = {
 
 export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswer, setUserAnswer] = useState("");
-  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
   const isCompleted = !!session.completedAt;
 
-  // Parse options if they exist (for MCQ questions)
-  // Options are stored as an array of { text: string, isCorrect: boolean }
-  const options =
-    currentQuestion?.options && Array.isArray(currentQuestion.options)
-      ? (currentQuestion.options as Array<{ text: string; isCorrect: boolean }>).map(
-          (opt) => opt.text
-        )
-      : null;
+
 
   const handleAnswerSubmitted = (correct: boolean) => {
-    setIsCorrect(correct);
-    setIsAnswerSubmitted(true);
-    
     if (correct) {
       toast.success("Correct!");
     } else {
@@ -64,9 +51,6 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       });
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setUserAnswer("");
-      setIsAnswerSubmitted(false);
-      setIsCorrect(null);
     }
   };
 
