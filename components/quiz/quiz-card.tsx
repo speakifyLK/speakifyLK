@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ChevronDown, ChevronUp, HelpCircle, Lightbulb } from "lucide-react";
+import { Info, ChevronDown, ChevronUp, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -26,8 +26,10 @@ const LANGUAGE_LABELS: Record<string, string> = {
 
 type QuizCardProps = {
   question: Question;
+  isLastQuestion?: boolean;
   /** Called after the user submits (so the parent can track progress) */
-  onAnswerSubmitted?: (isCorrect: boolean) => void;
+  onAnswerSubmittedAction?: (isCorrect: boolean) => void;
+  onNextAction?: () => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -202,51 +204,76 @@ const ExplanationPanel = ({
   explanation,
   isCorrect,
   correctAnswer,
+  userAnswer,
+  onGotIt,
 }: {
   explanation: string;
   isCorrect: boolean;
   correctAnswer: string;
+  userAnswer: string;
+  onGotIt: () => void;
 }) => {
   const [isOpen, setIsOpen] = useState(true);
 
+  if (isCorrect) {
+    return (
+      <div className="flex items-center gap-2 rounded-xl border-2 border-green-300 bg-green-50 p-4 font-semibold text-green-700">
+        <span className="text-lg">✓</span>
+        <span>Correct!</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
-      {/* Correct/Incorrect badge */}
-      <div
-        className={cn(
-          "flex items-center gap-2 rounded-xl border-2 p-4 font-semibold",
-          isCorrect
-            ? "border-green-300 bg-green-50 text-green-700"
-            : "border-rose-300 bg-rose-50 text-rose-700"
-        )}
-      >
-        <span className="text-lg">{isCorrect ? "✓" : "✗"}</span>
-        <span>{isCorrect ? "Correct!" : "Incorrect"}</span>
-        {!isCorrect && (
-          <span className="ml-auto text-sm font-normal text-neutral-600">
-            Answer: <strong className="text-neutral-800">{correctAnswer}</strong>
-          </span>
-        )}
-      </div>
-
       {/* Collapsible explanation */}
       {explanation && (
-        <div className="overflow-hidden rounded-xl border-2 border-sky-200 bg-sky-50">
-          <button
-            type="button"
+        <div className="overflow-hidden rounded-xl border-2 border-sky-300 bg-sky-50">
+          <div
+            className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-sky-800 transition-colors cursor-pointer hover:bg-sky-100"
             onClick={() => setIsOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-sky-700 transition-colors hover:bg-sky-100"
           >
             <span className="flex items-center gap-1.5">
-              <HelpCircle className="h-4 w-4" />
-              Explanation
+              <Info className="h-5 w-5" />
+              <span className="text-base">AI Explanation</span>
             </span>
-            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
+            {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </div>
 
           {isOpen && (
-            <div className="border-t border-sky-200 px-4 py-3 text-sm leading-relaxed text-sky-900">
-              {explanation}
+            <div className="border-t border-sky-200 px-4 py-4 text-sm leading-relaxed text-sky-900 space-y-4">
+              <div className="space-y-2 mb-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-neutral-700">Correct Answer:</span>
+                  <span className="rounded bg-green-100 px-2 py-1 font-medium text-green-700">
+                    {correctAnswer}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-neutral-700">Your Answer:</span>
+                  <span className="text-rose-600 line-through">
+                    {userAnswer}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t border-sky-200">
+                <p className="text-base">{explanation}</p>
+              </div>
+
+              <div className="pt-2 text-right">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => {
+                    setIsOpen(false);
+                    onGotIt();
+                  }} 
+                  className="bg-sky-500 hover:bg-sky-600 text-white font-semibold"
+                >
+                  Got it
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -259,10 +286,11 @@ const ExplanationPanel = ({
 // Main component
 // ---------------------------------------------------------------------------
 
-export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
+export const QuizCard = ({ question, isLastQuestion, onAnswerSubmittedAction, onNextAction }: QuizCardProps) => {
   const [userAnswer, setUserAnswer] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [explanationAcknowledged, setExplanationAcknowledged] = useState(false);
   const [pending, startTransition] = useTransition();
 
   // Reset local state whenever the question changes using useEffect
@@ -305,7 +333,10 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
         const result = await submitQuizAnswer(question.id, userAnswer.trim());
         setIsCorrect(result.isCorrect);
         setIsSubmitted(true);
-        onAnswerSubmitted?.(result.isCorrect);
+        if (result.isCorrect) {
+          setExplanationAcknowledged(true);
+        }
+        onAnswerSubmittedAction?.(result.isCorrect);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to submit answer.");
       }
@@ -355,19 +386,35 @@ export const QuizCard = ({ question, onAnswerSubmitted }: QuizCardProps) => {
           explanation={question.explanation ?? ""}
           isCorrect={isCorrect}
           correctAnswer={question.correctAnswer}
+          userAnswer={userAnswer}
+          onGotIt={() => setExplanationAcknowledged(true)}
         />
       )}
 
-      {/* ── Submit button ── */}
-      {!isSubmitted && (
+      {/* ── Action buttons ── */}
+      {!isSubmitted ? (
         <Button
           onClick={handleSubmit}
           disabled={pending || !userAnswer.trim()}
           variant="secondary"
           size="lg"
-          className="w-full"
+          className="w-full h-14 text-lg font-bold"
         >
           {pending ? "Submitting…" : "Submit Answer"}
+        </Button>
+      ) : (
+        <Button
+          onClick={onNextAction}
+          disabled={!isCorrect && !explanationAcknowledged}
+          size="lg"
+          className={cn(
+            "w-full h-14 text-lg font-bold transition-all",
+            !isCorrect && !explanationAcknowledged
+              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          )}
+        >
+          {isLastQuestion ? "Complete Quiz" : "Next Question"}
         </Button>
       )}
     </div>
