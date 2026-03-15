@@ -42,7 +42,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const handleAnswerSubmitted = (correct: boolean) => {
     setIsCorrect(correct);
     setIsAnswerSubmitted(true);
-    
+
     if (correct) {
       toast.success("Correct!");
     } else {
@@ -120,7 +120,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       </div>
 
       {/* Question using QuizCard */}
-      <QuizCard 
+      <QuizCard
         key={currentQuestion.id}
         question={currentQuestion}
         isLastQuestion={isLastQuestion}

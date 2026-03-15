@@ -1,13 +1,5 @@
 Formatting files:
-.github/workflows/ci.yml
-.github/workflows/format-check.yml
-.github/workflows/pr-validation.yml
-.github/workflows/sync-lockfiles.yml
-.github/workflows/update-readme.yml
-README.md
-[90m.github/workflows/ci.yml[39m 43ms (unchanged)
-[90m.github/workflows/format-check.yml[39m 13ms (unchanged)
-[90m.github/workflows/pr-validation.yml[39m 5ms (unchanged)
-[90m.github/workflows/sync-lockfiles.yml[39m 19ms (unchanged)
-[90m.github/workflows/update-readme.yml[39m 9ms (unchanged)
-README.md 90ms
+components/quiz/quiz-card.tsx
+components/quiz/quiz-play.tsx
+components/quiz/quiz-card.tsx 377ms
+components/quiz/quiz-play.tsx 40ms
