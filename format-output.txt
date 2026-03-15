@@ -1,0 +1,7 @@
+Formatting files:
+.github/workflows/ci.yml
+.github/workflows/format-check.yml
+.github/workflows/sync-lockfiles.yml
+[90m.github/workflows/ci.yml[39m 44ms (unchanged)
+[90m.github/workflows/format-check.yml[39m 14ms (unchanged)
+[90m.github/workflows/sync-lockfiles.yml[39m 14ms (unchanged)
