@@ -230,7 +230,7 @@ const ExplanationPanel = ({
       {explanation && (
         <div className="overflow-hidden rounded-xl border-2 border-sky-300 bg-sky-50">
           <div
-            className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-sky-800 transition-colors cursor-pointer hover:bg-sky-100"
+            className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-sm font-semibold text-sky-800 transition-colors hover:bg-sky-100"
             onClick={() => setIsOpen((prev) => !prev)}
           >
             <span className="flex items-center gap-1.5">
@@ -241,8 +241,8 @@ const ExplanationPanel = ({
           </div>
 
           {isOpen && (
-            <div className="border-t border-sky-200 px-4 py-4 text-sm leading-relaxed text-sky-900 space-y-4">
-              <div className="space-y-2 mb-4">
+            <div className="space-y-4 border-t border-sky-200 px-4 py-4 text-sm leading-relaxed text-sky-900">
+              <div className="mb-4 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-neutral-700">Correct Answer:</span>
                   <span className="rounded bg-green-100 px-2 py-1 font-medium text-green-700">
@@ -251,25 +251,23 @@ const ExplanationPanel = ({
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-neutral-700">Your Answer:</span>
-                  <span className="text-rose-600 line-through">
-                    {userAnswer}
-                  </span>
+                  <span className="text-rose-600 line-through">{userAnswer}</span>
                 </div>
               </div>
-              
-              <div className="pt-2 border-t border-sky-200">
+
+              <div className="border-t border-sky-200 pt-2">
                 <p className="text-base">{explanation}</p>
               </div>
 
               <div className="pt-2 text-right">
-                <Button 
-                  variant="default" 
-                  size="sm" 
+                <Button
+                  variant="default"
+                  size="sm"
                   onClick={() => {
                     setIsOpen(false);
                     onGotIt();
-                  }} 
-                  className="bg-sky-500 hover:bg-sky-600 text-white font-semibold"
+                  }}
+                  className="bg-sky-500 font-semibold text-white hover:bg-sky-600"
                 >
                   Got it
                 </Button>
@@ -286,7 +284,12 @@ const ExplanationPanel = ({
 // Main component
 // ---------------------------------------------------------------------------
 
-export const QuizCard = ({ question, isLastQuestion, onAnswerSubmittedAction, onNextAction }: QuizCardProps) => {
+export const QuizCard = ({
+  question,
+  isLastQuestion,
+  onAnswerSubmittedAction,
+  onNextAction,
+}: QuizCardProps) => {
   const [userAnswer, setUserAnswer] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -398,7 +401,7 @@ export const QuizCard = ({ question, isLastQuestion, onAnswerSubmittedAction, on
           disabled={pending || !userAnswer.trim()}
           variant="secondary"
           size="lg"
-          className="w-full h-14 text-lg font-bold"
+          className="h-14 w-full text-lg font-bold"
         >
           {pending ? "Submitting…" : "Submit Answer"}
         </Button>
@@ -408,10 +411,10 @@ export const QuizCard = ({ question, isLastQuestion, onAnswerSubmittedAction, on
           disabled={!isCorrect && !explanationAcknowledged}
           size="lg"
           className={cn(
-            "w-full h-14 text-lg font-bold transition-all",
+            "h-14 w-full text-lg font-bold transition-all",
             !isCorrect && !explanationAcknowledged
-              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
+              ? "cursor-not-allowed bg-slate-200 text-slate-400"
+              : "bg-blue-600 text-white hover:bg-blue-700"
           )}
         >
           {isLastQuestion ? "Complete Quiz" : "Next Question"}
