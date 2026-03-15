@@ -1,7 +1,0 @@
-Formatting files:
-README.md
-components/quiz/quiz-card.tsx
-components/quiz/quiz-play.tsx
-README.md 115ms
-[90mcomponents/quiz/quiz-card.tsx[39m 440ms (unchanged)
-components/quiz/quiz-play.tsx 37ms

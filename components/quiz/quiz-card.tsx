@@ -29,7 +29,7 @@ type QuizCardProps = {
   isLastQuestion?: boolean;
   /** Called after the user submits (so the parent can track progress) */
   onAnswerSubmittedAction?: (isCorrect: boolean) => void;
-  onNextAction: () => void;
+  onNextAction: () => void | Promise<void>;
 };
 
 // ---------------------------------------------------------------------------
@@ -233,6 +233,8 @@ const ExplanationPanel = ({
             type="button"
             className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-sm font-semibold text-sky-800 transition-colors hover:bg-sky-100"
             onClick={() => setIsOpen((prev) => !prev)}
+            aria-expanded={isOpen}
+            aria-controls="ai-explanation-panel"
           >
             <span className="flex items-center gap-1.5">
               <Info className="h-5 w-5" />
@@ -242,7 +244,10 @@ const ExplanationPanel = ({
           </button>
 
           {isOpen && (
-            <div className="space-y-4 border-t border-sky-200 px-4 py-4 text-sm leading-relaxed text-sky-900">
+            <div
+              id="ai-explanation-panel"
+              className="space-y-4 border-t border-sky-200 px-4 py-4 text-sm leading-relaxed text-sky-900"
+            >
               <div className="mb-4 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-neutral-700">Correct Answer:</span>
