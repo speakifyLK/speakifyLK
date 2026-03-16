@@ -75,31 +75,23 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
       {/* Stats summary card */}
       <div className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 text-sm md:grid-cols-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-neutral-500">
-            Total quizzes
-          </p>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Total quizzes</p>
           <p className="text-2xl font-semibold text-neutral-900">{stats.totalQuizzes}</p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-neutral-500">
-            Average score
-          </p>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Average score</p>
           <p className="text-2xl font-semibold text-neutral-900">
             {Math.round(stats.averageScore)}%
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-neutral-500">
-            Best topic
-          </p>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Best topic</p>
           <p className="truncate text-sm font-semibold text-neutral-900">
             {stats.favouriteTopic ?? "—"}
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-neutral-500">
-            Trend
-          </p>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Trend</p>
           <p className="text-sm font-semibold text-neutral-900">
             {trendLabel[stats.improvementTrend]}
           </p>
@@ -130,9 +122,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
                   className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-neutral-900">
-                      {item.topic}
-                    </p>
+                    <p className="truncate text-sm font-semibold text-neutral-900">{item.topic}</p>
                     <p className="mt-0.5 text-xs text-neutral-500">
                       <span className="capitalize">{item.difficulty}</span> ·{" "}
                       {item.startedAt ? format(new Date(item.startedAt), "MMM d, yyyy") : "—"}
@@ -146,9 +136,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
                           typeof item.score === "number"
                             ? item.score
                             : item.totalQuestions > 0
-                              ? Math.round(
-                                  (item.correctAnswers / item.totalQuestions) * 100
-                                )
+                              ? Math.round((item.correctAnswers / item.totalQuestions) * 100)
                               : 0
                         )
                       )}
@@ -156,9 +144,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
                       {typeof item.score === "number"
                         ? `${Math.round(item.score)}%`
                         : item.totalQuestions > 0
-                          ? `${Math.round(
-                              (item.correctAnswers / item.totalQuestions) * 100
-                            )}%`
+                          ? `${Math.round((item.correctAnswers / item.totalQuestions) * 100)}%`
                           : "0%"}
                     </span>
                   </div>
@@ -191,9 +177,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="uppercase tracking-wide text-neutral-500">
-                Difficulty
-              </span>
+              <span className="uppercase tracking-wide text-neutral-500">Difficulty</span>
               <span className="text-sm font-semibold capitalize text-neutral-900">
                 {selectedSession?.difficulty ?? "—"}
               </span>
@@ -225,10 +209,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
                   const isCorrect = q.isCorrect === true;
                   const userAnswer = q.userAnswer ?? "No answer";
                   return (
-                    <div
-                      key={q.id}
-                      className="rounded-lg border border-slate-200 bg-white p-3"
-                    >
+                    <div key={q.id} className="rounded-lg border border-slate-200 bg-white p-3">
                       <div className="mb-1 flex items-start justify-between gap-2">
                         <p className="font-semibold text-neutral-900">
                           {index + 1}. {q.question}
@@ -253,8 +234,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
                         Your answer: <span className="font-semibold">{userAnswer}</span>
                       </p>
                       <p className="mt-1 text-xs text-neutral-700">
-                        Correct answer:{" "}
-                        <span className="font-semibold">{q.correctAnswer}</span>
+                        Correct answer: <span className="font-semibold">{q.correctAnswer}</span>
                       </p>
                       {q.explanation && (
                         <p className="mt-1 text-xs text-neutral-500">
@@ -278,5 +258,3 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
     </div>
   );
 };
-
-

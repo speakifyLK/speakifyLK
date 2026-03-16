@@ -130,13 +130,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   }, [currentQuestion, isAnswerSubmitted, pending, userAnswer]);
 
   if (showResults) {
-    return (
-      <QuizResult
-        session={session}
-        backHref={backHref}
-        localCorrectAnswers={score}
-      />
-    );
+    return <QuizResult session={session} backHref={backHref} localCorrectAnswers={score} />;
   }
 
   if (!currentQuestion) {

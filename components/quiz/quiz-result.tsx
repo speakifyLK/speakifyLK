@@ -75,8 +75,7 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
         setHasCompleted(true);
       } catch (error) {
         // If session is already completed, ignore; otherwise show a toast
-        const message =
-          error instanceof Error ? error.message : "Failed to finalise quiz session.";
+        const message = error instanceof Error ? error.message : "Failed to finalise quiz session.";
         if (!message.toLowerCase().includes("already completed")) {
           toast.error(message);
         }
@@ -136,7 +135,8 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
             value={scorePercentage}
             text={`${scorePercentage}%`}
             styles={buildStyles({
-              pathColor: scorePercentage >= 80 ? "#22c55e" : scorePercentage >= 50 ? "#eab308" : "#ef4444",
+              pathColor:
+                scorePercentage >= 80 ? "#22c55e" : scorePercentage >= 50 ? "#eab308" : "#ef4444",
               trailColor: "#e5e7eb",
               textColor: "#111827",
               textSize: "18px",
@@ -159,9 +159,7 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
       <div className="grid gap-3 rounded-xl border-2 border-slate-200 bg-slate-50 p-4 text-sm md:grid-cols-4">
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-neutral-500">Questions</span>
-          <span className="text-lg font-semibold text-neutral-800">
-            {totalQuestions || "—"}
-          </span>
+          <span className="text-lg font-semibold text-neutral-800">{totalQuestions || "—"}</span>
         </div>
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-neutral-500">Correct</span>
@@ -200,29 +198,20 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
                     </p>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                        isCorrect
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-rose-100 text-rose-700"
+                        isCorrect ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
                       }`}
                     >
                       {isCorrect ? "Correct" : "Incorrect"}
                     </span>
                   </div>
-                  <p
-                    className={`mt-1 text-xs ${
-                      isCorrect ? "text-emerald-700" : "text-rose-700"
-                    }`}
-                  >
+                  <p className={`mt-1 text-xs ${isCorrect ? "text-emerald-700" : "text-rose-700"}`}>
                     Your answer: <span className="font-semibold">{userAnswer}</span>
                   </p>
                   <p className="mt-1 text-xs text-neutral-700">
-                    Correct answer:{" "}
-                    <span className="font-semibold">{q.correctAnswer}</span>
+                    Correct answer: <span className="font-semibold">{q.correctAnswer}</span>
                   </p>
                   {q.explanation && (
-                    <p className="mt-1 text-xs text-neutral-500">
-                      Explanation: {q.explanation}
-                    </p>
+                    <p className="mt-1 text-xs text-neutral-500">Explanation: {q.explanation}</p>
                   )}
                 </div>
               );
@@ -242,25 +231,13 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
         >
           Try Again
         </Button>
-        <Button
-          variant="secondary"
-          size="lg"
-          className="flex-1"
-          onClick={handleNewQuiz}
-        >
+        <Button variant="secondary" size="lg" className="flex-1" onClick={handleNewQuiz}>
           New Quiz
         </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="flex-1"
-          onClick={handleShareResults}
-        >
+        <Button variant="outline" size="lg" className="flex-1" onClick={handleShareResults}>
           {hasCopied ? "Copied!" : "Share Results"}
         </Button>
       </div>
     </div>
   );
 };
-
-

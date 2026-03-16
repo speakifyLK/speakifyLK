@@ -43,8 +43,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
   const unitsPromise = !sessionId || isNaN(sessionId) ? getUnitsForQuiz() : Promise.resolve([]);
   const quizHistoryPromise =
     !sessionId || isNaN(sessionId) ? getQuizHistory() : Promise.resolve([]);
-  const quizStatsPromise =
-    !sessionId || isNaN(sessionId) ? getQuizStats() : Promise.resolve(null);
+  const quizStatsPromise = !sessionId || isNaN(sessionId) ? getQuizStats() : Promise.resolve(null);
 
   const [userProgress, userSubscription, session, units, quizHistory, quizStats] =
     await Promise.all([
