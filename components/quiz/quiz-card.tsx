@@ -29,7 +29,7 @@ type QuizCardProps = {
   isLastQuestion?: boolean;
   /** Called after the user submits (so the parent can track progress) */
   onAnswerSubmittedAction?: (isCorrect: boolean) => void;
-  onNextAction: () => Promise<void>;
+  onNextAction: () => void | Promise<void>;
 };
 
 // ---------------------------------------------------------------------------
@@ -360,7 +360,7 @@ export const QuizCard = ({
     }
     setIsNextPending(true);
     try {
-      await onNextAction();
+      await Promise.resolve(onNextAction());
     } finally {
       setIsNextPending(false);
     }
