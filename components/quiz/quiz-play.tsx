@@ -75,7 +75,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isLastQuestion) {
       // Complete the quiz
       try {
