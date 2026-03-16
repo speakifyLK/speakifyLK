@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { completeQuizSession, submitQuizAnswer } from "@/actions/quiz";
+import { submitQuizAnswer } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
 import { QuizTimer } from "./quiz-timer";
 import { QuizResult } from "./quiz-result";

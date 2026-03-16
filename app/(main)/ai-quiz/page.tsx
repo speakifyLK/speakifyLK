@@ -66,7 +66,6 @@ const AIQuizPage = async ({ searchParams }: Props) => {
   }
 
   let mainContent;
-  let sidebarStats = null;
 
   if (session) {
     mainContent = <QuizPlay session={session} backHref="/ai-quiz" />;
@@ -100,7 +99,6 @@ const AIQuizPage = async ({ searchParams }: Props) => {
         />
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />
-        {sidebarStats}
       </StickyWrapper>
       <FeedWrapper>
         <Header title="AI Quiz" />

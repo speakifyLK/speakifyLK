@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Confetti from "react-confetti";
@@ -9,7 +9,7 @@ import "react-circular-progressbar/dist/styles.css";
 
 import { Button } from "@/components/ui/button";
 import { completeQuizSession } from "@/actions/quiz";
-import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
+import type { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
 
 type SessionWithQuestions = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
@@ -41,6 +41,7 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
   const [hasCompleted, setHasCompleted] = useState(!!session.completedAt);
   const [isCompleting, setIsCompleting] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const totalQuestions = session.totalQuestions || session.questions.length || 0;
   const correctAnswers = localCorrectAnswers ?? session.correctAnswers ?? 0;
@@ -68,24 +69,38 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
   useEffect(() => {
     if (hasCompleted || !session.id) return;
 
+    let isMounted = true;
+
     const run = async () => {
       try {
         setIsCompleting(true);
         await completeQuizSession(session.id);
+        if (!isMounted) return;
         setHasCompleted(true);
+        router.refresh();
       } catch (error) {
+        if (!isMounted) return;
         // If session is already completed, ignore; otherwise show a toast
         const message = error instanceof Error ? error.message : "Failed to finalise quiz session.";
         if (!message.toLowerCase().includes("already completed")) {
           toast.error(message);
         }
       } finally {
-        setIsCompleting(false);
+        if (isMounted) {
+          setIsCompleting(false);
+        }
       }
     };
 
     void run();
-  }, [hasCompleted, session.id]);
+
+    return () => {
+      isMounted = false;
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, [hasCompleted, session.id, router]);
 
   const handleTryAgain = () => {
     // Start a new quiz with same topic & difficulty by navigating back to config
@@ -102,7 +117,12 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
       await navigator.clipboard.writeText(shareText);
       setHasCopied(true);
       toast.success("Results copied to clipboard!");
-      setTimeout(() => setHasCopied(false), 2000);
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
     } catch {
       toast.error("Unable to copy to clipboard.");
     }
@@ -235,6 +255,7 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
           New Quiz
         </Button>
         <Button variant="outline" size="lg" className="flex-1" onClick={handleShareResults}>
+        <Button variant="ghost" size="lg" className="flex-1" onClick={handleShareResults}>
           {hasCopied ? "Copied!" : "Share Results"}
         </Button>
       </div>

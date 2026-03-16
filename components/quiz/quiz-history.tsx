@@ -12,8 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getQuizSessionWithQuestions } from "@/db/queries";
-import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
+import type { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 type QuizHistoryItem = Pick<
@@ -58,9 +57,10 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
   const handleOpenSession = (sessionId: number) => {
     startTransition(async () => {
       try {
-        const session = await getQuizSessionWithQuestions(sessionId);
-        if (!session) return;
-        setSelectedSession(session as SessionWithQuestions);
+        const res = await fetch(`/api/quiz/session?sessionId=${sessionId}`);
+        if (!res.ok) return;
+        const session = (await res.json()) as SessionWithQuestions;
+        setSelectedSession(session);
         setOpen(true);
       } catch {
         // Silent fail; could add toast if desired
@@ -249,7 +249,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
           </ScrollArea>
 
           <div className="mt-3 flex justify-end">
-            <Button size="sm" variant="outline" onClick={() => setOpen(false)}>
+            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
               Close
             </Button>
           </div>
