@@ -360,7 +360,7 @@ export const QuizCard = ({
     }
     setIsNextPending(true);
     try {
-      await onNextAction();
+      await Promise.resolve(onNextAction());
     } finally {
       setIsNextPending(false);
     }
