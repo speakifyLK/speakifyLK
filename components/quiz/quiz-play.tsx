@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { completeQuizSession } from "@/actions/quiz";
+import { completeQuizSession, submitQuizAnswer } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
 import { QuizTimer } from "./quiz-timer";
 
@@ -20,6 +20,7 @@ type QuizPlayProps = {
 
 export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
