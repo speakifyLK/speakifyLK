@@ -108,6 +108,7 @@ speakify/
   |- bun.lock
   |- components.json
   |- constants.ts
+  |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
   |- eslint.config.mjs
