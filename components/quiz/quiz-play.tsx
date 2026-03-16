@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { completeQuizSession, submitQuizAnswer } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
 import { QuizTimer } from "./quiz-timer";
+import { QuizResult } from "./quiz-result";
 
 type Session = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
@@ -29,10 +30,10 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState(session.correctAnswers || 0);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [showResults, setShowResults] = useState(!!session.completedAt);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
-  const isCompleted = !!session.completedAt;
 
   // Parse options if they exist (for MCQ questions)
   // Options are stored as an array of { text: string, isCorrect: boolean }
@@ -77,14 +78,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
   const handleNext = async () => {
     if (isLastQuestion) {
-      // Complete the quiz
-      try {
-        await completeQuizSession(session.id);
-        toast.success("Quiz completed!");
-        router.push(backHref || "/quiz");
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
-      }
+      // Show result screen; completion and XP will be handled there
+      setShowResults(true);
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
       setUserAnswer("");
@@ -134,25 +129,13 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     });
   }, [currentQuestion, isAnswerSubmitted, pending, userAnswer]);
 
-  if (isCompleted) {
-    const scorePercentage =
-      session.totalQuestions > 0
-        ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
-        : 0;
-
+  if (showResults) {
     return (
-      <div className="flex flex-col items-center justify-center gap-6 p-6">
-        <h2 className="text-3xl font-bold text-neutral-700">Quiz Completed!</h2>
-        <div className="text-center">
-          <p className="text-xl text-neutral-600">
-            Score: {session.correctAnswers} / {session.totalQuestions}
-          </p>
-          <p className="text-2xl font-bold text-green-600">{scorePercentage}%</p>
-        </div>
-        <Button onClick={() => router.push(backHref || "/quiz")} size="lg">
-          Start New Quiz
-        </Button>
-      </div>
+      <QuizResult
+        session={session}
+        backHref={backHref}
+        localCorrectAnswers={score}
+      />
     );
   }
 
