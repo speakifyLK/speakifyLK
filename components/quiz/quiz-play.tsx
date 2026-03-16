@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { completeQuizSession } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
 import { QuizTimer } from "./quiz-timer";
-import { QuizCard } from "./quiz-card";
 
 type Session = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
