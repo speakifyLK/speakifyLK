@@ -37,38 +37,26 @@ export const QuizTimer = ({
     onTimeUpRef.current = onTimeUp;
   }, [onTimeUp]);
 
-  // Countdown logic with reset handling
+  // Reset timer when difficulty or resetKey changes
   useEffect(() => {
-    // Reset timer when question changes (resetKey changes)
-    if (prevResetKeyRef.current !== resetKey) {
+    if (prevResetKeyRef.current !== resetKey || timeRemaining === 0) {
       prevResetKeyRef.current = resetKey;
-      // Clear any existing interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      // Reset timer state
       setTimeRemaining(timeLimit);
     }
+    // We intentionally omit `timeRemaining` from deps to avoid cascading updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetKey, timeLimit]);
 
+  // Countdown logic with cleanup
+  useEffect(() => {
     if (isAnswerSubmitted) {
       // Stop timer when answer is submitted
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
       return;
     }
 
-    // Start countdown
     intervalRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          // Time's up!
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
           onTimeUpRef.current?.();
           return 0;
         }
@@ -82,7 +70,7 @@ export const QuizTimer = ({
         intervalRef.current = null;
       }
     };
-  }, [isAnswerSubmitted, resetKey, timeLimit]);
+  }, [isAnswerSubmitted]);
 
   // Calculate progress percentage (0 to 100)
   const progress = (timeRemaining / timeLimit) * 100;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -65,7 +65,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           setScore((prev) => prev + 1);
           toast.success("Correct!");
         } else {
-          toast.error("Incorrect. Try again!");
+          toast.error("Incorrect answer.");
         }
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to submit answer");
@@ -94,7 +94,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     }
   };
 
-  const handleTimeUp = () => {
+  const handleTimeUp = useCallback(() => {
     // Don't do anything if answer is already submitted or a submission is in-flight
     if (isAnswerSubmitted || pending || !currentQuestion) return;
 
@@ -106,6 +106,13 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
     // Auto-submit whatever answer they have (may be empty on timeout)
     const answerToSubmit = userAnswer.trim();
+
+    // If no answer was provided, handle timeout locally as incorrect without hitting the server
+    if (!answerToSubmit) {
+      setIsCorrect(false);
+      toast.error("Time's up! No answer submitted.");
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -125,7 +132,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         toast.error(error instanceof Error ? error.message : "Failed to submit answer");
       }
     });
-  };
+  }, [currentQuestion, isAnswerSubmitted, pending, userAnswer]);
 
   if (isCompleted) {
     const scorePercentage =
@@ -149,18 +156,6 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     );
   }
 
-  const timeUpHandlerRef = useRef(handleTimeUp);
-
-  useEffect(() => {
-    timeUpHandlerRef.current = handleTimeUp;
-  }, [handleTimeUp]);
-
-  const stableOnTimeUp = useCallback(() => {
-    if (timeUpHandlerRef.current) {
-      timeUpHandlerRef.current();
-    }
-  }, []);
-
   if (!currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-6">
@@ -178,7 +173,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         score={score}
         totalQuestions={session.totalQuestions}
         isAnswerSubmitted={isAnswerSubmitted}
-        onTimeUp={stableOnTimeUp}
+        onTimeUp={handleTimeUp}
         resetKey={currentQuestionIndex}
       />
 
