@@ -34,6 +34,7 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
+
 ```bash
 speakify/
   |- actions/
@@ -108,6 +109,7 @@ speakify/
   |- bun.lock
   |- components.json
   |- constants.ts
+  |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
   |- eslint.config.mjs
@@ -120,6 +122,7 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
+
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -250,6 +253,7 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
+
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.45.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
@@ -295,7 +299,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [tsx](https://www.npmjs.com/package/tsx): ^4.21.0
 - [typescript](https://www.npmjs.com/package/typescript): ^5
 - [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.57.0
-- [zustand](https://www.npmjs.com/package/zustand): ^5.0.11
+- [zustand](https://www.npmjs.com/package/zustand): ^5.0.12
 
 <!--- DEPENDENCIES_END --->
 
