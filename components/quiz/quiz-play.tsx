@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { completeQuizSession, submitQuizAnswer } from "@/actions/quiz";
+import { completeQuizSession } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
 import { QuizTimer } from "./quiz-timer";
+import { QuizCard } from "./quiz-card";
 
 type Session = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
@@ -20,7 +21,7 @@ type QuizPlayProps = {
 
 export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
@@ -77,15 +78,13 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const handleNext = () => {
     if (isLastQuestion) {
       // Complete the quiz
-      startTransition(async () => {
-        try {
-          await completeQuizSession(session.id);
-          toast.success("Quiz completed!");
-          router.push(backHref || "/quiz");
-        } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
-        }
-      });
+      try {
+        await completeQuizSession(session.id);
+        toast.success("Quiz completed!");
+        router.push(backHref || "/quiz");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Failed to complete quiz");
+      }
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
       setUserAnswer("");
@@ -93,6 +92,39 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       setIsCorrect(null);
       setIsTimeUp(false);
     }
+  };
+
+  const handleTimeUp = () => {
+    // Don't do anything if answer is already submitted or a submission is in-flight
+    if (isAnswerSubmitted || pending || !currentQuestion) return;
+
+    // Lock submission immediately to avoid races with manual submit
+    setIsAnswerSubmitted(true);
+
+    // Set time up state to disable inputs
+    setIsTimeUp(true);
+
+    // Auto-submit whatever answer they have (may be empty on timeout)
+    const answerToSubmit = userAnswer.trim();
+
+    startTransition(async () => {
+      try {
+        const result = await submitQuizAnswer(currentQuestion.id, answerToSubmit);
+        setIsCorrect(result.isCorrect);
+
+        if (result.isCorrect) {
+          setScore((prev) => prev + 1);
+          toast.success("Time's up! Correct answer!");
+        } else {
+          toast.error("Time's up! Incorrect answer.");
+        }
+      } catch (error) {
+        // Reset time-up state so the user can try again after a failed auto-submit
+        setIsTimeUp(false);
+        setIsAnswerSubmitted(false);
+        toast.error(error instanceof Error ? error.message : "Failed to submit answer");
+      }
+    });
   };
 
   const handleTimeUp = () => {

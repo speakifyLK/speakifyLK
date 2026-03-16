@@ -1,5 +1,0 @@
-Formatting files:
-components/quiz/quiz-play.tsx
-components/quiz/quiz-timer.tsx
-[90mcomponents/quiz/quiz-play.tsx[39m 383ms (unchanged)
-[90mcomponents/quiz/quiz-timer.tsx[39m 40ms (unchanged)

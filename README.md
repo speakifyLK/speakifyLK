@@ -111,7 +111,6 @@ speakify/
   |- drizzle.config.ts
   |- environment.d.ts
   |- eslint.config.mjs
-  |- format-output.txt
   |- middleware.ts
   |- next.config.ts
   |- package-lock.json
