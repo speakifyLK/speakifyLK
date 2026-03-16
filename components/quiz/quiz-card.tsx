@@ -360,21 +360,7 @@ export const QuizCard = ({
     }
     setIsNextPending(true);
     try {
-      const result = onNextAction();
-      if (
-        result &&
-        typeof result === "object" &&
-        "then" in result &&
-        typeof (result as { then: unknown }).then === "function"
-      ) {
-        await result;
-      } else {
-        if (process.env.NODE_ENV !== "production") {
-          console.warn(
-            "[QuizCard] onNextAction should return a Promise that resolves only after navigation/completion finishes."
-          );
-        }
-      }
+      await onNextAction();
     } finally {
       setIsNextPending(false);
     }
