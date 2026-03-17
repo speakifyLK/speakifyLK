@@ -34,12 +34,14 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const marker = '<!-- ci-typecheck -->';
             let output = fs.readFileSync('tsc-output.txt', 'utf8').trim();
             if (output.length > 3000) output = output.slice(0, 3000) + '\n... (truncated)';
             output = output.replace(/```/g, '` ` `');
 
             const sha = context.sha.slice(0, 7);
             const body = [
+              marker,
               '## TypeScript Check Failed',
               '',
               `Commit: \`${sha}\``,
@@ -58,12 +60,28 @@ jobs:
               '**How to fix:** Run `bunx tsc --noEmit` locally to see all errors and fix them.'
             ].join('\n');
 
-            await github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
+              issue_number: context.issue.number
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Fail if typecheck failed
         if: steps.typecheck.outcome == 'failure'
@@ -94,12 +112,14 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const marker = '<!-- ci-lint -->';
             let output = fs.readFileSync('lint-output.txt', 'utf8').trim();
             if (output.length > 3000) output = output.slice(0, 3000) + '\n... (truncated)';
             output = output.replace(/```/g, '` ` `');
 
             const sha = context.sha.slice(0, 7);
             const body = [
+              marker,
               '## ESLint Check Failed',
               '',
               `Commit: \`${sha}\``,
@@ -118,12 +138,28 @@ jobs:
               '**How to fix:** Run `bun run lint` locally to see all errors. Many can be auto-fixed with `bun run lint --fix`.'
             ].join('\n');
 
-            await github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
+              issue_number: context.issue.number
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Fail if lint failed
         if: steps.lint.outcome == 'failure'
@@ -168,12 +204,14 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const marker = '<!-- ci-build -->';
             let output = fs.readFileSync('build-output.txt', 'utf8').trim();
             if (output.length > 3000) output = '... (truncated)\n' + output.slice(-3000);
             output = output.replace(/```/g, '` ` `');
 
             const sha = context.sha.slice(0, 7);
             const body = [
+              marker,
               '## Build Failed',
               '',
               `Commit: \`${sha}\``,
@@ -192,12 +230,28 @@ jobs:
               '**How to fix:** Run `bun run build` locally to reproduce and fix the errors.'
             ].join('\n');
 
-            await github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
+              issue_number: context.issue.number
             });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Fail if build failed
         if: steps.build.outcome == 'failure'
