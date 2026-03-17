@@ -99,7 +99,7 @@ export const getOrCreateConversation = async () => {
   });
 
   if (existingConversation) {
-    revalidatePath("/chat");
+    //revalidatePath("/chat");
     return existingConversation.id;
   }
 
