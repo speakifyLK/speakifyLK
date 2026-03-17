@@ -153,9 +153,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 
-import { 
-  getUserProgress 
-} from "@/db/queries";
+import { getUserProgress } from "@/db/queries";
 
 import { getOrCreateConversation, getMessages } from "@/actions/chat";
 
@@ -168,10 +166,7 @@ const ChatPage = async () => {
     redirect("/sign-in");
   }
 
-  const [
-    conversationId,
-    userProgress,
-  ] = await Promise.all([
+  const [conversationId, userProgress] = await Promise.all([
     getOrCreateConversation(),
     getUserProgress(),
   ]);
@@ -189,13 +184,13 @@ const ChatPage = async () => {
   const initialMessages = await getMessages(conversationId);
 
   return (
-    <ChatClient 
-      initialMessages={initialMessages.map(msg => ({
+    <ChatClient
+      initialMessages={initialMessages.map((msg) => ({
         ...msg,
         // Ensure timestamp is a Date object for the client
-        timestamp: new Date(msg.timestamp) 
+        timestamp: new Date(msg.timestamp),
       }))}
-      conversationId={conversationId} 
+      conversationId={conversationId}
       userProgress={userProgress}
     />
   );

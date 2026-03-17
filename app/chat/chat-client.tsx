@@ -15,13 +15,9 @@ interface ChatClientProps {
   }[];
   conversationId: number;
   userProgress: any;
-};
+}
 
-export const ChatClient = ({
-  initialMessages,
-  conversationId,
-  userProgress,
-}: ChatClientProps) => {
+export const ChatClient = ({ initialMessages, conversationId, userProgress }: ChatClientProps) => {
   const [messages, setMessages] = useState(initialMessages);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -29,10 +25,7 @@ export const ChatClient = ({
     setIsGenerating(true);
 
     // Add a placeholder assistant message for the stream to fill
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: "", timestamp: new Date() },
-    ]);
+    setMessages((prev) => [...prev, { role: "assistant", content: "", timestamp: new Date() }]);
 
     try {
       const response = await fetch("/api/chat", {
@@ -96,36 +89,33 @@ export const ChatClient = ({
   }, []);
 
   // chat-client.tsx — updated handleSendMessage
-const handleSendMessage = async (text: string) => {
-  if (!conversationId || isGenerating) return;
+  const handleSendMessage = async (text: string) => {
+    if (!conversationId || isGenerating) return;
 
-  if (userProgress && userProgress.hearts === 0 && !userProgress.subscription) {
-    toast.error("You have no hearts left!", {
-      description: "Visit the shop to refill your hearts and continue practicing.",
-    });
-    return;
-  }
+    if (userProgress && userProgress.hearts === 0 && !userProgress.subscription) {
+      toast.error("You have no hearts left!", {
+        description: "Visit the shop to refill your hearts and continue practicing.",
+      });
+      return;
+    }
 
-  // Optimistically add user message to UI
-  const userMsg = { 
-    role: "user" as const, 
-    content: text, 
-    timestamp: new Date() 
+    // Optimistically add user message to UI
+    const userMsg = {
+      role: "user" as const,
+      content: text,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+
+    // Stream AI response (route.ts saves user message + assistant message)
+    await startStreaming(conversationId, text);
   };
-  setMessages((prev) => [...prev, userMsg]);
-
-  // Stream AI response (route.ts saves user message + assistant message)
-  await startStreaming(conversationId, text);
-};
 
   return (
     <div className="mx-auto flex h-[calc(100vh-40px)] max-w-4xl flex-col overflow-hidden px-4 pb-0 pt-4">
       <h1 className="mb-2 text-center text-2xl font-bold">AI Sinhala Tutor</h1>
 
-      <ChatWindow 
-        isEmpty={messages.length === 0} 
-        isTyping={isGenerating}
-      >
+      <ChatWindow isEmpty={messages.length === 0} isTyping={isGenerating}>
         <div className="flex flex-col gap-y-2">
           {messages.map((msg, index) => (
             <ChatBubble
@@ -139,10 +129,7 @@ const handleSendMessage = async (text: string) => {
       </ChatWindow>
 
       <div className="mt-auto">
-        <ChatInput 
-          onSend={handleSendMessage} 
-          isLoading={isGenerating} 
-        />
+        <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
       </div>
     </div>
   );
