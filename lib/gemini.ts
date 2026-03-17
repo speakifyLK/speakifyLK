@@ -30,7 +30,7 @@ export const safetySettings = [
 export const generationConfig = {
   temperature: 0.7,
   topP: 0.9,
-  maxOutputTokens: 1024,
+  maxOutputTokens: 8192,
 };
 
 if (!process.env.GEMINI_API_KEY) {
