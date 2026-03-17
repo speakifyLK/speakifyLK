@@ -33,6 +33,15 @@ export const generationConfig = {
   maxOutputTokens: 1024,
 };
 
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error(
+    "GEMINI_API_KEY environment variable is not set. " +
+      "Add it to your .env or .env.local file.\n" +
+      "Get your API key from: https://aistudio.google.com/apikey (Gemini API) " +
+      "or https://console.cloud.google.com/ (Vertex AI)"
+  );
+}
+
 if (!process.env.GEMINI_MODEL) {
   throw new Error(
     "GEMINI_MODEL environment variable is not set. " +
@@ -56,17 +65,7 @@ let _ai: GoogleGenAI | null = null;
 
 function getOrCreateClient(): GoogleGenAI {
   if (!_ai) {
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error(
-        "GEMINI_API_KEY environment variable is not set. " +
-          "Add it to your .env or .env.local file.\n" +
-          "Get your API key from: https://aistudio.google.com/apikey (Gemini API) " +
-          "or https://console.cloud.google.com/ (Vertex AI)"
-      );
-    }
-
+    const apiKey = process.env.GEMINI_API_KEY!;
     const useVertexAI = process.env.GOOGLE_GENAI_USE_VERTEXAI === "true";
 
     if (useVertexAI) {

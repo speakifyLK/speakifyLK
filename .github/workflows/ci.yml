@@ -146,6 +146,7 @@ jobs:
       NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
       CLERK_ADMIN_IDS: ${{ secrets.CLERK_ADMIN_IDS }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
