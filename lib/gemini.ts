@@ -33,7 +33,7 @@ export const generationConfig = {
   maxOutputTokens: 1024,
 };
 
-export const MODEL_ID = "gemini-2.5-flash";
+export const MODEL_ID = process.env.GEMINI_MODEL || "gemini-3.1-pro-preview";
 
 /**
  * Lazily initialises and returns the GoogleGenAI client.
