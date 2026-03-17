@@ -44,6 +44,27 @@ jobs:
               console.log('PR title references Jira issue: ' + jiraKey);
             }
 
+      - name: Delete comment if title is valid
+        if: steps.validate_title.outputs.valid == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const marker = '<!-- pr-title-validation-comment -->';
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id
+              });
+              console.log('Deleted stale PR title validation comment');
+            }
+
       - name: Comment on PR if title invalid
         if: failure() && steps.validate_title.outputs.valid == 'false'
         uses: actions/github-script@v8
