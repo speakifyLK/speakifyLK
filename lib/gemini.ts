@@ -33,7 +33,14 @@ export const generationConfig = {
   maxOutputTokens: 1024,
 };
 
-export const MODEL_ID = process.env.GEMINI_MODEL || "gemini-3.1-pro-preview";
+if (!process.env.GEMINI_MODEL) {
+  throw new Error(
+    "GEMINI_MODEL environment variable is not set. " +
+      "Add it to your .env or .env.local file (e.g. GEMINI_MODEL=gemini-2.5-flash)."
+  );
+}
+
+export const MODEL_ID = process.env.GEMINI_MODEL;
 
 /**
  * Lazily initialises and returns the GoogleGenAI client.
