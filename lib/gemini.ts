@@ -45,7 +45,7 @@ if (!process.env.GEMINI_API_KEY) {
 if (!process.env.GEMINI_MODEL) {
   throw new Error(
     "GEMINI_MODEL environment variable is not set. " +
-      "Add it to your .env or .env.local file (e.g. GEMINI_MODEL=gemini-2.5-flash)."
+      "Add it to your .env or .env.local file (e.g. GEMINI_MODEL=gemini-3.1-flash-lite-preview)."
   );
 }
 
