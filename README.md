@@ -165,8 +165,11 @@ CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # gemini ai api key (works with both Google AI Studio and Vertex AI Express)
 GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-# set to 'true' to use Vertex AI mode instead of Gemini Developer API — optional
-# GOOGLE_GENAI_USE_VERTEXAI=true
+# gemini model id (gemini-3.1-pro-preview / gemini-3.1-flash-lite-preview)
+GEMINI_MODEL=gemini-3.1-pro-flash-lite-preview
+
+# set to 'true' to use Vertex AI mode instead of Gemini Developer API
+GOOGLE_GENAI_USE_VERTEXAI=true
 
 # set to '1' to disable safety filters (BLOCK_NONE) — optional
 # GEMINI_UNSAFE_MODE=1
