@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
+import { MessageCircle } from "lucide-react";
 
 type SidebarProps = {
   className?: string;
@@ -33,6 +34,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
         <SidebarItem label="Leaderboard" href="/leaderboard" iconSrc="/leaderboard.svg" />
         <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
         <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
+        <SidebarItem label="Chat" href="/chat" icon={<MessageCircle className="h-8 w-8 text-slate-500" />} />
       </div>
 
       <div className="p-4">
