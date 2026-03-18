@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { getGeminiClient, MODEL_ID, safetySettings, generationConfig } from "@/lib/gemini";
+import { getGeminiClient, getModel, safetySettings, generationConfig } from "@/lib/gemini";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
 import { getUserProgress, getUnits } from "@/db/queries";
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     const ai = getGeminiClient();
 
     const response = await ai.models.generateContentStream({
-      model: MODEL_ID,
+      model: getModel(),
       contents: [
         { role: "user", parts: [{ text: SINHALA_TUTOR_PROMPT + courseContext }] },
         {
