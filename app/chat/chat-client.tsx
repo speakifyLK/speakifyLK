@@ -7,6 +7,13 @@ import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
 
+interface UserProgress {
+  points: number;
+  hearts: number;
+  subscription: boolean;
+  activeCourseId?: number | null;
+}
+
 interface ChatClientProps {
   initialMessages: {
     role: "user" | "assistant";
@@ -14,7 +21,7 @@ interface ChatClientProps {
     timestamp: Date;
   }[];
   conversationId: number;
-  userProgress: any;
+  userProgress: UserProgress;
 }
 
 export const ChatClient = ({ initialMessages, conversationId, userProgress }: ChatClientProps) => {
