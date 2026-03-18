@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       parts[0] += ".";
 
       if (completedLessons.length > 0) {
-        parts.push(`They recently completed lessons on: ${completedLessons.join(", ")}.`);
+        parts.push(`The latest completed lessons in the course sequence are: ${completedLessons.join(", ")}.`);
       }
 
       courseContext = "\n\nCOURSE CONTEXT:\n" + parts.join(" ");
