@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -27,17 +26,9 @@ export const SidebarItem = ({ label, iconSrc, icon, href }: SidebarItemProps) =>
       <Link href={href}>
         {/* Render Image if iconSrc is provided, otherwise render the Lucide icon */}
         {iconSrc ? (
-          <Image
-            src={iconSrc}
-            alt={label}
-            className="mr-5"
-            height={32}
-            width={32}
-          />
+          <Image src={iconSrc} alt={label} className="mr-5" height={32} width={32} />
         ) : (
-          <div className="mr-5">
-            {icon}
-          </div>
+          <div className="mr-5">{icon}</div>
         )}
         {label}
       </Link>
