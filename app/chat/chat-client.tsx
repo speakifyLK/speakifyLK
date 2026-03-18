@@ -10,7 +10,7 @@ import { ChatInput } from "@/components/chat/chat-input";
 interface UserProgress {
   points: number;
   hearts: number;
-  subscription: boolean;
+  subscription?: boolean;
   activeCourseId?: number | null;
 }
 

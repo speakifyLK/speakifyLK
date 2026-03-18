@@ -191,7 +191,11 @@ const ChatPage = async () => {
         timestamp: new Date(msg.timestamp),
       }))}
       conversationId={conversationId}
-      userProgress={userProgress}
+      //userProgress={userProgress}
+      userProgress={{
+        ...userProgress,
+        subscription: !!(userProgress as any).subscription
+      }}
     />
   );
 };
