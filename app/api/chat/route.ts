@@ -76,8 +76,10 @@ export async function POST(req: Request) {
     console.error("[Chat] Failed to fetch course context:", err);
   }
 
-  // Log the course context for debugging (check your terminal)
-  console.log("[Chat] Course context:", courseContext || "(none — user has no active course)");
+  // Log the course context for debugging in non-production environments
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[Chat] Course context:", courseContext || "(none — user has no active course)");
+  }
 
   // ── 4. Save user message to DB ──
   try {
