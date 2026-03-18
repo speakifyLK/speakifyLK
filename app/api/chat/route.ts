@@ -78,6 +78,9 @@ export async function POST(req: Request) {
     console.error("[Chat] Failed to fetch course context:", err);
   }
 
+  // Log the course context for debugging (check your terminal)
+  console.log("[Chat] Course context:", courseContext || "(none — user has no active course)");
+
   // ── 4. Save user message to DB ──
   try {
     await sendMessage(conversationId, message);
