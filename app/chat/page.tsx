@@ -194,7 +194,7 @@ const ChatPage = async () => {
       //userProgress={userProgress}
       userProgress={{
         ...userProgress,
-        subscription: !!(userProgress as any).subscription
+        subscription: !!(userProgress as any).subscription,
       }}
     />
   );
