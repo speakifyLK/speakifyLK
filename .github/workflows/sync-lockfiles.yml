@@ -92,6 +92,27 @@ jobs:
           git pull --rebase
           git push 2>&1 | tee sync-push-output.txt
 
+      - name: Delete comment if sync succeeded
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const marker = '<!-- sync-lockfiles-comment -->';
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id
+              });
+              console.log('Deleted stale lockfile sync failure comment');
+            }
+
       - name: Comment on PR if sync failed
         if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v8
