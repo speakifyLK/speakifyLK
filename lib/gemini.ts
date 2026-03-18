@@ -33,23 +33,33 @@ export const generationConfig = {
   maxOutputTokens: 8192,
 };
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error(
-    "GEMINI_API_KEY environment variable is not set. " +
-      "Add it to your .env or .env.local file.\n" +
-      "Get your API key from: https://aistudio.google.com/apikey (Gemini API) " +
-      "or https://console.cloud.google.com/ (Vertex AI)"
-  );
+function getApiKey(): string {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    throw new Error(
+      "GEMINI_API_KEY environment variable is not set. " +
+        "Add it to your .env or .env.local file.\n" +
+        "Get your API key from: https://aistudio.google.com/apikey (Gemini API) " +
+        "or https://console.cloud.google.com/ (Vertex AI)"
+    );
+  }
+  return key;
 }
 
-if (!process.env.GEMINI_MODEL) {
-  throw new Error(
-    "GEMINI_MODEL environment variable is not set. " +
-      "Add it to your .env or .env.local file (e.g. GEMINI_MODEL=gemini-3.1-flash-lite-preview)."
-  );
+function getModelId(): string {
+  const model = process.env.GEMINI_MODEL;
+  if (!model) {
+    throw new Error(
+      "GEMINI_MODEL environment variable is not set. " +
+        "Add it to your .env or .env.local file (e.g. GEMINI_MODEL=gemini-3.1-flash-lite-preview)."
+    );
+  }
+  return model;
 }
 
-export const MODEL_ID = process.env.GEMINI_MODEL;
+export function getModel(): string {
+  return getModelId();
+}
 
 /**
  * Lazily initialises and returns the GoogleGenAI client.
@@ -65,7 +75,7 @@ let _ai: GoogleGenAI | null = null;
 
 function getOrCreateClient(): GoogleGenAI {
   if (!_ai) {
-    const apiKey = process.env.GEMINI_API_KEY!;
+    const apiKey = getApiKey();
     const useVertexAI = process.env.GOOGLE_GENAI_USE_VERTEXAI === "true";
 
     if (useVertexAI) {
@@ -100,7 +110,7 @@ export async function generateContent(
 ) {
   const ai = getOrCreateClient();
   const response = await ai.models.generateContent({
-    model: MODEL_ID,
+    model: getModelId(),
     contents: prompt,
     config: {
       safetySettings,
@@ -118,7 +128,7 @@ export async function generateContent(
 export function startChatSession(history: Content[] = []) {
   const ai = getOrCreateClient();
   return ai.chats.create({
-    model: MODEL_ID,
+    model: getModelId(),
     history,
     config: {
       safetySettings,
