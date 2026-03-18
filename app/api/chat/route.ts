@@ -46,9 +46,7 @@ export async function POST(req: Request) {
       const units = await getUnits();
 
       // Find the current unit (first unit with an incomplete lesson)
-      const currentUnit = units.find((unit) =>
-        unit.lessons.some((lesson) => !lesson.completed)
-      );
+      const currentUnit = units.find((unit) => unit.lessons.some((lesson) => !lesson.completed));
 
       // Get the last 3 completed lesson titles
       const completedLessons = units
@@ -66,9 +64,7 @@ export async function POST(req: Request) {
       parts[0] += ".";
 
       if (completedLessons.length > 0) {
-        parts.push(
-          `They recently completed lessons on: ${completedLessons.join(", ")}.`
-        );
+        parts.push(`They recently completed lessons on: ${completedLessons.join(", ")}.`);
       }
 
       courseContext = "\n\nCOURSE CONTEXT:\n" + parts.join(" ");
