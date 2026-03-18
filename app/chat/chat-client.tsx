@@ -10,7 +10,6 @@ import { ChatInput } from "@/components/chat/chat-input";
 interface UserProgress {
   points: number;
   hearts: number;
-  subscription?: boolean;
   activeCourseId?: number | null;
 }
 
@@ -99,7 +98,7 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
   const handleSendMessage = async (text: string) => {
     if (!conversationId || isGenerating) return;
 
-    if (userProgress && userProgress.hearts === 0 && !userProgress.subscription) {
+    if (userProgress && userProgress.hearts === 0) {
       toast.error("You have no hearts left!", {
         description: "Visit the shop to refill your hearts and continue practicing.",
       });
