@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 import { getUserProgress, getConversations, getConversationById } from "@/db/queries";
 
-import { getOrCreateConversation} from "@/actions/chat";
+import { getOrCreateConversation } from "@/actions/chat";
 
 import { ChatClient } from "./chat-client";
 import { ConversationList } from "@/components/chat/conversation-list";
@@ -104,10 +104,12 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
       {/* Main Chat Area */}
       <main className="relative w-full flex-1">
         <ChatClient
-          initialMessages={activeConversation.messages.map((msg: { role: "user" | "assistant"; content: string; timestamp: Date }) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp),
-          }))}
+          initialMessages={activeConversation.messages.map(
+            (msg: { role: "user" | "assistant"; content: string; timestamp: Date }) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp),
+            })
+          )}
           conversationId={activeId}
           userProgress={userProgress}
         />
