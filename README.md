@@ -255,7 +255,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
-- [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.45.0
+- [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.1.6
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
@@ -273,7 +273,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
 - [dotenv](https://www.npmjs.com/package/dotenv): ^17.3.1
-- [drizzle-kit](https://www.npmjs.com/package/drizzle-kit): ^0.31.9
+- [drizzle-kit](https://www.npmjs.com/package/drizzle-kit): ^0.31.10
 - [drizzle-orm](https://www.npmjs.com/package/drizzle-orm): ^0.45.1
 - [eslint](https://www.npmjs.com/package/eslint): ^9
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
