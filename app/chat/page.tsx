@@ -1,14 +1,12 @@
-
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 
-import { getUserProgress,getConversations,getConversationById} from "@/db/queries";
+import { getUserProgress, getConversations, getConversationById } from "@/db/queries";
 
 import { getOrCreateConversation, getMessages } from "@/actions/chat";
 
 import { ChatClient } from "./chat-client";
 import { ConversationList } from "@/components/chat/conversation-list";
-
 
 // const ChatPage = async () => {
 //   const { userId } = await auth();
@@ -63,20 +61,14 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
 
   // 1. Determine which conversation to show
   // If there's an ID in the URL, use it. Otherwise, get/create the latest one.
-  const activeId = params.id 
-    ? parseInt(params.id) 
-    : await getOrCreateConversation();
+  const activeId = params.id ? parseInt(params.id) : await getOrCreateConversation();
 
-    console.log("=== DEBUG ===");
-    console.log("searchParams.id:", params.id);
-    console.log("activeId:", activeId);
+  console.log("=== DEBUG ===");
+  console.log("searchParams.id:", params.id);
+  console.log("activeId:", activeId);
 
   // 2. Fetch all data in parallel for speed
-  const [
-    conversations,
-    activeConversation,
-    userProgress,
-  ] = await Promise.all([
+  const [conversations, activeConversation, userProgress] = await Promise.all([
     getConversations(),
     getConversationById(activeId),
     getUserProgress(),
@@ -99,18 +91,18 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
   return (
     <div className="flex h-full">
       {/* Sidebar Panel - Hidden on mobile, width 80 on desktop */}
-      <aside className="hidden lg:flex w-80 flex-col border-r bg-slate-50">
-        <ConversationList 
+      <aside className="hidden w-80 flex-col border-r bg-slate-50 lg:flex">
+        <ConversationList
           conversations={conversations.map((c) => ({
             id: c.id,
             title: c.title || "New Conversation",
             updatedAt: c.updatedAt,
-          }))} 
+          }))}
         />
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 relative w-full">
+      <main className="relative w-full flex-1">
         <ChatClient
           initialMessages={activeConversation.messages.map((msg: any) => ({
             ...msg,

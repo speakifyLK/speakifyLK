@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect} from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 import { ChatWindow } from "@/components/chat/chat-window";
@@ -30,13 +30,15 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
   // Inside ChatClient component
   useEffect(() => {
     // Sync messages when the conversation changes or the page revalidates
-    setMessages(initialMessages.map(msg => ({
-      ...msg,
-      timestamp: new Date(msg.timestamp)
-    })));
-    
+    setMessages(
+      initialMessages.map((msg) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }))
+    );
+
     // Stop any active AI generation if the user switches chats mid-stream
-    setIsGenerating(false); 
+    setIsGenerating(false);
   }, [initialMessages, conversationId]);
 
   const startStreaming = useCallback(async (convId: number, text: string) => {

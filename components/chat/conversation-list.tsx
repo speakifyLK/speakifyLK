@@ -68,16 +68,14 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
 
   return (
     <>
-      <div className="flex h-full flex-col gap-y-4 p-4 border-r">
+      <div className="flex h-full flex-col gap-y-4 border-r p-4">
         <Button onClick={onNewChat} className="w-full gap-x-2" variant="sidebar">
           <Plus className="h-4 w-4" /> New Chat
         </Button>
 
-        <div className="flex-1 overflow-y-auto space-y-2">
+        <div className="flex-1 space-y-2 overflow-y-auto">
           {conversations.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground mt-10">
-              No conversations yet
-            </p>
+            <p className="mt-10 text-center text-sm text-muted-foreground">No conversations yet</p>
           )}
 
           {conversations.map((conv) => (
@@ -85,18 +83,18 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
               key={conv.id}
               onClick={() => router.push(`/chat?id=${conv.id}`)}
               className={cn(
-                "group relative flex cursor-pointer flex-col rounded-lg p-3 hover:bg-slate-100 transition",
-                activeId === conv.id.toString() && "bg-slate-100 border-l-4 border-green-500"
+                "group relative flex cursor-pointer flex-col rounded-lg p-3 transition hover:bg-slate-100",
+                activeId === conv.id.toString() && "border-l-4 border-green-500 bg-slate-100"
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="truncate text-sm font-medium pr-6">
+                <span className="truncate pr-6 text-sm font-medium">
                   {conv.title || "New Conversation"}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="opacity-0 group-hover:opacity-100 h-8 w-8 text-rose-500"
+                  className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100"
                   onClick={(e) => onDeleteClick(conv, e)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -111,8 +109,8 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog 
-        open={!!deletingConv} 
+      <Dialog
+        open={!!deletingConv}
         onOpenChange={(open) => {
           if (!open) setDeletingConv(null);
         }}
@@ -121,7 +119,7 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
           <DialogHeader>
             <DialogTitle>Delete conversation?</DialogTitle>
             <DialogDescription>
-              This will permanently delete &quot;{deletingConv?.title || "New Conversation"}&quot; 
+              This will permanently delete &quot;{deletingConv?.title || "New Conversation"}&quot;
               and all its messages. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

@@ -81,16 +81,14 @@ export const sendMessage = async (conversationId: number, content: string) => {
 
   // 3. Logic: If title is "New Chat" or null, update it with the first message
   const shouldUpdateTitle = !conversation?.title || conversation.title === "New Conversation";
-  
-  const truncatedTitle = content.length > 40 
-    ? content.substring(0, 40) + "..." 
-    : content;
+
+  const truncatedTitle = content.length > 40 ? content.substring(0, 40) + "..." : content;
 
   await db
     .update(chatConversations)
-    .set({ 
+    .set({
       updatedAt: new Date(),
-      ...(shouldUpdateTitle && { title: truncatedTitle }) // Only update title if necessary
+      ...(shouldUpdateTitle && { title: truncatedTitle }), // Only update title if necessary
     })
     .where(eq(chatConversations.id, conversationId));
 
