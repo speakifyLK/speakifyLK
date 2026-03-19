@@ -34,12 +34,37 @@ export const createConversation = async () => {
   return conversation.id;
 };
 
+// export const sendMessage = async (conversationId: number, content: string) => {
+//   const { userId } = await auth();
+//   if (!userId) throw new Error("Unauthorized.");
+
+//   await assertConversationOwner(conversationId, userId);
+
+//   const [message] = await db
+//     .insert(chatMessages)
+//     .values({
+//       conversationId,
+//       role: "user",
+//       content,
+//     })
+//     .returning();
+
+//   await db
+//     .update(chatConversations)
+//     .set({ updatedAt: new Date() })
+//     .where(eq(chatConversations.id, conversationId));
+
+//   revalidatePath("/chat");
+//   return message;
+// };
+
 export const sendMessage = async (conversationId: number, content: string) => {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
   await assertConversationOwner(conversationId, userId);
 
+  // 1. Insert the message
   const [message] = await db
     .insert(chatMessages)
     .values({
@@ -49,9 +74,24 @@ export const sendMessage = async (conversationId: number, content: string) => {
     })
     .returning();
 
+  // 2. Fetch the conversation to check if it needs a title update
+  const conversation = await db.query.chatConversations.findFirst({
+    where: eq(chatConversations.id, conversationId),
+  });
+
+  // 3. Logic: If title is "New Chat" or null, update it with the first message
+  const shouldUpdateTitle = !conversation?.title || conversation.title === "New Conversation";
+  
+  const truncatedTitle = content.length > 40 
+    ? content.substring(0, 40) + "..." 
+    : content;
+
   await db
     .update(chatConversations)
-    .set({ updatedAt: new Date() })
+    .set({ 
+      updatedAt: new Date(),
+      ...(shouldUpdateTitle && { title: truncatedTitle }) // Only update title if necessary
+    })
     .where(eq(chatConversations.id, conversationId));
 
   revalidatePath("/chat");

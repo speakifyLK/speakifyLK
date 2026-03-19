@@ -1,33 +1,3 @@
-// "use client";
-
-// import { useEffect, useRef } from "react";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-
-// export function ChatWindow({ children }: { children: React.ReactNode }) {
-//   const scrollRef = useRef<HTMLDivElement>(null);
-
-//   // Auto-scroll to bottom when new messages (children) are added
-//   useEffect(() => {
-//     if (scrollRef.current) {
-//       const scrollContainer = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]");
-//       if (scrollContainer) {
-//         scrollContainer.scrollTo({
-//           top: scrollContainer.scrollHeight,
-//           behavior: "smooth",
-//         });
-//       }
-//     }
-//   }, [children]);
-
-//   return (
-//     <ScrollArea
-//       ref={scrollRef}
-//       className="min-h-[400px] flex-1 rounded-lg border bg-slate-50/50 p-4 pr-4"
-//     >
-//       <div className="flex flex-col gap-y-2">{children}</div>
-//     </ScrollArea>
-//   );
-// }
 
 "use client";
 
@@ -35,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, MessageSquareQuote } from "lucide-react";
+import Link from "next/link";
 
 interface ChatWindowProps {
   children: React.ReactNode;
@@ -62,8 +33,10 @@ export function ChatWindow({ children, isEmpty, isTyping }: ChatWindowProps) {
     <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm">
       {/* 1. Essential Header */}
       <div className="flex items-center gap-x-3 border-b bg-slate-50/50 p-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <ChevronLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+          <Link href="/learn">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
         </Button>
         <h2 className="text-sm font-semibold">Sinhala Tutor Session</h2>
       </div>

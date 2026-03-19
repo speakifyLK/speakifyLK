@@ -298,7 +298,26 @@ export const getConversations = cache(async () => {
   return data;
 });
 
-export const getConversationById = cache(async (conversationId: number) => {
+// export const getConversationById = cache(async (conversationId: number) => {
+//   const { userId } = await auth();
+
+//   if (!userId) return null;
+
+//   const data = await db.query.chatConversations.findFirst({
+//     where: and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId)),
+//     with: {
+//       messages: {
+//         orderBy: (messages, { asc }) => [asc(messages.timestamp)],
+//       },
+//     },
+//   });
+
+//   if (!data) return null;
+
+//   return data;
+// });
+
+export const getConversationById = async (conversationId: number) => {
   const { userId } = await auth();
 
   if (!userId) return null;
@@ -315,7 +334,7 @@ export const getConversationById = cache(async (conversationId: number) => {
   if (!data) return null;
 
   return data;
-});
+};
 
 export const getMessagesByConversation = cache(
   async (conversationId: number, limit = 20, offset = 0) => {
