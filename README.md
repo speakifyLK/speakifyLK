@@ -90,6 +90,7 @@ speakify/
     |-- gemini.ts
     |-- quiz-normalise.ts
     |-- quiz-prompt.ts
+    |-- rate-limit.ts
     |-- stripe.ts
     |-- utils.ts
   |- public/
@@ -260,7 +261,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
-- [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.1.6
+- [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.2.0
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
 - [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.1.8
@@ -282,7 +283,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
 - [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
-- [next](https://www.npmjs.com/package/next): ^16.1.7
+- [next](https://www.npmjs.com/package/next): ^16.2.0
 - [pg](https://www.npmjs.com/package/pg): ^8.20.0
 - [postcss](https://www.npmjs.com/package/postcss): ^8
 - [prettier](https://www.npmjs.com/package/prettier): ^3.8.1
