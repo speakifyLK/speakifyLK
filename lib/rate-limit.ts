@@ -20,9 +20,7 @@ const rateLimitMap = new Map<string, RateLimitEntry>();
  *
  * @returns `null` if allowed, or an object with `retryAfterSeconds` if rate-limited.
  */
-export function checkRateLimit(
-  userId: string
-): { retryAfterSeconds: number } | null {
+export function checkRateLimit(userId: string): { retryAfterSeconds: number } | null {
   const now = Date.now();
   const entry = rateLimitMap.get(userId);
 
