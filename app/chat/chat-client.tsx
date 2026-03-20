@@ -55,7 +55,12 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: Failed to connect to tutor`);
+        const errorBody = await response.json().catch(() => ({}));
+        const error = new Error(errorBody.error || `Error ${response.status}`);
+        // Attach status and retry info for error handling below
+        (error as any).status = response.status;
+        (error as any).retryAfterSeconds = errorBody.retryAfterSeconds;
+        throw error;
       }
 
       const reader = response.body?.getReader();
@@ -96,13 +101,22 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
       // Remove the failed placeholder bubble
       setMessages((prev) => prev.slice(0, -1));
 
-      toast.error("Tutor connection failed", {
-        description: "Could not get a response. Try again?",
-        action: {
-          label: "Retry",
-          onClick: () => startStreaming(convId, text),
-        },
-      });
+      // Check if it's a rate limit error with retry info
+      if ((_error as any)?.status === 429) {
+        const retrySeconds = (_error as any)?.retryAfterSeconds || 3600;
+        const waitMinutes = Math.ceil(retrySeconds / 60);
+        toast.error("Message limit reached", {
+          description: `Free users can send 20 messages per hour. Try again in ~${waitMinutes} minutes, or upgrade for unlimited messages.`,
+        });
+      } else {
+        toast.error("Tutor connection failed", {
+          description: "Could not get a response. Try again?",
+          action: {
+            label: "Retry",
+            onClick: () => startStreaming(convId, text),
+          },
+        });
+      }
     } finally {
       setIsGenerating(false);
     }

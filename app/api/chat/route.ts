@@ -2,7 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { getGeminiClient, getModel, safetySettings, generationConfig } from "@/lib/gemini";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
-import { getUserProgress, getUnits } from "@/db/queries";
+import { getUserProgress, getUnits, getUserSubscription } from "@/db/queries";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
@@ -11,7 +12,32 @@ export async function POST(req: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // ── 2. Parse request body ──
+  // ── 2. Rate limiting (free users: 20/hr, subscribers: unlimited) ──
+  try {
+    const subscription = await getUserSubscription();
+    if (!subscription?.isActive) {
+      const rateLimitResult = checkRateLimit(userId);
+      if (rateLimitResult) {
+        return Response.json(
+          {
+            error: "Rate limit exceeded. Please try again later.",
+            retryAfterSeconds: rateLimitResult.retryAfterSeconds,
+          },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": String(rateLimitResult.retryAfterSeconds),
+            },
+          }
+        );
+      }
+    }
+  } catch (err) {
+    // Non-critical — allow the request if subscription check fails
+    console.error(`[Chat] Subscription check failed | userId: ${userId}`, err);
+  }
+
+  // ── 3. Parse request body ──
   let conversationId: number;
   let message: string;
 
@@ -38,7 +64,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  // ── 3. Fetch course context for personalised responses ──
+  // ── 4. Fetch course context for personalised responses ──
   let courseContext = "";
   try {
     const progress = await getUserProgress();
@@ -81,7 +107,7 @@ export async function POST(req: Request) {
     console.log("[Chat] Course context:", courseContext || "(none — user has no active course)");
   }
 
-  // ── 4. Save user message to DB ──
+  // ── 5. Save user message to DB ──
   try {
     await sendMessage(conversationId, message);
   } catch (err) {
@@ -89,7 +115,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Failed to save message" }, { status: 500 });
   }
 
-  // ── 5. Load conversation history ──
+  // ── 6. Load conversation history ──
   let history;
   try {
     history = await getMessages(conversationId);
@@ -98,13 +124,13 @@ export async function POST(req: Request) {
     return Response.json({ error: "Failed to load conversation" }, { status: 500 });
   }
 
-  // ── 6. Format history for Gemini ──
+  // ── 7. Format history for Gemini ──
   const geminiHistory = history.map((msg) => ({
     role: msg.role === "assistant" ? ("model" as const) : ("user" as const),
     parts: [{ text: msg.content }],
   }));
 
-  // ── 7. Call Gemini with streaming ──
+  // ── 8. Call Gemini with streaming ──
   try {
     const ai = getGeminiClient();
 
@@ -126,7 +152,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // ── 8. Stream response to client ──
+    // ── 9. Stream response to client ──
     let fullResponse = "";
     const encoder = new TextEncoder();
 
@@ -141,7 +167,7 @@ export async function POST(req: Request) {
             }
           }
 
-          // ── 9. Save complete assistant response to DB ──
+          // ── 10. Save complete assistant response to DB ──
           if (fullResponse.trim()) {
             await saveAssistantMessage(conversationId, fullResponse);
           }
