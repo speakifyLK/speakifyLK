@@ -12,32 +12,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // ── 2. Rate limiting (free users: 20/hr, subscribers: unlimited) ──
-  try {
-    const subscription = await getUserSubscription();
-    if (!subscription?.isActive) {
-      const rateLimitResult = checkRateLimit(userId);
-      if (rateLimitResult) {
-        return Response.json(
-          {
-            error: "Rate limit exceeded. Please try again later.",
-            retryAfterSeconds: rateLimitResult.retryAfterSeconds,
-          },
-          {
-            status: 429,
-            headers: {
-              "Retry-After": String(rateLimitResult.retryAfterSeconds),
-            },
-          }
-        );
-      }
-    }
-  } catch (err) {
-    // Non-critical — allow the request if subscription check fails
-    console.error(`[Chat] Subscription check failed | userId: ${userId}`, err);
-  }
-
-  // ── 3. Parse request body ──
+  // ── 2. Parse request body ──
   let conversationId: number;
   let message: string;
 
@@ -62,6 +37,34 @@ export async function POST(req: Request) {
     }
   } catch {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  // ── 3. Rate limiting (free users: 20/hr, subscribers: unlimited) ──
+  let isSubscriber = false;
+  try {
+    const subscription = await getUserSubscription();
+    isSubscriber = !!subscription?.isActive;
+  } catch (err) {
+    // Fail closed — treat as non-subscriber if subscription check fails
+    console.error(`[Chat] Subscription check failed | userId: ${userId}`, err);
+  }
+
+  if (!isSubscriber) {
+    const rateLimitResult = checkRateLimit(userId);
+    if (rateLimitResult) {
+      return Response.json(
+        {
+          error: "Rate limit exceeded. Please try again later.",
+          retryAfterSeconds: rateLimitResult.retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimitResult.retryAfterSeconds),
+          },
+        }
+      );
+    }
   }
 
   // ── 4. Fetch course context for personalised responses ──

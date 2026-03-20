@@ -7,6 +7,18 @@ import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
 
+class ChatApiError extends Error {
+  status: number;
+  retryAfterSeconds?: number;
+
+  constructor(message: string, status: number, retryAfterSeconds?: number) {
+    super(message);
+    this.name = "ChatApiError";
+    this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}
+
 interface UserProgress {
   points: number;
   hearts: number;
@@ -56,11 +68,11 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => ({}));
-        const error = new Error(errorBody.error || `Error ${response.status}`);
-        // Attach status and retry info for error handling below
-        (error as any).status = response.status;
-        (error as any).retryAfterSeconds = errorBody.retryAfterSeconds;
-        throw error;
+        throw new ChatApiError(
+          errorBody.error || `Error ${response.status}`,
+          response.status,
+          errorBody.retryAfterSeconds
+        );
       }
 
       const reader = response.body?.getReader();
@@ -102,8 +114,8 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
       setMessages((prev) => prev.slice(0, -1));
 
       // Check if it's a rate limit error with retry info
-      if ((_error as any)?.status === 429) {
-        const retrySeconds = (_error as any)?.retryAfterSeconds || 3600;
+      if (_error instanceof ChatApiError && _error.status === 429) {
+        const retrySeconds = _error.retryAfterSeconds || 3600;
         const waitMinutes = Math.ceil(retrySeconds / 60);
         toast.error("Message limit reached", {
           description: `Free users can send 20 messages per hour. Try again in ~${waitMinutes} minutes, or upgrade for unlimited messages.`,
