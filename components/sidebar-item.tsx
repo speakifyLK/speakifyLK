@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 
 type SidebarItemProps = {
   label: string;
-  iconSrc: string;
+  iconSrc?: string; // Made optional
+  icon?: React.ReactNode; // for Lucide icons
   href: string;
 };
 
-export const SidebarItem = ({ label, iconSrc, href }: SidebarItemProps) => {
+export const SidebarItem = ({ label, iconSrc, icon, href }: SidebarItemProps) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -23,13 +24,12 @@ export const SidebarItem = ({ label, iconSrc, href }: SidebarItemProps) => {
       asChild
     >
       <Link href={href}>
-        <Image
-          src={iconSrc}
-          alt={label}
-          className="mr-5"
-          height={32}
-          width={32}
-        />
+        {/* Render Image if iconSrc is provided, otherwise render the Lucide icon */}
+        {iconSrc ? (
+          <Image src={iconSrc} alt={label} className="mr-5" height={32} width={32} />
+        ) : (
+          <div className="mr-5">{icon}</div>
+        )}
         {label}
       </Link>
     </Button>

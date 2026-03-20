@@ -1,11 +1,23 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatBubble } from "@/components/chat/chat-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
+
+class ChatApiError extends Error {
+  status: number;
+  retryAfterSeconds?: number;
+
+  constructor(message: string, status: number, retryAfterSeconds?: number) {
+    super(message);
+    this.name = "ChatApiError";
+    this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}
 
 interface UserProgress {
   points: number;
@@ -27,6 +39,20 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
   const [messages, setMessages] = useState(initialMessages);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Inside ChatClient component
+  useEffect(() => {
+    // Sync messages when the conversation changes or the page revalidates
+    setMessages(
+      initialMessages.map((msg) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }))
+    );
+
+    // Stop any active AI generation if the user switches chats mid-stream
+    setIsGenerating(false);
+  }, [initialMessages, conversationId]);
+
   const startStreaming = useCallback(async (convId: number, text: string) => {
     setIsGenerating(true);
 
@@ -41,7 +67,12 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: Failed to connect to tutor`);
+        const errorBody = await response.json().catch(() => ({}));
+        throw new ChatApiError(
+          errorBody.error || `Error ${response.status}`,
+          response.status,
+          errorBody.retryAfterSeconds
+        );
       }
 
       const reader = response.body?.getReader();
@@ -82,13 +113,22 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
       // Remove the failed placeholder bubble
       setMessages((prev) => prev.slice(0, -1));
 
-      toast.error("Tutor connection failed", {
-        description: "Could not get a response. Try again?",
-        action: {
-          label: "Retry",
-          onClick: () => startStreaming(convId, text),
-        },
-      });
+      // Check if it's a rate limit error with retry info
+      if (_error instanceof ChatApiError && _error.status === 429) {
+        const retrySeconds = _error.retryAfterSeconds || 3600;
+        const waitMinutes = Math.ceil(retrySeconds / 60);
+        toast.error("Message limit reached", {
+          description: `Free users can send 20 messages per hour. Try again in ~${waitMinutes} minutes, or upgrade for unlimited messages.`,
+        });
+      } else {
+        toast.error("Tutor connection failed", {
+          description: "Could not get a response. Try again?",
+          action: {
+            label: "Retry",
+            onClick: () => startStreaming(convId, text),
+          },
+        });
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -115,6 +155,7 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
 
     // Stream AI response (route.ts saves user message + assistant message)
     await startStreaming(conversationId, text);
+    //router.refresh();
   };
 
   return (

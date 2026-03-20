@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
-import { getGeminiClient, MODEL_ID, safetySettings, generationConfig } from "@/lib/gemini";
+import { getGeminiClient, getModel, safetySettings, generationConfig } from "@/lib/gemini";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
+import { getUserProgress, getUnits, getUserSubscription } from "@/db/queries";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
@@ -37,7 +39,78 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  // ── 3. Save user message to DB ──
+  // ── 3. Rate limiting (free users: 20/hr, subscribers: unlimited) ──
+  let isSubscriber = false;
+  try {
+    const subscription = await getUserSubscription();
+    isSubscriber = !!subscription?.isActive;
+  } catch (err) {
+    // Fail closed — treat as non-subscriber if subscription check fails
+    console.error(`[Chat] Subscription check failed | userId: ${userId}`, err);
+  }
+
+  if (!isSubscriber) {
+    const rateLimitResult = checkRateLimit(userId);
+    if (rateLimitResult) {
+      return Response.json(
+        {
+          error: "Rate limit exceeded. Please try again later.",
+          retryAfterSeconds: rateLimitResult.retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimitResult.retryAfterSeconds),
+          },
+        }
+      );
+    }
+  }
+
+  // ── 4. Fetch course context for personalised responses ──
+  let courseContext = "";
+  try {
+    const progress = await getUserProgress();
+    if (progress?.activeCourse) {
+      const units = await getUnits();
+
+      // Find the current unit (first unit with an incomplete lesson)
+      const currentUnit = units.find((unit) => unit.lessons.some((lesson) => !lesson.completed));
+
+      // Get the last 3 completed lesson titles
+      const completedLessons = units
+        .flatMap((unit) => unit.lessons)
+        .filter((lesson) => lesson.completed)
+        .slice(-3)
+        .map((lesson) => lesson.title);
+
+      const parts: string[] = [];
+      parts.push(`The student is currently studying ${progress.activeCourse.title}`);
+
+      if (currentUnit) {
+        parts[0] += `, in ${currentUnit.title}`;
+      }
+      parts[0] += ".";
+
+      if (completedLessons.length > 0) {
+        parts.push(
+          `The latest completed lessons in the course sequence are: ${completedLessons.join(", ")}.`
+        );
+      }
+
+      courseContext = "\n\nCOURSE CONTEXT:\n" + parts.join(" ");
+    }
+  } catch (err) {
+    // Non-critical — continue without course context
+    console.error("[Chat] Failed to fetch course context:", err);
+  }
+
+  // Log the course context for debugging in non-production environments
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[Chat] Course context:", courseContext || "(none — user has no active course)");
+  }
+
+  // ── 5. Save user message to DB ──
   try {
     await sendMessage(conversationId, message);
   } catch (err) {
@@ -45,7 +118,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Failed to save message" }, { status: 500 });
   }
 
-  // ── 4. Load conversation history ──
+  // ── 6. Load conversation history ──
   let history;
   try {
     history = await getMessages(conversationId);
@@ -54,20 +127,20 @@ export async function POST(req: Request) {
     return Response.json({ error: "Failed to load conversation" }, { status: 500 });
   }
 
-  // ── 5. Format history for Gemini ──
+  // ── 7. Format history for Gemini ──
   const geminiHistory = history.map((msg) => ({
     role: msg.role === "assistant" ? ("model" as const) : ("user" as const),
     parts: [{ text: msg.content }],
   }));
 
-  // ── 6. Call Gemini with streaming ──
+  // ── 8. Call Gemini with streaming ──
   try {
     const ai = getGeminiClient();
 
     const response = await ai.models.generateContentStream({
-      model: MODEL_ID,
+      model: getModel(),
       contents: [
-        { role: "user", parts: [{ text: SINHALA_TUTOR_PROMPT }] },
+        { role: "user", parts: [{ text: SINHALA_TUTOR_PROMPT + courseContext }] },
         {
           role: "model",
           parts: [
@@ -82,7 +155,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // ── 7. Stream response to client ──
+    // ── 9. Stream response to client ──
     let fullResponse = "";
     const encoder = new TextEncoder();
 
@@ -97,7 +170,7 @@ export async function POST(req: Request) {
             }
           }
 
-          // ── 8. Save complete assistant response to DB ──
+          // ── 10. Save complete assistant response to DB ──
           if (fullResponse.trim()) {
             await saveAssistantMessage(conversationId, fullResponse);
           }
