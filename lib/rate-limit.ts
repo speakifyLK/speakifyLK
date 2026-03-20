@@ -16,14 +16,17 @@ interface RateLimitEntry {
 const rateLimitMap = new Map<string, RateLimitEntry>();
 
 // Periodic sweep every 15 minutes to prevent memory leaks
-setInterval(() => {
-  const now = Date.now();
-  for (const [userId, entry] of rateLimitMap.entries()) {
-    if (now >= entry.resetTime) {
-      rateLimitMap.delete(userId);
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [userId, entry] of rateLimitMap.entries()) {
+      if (now >= entry.resetTime) {
+        rateLimitMap.delete(userId);
+      }
     }
-  }
-}, 15 * 60 * 1000);
+  },
+  15 * 60 * 1000
+);
 
 /**
  * Check and consume a rate limit slot for the given user.
