@@ -57,7 +57,8 @@ const RAG_EPIC = {
 };
 
 // --- 30 Tasks ---
-// januda tasks -> JANUDA_EPIC_KEY (SPEAKLK-3) -- GCP/infra/terraform/auth conversion only
+// januda tasks -> JANUDA_EPIC_KEY (SPEAKLK-3) -- GCP project setup & terraform only
+// januda auth tasks (gcp-auth, gemini refactor, route update) -> RAG_EPIC_KEY (SPEAKLK-37)
 // all others  -> RAG_EPIC_KEY (SPEAKLK-37)    -- RAG implementation
 
 const TASKS = [
@@ -102,17 +103,17 @@ const TASKS = [
     summary: "Terraform: Remote state backend configuration and module organization",
     desc: "Configure Terraform remote state using a GCS backend bucket. Organize Terraform code into logical modules: modules/project (APIs), modules/iam (service account, roles), modules/storage (GCS bucket). Update main.tf to reference modules. Add terraform.tfvars.example. Ensure terraform init -migrate-state works for moving from local to remote state. Document the module structure in the infra/terraform/README.md." },
 
-  { assignee: "januda", priority: "P1", points: 3,
+  { assignee: "januda", ragEpic: true, priority: "P1", points: 3,
     startDate: "2026-03-28", dueDate: "2026-03-30",
     summary: "Create lib/gcp-auth.ts OAuth2 access token generation from service account",
     desc: "Create lib/gcp-auth.ts that reads the service account JSON key from the path specified in GOOGLE_APPLICATION_CREDENTIALS. Use GoogleAuth from the google-auth-library package (installed in the dependency task) to create an auth client scoped to https://www.googleapis.com/auth/cloud-platform. Export an async function getAccessToken() that returns a valid OAuth2 access token string. Implement token caching: store the token and its expiry, only refresh when expired or within 5 minutes of expiry. Export getAuthHeaders() that returns { Authorization: Bearer <token> } for use in Vertex AI REST calls. Add a runtime check that throws a clear error if GOOGLE_APPLICATION_CREDENTIALS is not set or the file does not exist." },
 
-  { assignee: "januda", priority: "P1", points: 3,
+  { assignee: "januda", ragEpic: true, priority: "P1", points: 3,
     startDate: "2026-03-30", dueDate: "2026-04-01",
     summary: "Refactor lib/gemini.ts from API key authentication to service account auth",
     desc: "Modify the existing lib/gemini.ts to replace API key-based authentication with service account OAuth2 tokens. Currently the file uses GoogleGenAI from @google/genai, initialized with process.env.GEMINI_API_KEY (with optional Vertex AI Express Mode via GOOGLE_GENAI_USE_VERTEXAI flag). Change the getOrCreateClient() function to authenticate using service account credentials from lib/gcp-auth.ts instead of an API key. Update getGeminiClient() and getModel() exports to work with the new auth flow. Update startChatSession() to use the service-account-authenticated client. Ensure backward compatibility: if GOOGLE_APPLICATION_CREDENTIALS is not set, log a warning and fall back to the existing API key auth (GEMINI_API_KEY) so dev setups keep working during transition." },
 
-  { assignee: "januda", priority: "P1", points: 3,
+  { assignee: "januda", ragEpic: true, priority: "P1", points: 3,
     startDate: "2026-04-01", dueDate: "2026-04-03",
     summary: "Update /api/chat and /api/quiz routes to use service account auth flow",
     desc: "Update app/api/chat/route.ts and app/api/quiz/generate/route.ts to use the refactored lib/gemini.ts with service account authentication. In the chat route, verify that ai.models.generateContentStream() (called via getGeminiClient()) now uses the service account client. In the quiz route, verify that generateContent() (used inside callGeminiWithRetry()) works with the new auth flow. Test that chat streaming still works correctly and quiz generation returns valid JSON questions. Keep GEMINI_API_KEY in environment.d.ts for fallback compatibility. Add integration test script scripts/test-gcp-auth.ts that verifies token generation and a simple Vertex AI call." },
@@ -287,7 +288,7 @@ async function main() {
 
   for (let i = 0; i < TASKS.length; i++) {
     const task = TASKS[i];
-    const parentKey = task.assignee === "januda" ? JANUDA_EPIC_KEY : RAG_EPIC_KEY;
+    const parentKey = (task.assignee === "januda" && !task.ragEpic) ? JANUDA_EPIC_KEY : RAG_EPIC_KEY;
     const accountId = accountIdMap[task.assignee];
 
     const fields = {
@@ -356,8 +357,10 @@ async function main() {
   console.log(`   ${"TOTAL".padEnd(12)} ${String(totalPts).padStart(3)} pts  (${TASKS.length} tasks)`);
 
   console.log("\nTask distribution:");
-  console.log(`   Januda tasks -> ${JANUDA_EPIC_KEY} (${TASKS.filter(t => t.assignee === "januda").length} tasks, GCP/Terraform/Auth)`);
-  console.log(`   Others tasks -> ${RAG_EPIC_KEY} (${TASKS.filter(t => t.assignee !== "januda").length} tasks, RAG implementation)`);
+  const janudaDevops = TASKS.filter(t => t.assignee === "januda" && !t.ragEpic);
+  const ragEpicTasks = TASKS.filter(t => t.assignee !== "januda" || t.ragEpic);
+  console.log(`   Januda infra  -> ${JANUDA_EPIC_KEY} (${janudaDevops.length} tasks, GCP/Terraform)`);
+  console.log(`   RAG tasks     -> ${RAG_EPIC_KEY} (${ragEpicTasks.length} tasks, incl. 3 januda auth tasks)`);
 
   // Per-member area breakdown
   console.log("\nPer-member breakdown:");
