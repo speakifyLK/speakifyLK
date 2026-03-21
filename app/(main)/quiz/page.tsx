@@ -46,7 +46,7 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
   // If sessionId is provided, fetch and render the quiz session
   if (sessionId && !isNaN(sessionId)) {
     const session = await getQuizSessionWithQuestions(sessionId);
-    
+
     if (!session) {
       // Session not found or unauthorized, redirect back to config
       redirect("/quiz");

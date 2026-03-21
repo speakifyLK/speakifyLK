@@ -26,7 +26,12 @@ type QuizState = {
   adaptiveRecommendation: AdaptiveDifficultyRecommendation | null;
 
   setAdaptiveRecommendation: (recommendation: AdaptiveDifficultyRecommendation | null) => void;
-  startQuiz: (sessionId: number, questions: QuizQuestion[], difficulty?: Difficulty, initialTimeSeconds?: number) => void;
+  startQuiz: (
+    sessionId: number,
+    questions: QuizQuestion[],
+    difficulty?: Difficulty,
+    initialTimeSeconds?: number
+  ) => void;
   selectAnswer: (answer: string) => void;
   submitAnswer: () => void;
   nextQuestion: () => void;
@@ -92,8 +97,7 @@ export const useQuizStore = create<QuizState>((set) => ({
       }
 
       const isCorrect =
-        state.selectedAnswer !== null &&
-        state.selectedAnswer === currentQuestion.correctAnswer;
+        state.selectedAnswer !== null && state.selectedAnswer === currentQuestion.correctAnswer;
 
       return {
         ...state,
@@ -104,8 +108,7 @@ export const useQuizStore = create<QuizState>((set) => ({
 
   nextQuestion: () =>
     set((state) => {
-      const hasMoreQuestions =
-        state.currentQuestionIndex + 1 < state.questions.length;
+      const hasMoreQuestions = state.currentQuestionIndex + 1 < state.questions.length;
 
       if (!hasMoreQuestions) {
         return {
@@ -165,5 +168,3 @@ export const useQuizStore = create<QuizState>((set) => ({
       };
     }),
 }));
-
-

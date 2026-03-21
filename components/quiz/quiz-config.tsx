@@ -54,11 +54,7 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
       setAdaptiveRecommendation(null);
       return;
     }
-    const rec = computeAdaptiveDifficultyRecommendation(
-      quizHistory,
-      unit.title,
-      difficulty
-    );
+    const rec = computeAdaptiveDifficultyRecommendation(quizHistory, unit.title, difficulty);
     setAdaptiveRecommendation(rec);
   }, [selectedTopic, difficulty, quizHistory, units, setAdaptiveRecommendation]);
 
