@@ -1,12 +1,26 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
 import { getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions, userProgress } from "@/db/schema";
+
+type QuizDifficulty = (typeof aiQuizSessions.$inferSelect)["difficulty"];
+
+function calculateQuizCompletionXp(
+  correctAnswers: number,
+  totalQuestions: number,
+  difficulty: QuizDifficulty
+): number {
+  const baseXp = 10;
+  const correctXp = correctAnswers * 2;
+  const difficultyBonus = difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
+  const perfectBonus = totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
+  return baseXp + correctXp + difficultyBonus + perfectBonus;
+}
 
 // ---------------------------------------------------------------------------
 // Helper Functions
@@ -250,11 +264,16 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   return { isCorrect };
 }
 
+export type CompleteQuizSessionResult = {
+  session: typeof aiQuizSessions.$inferSelect;
+  xpAwarded: number;
+};
+
 /**
  * Completes a quiz session, calculates final score, and awards XP.
  * Safe to call more than once: already-completed sessions are returned without re-awarding XP.
  */
-export async function completeQuizSession(sessionId: number) {
+export async function completeQuizSession(sessionId: number): Promise<CompleteQuizSessionResult> {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
@@ -268,8 +287,14 @@ export async function completeQuizSession(sessionId: number) {
   }
 
   if (session.completedAt) {
-    return session;
+    return { session, xpAwarded: 0 };
   }
+
+  const xpAwarded = calculateQuizCompletionXp(
+    session.correctAnswers,
+    session.totalQuestions,
+    session.difficulty
+  );
 
   // Calculate final score percentage
   const scorePercentage =
@@ -277,7 +302,8 @@ export async function completeQuizSession(sessionId: number) {
       ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
       : 0;
 
-  // Only transition incomplete → complete once (handles Strict Mode / double-submit races)
+  // Neon HTTP driver does not support db.transaction(); use two statements.
+  // Session completion uses a conditional update so only one caller wins races.
   const [completedSession] = await db
     .update(aiQuizSessions)
     .set({
@@ -287,6 +313,8 @@ export async function completeQuizSession(sessionId: number) {
     .where(and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt)))
     .returning();
 
+  let result: CompleteQuizSessionResult;
+
   if (!completedSession) {
     const existing = await db.query.aiQuizSessions.findFirst({
       where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
@@ -294,30 +322,30 @@ export async function completeQuizSession(sessionId: number) {
     if (!existing) {
       throw new Error("Session not found or unauthorized.");
     }
-    return existing;
-  }
-
-  // Award XP points based on score
-  // Base XP: 10 points per correct answer
-  // Bonus: +50 points for perfect score (100%)
-  const baseXP = session.correctAnswers * 10;
-  const bonusXP = scorePercentage === 100 ? 50 : 0;
-  const totalXP = baseXP + bonusXP;
-
-  // Update user progress with XP
-  const currentUserProgress = await getUserProgress();
-  if (currentUserProgress) {
+    result = { session: existing, xpAwarded: 0 };
+  } else {
+    // SQL increment avoids lost updates when points change concurrently (e.g. challenges, shop).
     await db
-      .update(userProgress)
-      .set({
-        points: currentUserProgress.points + totalXP,
+      .insert(userProgress)
+      .values({
+        userId,
+        activeCourseId: session.courseId,
+        points: xpAwarded,
       })
-      .where(eq(userProgress.userId, userId));
+      .onConflictDoUpdate({
+        target: userProgress.userId,
+        set: {
+          points: sql`${userProgress.points} + ${xpAwarded}`,
+        },
+      });
+
+    result = { session: completedSession, xpAwarded };
   }
 
   revalidatePath("/learn");
+  revalidatePath("/quiz");
   revalidatePath("/quests");
   revalidatePath("/leaderboard");
 
-  return completedSession;
+  return result;
 }
