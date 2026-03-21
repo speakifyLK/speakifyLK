@@ -589,6 +589,41 @@ export const getQuizSessionWithQuestions = cache(async (sessionId: number) => {
   return session;
 });
 
+function utcCalendarDayKey(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** Consecutive UTC calendar days with a completed quiz; still active if the last quiz was today or yesterday. */
+function computeQuizDayStreak(completionDates: Date[]): number {
+  if (completionDates.length === 0) return 0;
+
+  const daySet = new Set(completionDates.map((d) => utcCalendarDayKey(d)));
+
+  const now = new Date();
+  let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const todayKey = utcCalendarDayKey(cursor);
+  const yesterday = new Date(cursor);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayKey = utcCalendarDayKey(yesterday);
+
+  if (!daySet.has(todayKey) && !daySet.has(yesterdayKey)) {
+    return 0;
+  }
+
+  if (!daySet.has(todayKey)) {
+    cursor = yesterday;
+  }
+
+  let streak = 0;
+  for (;;) {
+    const key = utcCalendarDayKey(cursor);
+    if (!daySet.has(key)) break;
+    streak++;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+  return streak;
+}
+
 /**
  * Returns aggregate statistics for the user's quiz performance
  */
@@ -600,6 +635,7 @@ export const getQuizStats = cache(async () => {
       averageScore: 0,
       favouriteTopic: null,
       improvementTrend: "stable" as const,
+      quizStreak: 0,
     };
   }
 
@@ -626,6 +662,7 @@ export const getQuizStats = cache(async () => {
       averageScore: 0,
       favouriteTopic: null,
       improvementTrend: "stable" as const,
+      quizStreak: 0,
     };
   }
 
@@ -669,10 +706,18 @@ export const getQuizStats = cache(async () => {
     }
   }
 
+  const quizStreak = computeQuizDayStreak(
+    completedSessions
+      .map((s) => s.completedAt)
+      .filter((d): d is NonNullable<typeof d> => d != null)
+      .map((d) => (d instanceof Date ? d : new Date(d)))
+  );
+
   return {
     totalQuizzes,
     averageScore,
     favouriteTopic,
     improvementTrend,
+    quizStreak,
   };
 });

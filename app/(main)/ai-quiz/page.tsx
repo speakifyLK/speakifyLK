@@ -81,6 +81,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
               averageScore: quizStats.averageScore,
               favouriteTopic: quizStats.favouriteTopic,
               improvementTrend: quizStats.improvementTrend,
+              quizStreak: quizStats.quizStreak,
             }}
           />
         )}

@@ -5,17 +5,24 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Lightweight scroll area implementation that avoids the Radix dependency.
- * Provides a styled, overflow-auto container compatible with existing usage.
+ * Lightweight scroll area (no Radix package). Exposes
+ * `[data-radix-scroll-area-viewport]` so callers like chat-window can query the scrollable node.
  */
 const ScrollArea = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => (
     <div
       ref={ref}
+      className={cn("relative flex min-h-0 w-full max-h-full flex-col overflow-hidden", className)}
       className={cn("relative max-h-full w-full overflow-auto [&>*]:min-w-full", className)}
       {...props}
     >
-      {children}
+      <div
+        data-radix-scroll-area-viewport=""
+        tabIndex={-1}
+        className="min-h-0 flex-1 overflow-auto focus-visible:outline-none [&>*]:min-w-full"
+      >
+        {children}
+      </div>
     </div>
   )
 );

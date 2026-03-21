@@ -15,11 +15,18 @@ type SessionWithQuestions = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
 };
 
+export type LocalQuestionAnswerSnapshot = Record<
+  number,
+  { userAnswer: string; isCorrect: boolean }
+>;
+
 type QuizResultProps = {
   session: SessionWithQuestions;
   backHref?: string;
   /** Optional override for correct answers when coming from in-progress client state */
   localCorrectAnswers?: number;
+  /** Per-question answers from QuizPlay; session.questions may be stale until refresh */
+  localQuestionAnswers?: LocalQuestionAnswerSnapshot;
 };
 
 const getLetterGrade = (percentage: number): string => {
@@ -36,11 +43,45 @@ const getBadgeColor = (percentage: number) => {
   return "bg-rose-100 text-rose-700 border-rose-300";
 };
 
-export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResultProps) => {
+const MIN_API_QUESTIONS = 5;
+const MAX_API_QUESTIONS = 15;
+
+function clampQuestionCountForApi(n: number): number {
+  const v = Number.isFinite(n) && n > 0 ? Math.floor(n) : 10;
+  return Math.min(MAX_API_QUESTIONS, Math.max(MIN_API_QUESTIONS, v));
+}
+
+/** Same order as `QuizConfig` checkboxes so per-type question counts match the original setup. */
+const QUIZ_CONFIG_TYPE_ORDER = ["mcq", "fill_blank", "translation"] as const;
+
+function questionTypesForRetry(
+  questions: SessionWithQuestions["questions"]
+): ("mcq" | "fill_blank" | "translation")[] {
+  const used = new Set(questions.map((q) => q.type));
+  const ordered = QUIZ_CONFIG_TYPE_ORDER.filter((t) => used.has(t));
+  if (ordered.length > 0) return [...ordered];
+  return ["mcq", "fill_blank", "translation"];
+}
+
+function parseSessionIdFromGenerateResponse(data: unknown): number | undefined {
+  if (!data || typeof data !== "object" || !("sessionId" in data)) return undefined;
+  const raw = (data as { sessionId: unknown }).sessionId;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "string" && /^\d+$/.test(raw.trim())) return Number.parseInt(raw.trim(), 10);
+  return undefined;
+}
+
+export const QuizResult = ({
+  session,
+  backHref,
+  localCorrectAnswers,
+  localQuestionAnswers,
+}: QuizResultProps) => {
   const router = useRouter();
   const [hasCompleted, setHasCompleted] = useState(!!session.completedAt);
   const [isCompleting, setIsCompleting] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
+  const [tryAgainLoading, setTryAgainLoading] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const totalQuestions = session.totalQuestions || session.questions.length || 0;
@@ -96,15 +137,65 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
 
     return () => {
       isMounted = false;
-      if (copyTimeoutRef.current !== null) {
-        clearTimeout(copyTimeoutRef.current);
-      }
     };
   }, [hasCompleted, session.id, router]);
 
-  const handleTryAgain = () => {
-    // Start a new quiz with same topic & difficulty by navigating back to config
-    router.push(backHref || "/quiz");
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+        copyTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleTryAgain = async () => {
+    const base = backHref || "/quiz";
+    setTryAgainLoading(true);
+    try {
+      const questionCount = clampQuestionCountForApi(
+        session.totalQuestions || session.questions.length
+      );
+      const questionTypes = questionTypesForRetry(session.questions);
+
+      const response = await fetch("/api/quiz/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: session.topic,
+          difficulty: session.difficulty,
+          questionCount,
+          questionTypes,
+        }),
+      });
+
+      if (!response.ok) {
+        const errBody: unknown = await response.json().catch(() => ({}));
+        const msg =
+          errBody &&
+          typeof errBody === "object" &&
+          "error" in errBody &&
+          typeof (errBody as { error: unknown }).error === "string"
+            ? (errBody as { error: string }).error
+            : "Failed to generate quiz";
+        throw new Error(msg);
+      }
+
+      const data: unknown = await response.json();
+      const sessionId = parseSessionIdFromGenerateResponse(data);
+      if (sessionId === undefined) {
+        throw new Error("Failed to start quiz: missing session ID");
+      }
+
+      toast.success("New quiz ready!");
+      const url = `${base}?sessionId=${encodeURIComponent(String(sessionId))}`;
+      router.push(url);
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to start quiz");
+    } finally {
+      setTryAgainLoading(false);
+    }
   };
 
   const handleNewQuiz = () => {
@@ -205,8 +296,9 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
             <p className="text-sm text-neutral-500">No questions found for this session.</p>
           ) : (
             session.questions.map((q, index) => {
-              const isCorrect = q.isCorrect === true;
-              const userAnswer = q.userAnswer ?? "No answer";
+              const local = localQuestionAnswers?.[q.id];
+              const isCorrect = local ? local.isCorrect : q.isCorrect === true;
+              const userAnswer = local?.userAnswer ?? q.userAnswer ?? "No answer";
               return (
                 <div
                   key={q.id}
@@ -246,10 +338,10 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
           variant="default"
           size="lg"
           className="flex-1"
-          onClick={handleTryAgain}
-          disabled={isCompleting}
+          onClick={() => void handleTryAgain()}
+          disabled={isCompleting || tryAgainLoading}
         >
-          Try Again
+          {tryAgainLoading ? "Starting…" : "Try Again"}
         </Button>
         <Button variant="secondary" size="lg" className="flex-1" onClick={handleNewQuiz}>
           New Quiz

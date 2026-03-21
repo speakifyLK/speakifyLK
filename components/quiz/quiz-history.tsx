@@ -25,6 +25,7 @@ type QuizStats = {
   averageScore: number;
   favouriteTopic: string | null;
   improvementTrend: "improving" | "declining" | "stable";
+  quizStreak: number;
 };
 
 type SessionWithQuestions = typeof aiQuizSessions.$inferSelect & {
@@ -73,7 +74,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
       <h2 className="text-2xl font-bold text-neutral-800">Your quiz performance</h2>
 
       {/* Stats summary card */}
-      <div className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 text-sm md:grid-cols-4">
+      <div className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 text-sm sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="text-xs uppercase tracking-wide text-neutral-500">Total quizzes</p>
           <p className="text-2xl font-semibold text-neutral-900">{stats.totalQuizzes}</p>
@@ -85,9 +86,18 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-neutral-500">Best topic</p>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Favourite topic</p>
           <p className="truncate text-sm font-semibold text-neutral-900">
             {stats.favouriteTopic ?? "—"}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Streak</p>
+          <p className="text-2xl font-semibold text-neutral-900">
+            {stats.quizStreak}{" "}
+            <span className="text-sm font-normal text-neutral-600">
+              {stats.quizStreak === 1 ? "day" : "days"}
+            </span>
           </p>
         </div>
         <div>
@@ -163,7 +173,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
               {selectedSession ? `Review: ${selectedSession.topic}` : "Quiz review"}
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
-              Tap on any question to see how you answered compared to the correct answer.
+                Review how you answered each question compared to the correct answer.
             </DialogDescription>
           </DialogHeader>
 

@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
@@ -251,9 +251,8 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
 }
 
 /**
- * Completes a quiz session, calculates final score, and awards XP
- * @param sessionId - The ID of the session to complete
- * @returns The completed session record
+ * Completes a quiz session, calculates final score, and awards XP.
+ * Safe to call more than once: already-completed sessions are returned without re-awarding XP.
  */
 export async function completeQuizSession(sessionId: number) {
   const { userId } = await auth();
@@ -269,7 +268,7 @@ export async function completeQuizSession(sessionId: number) {
   }
 
   if (session.completedAt) {
-    throw new Error("Session is already completed.");
+    return session;
   }
 
   // Calculate final score percentage
@@ -278,15 +277,25 @@ export async function completeQuizSession(sessionId: number) {
       ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
       : 0;
 
-  // Update session with score and completedAt
+  // Only transition incomplete → complete once (handles Strict Mode / double-submit races)
   const [completedSession] = await db
     .update(aiQuizSessions)
     .set({
       score: scorePercentage,
       completedAt: new Date(),
     })
-    .where(eq(aiQuizSessions.id, sessionId))
+    .where(and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt)))
     .returning();
+
+  if (!completedSession) {
+    const existing = await db.query.aiQuizSessions.findFirst({
+      where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+    });
+    if (!existing) {
+      throw new Error("Session not found or unauthorized.");
+    }
+    return existing;
+  }
 
   // Award XP points based on score
   // Base XP: 10 points per correct answer
@@ -312,3 +321,4 @@ export async function completeQuizSession(sessionId: number) {
 
   return completedSession;
 }
+
