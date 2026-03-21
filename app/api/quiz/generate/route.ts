@@ -152,9 +152,10 @@ export async function POST(request: Request) {
     }
 
     // ── 2. Parse & validate request body ──
+    let rawBody: unknown;
     let body: ValidatedBody;
     try {
-      const rawBody: unknown = await request.json();
+      rawBody = await request.json();
       body = validateRequestBody(rawBody);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Invalid request body.";
@@ -168,6 +169,25 @@ export async function POST(request: Request) {
         { error: "No active course found. Please select a course first." },
         { status: 400 }
       );
+    }
+
+    // Optional: lock generation to the same course as a previous session (Try Again)
+    if (rawBody && typeof rawBody === "object" && "courseId" in rawBody) {
+      const cid = (rawBody as Record<string, unknown>).courseId;
+      if (cid !== undefined && cid !== null) {
+        if (typeof cid !== "number" || !Number.isInteger(cid)) {
+          return NextResponse.json({ error: "Invalid courseId." }, { status: 400 });
+        }
+        if (cid !== userProgress.activeCourseId) {
+          return NextResponse.json(
+            {
+              error:
+                "Switch to the course this quiz was created in, or start a new quiz from the setup screen.",
+            },
+            { status: 400 }
+          );
+        }
+      }
     }
 
     const profile = await getUserLearningProfile();
