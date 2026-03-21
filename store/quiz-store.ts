@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import type { AdaptiveDifficultyRecommendation } from "@/lib/adaptive-difficulty";
+
 type QuizQuestion = {
   id: number;
   question: string;
@@ -21,7 +23,9 @@ type QuizState = {
   timeRemaining: number;
   isQuizActive: boolean;
   difficulty: Difficulty;
+  adaptiveRecommendation: AdaptiveDifficultyRecommendation | null;
 
+  setAdaptiveRecommendation: (recommendation: AdaptiveDifficultyRecommendation | null) => void;
   startQuiz: (sessionId: number, questions: QuizQuestion[], difficulty?: Difficulty, initialTimeSeconds?: number) => void;
   selectAnswer: (answer: string) => void;
   submitAnswer: () => void;
@@ -41,6 +45,9 @@ export const useQuizStore = create<QuizState>((set) => ({
   timeRemaining: 0,
   isQuizActive: false,
   difficulty: "easy",
+  adaptiveRecommendation: null,
+
+  setAdaptiveRecommendation: (recommendation) => set({ adaptiveRecommendation: recommendation }),
 
   startQuiz: (sessionId, questions, difficulty = "easy", initialTimeSeconds = 0) => {
     const hasPositiveTime = initialTimeSeconds > 0;
@@ -132,6 +139,7 @@ export const useQuizStore = create<QuizState>((set) => ({
       timeRemaining: 0,
       isQuizActive: false,
       difficulty: "easy",
+      adaptiveRecommendation: null,
     }),
 
   decrementTimer: () =>

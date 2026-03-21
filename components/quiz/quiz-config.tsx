@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { units as unitsTable } from "@/db/schema";
+import {
+  computeAdaptiveDifficultyRecommendation,
+  type AdaptiveQuizHistorySession,
+} from "@/lib/adaptive-difficulty";
 import type { Difficulty } from "@/lib/quiz-prompt";
+import { useQuizStore } from "@/store/quiz-store";
 
 type Unit = Pick<
   typeof unitsTable.$inferSelect,
@@ -18,11 +23,13 @@ type Unit = Pick<
 type QuizConfigProps = {
   units: Unit[];
   basePath?: string;
+  /** From `getQuizHistory()` on the server; used for adaptive difficulty. */
+  quizHistory?: AdaptiveQuizHistorySession[];
 };
 
 type QuestionType = "mcq" | "fill_blank" | "translation";
 
-export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
+export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProps) => {
   const router = useRouter();
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("beginner");
@@ -33,6 +40,27 @@ export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
     "translation",
   ]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const adaptiveRecommendation = useQuizStore((s) => s.adaptiveRecommendation);
+  const setAdaptiveRecommendation = useQuizStore((s) => s.setAdaptiveRecommendation);
+
+  useEffect(() => {
+    if (selectedTopic == null) {
+      setAdaptiveRecommendation(null);
+      return;
+    }
+    const unit = units.find((u) => u.id === selectedTopic);
+    if (!unit) {
+      setAdaptiveRecommendation(null);
+      return;
+    }
+    const rec = computeAdaptiveDifficultyRecommendation(
+      quizHistory,
+      unit.title,
+      difficulty
+    );
+    setAdaptiveRecommendation(rec);
+  }, [selectedTopic, difficulty, quizHistory, units, setAdaptiveRecommendation]);
 
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) =>
@@ -179,6 +207,28 @@ export const QuizConfig = ({ units, basePath }: QuizConfigProps) => {
       {/* Difficulty Picker */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Difficulty Level</h2>
+        {adaptiveRecommendation &&
+          selectedTopic != null &&
+          units.find((u) => u.id === selectedTopic)?.title.trim() ===
+            adaptiveRecommendation.topicTitle && (
+            <div
+              role="status"
+              className="rounded-xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-amber-950 shadow-sm"
+            >
+              <p className="text-sm font-medium leading-relaxed md:text-base">
+                Based on your performance, we recommend{" "}
+                <span className="rounded-md bg-amber-200/80 px-1.5 py-0.5 font-bold text-amber-950">
+                  {adaptiveRecommendation.recommendedDifficulty.charAt(0).toUpperCase() +
+                    adaptiveRecommendation.recommendedDifficulty.slice(1)}
+                </span>{" "}
+                difficulty for{" "}
+                <span className="rounded-md bg-amber-200/80 px-1.5 py-0.5 font-bold text-amber-950">
+                  {adaptiveRecommendation.topicTitle}
+                </span>
+                .
+              </p>
+            </div>
+          )}
         <div
           className="grid grid-cols-1 gap-4 md:grid-cols-3"
           role="group"

@@ -7,7 +7,13 @@ import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
-import { getQuizSessionWithQuestions, getUnitsForQuiz, getUserProgress, getUserSubscription } from "@/db/queries";
+import {
+  getQuizHistory,
+  getQuizSessionWithQuestions,
+  getUnitsForQuiz,
+  getUserProgress,
+  getUserSubscription,
+} from "@/db/queries";
 
 import { Header } from "../learn/header";
 
@@ -24,11 +30,13 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
   const userProgressData = getUserProgress();
   const unitsData = getUnitsForQuiz();
   const userSubscriptionData = getUserSubscription();
+  const quizHistoryData = getQuizHistory();
 
-  const [userProgress, units, userSubscription] = await Promise.all([
+  const [userProgress, units, userSubscription, quizHistory] = await Promise.all([
     userProgressData,
     unitsData,
     userSubscriptionData,
+    quizHistoryData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
@@ -81,7 +89,7 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
       </StickyWrapper>
       <FeedWrapper>
         <Header title="Quiz" />
-        <QuizConfig units={units} />
+        <QuizConfig units={units} quizHistory={quizHistory} />
       </FeedWrapper>
     </div>
   );

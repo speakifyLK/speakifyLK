@@ -72,7 +72,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
   } else {
     mainContent = (
       <div className="flex flex-col gap-4">
-        <QuizConfig units={units} basePath="/ai-quiz" />
+        <QuizConfig units={units} basePath="/ai-quiz" quizHistory={quizHistory} />
         {quizStats && (
           <QuizHistory
             history={quizHistory}
