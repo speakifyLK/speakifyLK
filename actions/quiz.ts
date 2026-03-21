@@ -8,6 +8,22 @@ import db from "@/db/drizzle";
 import { getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions, userProgress } from "@/db/schema";
 
+type QuizDifficulty = "beginner" | "intermediate" | "advanced";
+
+function calculateQuizCompletionXp(
+  correctAnswers: number,
+  totalQuestions: number,
+  difficulty: QuizDifficulty
+): number {
+  const baseXp = 10;
+  const correctXp = correctAnswers * 2;
+  const difficultyBonus =
+    difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
+  const perfectBonus =
+    totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
+  return baseXp + correctXp + difficultyBonus + perfectBonus;
+}
+
 // ---------------------------------------------------------------------------
 // Helper Functions
 // ---------------------------------------------------------------------------
@@ -250,11 +266,18 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   return { isCorrect };
 }
 
+export type CompleteQuizSessionResult = {
+  session: typeof aiQuizSessions.$inferSelect;
+  xpAwarded: number;
+};
+
 /**
  * Completes a quiz session, calculates final score, and awards XP.
  * Safe to call more than once: already-completed sessions are returned without re-awarding XP.
  */
-export async function completeQuizSession(sessionId: number) {
+export async function completeQuizSession(
+  sessionId: number
+): Promise<CompleteQuizSessionResult> {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
@@ -268,7 +291,7 @@ export async function completeQuizSession(sessionId: number) {
   }
 
   if (session.completedAt) {
-    return session;
+    return { session, xpAwarded: 0 };
   }
 
   // Calculate final score percentage
@@ -294,30 +317,29 @@ export async function completeQuizSession(sessionId: number) {
     if (!existing) {
       throw new Error("Session not found or unauthorized.");
     }
-    return existing;
+    return { session: existing, xpAwarded: 0 };
   }
 
-  // Award XP points based on score
-  // Base XP: 10 points per correct answer
-  // Bonus: +50 points for perfect score (100%)
-  const baseXP = session.correctAnswers * 10;
-  const bonusXP = scorePercentage === 100 ? 50 : 0;
-  const totalXP = baseXP + bonusXP;
+  const xpAwarded = calculateQuizCompletionXp(
+    session.correctAnswers,
+    session.totalQuestions,
+    session.difficulty
+  );
 
-  // Update user progress with XP
   const currentUserProgress = await getUserProgress();
-  if (currentUserProgress) {
-    await db
-      .update(userProgress)
-      .set({
-        points: currentUserProgress.points + totalXP,
-      })
-      .where(eq(userProgress.userId, userId));
-  }
+  if (!currentUserProgress) throw new Error("User progress not found.");
+
+  await db
+    .update(userProgress)
+    .set({
+      points: currentUserProgress.points + xpAwarded,
+    })
+    .where(eq(userProgress.userId, userId));
 
   revalidatePath("/learn");
+  revalidatePath("/quiz");
   revalidatePath("/quests");
   revalidatePath("/leaderboard");
 
-  return completedSession;
+  return { session: completedSession, xpAwarded };
 }

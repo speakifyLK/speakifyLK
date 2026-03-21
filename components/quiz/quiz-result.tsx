@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
@@ -129,9 +130,14 @@ export const QuizResult = ({
     const run = async () => {
       try {
         setIsCompleting(true);
-        await completeQuizSession(session.id);
+        const { xpAwarded } = await completeQuizSession(session.id);
         if (!isMounted) return;
         setHasCompleted(true);
+        if (xpAwarded > 0) {
+          toast.success(`+${xpAwarded} XP from AI Quiz!`, {
+            icon: <Sparkles className="size-5 text-amber-500" aria-hidden />,
+          });
+        }
         router.refresh();
       } catch (error) {
         if (!isMounted) return;
