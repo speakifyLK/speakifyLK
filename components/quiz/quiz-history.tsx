@@ -173,7 +173,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
               {selectedSession ? `Review: ${selectedSession.topic}` : "Quiz review"}
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
-                Review how you answered each question compared to the correct answer.
+              Review how you answered each question compared to the correct answer.
             </DialogDescription>
           </DialogHeader>
 

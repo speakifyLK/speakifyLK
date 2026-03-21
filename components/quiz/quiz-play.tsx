@@ -18,8 +18,7 @@ function initialLocalQuestionAnswers(questions: Session["questions"]): LocalQues
   const out: LocalQuestionAnswerSnapshot = {};
   for (const q of questions) {
     const trimmed = q.userAnswer?.trim() ?? "";
-    const answeredInDb =
-      trimmed !== "" || q.isCorrect === true || q.isCorrect === false;
+    const answeredInDb = trimmed !== "" || q.isCorrect === true || q.isCorrect === false;
     if (!answeredInDb) continue;
     out[q.id] = {
       userAnswer: trimmed !== "" ? trimmed : "No answer",

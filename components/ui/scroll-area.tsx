@@ -12,7 +12,7 @@ const ScrollArea = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
   ({ className, children, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("relative flex min-h-0 w-full max-h-full flex-col overflow-hidden", className)}
+      className={cn("relative flex max-h-full min-h-0 w-full flex-col overflow-hidden", className)}
       className={cn("relative max-h-full w-full overflow-auto [&>*]:min-w-full", className)}
       {...props}
     >
