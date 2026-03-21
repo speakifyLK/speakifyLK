@@ -8,7 +8,7 @@ import db from "@/db/drizzle";
 import { getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions, userProgress } from "@/db/schema";
 
-type QuizDifficulty = typeof aiQuizSessions.$inferSelect["difficulty"];
+type QuizDifficulty = (typeof aiQuizSessions.$inferSelect)["difficulty"];
 
 function calculateQuizCompletionXp(
   correctAnswers: number,
