@@ -1,14 +1,14 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
 import { getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions, userProgress } from "@/db/schema";
 
-type QuizDifficulty = "beginner" | "intermediate" | "advanced";
+type QuizDifficulty = typeof aiQuizSessions.$inferSelect["difficulty"];
 
 function calculateQuizCompletionXp(
   correctAnswers: number,
@@ -290,13 +290,20 @@ export async function completeQuizSession(sessionId: number): Promise<CompleteQu
     return { session, xpAwarded: 0 };
   }
 
+  const xpAwarded = calculateQuizCompletionXp(
+    session.correctAnswers,
+    session.totalQuestions,
+    session.difficulty
+  );
+
   // Calculate final score percentage
   const scorePercentage =
     session.totalQuestions > 0
       ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
       : 0;
 
-  // Only transition incomplete → complete once (handles Strict Mode / double-submit races)
+  // Neon HTTP driver does not support db.transaction(); use two statements.
+  // Session completion uses a conditional update so only one caller wins races.
   const [completedSession] = await db
     .update(aiQuizSessions)
     .set({
@@ -306,6 +313,8 @@ export async function completeQuizSession(sessionId: number): Promise<CompleteQu
     .where(and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt)))
     .returning();
 
+  let result: CompleteQuizSessionResult;
+
   if (!completedSession) {
     const existing = await db.query.aiQuizSessions.findFirst({
       where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
@@ -313,29 +322,30 @@ export async function completeQuizSession(sessionId: number): Promise<CompleteQu
     if (!existing) {
       throw new Error("Session not found or unauthorized.");
     }
-    return { session: existing, xpAwarded: 0 };
+    result = { session: existing, xpAwarded: 0 };
+  } else {
+    // SQL increment avoids lost updates when points change concurrently (e.g. challenges, shop).
+    await db
+      .insert(userProgress)
+      .values({
+        userId,
+        activeCourseId: session.courseId,
+        points: xpAwarded,
+      })
+      .onConflictDoUpdate({
+        target: userProgress.userId,
+        set: {
+          points: sql`${userProgress.points} + ${xpAwarded}`,
+        },
+      });
+
+    result = { session: completedSession, xpAwarded };
   }
-
-  const xpAwarded = calculateQuizCompletionXp(
-    session.correctAnswers,
-    session.totalQuestions,
-    session.difficulty
-  );
-
-  const currentUserProgress = await getUserProgress();
-  if (!currentUserProgress) throw new Error("User progress not found.");
-
-  await db
-    .update(userProgress)
-    .set({
-      points: currentUserProgress.points + xpAwarded,
-    })
-    .where(eq(userProgress.userId, userId));
 
   revalidatePath("/learn");
   revalidatePath("/quiz");
   revalidatePath("/quests");
   revalidatePath("/leaderboard");
 
-  return { session: completedSession, xpAwarded };
+  return result;
 }
