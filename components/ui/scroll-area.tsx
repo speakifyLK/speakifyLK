@@ -12,10 +12,7 @@ const ScrollArea = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
   ({ className, children, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        "relative max-h-full w-full overflow-auto [&>*]:min-w-full",
-        className
-      )}
+      className={cn("relative max-h-full w-full overflow-auto [&>*]:min-w-full", className)}
       {...props}
     >
       {children}
@@ -26,11 +23,8 @@ ScrollArea.displayName = "ScrollArea";
 
 // Kept for API compatibility; no-op visual scrollbar wrapper
 const ScrollBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("hidden", className)} {...props} />
-  )
+  ({ className, ...props }, ref) => <div ref={ref} className={cn("hidden", className)} {...props} />
 );
 ScrollBar.displayName = "ScrollBar";
 
 export { ScrollArea, ScrollBar };
-
