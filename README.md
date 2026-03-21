@@ -84,6 +84,7 @@ speakify/
   |- jira/
     |-- jira.js
   |- lib/
+    |-- adaptive-difficulty.ts
     |-- admin.ts
     |-- chat-prompt.ts
     |-- gemini.ts
