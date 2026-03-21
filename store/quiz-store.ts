@@ -66,6 +66,7 @@ export const useQuizStore = create<QuizState>((set) => ({
       timeRemaining: hasPositiveTime ? initialTimeSeconds : 0,
       isQuizActive: hasPositiveTime,
       difficulty,
+      adaptiveRecommendation: null,
     });
   },
 
