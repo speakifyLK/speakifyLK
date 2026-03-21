@@ -17,10 +17,8 @@ function calculateQuizCompletionXp(
 ): number {
   const baseXp = 10;
   const correctXp = correctAnswers * 2;
-  const difficultyBonus =
-    difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
-  const perfectBonus =
-    totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
+  const difficultyBonus = difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
+  const perfectBonus = totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
   return baseXp + correctXp + difficultyBonus + perfectBonus;
 }
 
@@ -275,9 +273,7 @@ export type CompleteQuizSessionResult = {
  * Completes a quiz session, calculates final score, and awards XP.
  * Safe to call more than once: already-completed sessions are returned without re-awarding XP.
  */
-export async function completeQuizSession(
-  sessionId: number
-): Promise<CompleteQuizSessionResult> {
+export async function completeQuizSession(sessionId: number): Promise<CompleteQuizSessionResult> {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
