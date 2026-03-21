@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -54,15 +54,21 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
   const [selectedSession, setSelectedSession] = useState<SessionWithQuestions | null>(null);
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const loadGenerationRef = useRef(0);
 
   const handleOpenSession = (sessionId: number) => {
+    loadGenerationRef.current += 1;
+    const generation = loadGenerationRef.current;
+    setSelectedSession(null);
+    setOpen(true);
     startTransition(async () => {
       try {
         const res = await fetch(`/api/quiz/session?sessionId=${sessionId}`);
+        if (generation !== loadGenerationRef.current) return;
         if (!res.ok) return;
         const session = (await res.json()) as SessionWithQuestions;
+        if (generation !== loadGenerationRef.current) return;
         setSelectedSession(session);
-        setOpen(true);
       } catch {
         // Silent fail; could add toast if desired
       }
@@ -166,7 +172,13 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
       </div>
 
       {/* Session review dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) setSelectedSession(null);
+        }}
+      >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
@@ -203,11 +215,13 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
           </div>
 
           <ScrollArea className="mt-3 max-h-[50vh] rounded-xl border border-slate-200 bg-slate-50 p-3">
-            {isPending && !selectedSession ? (
+            {isPending ? (
               <p className="text-sm text-neutral-500">Loading session...</p>
             ) : !selectedSession ? (
               <p className="text-sm text-neutral-500">
-                Select a quiz from the list to see its questions.
+                {open
+                  ? "Could not load this session."
+                  : "Select a quiz from the list to see its questions."}
               </p>
             ) : selectedSession.questions.length === 0 ? (
               <p className="text-sm text-neutral-500">

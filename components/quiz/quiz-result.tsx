@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
@@ -78,6 +79,7 @@ export const QuizResult = ({
   localQuestionAnswers,
 }: QuizResultProps) => {
   const router = useRouter();
+  const { width, height } = useWindowSize();
   const [hasCompleted, setHasCompleted] = useState(!!session.completedAt);
   const [isCompleting, setIsCompleting] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
@@ -97,7 +99,19 @@ export const QuizResult = ({
   // Calculate simple duration if timestamps exist
   const timeTakenLabel = useMemo(() => {
     if (!session.startedAt || !session.completedAt) return "—";
-    const ms = session.completedAt.getTime() - session.startedAt.getTime();
+    const startedAt =
+      typeof session.startedAt === "string" ? new Date(session.startedAt) : session.startedAt;
+    const completedAt =
+      typeof session.completedAt === "string" ? new Date(session.completedAt) : session.completedAt;
+    if (
+      !(startedAt instanceof Date) ||
+      Number.isNaN(startedAt.getTime()) ||
+      !(completedAt instanceof Date) ||
+      Number.isNaN(completedAt.getTime())
+    ) {
+      return "—";
+    }
+    const ms = completedAt.getTime() - startedAt.getTime();
     if (ms <= 0) return "—";
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -223,10 +237,12 @@ export const QuizResult = ({
 
   return (
     <div className="relative flex flex-col gap-8 p-6">
-      {showConfetti && (
+      {showConfetti && width > 0 && height > 0 && (
         <Confetti
           numberOfPieces={250}
           recycle={false}
+          width={width}
+          height={height}
           className="pointer-events-none fixed inset-0 z-50"
         />
       )}
