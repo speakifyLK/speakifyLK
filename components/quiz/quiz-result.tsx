@@ -254,8 +254,7 @@ export const QuizResult = ({ session, backHref, localCorrectAnswers }: QuizResul
         <Button variant="secondary" size="lg" className="flex-1" onClick={handleNewQuiz}>
           New Quiz
         </Button>
-        <Button variant="outline" size="lg" className="flex-1" onClick={handleShareResults}>
-        <Button variant="ghost" size="lg" className="flex-1" onClick={handleShareResults}>
+        <Button variant="secondaryOutline" size="lg" className="flex-1" onClick={handleShareResults}>
           {hasCopied ? "Copied!" : "Share Results"}
         </Button>
       </div>
