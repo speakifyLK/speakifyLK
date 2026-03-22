@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.0"
     }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.0"
+    }
   }
 
   # Local backend for now; switch to GCS when ready:
@@ -61,5 +65,4 @@ resource "google_project_iam_member" "rag_sa_storage_object_admin" {
 
 resource "google_service_account_key" "rag_sa_key" {
   service_account_id = google_service_account.rag_sa.name
-  public_key_type    = "TYPE_X509_PEM_FILE"
 }
