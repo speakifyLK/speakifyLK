@@ -34,6 +34,7 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
+
 ```bash
 speakify/
   |- actions/
@@ -81,6 +82,12 @@ speakify/
     |-- drizzle.ts
     |-- queries.ts
     |-- schema.ts
+  |- infrastructure/
+    |-- .terraform.lock.hcl
+    |-- main.tf
+    |-- outputs.tf
+    |-- terraform.tfvars.example
+    |-- variables.tf
   |- jira/
     |-- jira-rag.js
     |-- jira.js
@@ -124,6 +131,7 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
 ```
+
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -257,6 +265,33 @@ Once the script completes, check your database to ensure that the challenges dat
 
 **NOTE:** Please make sure to keep your API keys and configuration values secure and do not expose them publicly.
 
+## :cloud: Infrastructure (Terraform)
+
+The `infrastructure/` directory contains Terraform configuration for provisioning GCP resources.
+
+### Prerequisites
+
+- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.5.0
+- A GCP project with billing enabled
+- Authenticated via `gcloud auth application-default login` or a service account key
+
+### Setup
+
+```bash
+cd infrastructure
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your actual GCP project ID and region
+terraform init
+terraform plan
+terraform apply
+```
+
+This will enable the following GCP APIs in your project:
+
+- `aiplatform.googleapis.com` (Vertex AI)
+- `storage.googleapis.com` (Cloud Storage)
+- `iam.googleapis.com` (IAM)
+
 ## :gear: Tech Stack
 
 [![React JS](https://skillicons.dev/icons?i=react "React JS")](https://react.dev/ "React JS") [![Next JS](https://skillicons.dev/icons?i=next "Next JS")](https://nextjs.org/ "Next JS") [![Typescript](https://skillicons.dev/icons?i=ts "Typescript")](https://www.typescriptlang.org/ "Typescript") [![Tailwind CSS](https://skillicons.dev/icons?i=tailwind "Tailwind CSS")](https://tailwindcss.com/ "Tailwind CSS") [![Bun](https://skillicons.dev/icons?i=bun "Bun")](https://bun.sh/ "Bun") [![GCP](https://skillicons.dev/icons?i=gcp "Gemini")](https://ai.google.dev/ "Gemini") [![Vercel](https://skillicons.dev/icons?i=vercel "Vercel")](https://vercel.app/ "Vercel") [![Postgresql](https://skillicons.dev/icons?i=postgres "Postgresql")](https://www.postgresql.org/ "Postgresql")
@@ -270,6 +305,7 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
+
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
