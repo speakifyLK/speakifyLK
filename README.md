@@ -94,6 +94,11 @@ speakify/
     |-- rate-limit.ts
     |-- stripe.ts
     |-- utils.ts
+  |- infrastructure/
+    |-- main.tf
+    |-- variables.tf
+    |-- outputs.tf
+    |-- terraform.tfvars.example
   |- public/
   |- scripts/
     |-- prod.ts
@@ -256,6 +261,33 @@ Once the script completes, check your database to ensure that the challenges dat
 15. Now app is fully configured 👍 and you can start using this app using either one of `bun dev`.
 
 **NOTE:** Please make sure to keep your API keys and configuration values secure and do not expose them publicly.
+
+## :cloud: Infrastructure (Terraform)
+
+The `infrastructure/` directory contains Terraform configuration for provisioning GCP resources.
+
+### Prerequisites
+
+- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.5.0
+- A GCP project with billing enabled
+- Authenticated via `gcloud auth application-default login` or a service account key
+
+### Setup
+
+```bash
+cd infrastructure
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your actual GCP project ID and region
+terraform init
+terraform plan
+terraform apply
+```
+
+This will enable the following GCP APIs in your project:
+
+- `aiplatform.googleapis.com` (Vertex AI)
+- `storage.googleapis.com` (Cloud Storage)
+- `iam.googleapis.com` (IAM)
 
 ## :gear: Tech Stack
 
