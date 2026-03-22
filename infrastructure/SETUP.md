@@ -99,11 +99,11 @@ projects/123456/locations/global/workloadIdentityPools/github-pool/providers/git
 
 Go to **Settings > Secrets and variables > Actions > New repository secret** and add:
 
-| Secret               | Value                                                    |
-| -------------------- | -------------------------------------------------------- |
-| `WIF_PROVIDER`       | The full provider name from Step 5                       |
-| `WIF_SERVICE_ACCOUNT`| `terraform-ci@<project-id>.iam.gserviceaccount.com`      |
-| `GCP_PROJECT_ID`     | Your GCP project ID                                      |
+| Secret                | Value                                               |
+| --------------------- | --------------------------------------------------- |
+| `WIF_PROVIDER`        | The full provider name from Step 5                  |
+| `WIF_SERVICE_ACCOUNT` | `terraform-ci@<project-id>.iam.gserviceaccount.com` |
+| `GCP_PROJECT_ID`      | Your GCP project ID                                 |
 
 ## Step 7: Run Terraform Locally (One-Time Bootstrap)
 
