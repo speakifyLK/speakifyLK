@@ -227,19 +227,19 @@ GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","privat
        - Copy the entire JSON key content into `GOOGLE_SERVICE_ACCOUNT_KEY` (wrap it in single quotes).
 
 11. Identify Clerk Admin User IDs
-11. **Source**: Clerk Dashboard or Settings Page
-12. **Procedure**:
+12. **Source**: Clerk Dashboard or Settings Page
+13. **Procedure**:
     - Log in to your Clerk account.
     - Navigate to the dashboard or settings page.
     - Find the section related to admin user IDs.
     - Copy the user IDs provided, ensuring they are separated by commas and spaces.
 
-13. Save and Secure:
+14. Save and Secure:
     - Save the changes to the `.env` file.
 
-14. Install Project Dependencies using `bun install --legacy-peer-deps`.
+15. Install Project Dependencies using `bun install --legacy-peer-deps`.
 
-15. Run the Seed Script:
+16. Run the Seed Script:
 
 In the same terminal, run the following command to execute the seed script:
 
