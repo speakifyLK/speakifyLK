@@ -81,6 +81,12 @@ speakify/
     |-- drizzle.ts
     |-- queries.ts
     |-- schema.ts
+  |- infrastructure/
+    |-- .terraform.lock.hcl
+    |-- main.tf
+    |-- outputs.tf
+    |-- terraform.tfvars.example
+    |-- variables.tf
   |- jira/
     |-- jira-rag.js
     |-- jira.js
@@ -94,11 +100,6 @@ speakify/
     |-- rate-limit.ts
     |-- stripe.ts
     |-- utils.ts
-  |- infrastructure/
-    |-- main.tf
-    |-- variables.tf
-    |-- outputs.tf
-    |-- terraform.tfvars.example
   |- public/
   |- scripts/
     |-- prod.ts
