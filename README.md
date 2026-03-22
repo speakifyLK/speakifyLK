@@ -177,6 +177,11 @@ GOOGLE_GENAI_USE_VERTEXAI=true
 
 # set to '1' to disable safety filters (BLOCK_NONE) — optional
 # GEMINI_UNSAFE_MODE=1
+
+# google cloud platform (GCP)
+GCP_PROJECT_ID=your-gcp-project-id
+GCP_LOCATION=us-central1
+GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"...","auth_provider_x509_cert_url":"...","client_x509_cert_url":"..."}'
 ```
 
 5. Obtain Clerk Authentication Keys
@@ -214,7 +219,15 @@ GOOGLE_GENAI_USE_VERTEXAI=true
       - **Option B — Vertex AI Express Mode**: Go to Google Cloud Console, enable the Vertex AI API, and create an API key. Then set `GOOGLE_GENAI_USE_VERTEXAI=true` in your `.env`.
       - Copy the key into `GEMINI_API_KEY`.
 
-10. Identify Clerk Admin User IDs
+10. Configure Google Cloud Platform (GCP)
+    1. **Source**: Google Cloud Console
+    2. **Procedure**:
+       - Go to the Google Cloud Console and select or create a project.
+       - Set `GCP_PROJECT_ID` to your project ID and `GCP_LOCATION` to your preferred region (e.g., `us-central1`).
+       - Navigate to **IAM & Admin > Service Accounts**, create a service account, and generate a JSON key.
+       - Copy the entire JSON key content into `GOOGLE_SERVICE_ACCOUNT_KEY` (wrap it in single quotes).
+
+11. Identify Clerk Admin User IDs
 11. **Source**: Clerk Dashboard or Settings Page
 12. **Procedure**:
     - Log in to your Clerk account.
