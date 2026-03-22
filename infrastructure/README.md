@@ -51,16 +51,16 @@ Terraform configuration for provisioning GCP resources used by SpeakifyLK.
 
 ## Variables
 
-| Name         | Description              | Default        |
-| ------------ | ------------------------ | -------------- |
-| `project_id` | The GCP project ID       | _(required)_   |
-| `region`     | The GCP region           | `us-central1`  |
+| Name         | Description        | Default       |
+| ------------ | ------------------ | ------------- |
+| `project_id` | The GCP project ID | _(required)_  |
+| `region`     | The GCP region     | `us-central1` |
 
 ## Outputs
 
-| Name           | Description                                      |
-| -------------- | ------------------------------------------------ |
-| `project_id`   | The GCP project ID                               |
-| `region`       | The GCP region                                   |
-| `rag_sa_email` | Email of the RAG service account                 |
-| `rag_sa_key`   | Base64-encoded JSON key (sensitive)              |
+| Name           | Description                         |
+| -------------- | ----------------------------------- |
+| `project_id`   | The GCP project ID                  |
+| `region`       | The GCP region                      |
+| `rag_sa_email` | Email of the RAG service account    |
+| `rag_sa_key`   | Base64-encoded JSON key (sensitive) |
