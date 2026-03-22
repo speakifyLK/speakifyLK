@@ -82,6 +82,7 @@ speakify/
     |-- queries.ts
     |-- schema.ts
   |- infrastructure/
+    |-- modules/
     |-- .terraform.lock.hcl
     |-- main.tf
     |-- outputs.tf
