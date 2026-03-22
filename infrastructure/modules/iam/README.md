@@ -18,7 +18,7 @@ Creates and configures the RAG pipeline service account and its IAM role binding
 
 ## Outputs
 
-| Name           | Description                                        |
-| -------------- | -------------------------------------------------- |
-| `rag_sa_email` | The email of the RAG service account               |
+| Name           | Description                                                 |
+| -------------- | ----------------------------------------------------------- |
+| `rag_sa_email` | The email of the RAG service account                        |
 | `rag_sa_key`   | Base64-encoded JSON key for the service account (sensitive) |
