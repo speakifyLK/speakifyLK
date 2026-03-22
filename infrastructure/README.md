@@ -7,45 +7,98 @@ Terraform configuration for provisioning GCP resources used by SpeakifyLK.
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.5.0
 - A GCP project with billing enabled
 - Authenticated via `gcloud auth application-default login`
+- A GCS bucket named `speakifylk-terraform-state` for remote state storage
 
-## Resources
+## Module Structure
 
-- **Google APIs** -- Enables AI Platform, Cloud Storage, and IAM APIs.
-- **Service Account** (`speakifylk-rag-sa`) -- Used by the RAG pipeline with the following roles:
-  - `roles/aiplatform.user`
-  - `roles/storage.objectAdmin`
-- **Service Account Key** -- JSON key generated for programmatic access.
-- **GCS Bucket** (`speakifylk-rag-content`) -- Stores RAG content with:
-  - Uniform bucket-level access enabled
-  - Lifecycle rule to auto-delete objects older than 90 days
-  - `roles/storage.objectAdmin` granted to the RAG service account
+```
+infrastructure/
+  main.tf                 # Root module: backend, provider, and module calls
+  variables.tf            # Root-level input variables
+  outputs.tf              # Root-level outputs (delegated from modules)
+  terraform.tfvars.example
+  modules/
+    project/              # Enables required GCP APIs
+      main.tf
+      outputs.tf
+    iam/                  # Service account and IAM role bindings
+      main.tf
+      variables.tf
+      outputs.tf
+    storage/              # GCS bucket and bucket-level IAM
+      main.tf
+      variables.tf
+      outputs.tf
+```
+
+### modules/project
+
+Enables the GCP APIs required by the project:
+
+- `aiplatform.googleapis.com`
+- `storage.googleapis.com`
+- `iam.googleapis.com`
+
+### modules/iam
+
+Creates and configures the RAG pipeline service account (`speakifylk-rag-sa`):
+
+- `roles/aiplatform.user`
+- `roles/storage.objectAdmin`
+- Generates a JSON service account key
+
+### modules/storage
+
+Creates the GCS bucket (`speakifylk-rag-content`) for RAG content:
+
+- Uniform bucket-level access enabled
+- Lifecycle rule to auto-delete objects older than 90 days
+- `roles/storage.objectAdmin` granted to the RAG service account
+
+## Remote State
+
+Terraform state is stored in a GCS backend:
+
+- **Bucket:** `speakifylk-terraform-state`
+- **Prefix:** `speakifylk/state`
+
+Create the state bucket before running `terraform init`:
+
+```bash
+gcloud storage buckets create gs://speakifylk-terraform-state \
+  --location=us-central1 \
+  --uniform-bucket-level-access
+```
 
 ## Usage
 
-1. **Initialize Terraform**
+1. **Copy the example variables file**
 
    ```bash
    cd infrastructure
+   cp terraform.tfvars.example terraform.tfvars
+   # Edit terraform.tfvars with your values
+   ```
+
+2. **Initialize Terraform**
+
+   ```bash
    terraform init
    ```
 
-2. **Preview changes**
+3. **Preview changes**
 
    ```bash
-   terraform plan -var="project_id=YOUR_PROJECT_ID"
+   terraform plan
    ```
 
-3. **Apply changes**
+4. **Apply changes**
 
    ```bash
-   terraform apply -var="project_id=YOUR_PROJECT_ID"
+   terraform apply
    ```
 
-   You will be prompted to confirm before any resources are created.
-
-4. **Retrieve the service account key**
-
-   The key is marked as sensitive. To view it:
+5. **Retrieve the service account key**
 
    ```bash
    terraform output -raw rag_sa_key | base64 --decode > rag-sa-key.json
