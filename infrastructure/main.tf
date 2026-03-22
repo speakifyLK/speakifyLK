@@ -66,3 +66,29 @@ resource "google_project_iam_member" "rag_sa_storage_object_admin" {
 resource "google_service_account_key" "rag_sa_key" {
   service_account_id = google_service_account.rag_sa.name
 }
+
+# --- GCS Bucket for RAG content ---
+
+resource "google_storage_bucket" "rag_content" {
+  name                        = "speakifylk-rag-content"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  force_destroy               = false
+
+  lifecycle_rule {
+    condition {
+      age = 90
+    }
+    action {
+      type = "Delete"
+    }
+  }
+
+  depends_on = [google_project_service.storage]
+}
+
+resource "google_storage_bucket_iam_member" "rag_content_admin" {
+  bucket = google_storage_bucket.rag_content.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.rag_sa.email}"
+}
