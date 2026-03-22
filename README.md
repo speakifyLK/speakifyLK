@@ -284,11 +284,11 @@ terraform plan
 terraform apply
 ```
 
-This will enable the following GCP APIs in your project:
+This will provision the following GCP resources:
 
-- `aiplatform.googleapis.com` (Vertex AI)
-- `storage.googleapis.com` (Cloud Storage)
-- `iam.googleapis.com` (IAM)
+- **APIs**: `aiplatform.googleapis.com` (Vertex AI), `storage.googleapis.com` (Cloud Storage), `iam.googleapis.com` (IAM)
+- **Service Account**: `speakifylk-rag-sa` with Vertex AI and Storage permissions
+- **GCS Bucket**: `speakifylk-rag-content` for RAG content storage (90-day lifecycle policy)
 
 ## :gear: Tech Stack
 

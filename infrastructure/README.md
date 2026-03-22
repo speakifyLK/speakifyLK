@@ -15,6 +15,10 @@ Terraform configuration for provisioning GCP resources used by SpeakifyLK.
   - `roles/aiplatform.user`
   - `roles/storage.objectAdmin`
 - **Service Account Key** -- JSON key generated for programmatic access.
+- **GCS Bucket** (`speakifylk-rag-content`) -- Stores RAG content with:
+  - Uniform bucket-level access enabled
+  - Lifecycle rule to auto-delete objects older than 90 days
+  - `roles/storage.objectAdmin` granted to the RAG service account
 
 ## Usage
 
@@ -58,9 +62,10 @@ Terraform configuration for provisioning GCP resources used by SpeakifyLK.
 
 ## Outputs
 
-| Name           | Description                         |
-| -------------- | ----------------------------------- |
-| `project_id`   | The GCP project ID                  |
-| `region`       | The GCP region                      |
-| `rag_sa_email` | Email of the RAG service account    |
-| `rag_sa_key`   | Base64-encoded JSON key (sensitive) |
+| Name                      | Description                         |
+| ------------------------- | ----------------------------------- |
+| `project_id`              | The GCP project ID                  |
+| `region`                  | The GCP region                      |
+| `rag_sa_email`            | Email of the RAG service account    |
+| `rag_sa_key`              | Base64-encoded JSON key (sensitive) |
+| `rag_content_bucket_name` | Name of the RAG content GCS bucket  |

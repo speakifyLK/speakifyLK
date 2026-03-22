@@ -18,3 +18,8 @@ output "rag_sa_key" {
   value       = google_service_account_key.rag_sa_key.private_key
   sensitive   = true
 }
+
+output "rag_content_bucket_name" {
+  description = "The name of the RAG content GCS bucket"
+  value       = google_storage_bucket.rag_content.name
+}
