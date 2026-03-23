@@ -109,10 +109,10 @@ gcloud storage buckets create gs://speakifylk-terraform-state \
 
 ## Variables
 
-| Name         | Description        | Default       |
-| ------------ | ------------------ | ------------- |
-| `project_id` | The GCP project ID | _(required)_  |
-| `region`     | The GCP region     | `us-west1`    |
+| Name         | Description        | Default      |
+| ------------ | ------------------ | ------------ |
+| `project_id` | The GCP project ID | _(required)_ |
+| `region`     | The GCP region     | `us-west1`   |
 
 ## Outputs
 
