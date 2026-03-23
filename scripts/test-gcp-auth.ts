@@ -40,7 +40,7 @@ async function testGcpAuth() {
   console.log("--- Initializing Gemini client via service account ---");
   const { getGeminiClient, getModel, generateContent } = await import("../lib/gemini");
 
-  const client = getGeminiClient();
+  getGeminiClient();
   console.log("Client initialized successfully.\n");
 
   // ── 3. Test simple generateContent call ──
