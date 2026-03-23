@@ -12,8 +12,7 @@ async function testGcpAuth() {
 
   if (!saKey) {
     console.error(
-      "GOOGLE_SERVICE_ACCOUNT_KEY is not set.\n" +
-        "Set it in .env or .env.local to run this test."
+      "GOOGLE_SERVICE_ACCOUNT_KEY is not set.\n" + "Set it in .env or .env.local to run this test."
     );
     process.exit(1);
   }
@@ -52,7 +51,9 @@ async function testGcpAuth() {
     console.log(`Response: ${text.trim()}\n`);
 
     if (!text.includes("SERVICE_ACCOUNT_OK")) {
-      console.warn("Warning: Response did not contain expected text, but the API call succeeded.\n");
+      console.warn(
+        "Warning: Response did not contain expected text, but the API call succeeded.\n"
+      );
     }
   } catch (error: any) {
     console.error("generateContent() failed:");
@@ -81,7 +82,9 @@ async function testGcpAuth() {
     console.log(`Streamed response: ${streamText.trim()}\n`);
 
     if (!streamText.includes("STREAM_OK")) {
-      console.warn("Warning: Streamed response did not contain expected text, but streaming worked.\n");
+      console.warn(
+        "Warning: Streamed response did not contain expected text, but streaming worked.\n"
+      );
     }
   } catch (error: any) {
     console.error("generateContentStream() failed:");
