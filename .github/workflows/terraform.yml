@@ -1,0 +1,287 @@
+name: Terraform
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infrastructure/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "infrastructure/**"
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TF_VERSION: "1.5.0"
+  WORKING_DIR: infrastructure
+
+jobs:
+  format:
+    name: Terraform Format
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check if triggered by bot commit
+        id: check_bot
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha
+            });
+            const isBot = commit.author?.login === 'speakify-bot[bot]';
+            core.setOutput('is_bot', isBot.toString());
+            if (isBot) console.log('Skipping: triggered by bot commit');
+
+      - name: Generate GitHub App token
+        if: steps.check_bot.outputs.is_bot != 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout PR branch
+        if: steps.check_bot.outputs.is_bot != 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup Terraform
+        if: steps.check_bot.outputs.is_bot != 'true'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format
+        if: steps.check_bot.outputs.is_bot != 'true'
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform fmt -recursive
+
+      - name: Check if files were modified
+        if: steps.check_bot.outputs.is_bot != 'true'
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit formatted code
+        if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "speakify-bot[bot]@users.noreply.github.com"
+          git config --local user.name "speakify-bot[bot]"
+          git add .
+          git commit -m "style: auto-format Terraform files"
+          git pull --rebase
+          git push
+
+      - name: Comment on PR about format fix
+        if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'true'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const marker = '<!-- terraform-fmt -->';
+            const sha = context.sha.slice(0, 7);
+            const body = [
+              marker,
+              '## Terraform Format Applied',
+              '',
+              `Commit: \`${sha}\``,
+              '',
+              'Terraform files were not properly formatted. A commit has been pushed to fix the formatting.',
+              '',
+              '**Tip:** Run `terraform fmt -recursive` locally before pushing.'
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+      - name: Delete comment if no format changes needed
+        if: steps.check_bot.outputs.is_bot != 'true' && steps.check_changes.outputs.has_changes == 'false'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const marker = '<!-- terraform-fmt -->';
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id
+              });
+            }
+
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: format
+    if: always() && (needs.format.result == 'success' || needs.format.result == 'skipped')
+    steps:
+      - name: Generate GitHub App token
+        if: github.event_name == 'pull_request'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -no-color -out=tfplan 2>&1 | tee plan-output.txt
+        continue-on-error: true
+
+      - name: Comment Plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- terraform-plan -->';
+            let output = fs.readFileSync('${{ env.WORKING_DIR }}/plan-output.txt', 'utf8').trim();
+            if (output.length > 60000) output = output.slice(0, 60000) + '\n... (truncated)';
+            output = output.replace(/```/g, '` ` `');
+
+            const outcome = '${{ steps.plan.outcome }}';
+            const sha = context.sha.slice(0, 7);
+            const body = [
+              marker,
+              `## Terraform Plan ${outcome === 'success' ? 'Succeeded' : 'Failed'}`,
+              '',
+              `Commit: \`${sha}\``,
+              '',
+              '<details>',
+              '<summary>Plan output (click to expand)</summary>',
+              '',
+              '```',
+              output,
+              '```',
+              '',
+              '</details>',
+              '',
+              outcome === 'failure'
+                ? '**How to fix:** Run `terraform plan -var="project_id=<your-project-id>"` locally to debug the errors.'
+                : ''
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+      - name: Fail if plan failed
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -auto-approve
