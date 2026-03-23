@@ -173,21 +173,18 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # or CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, user_xxxxxxxxxxxxxxxxxxxxxx" for multiple admins.
 
-# gemini ai api key (works with both Google AI Studio and Vertex AI Express)
+# gemini ai api key — used as fallback if GOOGLE_SERVICE_ACCOUNT_KEY is not set
 GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # gemini model id (gemini-3.1-pro-preview / gemini-3.1-flash-lite-preview)
 GEMINI_MODEL=gemini-3.1-pro-flash-lite-preview
-
-# set to 'true' to use Vertex AI mode instead of Gemini Developer API
-GOOGLE_GENAI_USE_VERTEXAI=true
 
 # set to '1' to disable safety filters (BLOCK_NONE) — optional
 # GEMINI_UNSAFE_MODE=1
 
 # google cloud platform (GCP)
 GCP_PROJECT_ID=your-gcp-project-id
-GCP_LOCATION=us-central1
+GCP_LOCATION=us-west1
 GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"...","auth_provider_x509_cert_url":"...","client_x509_cert_url":"..."}'
 ```
 
@@ -219,20 +216,15 @@ GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","privat
    1. **Procedure**:
       - Replace `http://localhost:3000` with the URL of your deployed application.
 
-9. Obtain Gemini AI API Key
-   1. **Source**: Google AI Studio or Google Cloud Console (Vertex AI)
-   2. **Procedure**:
-      - **Option A — Gemini Developer API**: Go to Google AI Studio, create or select a project, and generate an API key.
-      - **Option B — Vertex AI Express Mode**: Go to Google Cloud Console, enable the Vertex AI API, and create an API key. Then set `GOOGLE_GENAI_USE_VERTEXAI=true` in your `.env`.
-      - Copy the key into `GEMINI_API_KEY`.
-
-10. Configure Google Cloud Platform (GCP)
+9. Configure Google Cloud Platform (GCP)
     1. **Source**: Google Cloud Console
     2. **Procedure**:
        - Go to the Google Cloud Console and select or create a project.
-       - Set `GCP_PROJECT_ID` to your project ID and `GCP_LOCATION` to your preferred region (e.g., `us-central1`).
-       - Navigate to **IAM & Admin > Service Accounts**, create a service account, and generate a JSON key.
+       - Set `GCP_PROJECT_ID` to your project ID and `GCP_LOCATION` to your preferred region (e.g., `us-west1`).
+       - Enable the **Vertex AI API** and **Generative Language API** for your project.
+       - Navigate to **IAM & Admin > Service Accounts**, create a service account with `Vertex AI User` and `Storage Object Admin` roles, and generate a JSON key.
        - Copy the entire JSON key content into `GOOGLE_SERVICE_ACCOUNT_KEY` (wrap it in single quotes).
+       - `GEMINI_API_KEY` is only needed as a fallback if `GOOGLE_SERVICE_ACCOUNT_KEY` is not set.
 
 11. Identify Clerk Admin User IDs
 12. **Source**: Clerk Dashboard or Settings Page
@@ -288,7 +280,7 @@ terraform apply
 
 This will provision the following GCP resources:
 
-- **APIs**: `aiplatform.googleapis.com` (Vertex AI), `storage.googleapis.com` (Cloud Storage), `iam.googleapis.com` (IAM)
+- **APIs**: `aiplatform.googleapis.com` (Vertex AI), `generativelanguage.googleapis.com` (Generative Language), `storage.googleapis.com` (Cloud Storage), `iam.googleapis.com` (IAM)
 - **Service Account**: `speakifylk-rag-sa` with Vertex AI and Storage permissions
 - **GCS Bucket**: `speakifylk-rag-content` for RAG content storage (90-day lifecycle policy)
 
