@@ -103,8 +103,7 @@ function getOrCreateClient(): GoogleGenAI {
     } else {
       // Gemini Developer API — API key fallback
       console.warn(
-        "GOOGLE_SERVICE_ACCOUNT_KEY is not set. " +
-          "Falling back to API key authentication."
+        "GOOGLE_SERVICE_ACCOUNT_KEY is not set. " + "Falling back to API key authentication."
       );
       _ai = new GoogleGenAI({ apiKey: getApiKey() });
     }
