@@ -33,6 +33,20 @@ export const generationConfig = {
   maxOutputTokens: 8192,
 };
 
+function getServiceAccountCredentials(): Record<string, unknown> | null {
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    console.warn(
+      "GOOGLE_SERVICE_ACCOUNT_KEY is not valid JSON. Falling back to API key authentication."
+    );
+    return null;
+  }
+}
+
 function getApiKey(): string {
   const key = process.env.GEMINI_API_KEY;
   if (!key) {
@@ -63,30 +77,35 @@ export function getModel(): string {
 
 /**
  * Lazily initialises and returns the GoogleGenAI client.
- * Supports two modes:
- *   1. Vertex AI Express Mode — set GEMINI_API_KEY (Vertex AI API key)
- *      Uses vertexai: true + apiKey for Vertex AI Express.
- *   2. Gemini Developer API — set GEMINI_API_KEY (AI Studio key)
- *      Uses apiKey only for the Gemini Developer API.
  *
- * Set GOOGLE_GENAI_USE_VERTEXAI=true to switch to Vertex AI mode.
+ * Authentication priority:
+ *   1. Service account OAuth2 — if GOOGLE_SERVICE_ACCOUNT_KEY is set, uses
+ *      googleAuthOptions with the Generative Language API.
+ *   2. API key — falls back to GEMINI_API_KEY with the Gemini Developer API.
  */
 let _ai: GoogleGenAI | null = null;
 
 function getOrCreateClient(): GoogleGenAI {
   if (!_ai) {
-    const apiKey = getApiKey();
-    const useVertexAI = process.env.GOOGLE_GENAI_USE_VERTEXAI === "true";
+    const credentials = getServiceAccountCredentials();
 
-    if (useVertexAI) {
-      // Vertex AI Express Mode — API key + vertexai flag
+    if (credentials) {
+      // Generative Language API with service account OAuth2
       _ai = new GoogleGenAI({
-        vertexai: true,
-        apiKey,
+        googleAuthOptions: {
+          credentials,
+          scopes: [
+            "https://www.googleapis.com/auth/cloud-platform",
+            "https://www.googleapis.com/auth/generative-language",
+          ],
+        },
       });
     } else {
-      // Gemini Developer API — API key only
-      _ai = new GoogleGenAI({ apiKey });
+      // Gemini Developer API — API key fallback
+      console.warn(
+        "GOOGLE_SERVICE_ACCOUNT_KEY is not set. " + "Falling back to API key authentication."
+      );
+      _ai = new GoogleGenAI({ apiKey: getApiKey() });
     }
   }
 

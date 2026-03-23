@@ -1,6 +1,9 @@
 import { GoogleAuth } from "google-auth-library";
 
-const SCOPE = "https://www.googleapis.com/auth/cloud-platform";
+const SCOPES = [
+  "https://www.googleapis.com/auth/cloud-platform",
+  "https://www.googleapis.com/auth/generative-language",
+];
 const EXPIRY_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
 
 let cachedToken: string | null = null;
@@ -32,7 +35,7 @@ function getOrCreateAuth(): GoogleAuth {
     const credentials = getServiceAccountKey();
     _auth = new GoogleAuth({
       credentials,
-      scopes: [SCOPE],
+      scopes: SCOPES,
     });
   }
   return _auth;
