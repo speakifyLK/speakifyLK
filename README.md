@@ -95,6 +95,7 @@ speakify/
     |-- adaptive-difficulty.ts
     |-- admin.ts
     |-- chat-prompt.ts
+    |-- gcp-auth.ts
     |-- gemini.ts
     |-- quiz-normalise.ts
     |-- quiz-prompt.ts
@@ -328,6 +329,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [eslint](https://www.npmjs.com/package/eslint): ^9
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
 - [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
+- [google-auth-library](https://www.npmjs.com/package/google-auth-library): ^10.6.2
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
 - [next](https://www.npmjs.com/package/next): ^16.2.0
 - [pg](https://www.npmjs.com/package/pg): ^8.20.0
