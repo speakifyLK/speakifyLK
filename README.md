@@ -106,6 +106,7 @@ speakify/
   |- public/
   |- scripts/
     |-- prod.ts
+    |-- test-gcp-auth.ts
     |-- test-gemini.ts
   |- store/
     |-- quiz-store.ts
