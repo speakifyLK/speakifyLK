@@ -289,7 +289,7 @@ const ExplanationPanel = ({
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
-
+it pull
 export const QuizCard = ({
   question,
   isLastQuestion,
