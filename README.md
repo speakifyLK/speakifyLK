@@ -102,6 +102,7 @@ speakify/
     |-- rate-limit.ts
     |-- stripe.ts
     |-- utils.ts
+    |-- vertex-rag.ts
   |- public/
   |- scripts/
     |-- export-course-content.ts
@@ -318,7 +319,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-scroll-area](https://www.npmjs.com/package/@radix-ui/react-scroll-area): ^1.2.10
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
-- [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.91.3
+- [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.95.2
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.5.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
