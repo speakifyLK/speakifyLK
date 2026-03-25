@@ -17,7 +17,7 @@ import db from "./drizzle";
 
 export async function getAllChallengesWithOptions() {
   const unitsData = await db.query.units.findMany({
-    orderBy: (units, { asc }) => [asc(units.order)],
+    orderBy: (units, { asc }) => [asc(units.courseId), asc(units.order)],
     with: {
       lessons: {
         orderBy: (lessons, { asc }) => [asc(lessons.order)],
@@ -53,7 +53,7 @@ export async function getAllChallengesWithOptions() {
 
 export async function getAllLessonsWithContext() {
   const unitsData = await db.query.units.findMany({
-    orderBy: (units, { asc }) => [asc(units.order)],
+    orderBy: (units, { asc }) => [asc(units.courseId), asc(units.order)],
     with: {
       course: {
         columns: {
