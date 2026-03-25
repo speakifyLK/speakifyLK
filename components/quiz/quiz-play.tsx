@@ -59,7 +59,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     setScore(session.correctAnswers ?? 0);
     setIsTimeUp(false);
     setAnswersByQuestionId(initialLocalQuestionAnswers(session.questions));
-  }, [session.id]);
+  }, [session.id, session.completedAt, session.correctAnswers, session.questions]);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
