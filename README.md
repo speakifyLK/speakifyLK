@@ -105,6 +105,7 @@ speakify/
   |- public/
   |- scripts/
     |-- export-course-content.ts
+    |-- import-rag-files.ts
     |-- prod.ts
     |-- test-gcp-auth.ts
     |-- test-gemini.ts
@@ -188,6 +189,12 @@ GEMINI_MODEL=gemini-3.1-pro-flash-lite-preview
 GCP_PROJECT_ID=your-gcp-project-id
 GCP_LOCATION=us-west1
 GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"...","auth_provider_x509_cert_url":"...","client_x509_cert_url":"..."}'
+
+# vertex ai rag corpus (resource: projects/.../ragCorpora/{RAG_CORPUS_ID})
+RAG_CORPUS_ID=your-rag-corpus-id
+# optional — defaults: speakifylk-rag-content, rag-content/
+# RAG_CONTENT_BUCKET=speakifylk-rag-content
+# RAG_GCS_PREFIX=rag-content/
 ```
 
 5. Obtain Clerk Authentication Keys
@@ -226,6 +233,7 @@ GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","privat
       - Enable the **Vertex AI API** and **Generative Language API** for your project.
       - Navigate to **IAM & Admin > Service Accounts**, create a service account with `Vertex AI User` and `Storage Object Admin` roles, and generate a JSON key.
       - Copy the entire JSON key content into `GOOGLE_SERVICE_ACCOUNT_KEY` (wrap it in single quotes).
+      - Create (or locate) a Vertex AI RAG corpus, then set `RAG_CORPUS_ID` to the last segment of the corpus resource name: `projects/{project}/locations/{location}/ragCorpora/{RAG_CORPUS_ID}`.
       - `GEMINI_API_KEY` is only needed as a fallback if `GOOGLE_SERVICE_ACCOUNT_KEY` is not set.
 
 10. Identify Clerk Admin User IDs
@@ -327,6 +335,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [google-auth-library](https://www.npmjs.com/package/google-auth-library): ^10.6.2
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
 - [next](https://www.npmjs.com/package/next): ^16.2.1
+- [p-limit](https://www.npmjs.com/package/p-limit): ^7.3.0
 - [pg](https://www.npmjs.com/package/pg): ^8.20.0
 - [postcss](https://www.npmjs.com/package/postcss): ^8
 - [prettier](https://www.npmjs.com/package/prettier): ^3.8.1
