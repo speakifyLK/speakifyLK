@@ -106,6 +106,7 @@ speakify/
   |- public/
   |- scripts/
     |-- export-course-content.ts
+    |-- import-rag-files.ts
     |-- prod.ts
     |-- test-export-queries.ts
     |-- test-gcp-auth.ts
