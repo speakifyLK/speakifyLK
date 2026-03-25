@@ -35,9 +35,7 @@ const storage = new Storage({
 });
 
 const BUCKET_NAME =
-  process.env.RAG_CONTENT_BUCKET ||
-  process.env.GCS_BUCKET_NAME ||
-  "speakifylk-rag-content";
+  process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
 const limit = pLimit(5);
 
 //Create an MD5 hash to compare content with GCS
