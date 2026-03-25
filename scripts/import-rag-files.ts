@@ -247,7 +247,8 @@ async function readManifest(): Promise<ImportManifest> {
     }
     return {
       version: 1,
-      updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
+      updatedAt:
+        typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
       files: parsed.files,
     };
   } catch {
@@ -266,9 +267,7 @@ function buildManifest(
     const prev = previous.files[o.gsUri];
     files[o.gsUri] = {
       md5: o.md5Hash,
-      lastImportedAt: importedUris.has(o.gsUri)
-        ? importTime
-        : (prev?.lastImportedAt ?? importTime),
+      lastImportedAt: importedUris.has(o.gsUri) ? importTime : (prev?.lastImportedAt ?? importTime),
     };
   }
   return { version: 1, updatedAt: importTime, files };
@@ -295,7 +294,9 @@ async function writeManifest(m: ImportManifest): Promise<void> {
 async function main(): Promise<void> {
   const { force, diff } = parseFlags(process.argv.slice(2));
   if (force && diff) {
-    console.warn("Note: --force performs a full re-import; --diff is ignored when combined with --force.");
+    console.warn(
+      "Note: --force performs a full re-import; --diff is ignored when combined with --force."
+    );
   }
 
   const bucket = contentBucket();
@@ -343,7 +344,9 @@ async function main(): Promise<void> {
 
   const mergedManifest = buildManifest(objects, manifest, importedUris);
   await writeManifest(mergedManifest);
-  console.log(`Done. Wrote ${MANIFEST_FILENAME} with ${Object.keys(mergedManifest.files).length} entr(y|ies).`);
+  console.log(
+    `Done. Wrote ${MANIFEST_FILENAME} with ${Object.keys(mergedManifest.files).length} entr(y|ies).`
+  );
 }
 
 void (async () => {
