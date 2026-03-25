@@ -313,7 +313,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.5.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
-- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.39
+- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.41
 - [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.27
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
@@ -325,7 +325,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
 - [google-auth-library](https://www.npmjs.com/package/google-auth-library): ^10.6.2
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
-- [next](https://www.npmjs.com/package/next): ^16.2.0
+- [next](https://www.npmjs.com/package/next): ^16.2.1
 - [pg](https://www.npmjs.com/package/pg): ^8.20.0
 - [postcss](https://www.npmjs.com/package/postcss): ^8
 - [prettier](https://www.npmjs.com/package/prettier): ^3.8.1
