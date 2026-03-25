@@ -90,6 +90,7 @@ export async function getAllLessonsWithContext() {
 
 export async function getCourseStructure() {
   const data = await db.query.courses.findMany({
+    orderBy: (courses, { asc }) => [asc(courses.id)],
     with: {
       units: {
         orderBy: (units, { asc }) => [asc(units.order)],
