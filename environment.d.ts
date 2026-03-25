@@ -27,13 +27,12 @@ declare global {
       GEMINI_UNSAFE_MODE?: string;
 
       // google cloud platform — service account authentication
-      GOOGLE_APPLICATION_CREDENTIALS: string;
       GCP_PROJECT_ID: string;
       GCP_LOCATION: string;
       GOOGLE_SERVICE_ACCOUNT_KEY?: string;
 
-      // RAG corpus
-      RAG_CORPUS_ID: string;
+      // RAG corpus (future)
+      RAG_CORPUS_ID?: string;
 
       // vertex ai toggle
       GOOGLE_GENAI_USE_VERTEXAI?: string;
