@@ -79,6 +79,7 @@ speakify/
     |-- prettier.json
   |- db/
     |-- drizzle.ts
+    |-- export-queries.ts
     |-- queries.ts
     |-- schema.ts
   |- infrastructure/
@@ -106,6 +107,7 @@ speakify/
   |- scripts/
     |-- export-course-content.ts
     |-- prod.ts
+    |-- test-export-queries.ts
     |-- test-gcp-auth.ts
     |-- test-gemini.ts
   |- store/
