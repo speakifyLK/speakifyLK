@@ -31,7 +31,9 @@ export async function getAllChallengesWithOptions() {
           challenges: {
             orderBy: (challenges, { asc }) => [asc(challenges.order)],
             with: {
-              challengeOptions: true,
+              challengeOptions: {
+                orderBy: (challengeOptions, { asc }) => [asc(challengeOptions.id)],
+              },
             },
           },
         },
