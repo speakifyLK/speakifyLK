@@ -95,6 +95,7 @@ speakify/
     |-- adaptive-difficulty.ts
     |-- admin.ts
     |-- chat-prompt.ts
+    |-- gcp-auth.ts
     |-- gemini.ts
     |-- quiz-normalise.ts
     |-- quiz-prompt.ts
@@ -104,6 +105,7 @@ speakify/
   |- public/
   |- scripts/
     |-- prod.ts
+    |-- test-gcp-auth.ts
     |-- test-gemini.ts
   |- store/
     |-- quiz-store.ts
@@ -172,21 +174,18 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 # or CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, user_xxxxxxxxxxxxxxxxxxxxxx" for multiple admins.
 
-# gemini ai api key (works with both Google AI Studio and Vertex AI Express)
+# gemini ai api key — used as fallback if GOOGLE_SERVICE_ACCOUNT_KEY is not set
 GEMINI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # gemini model id (gemini-3.1-pro-preview / gemini-3.1-flash-lite-preview)
 GEMINI_MODEL=gemini-3.1-pro-flash-lite-preview
-
-# set to 'true' to use Vertex AI mode instead of Gemini Developer API
-GOOGLE_GENAI_USE_VERTEXAI=true
 
 # set to '1' to disable safety filters (BLOCK_NONE) — optional
 # GEMINI_UNSAFE_MODE=1
 
 # google cloud platform (GCP)
 GCP_PROJECT_ID=your-gcp-project-id
-GCP_LOCATION=us-central1
+GCP_LOCATION=us-west1
 GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"...","auth_provider_x509_cert_url":"...","client_x509_cert_url":"..."}'
 ```
 
@@ -218,35 +217,30 @@ GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"...","privat
    1. **Procedure**:
       - Replace `http://localhost:3000` with the URL of your deployed application.
 
-9. Obtain Gemini AI API Key
-   1. **Source**: Google AI Studio or Google Cloud Console (Vertex AI)
+9. Configure Google Cloud Platform (GCP)
+   1. **Source**: Google Cloud Console
    2. **Procedure**:
-      - **Option A — Gemini Developer API**: Go to Google AI Studio, create or select a project, and generate an API key.
-      - **Option B — Vertex AI Express Mode**: Go to Google Cloud Console, enable the Vertex AI API, and create an API key. Then set `GOOGLE_GENAI_USE_VERTEXAI=true` in your `.env`.
-      - Copy the key into `GEMINI_API_KEY`.
+      - Go to the Google Cloud Console and select or create a project.
+      - Set `GCP_PROJECT_ID` to your project ID and `GCP_LOCATION` to your preferred region (e.g., `us-west1`).
+      - Enable the **Vertex AI API** and **Generative Language API** for your project.
+      - Navigate to **IAM & Admin > Service Accounts**, create a service account with `Vertex AI User` and `Storage Object Admin` roles, and generate a JSON key.
+      - Copy the entire JSON key content into `GOOGLE_SERVICE_ACCOUNT_KEY` (wrap it in single quotes).
+      - `GEMINI_API_KEY` is only needed as a fallback if `GOOGLE_SERVICE_ACCOUNT_KEY` is not set.
 
-10. Configure Google Cloud Platform (GCP)
-    1. **Source**: Google Cloud Console
-    2. **Procedure**:
-       - Go to the Google Cloud Console and select or create a project.
-       - Set `GCP_PROJECT_ID` to your project ID and `GCP_LOCATION` to your preferred region (e.g., `us-central1`).
-       - Navigate to **IAM & Admin > Service Accounts**, create a service account, and generate a JSON key.
-       - Copy the entire JSON key content into `GOOGLE_SERVICE_ACCOUNT_KEY` (wrap it in single quotes).
-
-11. Identify Clerk Admin User IDs
-12. **Source**: Clerk Dashboard or Settings Page
-13. **Procedure**:
+10. Identify Clerk Admin User IDs
+11. **Source**: Clerk Dashboard or Settings Page
+12. **Procedure**:
     - Log in to your Clerk account.
     - Navigate to the dashboard or settings page.
     - Find the section related to admin user IDs.
     - Copy the user IDs provided, ensuring they are separated by commas and spaces.
 
-14. Save and Secure:
+13. Save and Secure:
     - Save the changes to the `.env` file.
 
-15. Install Project Dependencies using `bun install --legacy-peer-deps`.
+14. Install Project Dependencies using `bun install --legacy-peer-deps`.
 
-16. Run the Seed Script:
+15. Run the Seed Script:
 
 In the same terminal, run the following command to execute the seed script:
 
@@ -287,7 +281,7 @@ terraform apply
 
 This will provision the following GCP resources:
 
-- **APIs**: `aiplatform.googleapis.com` (Vertex AI), `storage.googleapis.com` (Cloud Storage), `iam.googleapis.com` (IAM)
+- **APIs**: `aiplatform.googleapis.com` (Vertex AI), `generativelanguage.googleapis.com` (Generative Language), `storage.googleapis.com` (Cloud Storage), `iam.googleapis.com` (IAM)
 - **Service Account**: `speakifylk-rag-sa` with Vertex AI and Storage permissions
 - **GCS Bucket**: `speakifylk-rag-content` for RAG content storage (90-day lifecycle policy)
 
@@ -305,6 +299,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
+- [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.2.0
@@ -328,6 +323,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [eslint](https://www.npmjs.com/package/eslint): ^9
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
 - [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
+- [google-auth-library](https://www.npmjs.com/package/google-auth-library): ^10.6.2
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
 - [next](https://www.npmjs.com/package/next): ^16.2.0
 - [pg](https://www.npmjs.com/package/pg): ^8.20.0
