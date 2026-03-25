@@ -5,11 +5,8 @@ dotenv.config({ path: ".env.local", override: true });
 async function main() {
   console.log("🔍 Testing export query functions...\n");
 
-  const {
-    getAllChallengesWithOptions,
-    getAllLessonsWithContext,
-    getCourseStructure,
-  } = await import("../db/export-queries");
+  const { getAllChallengesWithOptions, getAllLessonsWithContext, getCourseStructure } =
+    await import("../db/export-queries");
 
   // --- 1. getAllChallengesWithOptions ---
   console.log("━".repeat(60));
@@ -49,7 +46,9 @@ async function main() {
     for (const unit of course.units.slice(0, 2)) {
       console.log(`      📦 Unit: "${unit.title}" – ${unit.lessons.length} lessons`);
       for (const lesson of unit.lessons.slice(0, 2)) {
-        console.log(`         📘 Lesson: "${lesson.title}" – ${lesson.challenges.length} challenges`);
+        console.log(
+          `         📘 Lesson: "${lesson.title}" – ${lesson.challenges.length} challenges`
+        );
       }
     }
   }
