@@ -25,6 +25,11 @@ declare global {
 
       // set to '1' to disable safety filters (BLOCK_NONE)
       GEMINI_UNSAFE_MODE?: string;
+
+      // google cloud platform — service account authentication
+      GCP_PROJECT_ID?: string;
+      GCP_LOCATION?: string;
+      GOOGLE_SERVICE_ACCOUNT_KEY?: string;
     }
   }
 }
