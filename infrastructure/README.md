@@ -36,6 +36,7 @@ infrastructure/
 Enables the GCP APIs required by the project:
 
 - `aiplatform.googleapis.com`
+- `generativelanguage.googleapis.com`
 - `storage.googleapis.com`
 - `iam.googleapis.com`
 
@@ -66,7 +67,7 @@ Create the state bucket before running `terraform init`:
 
 ```bash
 gcloud storage buckets create gs://speakifylk-terraform-state \
-  --location=us-central1 \
+  --location=us-west1 \
   --uniform-bucket-level-access
 ```
 
@@ -108,10 +109,10 @@ gcloud storage buckets create gs://speakifylk-terraform-state \
 
 ## Variables
 
-| Name         | Description        | Default       |
-| ------------ | ------------------ | ------------- |
-| `project_id` | The GCP project ID | _(required)_  |
-| `region`     | The GCP region     | `us-central1` |
+| Name         | Description        | Default      |
+| ------------ | ------------------ | ------------ |
+| `project_id` | The GCP project ID | _(required)_ |
+| `region`     | The GCP region     | `us-west1`   |
 
 ## Outputs
 
