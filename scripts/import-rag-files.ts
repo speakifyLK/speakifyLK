@@ -19,11 +19,12 @@ dotenv.config({ path: ".env.local", override: true });
 
 import { getAuthHeaders } from "../lib/gcp-auth";
 
-const MANIFEST_FILENAME = ".rag-import-manifest.json";
+const MANIFEST_FILENAME = path.join("tmp", ".rag-import-manifest.json");
 const CHUNK_SIZE = 512;
 const CHUNK_OVERLAP = 100;
 const IMPORT_BATCH_SIZE = 20;
 const OP_POLL_MS = 4000;
+const DEFAULT_OP_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 type GcsObjectMeta = { gsUri: string; md5Hash: string };
 type ManifestFileEntry = { md5: string; lastImportedAt: string };
@@ -33,6 +34,14 @@ type ImportManifest = {
   updatedAt: string;
   files: Record<string, ManifestFileEntry>;
 };
+
+function getOpTimeoutMs(): number {
+  const raw = process.env.RAG_OP_TIMEOUT_MS?.trim();
+  if (!raw) return DEFAULT_OP_TIMEOUT_MS;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_OP_TIMEOUT_MS;
+  return n;
+}
 
 function getEnv(name: string): string {
   const v = process.env[name];
@@ -95,7 +104,16 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
 async function waitForOperation(operationName: string): Promise<void> {
   const base = getAiplatformBase();
   const url = `${base}/${operationName}`;
+  const startedAt = Date.now();
+  const timeoutMs = getOpTimeoutMs();
   for (;;) {
+    const elapsed = Date.now() - startedAt;
+    if (elapsed > timeoutMs) {
+      throw new Error(
+        `Timed out waiting for operation after ${Math.ceil(timeoutMs / 1000)}s: ${operationName}`
+      );
+    }
+
     const op = await fetchJson<{
       done?: boolean;
       error?: { message?: string; code?: number; details?: unknown[] };
@@ -238,18 +256,22 @@ async function importRagFileBatch(uris: string[]): Promise<void> {
 
 const manifestPath = () => path.join(process.cwd(), MANIFEST_FILENAME);
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 async function readManifest(): Promise<ImportManifest> {
   try {
     const raw = await fs.readFile(manifestPath(), "utf8");
     const parsed = JSON.parse(raw) as Partial<ImportManifest>;
-    if (parsed.version !== 1 || typeof parsed.files !== "object") {
+    if (parsed.version !== 1 || !isPlainRecord(parsed.files)) {
       return { version: 1, updatedAt: new Date(0).toISOString(), files: {} };
     }
+    const files = isPlainRecord(parsed.files) ? parsed.files : {};
     return {
       version: 1,
       updatedAt:
         typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
-      files: parsed.files,
+      files: files as ImportManifest["files"],
     };
   } catch {
     return { version: 1, updatedAt: new Date(0).toISOString(), files: {} };
@@ -344,9 +366,9 @@ async function main(): Promise<void> {
 
   const mergedManifest = buildManifest(objects, manifest, importedUris);
   await writeManifest(mergedManifest);
-  console.log(
-    `Done. Wrote ${MANIFEST_FILENAME} with ${Object.keys(mergedManifest.files).length} entr(y|ies).`
-  );
+  console.log(`Done. Wrote ${MANIFEST_FILENAME} with ${Object.keys(mergedManifest.files).length} ${
+      Object.keys(mergedManifest.files).length === 1 ? "entry" : "entries"
+    }.`);
 }
 
 void (async () => {
