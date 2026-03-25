@@ -366,9 +366,11 @@ async function main(): Promise<void> {
 
   const mergedManifest = buildManifest(objects, manifest, importedUris);
   await writeManifest(mergedManifest);
-  console.log(`Done. Wrote ${MANIFEST_FILENAME} with ${Object.keys(mergedManifest.files).length} ${
+  console.log(
+    `Done. Wrote ${MANIFEST_FILENAME} with ${Object.keys(mergedManifest.files).length} ${
       Object.keys(mergedManifest.files).length === 1 ? "entry" : "entries"
-    }.`);
+    }.`
+  );
 }
 
 void (async () => {
