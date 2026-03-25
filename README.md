@@ -105,6 +105,7 @@ speakify/
   |- public/
   |- scripts/
     |-- export-course-content.ts
+    |-- import-rag-files.ts
     |-- prod.ts
     |-- test-gcp-auth.ts
     |-- test-gemini.ts
