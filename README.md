@@ -102,6 +102,7 @@ speakify/
     |-- rate-limit.ts
     |-- stripe.ts
     |-- utils.ts
+    |-- vertex-rag.ts
   |- public/
   |- scripts/
     |-- export-course-content.ts
