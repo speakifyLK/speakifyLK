@@ -52,3 +52,6 @@ infrastructure/terraform.tfstate
 infrastructure/terraform.tfstate.backup
 infrastructure/*.tfvars
 !infrastructure/terraform.tfvars.example
+
+# rag .temp files
+/tmp

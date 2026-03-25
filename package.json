@@ -12,7 +12,9 @@
     "format:fix": "prettier --write --ignore-path .gitignore .",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:prod": "tsx ./scripts/prod.ts"
+    "db:prod": "tsx ./scripts/prod.ts",
+    "content:export": "bun scripts/export-course-content.ts",
+    "content:export:dry": "bun scripts/export-course-content.ts --dry-run"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.12",
