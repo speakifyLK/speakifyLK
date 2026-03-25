@@ -79,7 +79,6 @@ async function exportContent() {
     } else {
       console.log("Note: This was a dry run. No files were written to disk.");
     }
-
   } catch (error) {
     console.error("Export Failed:", error instanceof Error ? error.message : error);
     process.exit(1);
