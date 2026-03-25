@@ -62,7 +62,6 @@ async function uploadToGCS(fileName: string, content: string) {
     if (exists) {
       const [metadata] = await file.getMetadata();
       const localHash = getHash(content);
-
       // GCS metadata hash is base64 encoded
       const remoteHashBase64 = metadata.md5Hash;
       const localHashBase64 = Buffer.from(localHash, "hex").toString("base64");
