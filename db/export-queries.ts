@@ -16,25 +16,31 @@ import db from "./drizzle";
 // ---------------------------------------------------------------------------
 
 export async function getAllChallengesWithOptions() {
-  const data = await db.query.lessons.findMany({
-    orderBy: (lessons, { asc }) => [asc(lessons.order)],
-    columns: {
-      id: true,
-      title: true,
-      order: true,
-      unitId: true,
-    },
+  const unitsData = await db.query.units.findMany({
+    orderBy: (units, { asc }) => [asc(units.order)],
     with: {
-      challenges: {
-        orderBy: (challenges, { asc }) => [asc(challenges.order)],
+      lessons: {
+        orderBy: (lessons, { asc }) => [asc(lessons.order)],
+        columns: {
+          id: true,
+          title: true,
+          order: true,
+          unitId: true,
+        },
         with: {
-          challengeOptions: true,
+          challenges: {
+            orderBy: (challenges, { asc }) => [asc(challenges.order)],
+            with: {
+              challengeOptions: true,
+            },
+          },
         },
       },
     },
   });
 
-  return data;
+  // Flatten out the nested lessons to return an array of lessons, correctly ordered by unit then lesson
+  return unitsData.flatMap((u) => u.lessons);
 }
 
 // ---------------------------------------------------------------------------
@@ -44,28 +50,34 @@ export async function getAllChallengesWithOptions() {
 // ---------------------------------------------------------------------------
 
 export async function getAllLessonsWithContext() {
-  const data = await db.query.lessons.findMany({
-    orderBy: (lessons, { asc }) => [asc(lessons.order)],
+  const unitsData = await db.query.units.findMany({
+    orderBy: (units, { asc }) => [asc(units.order)],
     with: {
-      unit: {
+      course: {
         columns: {
           id: true,
           title: true,
-          order: true,
         },
-        with: {
-          course: {
-            columns: {
-              id: true,
-              title: true,
-            },
-          },
-        },
+      },
+      lessons: {
+        orderBy: (lessons, { asc }) => [asc(lessons.order)],
       },
     },
   });
 
-  return data;
+  // Flatten lessons and attach the parent unit + course to match the previous return shape
+  return unitsData.flatMap((u) => {
+    const { lessons, ...unitWithoutLessons } = u;
+    return lessons.map((lesson) => ({
+      ...lesson,
+      unit: {
+        id: unitWithoutLessons.id,
+        title: unitWithoutLessons.title,
+        order: unitWithoutLessons.order,
+        course: unitWithoutLessons.course
+      },
+    }));
+  });
 }
 
 // ---------------------------------------------------------------------------
