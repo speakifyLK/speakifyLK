@@ -40,10 +40,7 @@ interface ChatMessage {
  * @param corpusId - Optional override for the RAG corpus ID
  * @returns Array of relevant text chunks with source and similarity score
  */
-export async function retrieveContext(
-  query: string,
-  corpusId?: string
-): Promise<RagChunk[]> {
+export async function retrieveContext(query: string, corpusId?: string): Promise<RagChunk[]> {
   const targetCorpus = corpusId || RAG_CORPUS_ID;
 
   if (!targetCorpus) {
@@ -96,10 +93,7 @@ export async function retrieveContext(
       score: ctx.score || 0,
     }));
   } catch (error) {
-    console.error(
-      "RAG retrieval error:",
-      error instanceof Error ? error.message : error
-    );
+    console.error("RAG retrieval error:", error instanceof Error ? error.message : error);
     return [];
   }
 }
@@ -120,9 +114,7 @@ export async function generateWithRAG(
   systemPrompt: string
 ): Promise<ReadableStream<Uint8Array>> {
   // Get the latest user message for context retrieval
-  const lastUserMessage = [...messages]
-    .reverse()
-    .find((m) => m.role === "user");
+  const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
 
   // Retrieve relevant context chunks
   let ragChunks: RagChunk[] = [];
@@ -169,9 +161,7 @@ export async function generateWithRAG(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Vertex AI API error (${response.status}): ${errorText}`
-    );
+    throw new Error(`Vertex AI API error (${response.status}): ${errorText}`);
   }
 
   if (!response.body) {
@@ -187,19 +177,13 @@ export async function generateWithRAG(
 /**
  * Injects retrieved RAG chunks into the system prompt as grounding context.
  */
-function buildAugmentedPrompt(
-  basePrompt: string,
-  chunks: RagChunk[]
-): string {
+function buildAugmentedPrompt(basePrompt: string, chunks: RagChunk[]): string {
   if (chunks.length === 0) {
     return basePrompt;
   }
 
   const contextBlock = chunks
-    .map(
-      (chunk, i) =>
-        `[Source ${i + 1} | relevance: ${chunk.score.toFixed(2)}]\n${chunk.text}`
-    )
+    .map((chunk, i) => `[Source ${i + 1} | relevance: ${chunk.score.toFixed(2)}]\n${chunk.text}`)
     .join("\n\n");
 
   return `${basePrompt}
@@ -217,9 +201,7 @@ ${contextBlock}
  * Parses a Vertex AI SSE stream and extracts text chunks into a
  * ReadableStream that can be sent directly to the client.
  */
-function parseSSEStream(
-  sseStream: ReadableStream<Uint8Array>
-): ReadableStream<Uint8Array> {
+function parseSSEStream(sseStream: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
   const reader = sseStream.getReader();
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
@@ -249,8 +231,7 @@ function parseSSEStream(
 
           try {
             const parsed = JSON.parse(jsonStr);
-            const content =
-              parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
             if (content) {
               controller.enqueue(encoder.encode(content));
