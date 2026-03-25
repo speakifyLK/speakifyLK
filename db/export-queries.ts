@@ -76,7 +76,7 @@ export async function getAllLessonsWithContext() {
         id: unitWithoutLessons.id,
         title: unitWithoutLessons.title,
         order: unitWithoutLessons.order,
-        course: unitWithoutLessons.course
+        course: unitWithoutLessons.course,
       },
     }));
   });

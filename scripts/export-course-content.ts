@@ -19,10 +19,12 @@ let credentials;
 try {
   credentials = JSON.parse(gcsKeyString);
   if (credentials.private_key) {
-    credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+    credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
   }
 } catch (e) {
-  console.error("Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON string. Check your .env formatting.");
+  console.error(
+    "Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON string. Check your .env formatting."
+  );
   process.exit(1);
 }
 
@@ -35,14 +37,12 @@ const storage = new Storage({
 const BUCKET_NAME = process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
 const limit = pLimit(5);
 
-
 //Create an MD5 hash to compare content with GCS
- 
-const getHash = (content: string) => 
-  crypto.createHash("md5").update(content).digest("hex");
+
+const getHash = (content: string) => crypto.createHash("md5").update(content).digest("hex");
 
 //Transforms lesson data into structured text chunks.
- 
+
 const formatContent = (course: any, unit: any, lesson: any) => {
   return `
     Course: ${course.title}
@@ -62,10 +62,10 @@ async function uploadToGCS(fileName: string, content: string) {
     if (exists) {
       const [metadata] = await file.getMetadata();
       const localHash = getHash(content);
-      
+
       // GCS metadata hash is base64 encoded
       const remoteHashBase64 = metadata.md5Hash;
-      const localHashBase64 = Buffer.from(localHash, 'hex').toString('base64');
+      const localHashBase64 = Buffer.from(localHash, "hex").toString("base64");
 
       if (remoteHashBase64 === localHashBase64) {
         return "skipped";
@@ -129,11 +129,13 @@ async function exportContent() {
             totalSize += Buffer.byteLength(jsonContent);
 
             // Queue GCS Upload with concurrency limit
-            tasks.push(limit(async () => {
-              const result = await uploadToGCS(fileName, jsonContent);
-              stats[result as keyof typeof stats]++;
-              console.log(`[${result.toUpperCase()}] ${fileName}`);
-            }));
+            tasks.push(
+              limit(async () => {
+                const result = await uploadToGCS(fileName, jsonContent);
+                stats[result as keyof typeof stats]++;
+                console.log(`[${result.toUpperCase()}] ${fileName}`);
+              })
+            );
           } else {
             console.log(`[DRY-RUN] Would generate and upload: ${fileName}`);
           }
@@ -148,7 +150,7 @@ async function exportContent() {
     console.log("\n Process Complete");
     console.log(`-------------------`);
     console.log(`Lessons Processed: ${stats.generated}`);
-    
+
     if (!isDryRun) {
       console.log(`Files Uploaded:    ${stats.uploaded}`);
       console.log(`Files Skipped:     ${stats.skipped}`);
