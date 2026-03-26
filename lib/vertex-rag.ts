@@ -3,7 +3,7 @@ import { getAuthHeaders } from "@/lib/gcp-auth";
 const PROJECT_ID = process.env.GCP_PROJECT_ID!;
 const LOCATION = process.env.GCP_LOCATION || "us-west1";
 const RAG_CORPUS_ID = process.env.RAG_CORPUS_ID!;
-const MODEL_ID = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL_ID = "gemini-2.5-flash";
 
 const VERTEX_BASE = `https://${LOCATION}-aiplatform.googleapis.com/v1`;
 
@@ -30,7 +30,7 @@ interface ChatMessage {
   content: string;
 }
 
-// Retrieve Context from RAG Corpus ──
+// Retrieve Context from RAG Corpus
 
 /**
  * Calls the Vertex AI RetrieveContexts API to fetch relevant chunks
@@ -60,8 +60,12 @@ export async function retrieveContext(query: string, corpusId?: string): Promise
     },
     query: {
       text: query,
-      similarity_top_k: 5,
-      vector_distance_threshold: 0.7,
+      rag_retrieval_config: {
+        top_k: 5,
+        filter: {
+          vector_distance_threshold: 0.7,
+        },
+      },
     },
   };
 
@@ -120,6 +124,10 @@ export async function generateWithRAG(
   let ragChunks: RagChunk[] = [];
   if (lastUserMessage) {
     ragChunks = await retrieveContext(lastUserMessage.content);
+    console.log(`[RAG] Retrieved ${ragChunks.length} chunks for: "${lastUserMessage.content}"`);
+    ragChunks.forEach((c, i) =>
+      console.log(`  [${i + 1}] score: ${c.score.toFixed(2)} | ${c.text.substring(0, 80)}...`)
+    );
   }
 
   // Build augmented system prompt with grounding context
