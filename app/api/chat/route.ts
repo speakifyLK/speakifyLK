@@ -134,37 +134,36 @@ export async function POST(req: Request) {
     content: msg.content,
   }));
 
-
   // ── 8. Call generateWithRAG (RAG retrieval + Vertex AI streaming) ──
   try {
-    const ragStream = await generateWithRAG(geminiHistory, SINHALA_TUTOR_PROMPT+courseContext);
- 
+    const ragStream = await generateWithRAG(geminiHistory, SINHALA_TUTOR_PROMPT + courseContext);
+
     // Pipe stream to client while accumulating the full response ──
     let fullResponse = "";
     const encoder = new TextEncoder();
- 
+
     const stream = new ReadableStream({
       async start(controller) {
         const reader = ragStream.getReader();
- 
+
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
- 
+
             // Decode the chunk to accumulate the full response
             const text = new TextDecoder().decode(value);
             fullResponse += text;
- 
+
             // Forward the chunk to the client
             controller.enqueue(value);
           }
- 
-          // Save complete assistant response to DB 
+
+          // Save complete assistant response to DB
           if (fullResponse.trim()) {
             await saveAssistantMessage(conversationId, fullResponse);
           }
- 
+
           controller.close();
         } catch (err) {
           console.error(
@@ -175,7 +174,7 @@ export async function POST(req: Request) {
         }
       },
     });
- 
+
     return new Response(stream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
@@ -192,5 +191,5 @@ export async function POST(req: Request) {
       { error: "AI service temporarily unavailable. Please try again." },
       { status: 503 }
     );
-   }
+  }
 }

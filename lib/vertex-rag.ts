@@ -30,7 +30,7 @@ interface ChatMessage {
   content: string;
 }
 
-// Retrieve Context from RAG Corpus 
+// Retrieve Context from RAG Corpus
 
 /**
  * Calls the Vertex AI RetrieveContexts API to fetch relevant chunks
@@ -51,23 +51,23 @@ export async function retrieveContext(query: string, corpusId?: string): Promise
   const url = `${VERTEX_BASE}/projects/${PROJECT_ID}/locations/${LOCATION}:retrieveContexts`;
 
   const body = {
-  vertex_rag_store: {
-    rag_resources: [
-      {
-        rag_corpus: `projects/${PROJECT_ID}/locations/${LOCATION}/ragCorpora/${targetCorpus}`,
-      },
-    ],
-  },
-  query: {
-    text: query,
-    rag_retrieval_config: {
-      top_k: 5,
-      filter: {
-        vector_distance_threshold: 0.7,
+    vertex_rag_store: {
+      rag_resources: [
+        {
+          rag_corpus: `projects/${PROJECT_ID}/locations/${LOCATION}/ragCorpora/${targetCorpus}`,
+        },
+      ],
+    },
+    query: {
+      text: query,
+      rag_retrieval_config: {
+        top_k: 5,
+        filter: {
+          vector_distance_threshold: 0.7,
+        },
       },
     },
-  },
-};
+  };
 
   try {
     const headers = await getAuthHeaders();
@@ -125,7 +125,9 @@ export async function generateWithRAG(
   if (lastUserMessage) {
     ragChunks = await retrieveContext(lastUserMessage.content);
     console.log(`[RAG] Retrieved ${ragChunks.length} chunks for: "${lastUserMessage.content}"`);
-    ragChunks.forEach((c, i) => console.log(`  [${i + 1}] score: ${c.score.toFixed(2)} | ${c.text.substring(0, 80)}...`));
+    ragChunks.forEach((c, i) =>
+      console.log(`  [${i + 1}] score: ${c.score.toFixed(2)} | ${c.text.substring(0, 80)}...`)
+    );
   }
 
   // Build augmented system prompt with grounding context
