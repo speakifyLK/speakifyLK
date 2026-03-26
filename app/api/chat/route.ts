@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
-import { getGeminiClient, getModel, safetySettings, generationConfig } from "@/lib/gemini";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
 import { getUserProgress, getUnits, getUserSubscription } from "@/db/queries";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { generateWithRAG } from "@/lib/vertex-rag";
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
@@ -127,50 +127,38 @@ export async function POST(req: Request) {
     return Response.json({ error: "Failed to load conversation" }, { status: 500 });
   }
 
-  // ── 7. Format history for Gemini ──
+  // ── 7. Format history for generateWithRAG ──
+  //generateWithRAG expects { role: "user" | "assistant", content: string }
   const geminiHistory = history.map((msg) => ({
-    role: msg.role === "assistant" ? ("model" as const) : ("user" as const),
-    parts: [{ text: msg.content }],
+    role: msg.role as "user" | "assistant",
+    content: msg.content,
   }));
 
-  // ── 8. Call Gemini with streaming ──
+  // ── 8. Call generateWithRAG (RAG retrieval + Vertex AI streaming) ──
   try {
-    const ai = getGeminiClient();
+    const ragStream = await generateWithRAG(geminiHistory, SINHALA_TUTOR_PROMPT + courseContext);
 
-    const response = await ai.models.generateContentStream({
-      model: getModel(),
-      contents: [
-        { role: "user", parts: [{ text: SINHALA_TUTOR_PROMPT + courseContext }] },
-        {
-          role: "model",
-          parts: [
-            { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
-          ],
-        },
-        ...geminiHistory,
-      ],
-      config: {
-        safetySettings,
-        ...generationConfig,
-      },
-    });
-
-    // ── 9. Stream response to client ──
+    // Pipe stream to client while accumulating the full response ──
     let fullResponse = "";
-    const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
       async start(controller) {
+        const reader = ragStream.getReader();
+
         try {
-          for await (const chunk of response) {
-            const text = chunk.text ?? "";
-            if (text) {
-              fullResponse += text;
-              controller.enqueue(encoder.encode(text));
-            }
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            // Decode the chunk to accumulate the full response
+            const text = new TextDecoder().decode(value);
+            fullResponse += text;
+
+            // Forward the chunk to the client
+            controller.enqueue(value);
           }
 
-          // ── 10. Save complete assistant response to DB ──
+          // Save complete assistant response to DB
           if (fullResponse.trim()) {
             await saveAssistantMessage(conversationId, fullResponse);
           }
@@ -178,7 +166,7 @@ export async function POST(req: Request) {
           controller.close();
         } catch (err) {
           console.error(
-            `[Chat] Gemini streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
+            `[Chat] Streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
             err
           );
           controller.error(err);
@@ -195,7 +183,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error(
-      `[Chat] Gemini API failure | userId: ${userId} | time: ${new Date().toISOString()}`,
+      `[Chat] RAG/Vertex AI failure | userId: ${userId} | time: ${new Date().toISOString()}`,
       err
     );
     return Response.json(
