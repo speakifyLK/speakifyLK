@@ -310,7 +310,10 @@ async function deleteRagFilesForUris(targetUris: Set<string>): Promise<void> {
 }
 
 async function writeManifest(m: ImportManifest): Promise<void> {
-  await fs.writeFile(manifestPath(), JSON.stringify(m, null, 2) + "\n", "utf8");
+  const manifestFilePath = manifestPath();
+  const manifestDir = path.dirname(manifestFilePath);
+  await fs.mkdir(manifestDir, { recursive: true });
+  await fs.writeFile(manifestFilePath, JSON.stringify(m, null, 2) + "\n", "utf8");
 }
 
 async function main(): Promise<void> {
