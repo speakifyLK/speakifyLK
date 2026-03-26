@@ -140,8 +140,7 @@ export async function POST(req: Request) {
 
     // Pipe stream to client while accumulating the full response ──
     let fullResponse = "";
-    const encoder = new TextEncoder();
-
+ 
     const stream = new ReadableStream({
       async start(controller) {
         const reader = ragStream.getReader();
