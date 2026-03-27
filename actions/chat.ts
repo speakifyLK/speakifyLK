@@ -34,30 +34,6 @@ export const createConversation = async () => {
   return conversation.id;
 };
 
-// export const sendMessage = async (conversationId: number, content: string) => {
-//   const { userId } = await auth();
-//   if (!userId) throw new Error("Unauthorized.");
-
-//   await assertConversationOwner(conversationId, userId);
-
-//   const [message] = await db
-//     .insert(chatMessages)
-//     .values({
-//       conversationId,
-//       role: "user",
-//       content,
-//     })
-//     .returning();
-
-//   await db
-//     .update(chatConversations)
-//     .set({ updatedAt: new Date() })
-//     .where(eq(chatConversations.id, conversationId));
-
-//   revalidatePath("/chat");
-//   return message;
-// };
-
 export const sendMessage = async (conversationId: number, content: string) => {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
