@@ -1,9 +1,46 @@
 import { auth } from "@clerk/nextjs/server";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
+import { getGeminiClient, getModel, safetySettings, generationConfig } from "@/lib/gemini";
 import { getUserProgress, getUnits, getUserSubscription } from "@/db/queries";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { generateWithRAG } from "@/lib/vertex-rag";
+
+/**
+ * Helper: Creates a ReadableStream that pipes chunks to the client
+ * while accumulating the full response for DB persistence.
+ */
+function createStreamResponse(
+  streamReader: () => AsyncIterable<string>,
+  onComplete: (fullText: string) => Promise<void>,
+  onError: (err: unknown) => void
+): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+
+  return new ReadableStream({
+    async start(controller) {
+      let fullResponse = "";
+
+      try {
+        for await (const text of streamReader()) {
+          if (text) {
+            fullResponse += text;
+            controller.enqueue(encoder.encode(text));
+          }
+        }
+
+        if (fullResponse.trim()) {
+          await onComplete(fullResponse);
+        }
+
+        controller.close();
+      } catch (err) {
+        onError(err);
+        controller.error(err);
+      }
+    },
+  });
+}
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
@@ -127,63 +164,110 @@ export async function POST(req: Request) {
     return Response.json({ error: "Failed to load conversation" }, { status: 500 });
   }
 
-  // ── 7. Format history for generateWithRAG ──
-  //generateWithRAG expects { role: "user" | "assistant", content: string }
-  const geminiHistory = history.map((msg) => ({
+  // ── 7. Format history ──
+  // For generateWithRAG: { role: "user" | "assistant", content: string }
+  const chatHistory = history.map((msg) => ({
     role: msg.role as "user" | "assistant",
     content: msg.content,
   }));
 
-  // ── 8. Call generateWithRAG (RAG retrieval + Vertex AI streaming) ──
+  // For Gemini SDK fallback: { role: "user" | "model", parts: [{ text }] }
+  const geminiHistory = history.map((msg) => ({
+    role: msg.role === "assistant" ? ("model" as const) : ("user" as const),
+    parts: [{ text: msg.content }],
+  }));
+
+  const systemPrompt = SINHALA_TUTOR_PROMPT + courseContext;
+
+  const saveResponse = (text: string) => saveAssistantMessage(conversationId, text);
+  const logStreamError = (err: unknown) =>
+    console.error(
+      `[Chat] Streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
+      err
+    );
+
+  // ── 8. Try RAG flow, fall back to Gemini SDK on failure ──
   try {
-    const ragStream = await generateWithRAG(geminiHistory, SINHALA_TUTOR_PROMPT + courseContext);
+    const ragStream = await generateWithRAG(chatHistory, systemPrompt);
 
-    // Pipe stream to client while accumulating the full response ──
-    let fullResponse = "";
-
-    const stream = new ReadableStream({
-      async start(controller) {
+    // RAG succeeded — stream the response
+    const stream = createStreamResponse(
+      async function* () {
         const reader = ragStream.getReader();
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            // Decode the chunk to accumulate the full response
-            const text = new TextDecoder().decode(value);
-            fullResponse += text;
-
-            // Forward the chunk to the client
-            controller.enqueue(value);
-          }
-
-          // Save complete assistant response to DB
-          if (fullResponse.trim()) {
-            await saveAssistantMessage(conversationId, fullResponse);
-          }
-
-          controller.close();
-        } catch (err) {
-          console.error(
-            `[Chat] Streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
-            err
-          );
-          controller.error(err);
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          yield new TextDecoder().decode(value);
         }
       },
-    });
+      saveResponse,
+      logStreamError
+    );
 
     return new Response(stream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Transfer-Encoding": "chunked",
         "Cache-Control": "no-cache",
+        "X-RAG-Status": "active",
+      },
+    });
+  } catch (ragError) {
+    // ── Log RAG failure details ──
+    const errorType = ragError instanceof Error ? ragError.constructor.name : typeof ragError;
+    const errorMessage = ragError instanceof Error ? ragError.message : String(ragError);
+    const statusMatch = errorMessage.match(/\((\d{3})\)/);
+    const statusCode = statusMatch ? statusMatch[1] : "unknown";
+
+    console.warn(
+      `[Chat] RAG failed, falling back to Gemini SDK | ` +
+        `type: ${errorType} | status: ${statusCode} | message: ${errorMessage}`
+    );
+  }
+
+  // ── 9. Fallback: Non-RAG flow using Gemini SDK ──
+  try {
+    const ai = getGeminiClient();
+
+    const response = await ai.models.generateContentStream({
+      model: getModel(),
+      contents: [
+        { role: "user", parts: [{ text: systemPrompt }] },
+        {
+          role: "model",
+          parts: [
+            { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
+          ],
+        },
+        ...geminiHistory,
+      ],
+      config: {
+        safetySettings,
+        ...generationConfig,
+      },
+    });
+
+    const stream = createStreamResponse(
+      async function* () {
+        for await (const chunk of response) {
+          yield chunk.text ?? "";
+        }
+      },
+      saveResponse,
+      logStreamError
+    );
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-cache",
+        "X-RAG-Status": "fallback",
       },
     });
   } catch (err) {
     console.error(
-      `[Chat] RAG/Vertex AI failure | userId: ${userId} | time: ${new Date().toISOString()}`,
+      `[Chat] Gemini SDK fallback also failed | userId: ${userId} | time: ${new Date().toISOString()}`,
       err
     );
     return Response.json(

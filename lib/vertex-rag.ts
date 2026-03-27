@@ -152,7 +152,7 @@ export async function generateWithRAG(
     generationConfig: {
       temperature: 0.7,
       topP: 0.9,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 2048,
     },
   };
 
