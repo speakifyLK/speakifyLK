@@ -1,4 +1,3 @@
-
 import { auth } from "@clerk/nextjs/server";
 import { SINHALA_TUTOR_PROMPT } from "@/lib/chat-prompt";
 import { sendMessage, saveAssistantMessage, getMessages } from "@/actions/chat";
