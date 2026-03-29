@@ -82,22 +82,23 @@ async function main() {
       if (lesson.challenges.length === 0) continue;
 
       // Build challenge-with-options array
-      const challengesWithOptions: { challenge: ChallengeInput; options: ChallengeOption[] }[] = lesson.challenges.map((ch) => ({
-        challenge: {
-          question: ch.question,
-          type: ch.type,
-          order: ch.order,
-          courseName: course.title,
-          unitTitle: unit.title,
-          lessonTitle: lesson.title,
-        },
-        options: ch.challengeOptions.map((o) => ({
-          text: o.text,
-          correct: o.correct,
-          imageSrc: o.imageSrc,
-          audioSrc: o.audioSrc,
-        })),
-      }));
+      const challengesWithOptions: { challenge: ChallengeInput; options: ChallengeOption[] }[] =
+        lesson.challenges.map((ch) => ({
+          challenge: {
+            question: ch.question,
+            type: ch.type,
+            order: ch.order,
+            courseName: course.title,
+            unitTitle: unit.title,
+            lessonTitle: lesson.title,
+          },
+          options: ch.challengeOptions.map((o) => ({
+            text: o.text,
+            correct: o.correct,
+            imageSrc: o.imageSrc,
+            audioSrc: o.audioSrc,
+          })),
+        }));
 
       // Test single challenge chunk
       console.log("\n━━━ Single Challenge Chunk ━━━");
