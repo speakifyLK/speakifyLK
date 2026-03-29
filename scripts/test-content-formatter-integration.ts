@@ -121,9 +121,7 @@ async function main() {
       // Test single challenge chunk
       console.log("\n━━━ Single Challenge Chunk ━━━");
       const firstChallenge = challengesWithOptions[0];
-      console.log(
-        formatChallengeChunk(firstChallenge.challenge, firstChallenge.options, context)
-      );
+      console.log(formatChallengeChunk(firstChallenge.challenge, firstChallenge.options, context));
 
       // Test full lesson chunk
       const lessonInput: LessonInput = { title: lesson.title, order: lesson.order };
@@ -140,7 +138,9 @@ async function main() {
     }
   }
 
-  console.log("\n⚠️  No lessons with challenges found. Type compatibility verified via manifest only.");
+  console.log(
+    "\n⚠️  No lessons with challenges found. Type compatibility verified via manifest only."
+  );
   process.exit(0);
 }
 

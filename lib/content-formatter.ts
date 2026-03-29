@@ -58,14 +58,12 @@ export interface CourseInput {
 export function formatChallengeChunk(
   challenge: ChallengeInput,
   options: ChallengeOption[],
-  context: LessonContext,
+  context: LessonContext
 ): string {
   const correctOption = options.find((o) => o.correct);
   const correctAnswer = correctOption?.text ?? "N/A";
 
-  const optionLines = options
-    .map((o) => `  - ${o.text}${o.correct ? " ✅" : ""}`)
-    .join("\n");
+  const optionLines = options.map((o) => `  - ${o.text}${o.correct ? " ✅" : ""}`).join("\n");
 
   return [
     "=== METADATA ===",
@@ -100,7 +98,7 @@ interface ChallengeWithOptions {
 export function formatLessonChunk(
   lesson: LessonInput,
   challenges: ChallengeWithOptions[],
-  context: Omit<LessonContext, "lessonTitle">,
+  context: Omit<LessonContext, "lessonTitle">
 ): string {
   const total = challenges.length;
 
@@ -121,9 +119,7 @@ export function formatLessonChunk(
     const correctOption = c.options.find((o) => o.correct);
     const correctAnswer = correctOption?.text ?? "N/A";
 
-    const optionLines = c.options
-      .map((o) => `  - ${o.text}${o.correct ? " ✅" : ""}`)
-      .join("\n");
+    const optionLines = c.options.map((o) => `  - ${o.text}${o.correct ? " ✅" : ""}`).join("\n");
 
     return [
       `--- Challenge ${idx + 1} of ${total} (${c.challenge.type}) ---`,
@@ -148,10 +144,7 @@ export function formatLessonChunk(
  * it can contextualise individual lesson chunks.
  */
 export function formatCourseManifest(course: CourseInput): string {
-  const header = [
-    "=== COURSE MANIFEST ===",
-    `Course: ${course.title}`,
-  ].join("\n");
+  const header = ["=== COURSE MANIFEST ===", `Course: ${course.title}`].join("\n");
 
   if (course.units.length === 0) {
     return header + "\n\nNo units available for this course.";
@@ -160,9 +153,7 @@ export function formatCourseManifest(course: CourseInput): string {
   const unitSections = course.units.map((unit) => {
     const lessonLines =
       unit.lessons.length > 0
-        ? unit.lessons
-            .map((l) => `    ${l.order}. ${l.title}`)
-            .join("\n")
+        ? unit.lessons.map((l) => `    ${l.order}. ${l.title}`).join("\n")
         : "    (no lessons)";
 
     return [
