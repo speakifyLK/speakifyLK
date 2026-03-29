@@ -30,90 +30,74 @@ import {
 } from "../lib/content-formatter";
 
 async function main() {
-  console.log("Fetching first course from DB...\n");
+  console.log("Fetching first course from DB with all relations...\n");
 
-  // 1. Get a course
-  const course = await db.query.courses.findFirst();
+  // 1. Get a course with its entire hierarchy in ONE query
+  const course = await db.query.courses.findFirst({
+    with: {
+      units: {
+        orderBy: [asc(units.order)],
+        with: {
+          lessons: {
+            orderBy: [asc(lessons.order)],
+            with: {
+              challenges: {
+                orderBy: [asc(challenges.order)],
+                with: {
+                  challengeOptions: {
+                    orderBy: [asc(challengeOptions.id)],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
   if (!course) {
     console.log("No courses found in DB. Skipping integration test.");
     process.exit(0);
   }
   console.log(`Course: ${course.title} (id=${course.id})`);
+  console.log(`  Units: ${course.units.length}`);
 
-  // 2. Get all units for this course
-  const courseUnits = await db.query.units.findMany({
-    where: eq(units.courseId, course.id),
-    orderBy: [asc(units.order)],
-  });
-  console.log(`  Units: ${courseUnits.length}`);
-
-  // 3. Build CourseInput and test formatCourseManifest
-  const unitInputs: UnitInput[] = [];
-
-  for (const unit of courseUnits) {
-    const unitLessons = await db.query.lessons.findMany({
-      where: eq(lessons.unitId, unit.id),
-      orderBy: [asc(lessons.order)],
-    });
-
-    unitInputs.push({
-      title: unit.title,
-      description: unit.description,
-      order: unit.order,
-      lessons: unitLessons.map((l) => ({ title: l.title, order: l.order })),
-    });
-  }
+  // 2. Build CourseInput and test formatCourseManifest
+  const unitInputs: UnitInput[] = course.units.map((unit) => ({
+    title: unit.title,
+    description: unit.description,
+    order: unit.order,
+    lessons: unit.lessons.map((l) => ({ title: l.title, order: l.order })),
+  }));
 
   const courseInput: CourseInput = { title: course.title, units: unitInputs };
   const manifest = formatCourseManifest(courseInput);
   console.log("\n━━━ Course Manifest ━━━");
   console.log(manifest);
 
-  // 4. Test formatLessonChunk + formatChallengeChunk with the first lesson that has challenges
-  for (const unit of courseUnits) {
-    const unitLessons = await db.query.lessons.findMany({
-      where: eq(lessons.unitId, unit.id),
-      orderBy: [asc(lessons.order)],
-    });
-
-    for (const lesson of unitLessons) {
-      const lessonChallenges = await db.query.challenges.findMany({
-        where: eq(challenges.lessonId, lesson.id),
-        orderBy: [asc(challenges.order)],
-      });
-
-      if (lessonChallenges.length === 0) continue;
+  // 3. Test formatLessonChunk + formatChallengeChunk with the first lesson that has challenges
+  for (const unit of course.units) {
+    for (const lesson of unit.lessons) {
+      if (lesson.challenges.length === 0) continue;
 
       // Build challenge-with-options array
-      const challengesWithOptions: { challenge: ChallengeInput; options: ChallengeOption[] }[] = [];
-      for (const ch of lessonChallenges) {
-        const opts = await db.query.challengeOptions.findMany({
-          where: eq(challengeOptions.challengeId, ch.id),
-          orderBy: [asc(challengeOptions.id)],
-        });
-
-        // Map DB types to formatter types
-        const formatterOpts: ChallengeOption[] = opts.map((o) => ({
-          text: o.text,
-          correct: o.correct,
-          imageSrc: o.imageSrc,
-          audioSrc: o.audioSrc,
-        }));
-
-        const formatterChallenge: ChallengeInput = {
+      const challengesWithOptions: { challenge: ChallengeInput; options: ChallengeOption[] }[] = lesson.challenges.map((ch) => ({
+        challenge: {
           question: ch.question,
           type: ch.type,
           order: ch.order,
           courseName: course.title,
           unitTitle: unit.title,
           lessonTitle: lesson.title,
-        };
-
-        challengesWithOptions.push({
-          challenge: formatterChallenge,
-          options: formatterOpts,
-        });
-      }
+        },
+        options: ch.challengeOptions.map((o) => ({
+          text: o.text,
+          correct: o.correct,
+          imageSrc: o.imageSrc,
+          audioSrc: o.audioSrc,
+        })),
+      }));
 
       // Test single challenge chunk
       console.log("\n━━━ Single Challenge Chunk ━━━");
