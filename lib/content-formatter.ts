@@ -151,10 +151,13 @@ export function formatCourseManifest(course: CourseInput): string {
     return header + "\n\nNo units available for this course.";
   }
 
-  const unitSections = course.units.map((unit) => {
+  const sortedUnits = [...course.units].sort((a, b) => a.order - b.order);
+
+  const unitSections = sortedUnits.map((unit) => {
+    const sortedLessons = [...unit.lessons].sort((a, b) => a.order - b.order);
     const lessonLines =
-      unit.lessons.length > 0
-        ? unit.lessons.map((l) => `    ${l.order}. ${l.title}`).join("\n")
+      sortedLessons.length > 0
+        ? sortedLessons.map((l) => `    ${l.order}. ${l.title}`).join("\n")
         : "    (no lessons)";
 
     return [
