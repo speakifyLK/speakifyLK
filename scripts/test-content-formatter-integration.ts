@@ -92,7 +92,7 @@ async function main() {
       };
 
       // Build challenge-with-options array
-      const challengesWithOptions = [];
+      const challengesWithOptions: { challenge: ChallengeInput; options: ChallengeOption[] }[] = [];
       for (const ch of lessonChallenges) {
         const opts = await db.query.challengeOptions.findMany({
           where: eq(challengeOptions.challengeId, ch.id),
