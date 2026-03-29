@@ -96,6 +96,7 @@ speakify/
     |-- adaptive-difficulty.ts
     |-- admin.ts
     |-- chat-prompt.ts
+    |-- content-formatter.ts
     |-- gcp-auth.ts
     |-- gemini.ts
     |-- quiz-normalise.ts
@@ -109,6 +110,8 @@ speakify/
     |-- export-course-content.ts
     |-- import-rag-files.ts
     |-- prod.ts
+    |-- test-content-formatter-integration.ts
+    |-- test-content-formatter.ts
     |-- test-export-queries.ts
     |-- test-gcp-auth.ts
     |-- test-gemini.ts
