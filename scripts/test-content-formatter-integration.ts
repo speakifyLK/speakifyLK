@@ -24,7 +24,6 @@ import {
   formatCourseManifest,
   type ChallengeOption,
   type ChallengeInput,
-  type LessonContext,
   type LessonInput,
   type CourseInput,
   type UnitInput,
@@ -85,12 +84,6 @@ async function main() {
 
       if (lessonChallenges.length === 0) continue;
 
-      const context: LessonContext = {
-        courseName: course.title,
-        unitTitle: unit.title,
-        lessonTitle: lesson.title,
-      };
-
       // Build challenge-with-options array
       const challengesWithOptions: { challenge: ChallengeInput; options: ChallengeOption[] }[] = [];
       for (const ch of lessonChallenges) {
@@ -111,6 +104,9 @@ async function main() {
           question: ch.question,
           type: ch.type,
           order: ch.order,
+          courseName: course.title,
+          unitTitle: unit.title,
+          lessonTitle: lesson.title,
         };
 
         challengesWithOptions.push({
@@ -122,17 +118,17 @@ async function main() {
       // Test single challenge chunk
       console.log("\n━━━ Single Challenge Chunk ━━━");
       const firstChallenge = challengesWithOptions[0];
-      console.log(formatChallengeChunk(firstChallenge.challenge, firstChallenge.options, context));
+      console.log(formatChallengeChunk(firstChallenge.challenge, firstChallenge.options));
 
       // Test full lesson chunk
-      const lessonInput: LessonInput = { title: lesson.title, order: lesson.order };
+      const lessonInput: LessonInput = { 
+        title: lesson.title, 
+        order: lesson.order,
+        courseName: course.title,
+        unitTitle: unit.title, 
+      };
       console.log("\n━━━ Full Lesson Chunk ━━━");
-      console.log(
-        formatLessonChunk(lessonInput, challengesWithOptions, {
-          courseName: context.courseName,
-          unitTitle: context.unitTitle,
-        })
-      );
+      console.log(formatLessonChunk(lessonInput, challengesWithOptions));
 
       console.log("\n✅ Integration test passed — DB types are compatible with formatter types!");
       process.exit(0);

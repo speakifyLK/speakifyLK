@@ -10,7 +10,6 @@ import {
   formatCourseManifest,
   type ChallengeInput,
   type ChallengeOption,
-  type LessonContext,
   type LessonInput,
   type CourseInput,
 } from "../lib/content-formatter";
@@ -32,16 +31,13 @@ function assert(condition: boolean, label: string): void {
 
 // ── Mock Data ────────────────────────────────────────────────────────
 
-const context: LessonContext = {
-  courseName: "Sinhala",
-  unitTitle: "Unit 1 – Greetings",
-  lessonTitle: "Basic Greetings",
-};
-
 const challenge: ChallengeInput = {
   question: 'Which word means "hello"?',
   type: "SELECT",
   order: 1,
+  courseName: "Sinhala",
+  unitTitle: "Unit 1 – Greetings",
+  lessonTitle: "Basic Greetings",
 };
 
 const options: ChallengeOption[] = [
@@ -50,7 +46,12 @@ const options: ChallengeOption[] = [
   { text: "ආයිත එන්නම්", correct: false },
 ];
 
-const lesson: LessonInput = { title: "Basic Greetings", order: 1 };
+const lesson: LessonInput = { 
+  title: "Basic Greetings", 
+  order: 1,
+  courseName: "Sinhala",
+  unitTitle: "Unit 1 – Greetings",
+};
 
 const challengesWithOptions = [
   { challenge, options },
@@ -90,7 +91,7 @@ const course: CourseInput = {
 // ── Test: formatChallengeChunk ───────────────────────────────────────
 
 console.log("\n━━━ formatChallengeChunk ━━━");
-const chunkOutput = formatChallengeChunk(challenge, options, context);
+const chunkOutput = formatChallengeChunk(challenge, options);
 console.log(chunkOutput);
 console.log("");
 
@@ -107,10 +108,7 @@ assert(chunkOutput.includes("Correct Answer: ආයුබෝවන්"), "Shows 
 // ── Test: formatLessonChunk ──────────────────────────────────────────
 
 console.log("\n━━━ formatLessonChunk ━━━");
-const lessonOutput = formatLessonChunk(lesson, challengesWithOptions, {
-  courseName: context.courseName,
-  unitTitle: context.unitTitle,
-});
+const lessonOutput = formatLessonChunk(lesson, challengesWithOptions);
 console.log(lessonOutput);
 console.log("");
 
@@ -138,10 +136,12 @@ assert(manifestOutput.includes("2. Numbers 11-20"), "Lesson from unit 2 listed")
 // ── Edge case: empty lesson ──────────────────────────────────────────
 
 console.log("\n━━━ Edge: empty lesson ━━━");
-const emptyLesson = formatLessonChunk({ title: "Empty Lesson", order: 5 }, [], {
+const emptyLesson = formatLessonChunk({ 
+  title: "Empty Lesson", 
+  order: 5,
   courseName: "Sinhala",
   unitTitle: "Unit 3",
-});
+}, []);
 console.log(emptyLesson);
 console.log("");
 assert(emptyLesson.includes("Total Challenges: 0"), "Shows zero challenges");

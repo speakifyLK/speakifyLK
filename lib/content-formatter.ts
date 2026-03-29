@@ -21,17 +21,16 @@ export interface ChallengeInput {
   question: string;
   type: "SELECT" | "ASSIST";
   order: number;
-}
-
-export interface LessonContext {
-  lessonTitle: string;
-  unitTitle: string;
-  courseName: string;
+  courseName?: string;
+  unitTitle?: string;
+  lessonTitle?: string;
 }
 
 export interface LessonInput {
   title: string;
   order: number;
+  courseName?: string;
+  unitTitle?: string;
 }
 
 export interface UnitInput {
@@ -57,19 +56,22 @@ export interface CourseInput {
  */
 export function formatChallengeChunk(
   challenge: ChallengeInput,
-  options: ChallengeOption[],
-  context: LessonContext
+  options: ChallengeOption[]
 ): string {
   const correctOption = options.find((o) => o.correct);
   const correctAnswer = correctOption?.text ?? "N/A";
 
   const optionLines = options.map((o) => `  - ${o.text}${o.correct ? " ✅" : ""}`).join("\n");
 
+  const courseName = challenge.courseName || "Unknown Course";
+  const unitTitle = challenge.unitTitle || "Unknown Unit";
+  const lessonTitle = challenge.lessonTitle || "Unknown Lesson";
+
   return [
     "=== METADATA ===",
-    `Course: ${context.courseName}`,
-    `Unit: ${context.unitTitle}`,
-    `Lesson: ${context.lessonTitle}`,
+    `Course: ${courseName}`,
+    `Unit: ${unitTitle}`,
+    `Lesson: ${lessonTitle}`,
     `Challenge Type: ${challenge.type}`,
     "=== CONTENT ===",
     `Question: ${challenge.question}`,
@@ -97,16 +99,18 @@ interface ChallengeWithOptions {
  */
 export function formatLessonChunk(
   lesson: LessonInput,
-  challenges: ChallengeWithOptions[],
-  context: Omit<LessonContext, "lessonTitle">
+  challenges: ChallengeWithOptions[]
 ): string {
   const sortedChallenges = [...challenges].sort((a, b) => a.challenge.order - b.challenge.order);
   const total = sortedChallenges.length;
 
+  const courseName = lesson.courseName || "Unknown Course";
+  const unitTitle = lesson.unitTitle || "Unknown Unit";
+
   const header = [
     "=== METADATA ===",
-    `Course: ${context.courseName}`,
-    `Unit: ${context.unitTitle}`,
+    `Course: ${courseName}`,
+    `Unit: ${unitTitle}`,
     `Lesson: ${lesson.title} (Lesson ${lesson.order})`,
     `Total Challenges: ${total}`,
     "=== CONTENT ===",
