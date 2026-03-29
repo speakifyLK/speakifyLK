@@ -16,7 +16,7 @@ dotenv.config({ path: ".env.local", override: true });
 
 import db from "../db/drizzle";
 import { units, lessons, challenges, challengeOptions } from "../db/schema";
-import { eq, asc } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 
 import {
   formatChallengeChunk,
