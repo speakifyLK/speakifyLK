@@ -104,12 +104,16 @@ export function formatLessonChunk(lesson: LessonInput, challenges: ChallengeWith
   const courseName = lesson.courseName || "Unknown Course";
   const unitTitle = lesson.unitTitle || "Unknown Unit";
 
+  const uniqueTypes = Array.from(new Set(sortedChallenges.map((c) => c.challenge.type))).join(", ");
+  const challengeTypes = uniqueTypes ? uniqueTypes : "(none)";
+
   const header = [
     "=== METADATA ===",
     `Course: ${courseName}`,
     `Unit: ${unitTitle}`,
     `Lesson: ${lesson.title} (Lesson ${lesson.order})`,
     `Total Challenges: ${total}`,
+    `Challenge Types: ${challengeTypes}`,
     "=== CONTENT ===",
   ].join("\n");
 

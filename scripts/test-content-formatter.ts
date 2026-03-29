@@ -117,6 +117,7 @@ assert(lessonOutput.includes("Total Challenges: 2"), "Shows total challenges");
 assert(lessonOutput.includes("Challenge 1 of 2 (SELECT)"), "Challenge 1 header");
 assert(lessonOutput.includes("Challenge 2 of 2 (ASSIST)"), "Challenge 2 header");
 assert(lessonOutput.includes("Lesson: Basic Greetings (Lesson 1)"), "Lesson with order");
+assert(lessonOutput.includes("Challenge Types: SELECT, ASSIST"), "Shows unique challenge types");
 
 // ── Test: formatCourseManifest ───────────────────────────────────────
 
