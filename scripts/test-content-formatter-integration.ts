@@ -96,6 +96,7 @@ async function main() {
       for (const ch of lessonChallenges) {
         const opts = await db.query.challengeOptions.findMany({
           where: eq(challengeOptions.challengeId, ch.id),
+          orderBy: [asc(challengeOptions.id)],
         });
 
         // Map DB types to formatter types
