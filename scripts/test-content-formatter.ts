@@ -46,8 +46,8 @@ const options: ChallengeOption[] = [
   { text: "ආයිත එන්නම්", correct: false },
 ];
 
-const lesson: LessonInput = { 
-  title: "Basic Greetings", 
+const lesson: LessonInput = {
+  title: "Basic Greetings",
   order: 1,
   courseName: "Sinhala",
   unitTitle: "Unit 1 – Greetings",
@@ -136,12 +136,15 @@ assert(manifestOutput.includes("2. Numbers 11-20"), "Lesson from unit 2 listed")
 // ── Edge case: empty lesson ──────────────────────────────────────────
 
 console.log("\n━━━ Edge: empty lesson ━━━");
-const emptyLesson = formatLessonChunk({ 
-  title: "Empty Lesson", 
-  order: 5,
-  courseName: "Sinhala",
-  unitTitle: "Unit 3",
-}, []);
+const emptyLesson = formatLessonChunk(
+  {
+    title: "Empty Lesson",
+    order: 5,
+    courseName: "Sinhala",
+    unitTitle: "Unit 3",
+  },
+  []
+);
 console.log(emptyLesson);
 console.log("");
 assert(emptyLesson.includes("Total Challenges: 0"), "Shows zero challenges");

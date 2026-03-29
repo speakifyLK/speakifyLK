@@ -121,11 +121,11 @@ async function main() {
       console.log(formatChallengeChunk(firstChallenge.challenge, firstChallenge.options));
 
       // Test full lesson chunk
-      const lessonInput: LessonInput = { 
-        title: lesson.title, 
+      const lessonInput: LessonInput = {
+        title: lesson.title,
         order: lesson.order,
         courseName: course.title,
-        unitTitle: unit.title, 
+        unitTitle: unit.title,
       };
       console.log("\n━━━ Full Lesson Chunk ━━━");
       console.log(formatLessonChunk(lessonInput, challengesWithOptions));

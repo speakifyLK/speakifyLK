@@ -97,10 +97,7 @@ interface ChallengeWithOptions {
  * a numbered sub-section. This produces a single, coherent document per
  * lesson that the RAG system can index.
  */
-export function formatLessonChunk(
-  lesson: LessonInput,
-  challenges: ChallengeWithOptions[]
-): string {
+export function formatLessonChunk(lesson: LessonInput, challenges: ChallengeWithOptions[]): string {
   const sortedChallenges = [...challenges].sort((a, b) => a.challenge.order - b.challenge.order);
   const total = sortedChallenges.length;
 
