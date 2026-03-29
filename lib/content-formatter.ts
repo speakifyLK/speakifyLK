@@ -100,7 +100,8 @@ export function formatLessonChunk(
   challenges: ChallengeWithOptions[],
   context: Omit<LessonContext, "lessonTitle">
 ): string {
-  const total = challenges.length;
+  const sortedChallenges = [...challenges].sort((a, b) => a.challenge.order - b.challenge.order);
+  const total = sortedChallenges.length;
 
   const header = [
     "=== METADATA ===",
@@ -115,7 +116,7 @@ export function formatLessonChunk(
     return header + "\n\nNo challenges available for this lesson.";
   }
 
-  const challengeSections = challenges.map((c, idx) => {
+  const challengeSections = sortedChallenges.map((c, idx) => {
     const correctOption = c.options.find((o) => o.correct);
     const correctAnswer = correctOption?.text ?? "N/A";
 
