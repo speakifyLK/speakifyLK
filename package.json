@@ -16,7 +16,9 @@
     "content:export": "bun scripts/export-course-content.ts",
     "content:export:dry": "bun scripts/export-course-content.ts --dry-run",
     "rag:import": "tsx ./scripts/import-rag-files.ts",
-    "rag:import:force": "tsx ./scripts/import-rag-files.ts --force"
+    "rag:import:force": "tsx ./scripts/import-rag-files.ts --force",
+    "rag:create": "tsx ./scripts/create-rag-corpus.ts",
+    "rag:create:check": "tsx ./scripts/create-rag-corpus.ts --check"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.12",
