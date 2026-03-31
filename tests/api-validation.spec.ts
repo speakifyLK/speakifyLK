@@ -28,9 +28,7 @@ test.describe("API — Quiz Generate Endpoint", () => {
     expect(response.ok()).toBe(false);
   });
 
-  test("should reject unauthenticated requests with empty body", async ({
-    request,
-  }) => {
+  test("should reject unauthenticated requests with empty body", async ({ request }) => {
     const response = await request.post(QUIZ_API, {
       data: {},
     });
@@ -70,9 +68,7 @@ test.describe("API — General Error Handling", () => {
     expect(response.ok()).toBe(false);
   });
 
-  test("should reject malformed JSON on protected route", async ({
-    request,
-  }) => {
+  test("should reject malformed JSON on protected route", async ({ request }) => {
     const response = await request.post("/api/quiz/generate", {
       headers: { "Content-Type": "application/json" },
       data: "this is not json",

@@ -12,14 +12,7 @@ type CardProps = {
   isActive?: boolean;
 };
 
-export const Card = ({
-  title,
-  id,
-  imageSrc,
-  onClick,
-  disabled,
-  isActive,
-}: CardProps) => {
+export const Card = ({ title, id, imageSrc, onClick, disabled, isActive }: CardProps) => {
   return (
     <div
       onClick={() => onClick(id)}
