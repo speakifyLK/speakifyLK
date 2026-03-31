@@ -62,7 +62,6 @@ speakify/
     |-- modals/
     |-- quiz/
     |-- ui/
-    |-- banner.tsx
     |-- feed-wrapper.tsx
     |-- mobile-header.tsx
     |-- mobile-sidebar.tsx
