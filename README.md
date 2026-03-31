@@ -108,6 +108,7 @@ speakify/
     |-- vertex-rag.ts
   |- public/
   |- scripts/
+    |-- create-rag-corpus.ts
     |-- export-course-content.ts
     |-- import-rag-files.ts
     |-- prod.ts
