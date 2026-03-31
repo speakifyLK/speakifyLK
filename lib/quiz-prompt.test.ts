@@ -16,60 +16,56 @@ describe("buildQuizPrompt — input validation", () => {
   // ── Count validation ──
 
   it("throws for count of 0", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 0 })
-    ).toThrow(/positive integer/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 0 })).toThrow(
+      /positive integer/
+    );
   });
 
   it("throws for negative count", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: -1 })
-    ).toThrow(/positive integer/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: -1 })).toThrow(
+      /positive integer/
+    );
   });
 
   it("throws for non-integer count", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 2.5 })
-    ).toThrow(/positive integer/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 2.5 })).toThrow(
+      /positive integer/
+    );
   });
 
   it("throws for count exceeding maximum (20)", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 21 })
-    ).toThrow(/must not exceed/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 21 })).toThrow(
+      /must not exceed/
+    );
   });
 
   it("accepts count at maximum boundary (20)", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 20 })
-    ).not.toThrow();
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 20 })).not.toThrow();
   });
 
   it("accepts count of 1 (minimum)", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 1 })
-    ).not.toThrow();
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, count: 1 })).not.toThrow();
   });
 
   // ── Topic validation ──
 
   it("throws for empty topic", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: "" })
-    ).toThrow(/must not be empty/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: "" })).toThrow(
+      /must not be empty/
+    );
   });
 
   it("throws for whitespace-only topic", () => {
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: "   " })
-    ).toThrow(/must not be empty/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: "   " })).toThrow(
+      /must not be empty/
+    );
   });
 
   it("throws for topic exceeding 100 characters", () => {
     const longTopic = "a".repeat(101);
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: longTopic })
-    ).toThrow(/must not exceed/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: longTopic })).toThrow(
+      /must not exceed/
+    );
   });
 
   it("accepts topic at 100 character boundary", () => {
@@ -101,9 +97,9 @@ describe("buildQuizPrompt — input validation", () => {
   it("rejects topic with Unicode combining marks (Sinhala vowel signs)", () => {
     // Sinhala dependent vowels like  ි (U+0DD2) are \p{M} (Mark), not \p{L} (Letter)
     // The SAFE_TOPIC_PATTERN intentionally rejects these for security
-    expect(() =>
-      buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: "සිංහල" })
-    ).toThrow(/invalid characters/);
+    expect(() => buildQuizPrompt("MULTIPLE_CHOICE", { ...validParams, topic: "සිංහල" })).toThrow(
+      /invalid characters/
+    );
   });
 
   it("accepts topic with hyphens and apostrophes", () => {
@@ -118,9 +114,9 @@ describe("buildQuizPrompt — input validation", () => {
   // ── Quiz type validation ──
 
   it("throws for unknown quiz type", () => {
-    expect(() =>
-      buildQuizPrompt("UNKNOWN_TYPE" as QuizType, validParams)
-    ).toThrow(/Unknown quiz type/);
+    expect(() => buildQuizPrompt("UNKNOWN_TYPE" as QuizType, validParams)).toThrow(
+      /Unknown quiz type/
+    );
   });
 });
 

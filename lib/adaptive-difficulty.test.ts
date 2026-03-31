@@ -27,10 +27,7 @@ function makeSessions(
 
 describe("selectLastSessionsForTopic", () => {
   it("filters sessions by topic name", () => {
-    const sessions = [
-      ...makeSessions([90, 80], "greetings"),
-      ...makeSessions([70, 60], "verbs"),
-    ];
+    const sessions = [...makeSessions([90, 80], "greetings"), ...makeSessions([70, 60], "verbs")];
     const result = selectLastSessionsForTopic(sessions, "greetings");
     expect(result.every((s) => s.topic === "greetings")).toBe(true);
   });
@@ -121,16 +118,12 @@ describe("averageScores", () => {
 
 describe("computeAdaptiveDifficultyRecommendation", () => {
   it("returns null when no completed sessions exist for the topic", () => {
-    expect(
-      computeAdaptiveDifficultyRecommendation([], "greetings", "beginner")
-    ).toBeNull();
+    expect(computeAdaptiveDifficultyRecommendation([], "greetings", "beginner")).toBeNull();
   });
 
   it("returns null when only incomplete sessions exist", () => {
     const sessions = makeSessions([90, 85], "greetings", false);
-    expect(
-      computeAdaptiveDifficultyRecommendation(sessions, "greetings", "beginner")
-    ).toBeNull();
+    expect(computeAdaptiveDifficultyRecommendation(sessions, "greetings", "beginner")).toBeNull();
   });
 
   // ── Upgrade rules ──
