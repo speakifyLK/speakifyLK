@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -63,30 +62,45 @@ speakify/
     |-- globals.css
     |-- icon1.png
     |-- icon2.png
+    |-- layout.test.tsx
     |-- layout.tsx
   |- components/
     |-- chat/
     |-- modals/
     |-- quiz/
     |-- ui/
+    |-- feed-wrapper.test.tsx
     |-- feed-wrapper.tsx
+    |-- mobile-header.test.tsx
     |-- mobile-header.tsx
+    |-- mobile-sidebar.test.tsx
     |-- mobile-sidebar.tsx
+    |-- promo.test.tsx
     |-- promo.tsx
+    |-- quests.test.tsx
     |-- quests.tsx
+    |-- sidebar-item.test.tsx
     |-- sidebar-item.tsx
+    |-- sidebar.test.tsx
     |-- sidebar.tsx
+    |-- sticky-wrapper.test.tsx
     |-- sticky-wrapper.tsx
+    |-- user-progress.test.tsx
     |-- user-progress.tsx
   |- config/
+    |-- index.test.ts
     |-- index.ts
     |-- labeler.yml
     |-- labels.yml
     |-- prettier.json
   |- db/
+    |-- drizzle.test.ts
     |-- drizzle.ts
+    |-- export-queries.test.ts
     |-- export-queries.ts
+    |-- queries.test.ts
     |-- queries.ts
+    |-- schema.test.ts
     |-- schema.ts
   |- infrastructure/
     |-- modules/
@@ -135,9 +149,13 @@ speakify/
     |-- test-gcp-auth.ts
     |-- test-gemini.ts
   |- store/
+    |-- quiz-store.test.ts
     |-- quiz-store.ts
+    |-- use-exit-modal.test.ts
     |-- use-exit-modal.ts
+    |-- use-hearts-modal.test.ts
     |-- use-hearts-modal.ts
+    |-- use-practice-modal.test.ts
     |-- use-practice-modal.ts
   |- tests/
     |-- api-validation.spec.ts
@@ -151,11 +169,13 @@ speakify/
   |- .prettierrc.json
   |- bun.lock
   |- components.json
+  |- constants.test.ts
   |- constants.ts
   |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
   |- eslint.config.mjs
+  |- middleware.test.ts
   |- middleware.ts
   |- next.config.ts
   |- package-lock.json
@@ -168,7 +188,6 @@ speakify/
   |- vitest.config.ts
   |- vitest.setup.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -341,7 +360,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
@@ -357,6 +375,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.95.2
 - [@testing-library/jest-dom](https://www.npmjs.com/package/@testing-library/jest-dom): ^6.9.1
 - [@testing-library/react](https://www.npmjs.com/package/@testing-library/react): ^16.3.2
+- [@testing-library/user-event](https://www.npmjs.com/package/@testing-library/user-event): ^14.6.1
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.5.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
