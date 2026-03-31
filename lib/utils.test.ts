@@ -47,11 +47,13 @@ describe("absoluteUrl", () => {
   });
 
   it("works with nested path", () => {
-    expect(absoluteUrl("/api/webhooks/stripe")).toBe("https://example.com/api/webhooks/stripe");
+    expect(absoluteUrl("/api/webhooks/stripe")).toBe(
+      "https://example.com/api/webhooks/stripe"
+    );
   });
 
   it("returns undefined-prefixed string when env var is not set", () => {
-    delete process.env.NEXT_PUBLIC_APP_URL;
+    process.env.NEXT_PUBLIC_APP_URL = undefined as unknown as string;
     expect(absoluteUrl("/shop")).toBe("undefined/shop");
   });
 });

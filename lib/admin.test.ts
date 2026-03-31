@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock @clerk/nextjs/server before importing the module under test
 vi.mock("@clerk/nextjs/server", () => ({
