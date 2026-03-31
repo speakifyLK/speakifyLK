@@ -140,29 +140,21 @@ async function listCorpora(): Promise<void> {
 
   console.log(`   Found ${corpora.length} corpus/corpora:\n`);
   console.log("   " + "-".repeat(90));
-  console.log(
-    "   " +
-      "Display Name".padEnd(35) +
-      "Corpus ID".padEnd(25) +
-      "Created"
-  );
+  console.log("   " + "Display Name".padEnd(35) + "Corpus ID".padEnd(25) + "Created");
   console.log("   " + "-".repeat(90));
 
   for (const corpus of corpora) {
     const name = corpus.name || "";
     const id = name.split("/").pop() || "?";
     const displayName = (corpus.displayName || "(unnamed)").substring(0, 33);
-    const created = corpus.createTime
-      ? new Date(corpus.createTime).toLocaleDateString()
-      : "?";
+    const created = corpus.createTime ? new Date(corpus.createTime).toLocaleDateString() : "?";
 
     console.log("   " + displayName.padEnd(35) + id.padEnd(25) + created);
   }
 
   console.log("   " + "-".repeat(90));
   console.log(
-    "\n   To use a corpus, add to .env.local:\n" +
-      "   RAG_CORPUS_ID=<corpus-id-from-above>\n"
+    "\n   To use a corpus, add to .env.local:\n" + "   RAG_CORPUS_ID=<corpus-id-from-above>\n"
   );
 }
 
@@ -237,10 +229,7 @@ function printCorpusResult(corpusResourceName: string): void {
   console.log(`   │                                             │`);
   console.log(`   │  RAG_CORPUS_ID=${corpusId.padEnd(28)}│`);
   console.log("   └─────────────────────────────────────────────┘");
-  console.log(
-    "\n   After adding, you can import content with:\n" +
-      "   npm run rag:import\n"
-  );
+  console.log("\n   After adding, you can import content with:\n" + "   npm run rag:import\n");
 }
 
 // ── Main ─────────────────────────────────────────────────────────────
