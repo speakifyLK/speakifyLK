@@ -95,11 +95,15 @@ speakify/
   |- lib/
     |-- adaptive-difficulty.test.ts
     |-- adaptive-difficulty.ts
+    |-- admin.test.ts
     |-- admin.ts
+    |-- chat-prompt.test.ts
     |-- chat-prompt.ts
     |-- content-formatter.test.ts
     |-- content-formatter.ts
+    |-- gcp-auth.test.ts
     |-- gcp-auth.ts
+    |-- gemini.test.ts
     |-- gemini.ts
     |-- quiz-normalise.test.ts
     |-- quiz-normalise.ts
@@ -107,8 +111,11 @@ speakify/
     |-- quiz-prompt.ts
     |-- rate-limit.test.ts
     |-- rate-limit.ts
+    |-- stripe.test.ts
     |-- stripe.ts
+    |-- utils.test.ts
     |-- utils.ts
+    |-- vertex-rag.test.ts
     |-- vertex-rag.ts
   |- public/
   |- scripts/
