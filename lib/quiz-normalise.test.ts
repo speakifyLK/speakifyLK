@@ -118,15 +118,15 @@ describe("normaliseMultipleChoice", () => {
   });
 
   it("throws if options is not an array", () => {
-    expect(() =>
-      normaliseMultipleChoice({ ...validMcq, options: "not an array" })
-    ).toThrow(/must be an array/);
+    expect(() => normaliseMultipleChoice({ ...validMcq, options: "not an array" })).toThrow(
+      /must be an array/
+    );
   });
 
   it("throws if options is null", () => {
-    expect(() =>
-      normaliseMultipleChoice({ ...validMcq, options: null })
-    ).toThrow(/must be an array/);
+    expect(() => normaliseMultipleChoice({ ...validMcq, options: null })).toThrow(
+      /must be an array/
+    );
   });
 
   it("throws if not exactly 4 options", () => {
@@ -163,22 +163,22 @@ describe("normaliseMultipleChoice", () => {
 
   it("throws if no correct option exists", () => {
     const allWrong = validMcq.options.map((o) => ({ ...o, isCorrect: false }));
-    expect(() =>
-      normaliseMultipleChoice({ ...validMcq, options: allWrong })
-    ).toThrow(/exactly 1 correct option/);
+    expect(() => normaliseMultipleChoice({ ...validMcq, options: allWrong })).toThrow(
+      /exactly 1 correct option/
+    );
   });
 
   it("throws if multiple correct options exist", () => {
     const multipleCorrect = validMcq.options.map((o) => ({ ...o, isCorrect: true }));
-    expect(() =>
-      normaliseMultipleChoice({ ...validMcq, options: multipleCorrect })
-    ).toThrow(/exactly 1 correct option/);
+    expect(() => normaliseMultipleChoice({ ...validMcq, options: multipleCorrect })).toThrow(
+      /exactly 1 correct option/
+    );
   });
 
   it("throws if question is missing", () => {
-    expect(() =>
-      normaliseMultipleChoice({ ...validMcq, question: "" })
-    ).toThrow(/non-empty string/);
+    expect(() => normaliseMultipleChoice({ ...validMcq, question: "" })).toThrow(
+      /non-empty string/
+    );
   });
 });
 
@@ -214,15 +214,15 @@ describe("normaliseFillInBlank", () => {
   });
 
   it("throws if sentence is missing", () => {
-    expect(() =>
-      normaliseFillInBlank({ ...validFillBlank, sentence: "" })
-    ).toThrow(/non-empty string/);
+    expect(() => normaliseFillInBlank({ ...validFillBlank, sentence: "" })).toThrow(
+      /non-empty string/
+    );
   });
 
   it("throws if answer is missing", () => {
-    expect(() =>
-      normaliseFillInBlank({ ...validFillBlank, answer: "" })
-    ).toThrow(/non-empty string/);
+    expect(() => normaliseFillInBlank({ ...validFillBlank, answer: "" })).toThrow(
+      /non-empty string/
+    );
   });
 });
 
@@ -269,21 +269,21 @@ describe("normaliseTranslation", () => {
   });
 
   it("throws if sourceText is missing", () => {
-    expect(() =>
-      normaliseTranslation({ ...validTranslation, sourceText: "" })
-    ).toThrow(/non-empty string/);
+    expect(() => normaliseTranslation({ ...validTranslation, sourceText: "" })).toThrow(
+      /non-empty string/
+    );
   });
 
   it("throws if correctTranslation is missing", () => {
-    expect(() =>
-      normaliseTranslation({ ...validTranslation, correctTranslation: "" })
-    ).toThrow(/non-empty string/);
+    expect(() => normaliseTranslation({ ...validTranslation, correctTranslation: "" })).toThrow(
+      /non-empty string/
+    );
   });
 
   it("throws if sourceLanguage is missing", () => {
-    expect(() =>
-      normaliseTranslation({ ...validTranslation, sourceLanguage: "" })
-    ).toThrow(/non-empty string/);
+    expect(() => normaliseTranslation({ ...validTranslation, sourceLanguage: "" })).toThrow(
+      /non-empty string/
+    );
   });
 });
 
@@ -324,15 +324,13 @@ describe("parseGeminiQuizResponse", () => {
   });
 
   it("throws on non-array JSON (object)", () => {
-    expect(() =>
-      parseGeminiQuizResponse('{"not": "an array"}', "MULTIPLE_CHOICE")
-    ).toThrow(/not a JSON array/);
+    expect(() => parseGeminiQuizResponse('{"not": "an array"}', "MULTIPLE_CHOICE")).toThrow(
+      /not a JSON array/
+    );
   });
 
   it("throws on invalid JSON", () => {
-    expect(() =>
-      parseGeminiQuizResponse("this is not json", "MULTIPLE_CHOICE")
-    ).toThrow();
+    expect(() => parseGeminiQuizResponse("this is not json", "MULTIPLE_CHOICE")).toThrow();
   });
 
   it("throws on empty string", () => {
@@ -340,15 +338,13 @@ describe("parseGeminiQuizResponse", () => {
   });
 
   it("throws if array item is not an object", () => {
-    expect(() =>
-      parseGeminiQuizResponse('["not an object"]', "MULTIPLE_CHOICE")
-    ).toThrow(/not an object/);
+    expect(() => parseGeminiQuizResponse('["not an object"]', "MULTIPLE_CHOICE")).toThrow(
+      /not an object/
+    );
   });
 
   it("throws if array item is null", () => {
-    expect(() =>
-      parseGeminiQuizResponse("[null]", "MULTIPLE_CHOICE")
-    ).toThrow(/not an object/);
+    expect(() => parseGeminiQuizResponse("[null]", "MULTIPLE_CHOICE")).toThrow(/not an object/);
   });
 
   it("parses fill-in-blank type", () => {
@@ -381,8 +377,8 @@ describe("parseGeminiQuizResponse", () => {
   });
 
   it("throws for unknown quiz type", () => {
-    expect(() =>
-      parseGeminiQuizResponse('[{"q": "test"}]', "UNKNOWN" as never)
-    ).toThrow(/No normaliser found/);
+    expect(() => parseGeminiQuizResponse('[{"q": "test"}]', "UNKNOWN" as never)).toThrow(
+      /No normaliser found/
+    );
   });
 });

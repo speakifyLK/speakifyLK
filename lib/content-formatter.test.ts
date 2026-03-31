@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  formatChallengeChunk,
-  formatLessonChunk,
-  formatCourseManifest,
-} from "./content-formatter";
+import { formatChallengeChunk, formatLessonChunk, formatCourseManifest } from "./content-formatter";
 
 // ═══════════════════════════════════════════════════════════════════════
 // formatChallengeChunk
@@ -32,51 +28,40 @@ describe("formatChallengeChunk", () => {
   });
 
   it("marks the correct option with ✅", () => {
-    const result = formatChallengeChunk(
-      { question: "Q?", type: "SELECT", order: 1 },
-      [
-        { text: "Right", correct: true },
-        { text: "Wrong", correct: false },
-      ]
-    );
+    const result = formatChallengeChunk({ question: "Q?", type: "SELECT", order: 1 }, [
+      { text: "Right", correct: true },
+      { text: "Wrong", correct: false },
+    ]);
     expect(result).toContain("Right ✅");
     expect(result).not.toContain("Wrong ✅");
   });
 
   it("shows correct answer in the footer", () => {
-    const result = formatChallengeChunk(
-      { question: "Q?", type: "SELECT", order: 1 },
-      [
-        { text: "Answer", correct: true },
-        { text: "Other", correct: false },
-      ]
-    );
+    const result = formatChallengeChunk({ question: "Q?", type: "SELECT", order: 1 }, [
+      { text: "Answer", correct: true },
+      { text: "Other", correct: false },
+    ]);
     expect(result).toContain("Correct Answer: Answer");
   });
 
   it("shows N/A when no correct option exists", () => {
-    const result = formatChallengeChunk(
-      { question: "Q?", type: "SELECT", order: 1 },
-      [{ text: "A", correct: false }]
-    );
+    const result = formatChallengeChunk({ question: "Q?", type: "SELECT", order: 1 }, [
+      { text: "A", correct: false },
+    ]);
     expect(result).toContain("Correct Answer: N/A");
   });
 
   it("uses default values for missing course/unit/lesson", () => {
-    const result = formatChallengeChunk(
-      { question: "Q?", type: "ASSIST", order: 1 },
-      [{ text: "A", correct: true }]
-    );
+    const result = formatChallengeChunk({ question: "Q?", type: "ASSIST", order: 1 }, [
+      { text: "A", correct: true },
+    ]);
     expect(result).toContain("Course: Unknown Course");
     expect(result).toContain("Unit: Unknown Unit");
     expect(result).toContain("Lesson: Unknown Lesson");
   });
 
   it("handles empty options array", () => {
-    const result = formatChallengeChunk(
-      { question: "Q?", type: "SELECT", order: 1 },
-      []
-    );
+    const result = formatChallengeChunk({ question: "Q?", type: "SELECT", order: 1 }, []);
     expect(result).toContain("Correct Answer: N/A");
     expect(result).toContain("Options:");
   });
