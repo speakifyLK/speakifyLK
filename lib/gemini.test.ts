@@ -106,9 +106,7 @@ describe("gemini module", () => {
       const { getGeminiClient } = await import("./gemini");
       const client = getGeminiClient();
       expect(client).toBeDefined();
-      expect(GoogleGenAI).toHaveBeenCalledWith(
-        expect.objectContaining({ apiKey: "test-api-key" })
-      );
+      expect(GoogleGenAI).toHaveBeenCalledWith(expect.objectContaining({ apiKey: "test-api-key" }));
     });
 
     it("creates a GoogleGenAI client using service account when GOOGLE_SERVICE_ACCOUNT_KEY is set", async () => {
@@ -136,9 +134,7 @@ describe("gemini module", () => {
     it("throws when GEMINI_API_KEY is not set and no service account key is present", async () => {
       delete process.env.GEMINI_API_KEY;
       const { getGeminiClient } = await import("./gemini");
-      expect(() => getGeminiClient()).toThrow(
-        "GEMINI_API_KEY environment variable is not set"
-      );
+      expect(() => getGeminiClient()).toThrow("GEMINI_API_KEY environment variable is not set");
     });
 
     it("falls back to API key when GOOGLE_SERVICE_ACCOUNT_KEY is invalid JSON", async () => {
@@ -146,9 +142,7 @@ describe("gemini module", () => {
       const { getGeminiClient } = await import("./gemini");
       const client = getGeminiClient();
       expect(client).toBeDefined();
-      expect(GoogleGenAI).toHaveBeenCalledWith(
-        expect.objectContaining({ apiKey: "test-api-key" })
-      );
+      expect(GoogleGenAI).toHaveBeenCalledWith(expect.objectContaining({ apiKey: "test-api-key" }));
     });
   });
 
@@ -195,9 +189,7 @@ describe("gemini module", () => {
       const client = getGeminiClient();
       const history = [{ role: "user" as const, parts: [{ text: "hi" }] }];
       startChatSession(history);
-      expect(client.chats.create).toHaveBeenCalledWith(
-        expect.objectContaining({ history })
-      );
+      expect(client.chats.create).toHaveBeenCalledWith(expect.objectContaining({ history }));
     });
   });
 });

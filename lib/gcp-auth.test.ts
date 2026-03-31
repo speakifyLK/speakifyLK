@@ -36,9 +36,7 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: vi.fn().mockResolvedValue({ token: "mock-token-123" }),
       });
-      vi.mocked(GoogleAuth).mockImplementationOnce(
-        () => ({ getClient: mockGetClient }) as never
-      );
+      vi.mocked(GoogleAuth).mockImplementationOnce(() => ({ getClient: mockGetClient }) as never);
 
       const { getAccessToken } = await import("./gcp-auth");
       const token = await getAccessToken();
@@ -65,9 +63,7 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: vi.fn().mockResolvedValue({ token: null }),
       });
-      vi.mocked(GoogleAuth).mockImplementationOnce(
-        () => ({ getClient: mockGetClient }) as never
-      );
+      vi.mocked(GoogleAuth).mockImplementationOnce(() => ({ getClient: mockGetClient }) as never);
 
       const { getAccessToken } = await import("./gcp-auth");
       await expect(getAccessToken()).rejects.toThrow(
@@ -80,9 +76,7 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: mockGetAccessToken,
       });
-      vi.mocked(GoogleAuth).mockImplementation(
-        () => ({ getClient: mockGetClient }) as never
-      );
+      vi.mocked(GoogleAuth).mockImplementation(() => ({ getClient: mockGetClient }) as never);
 
       const { getAccessToken } = await import("./gcp-auth");
       const first = await getAccessToken();
@@ -100,9 +94,7 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: vi.fn().mockResolvedValue({ token: "header-token" }),
       });
-      vi.mocked(GoogleAuth).mockImplementationOnce(
-        () => ({ getClient: mockGetClient }) as never
-      );
+      vi.mocked(GoogleAuth).mockImplementationOnce(() => ({ getClient: mockGetClient }) as never);
 
       const { getAuthHeaders } = await import("./gcp-auth");
       const headers = await getAuthHeaders();
