@@ -38,7 +38,7 @@ export default defineConfig({
 
   /* Auto-start the dev server before running tests */
   webServer: {
-    command: "npm run dev",
+    command: "bun run dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 2 minutes for Next.js to start
