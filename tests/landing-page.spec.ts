@@ -17,9 +17,7 @@ test.describe("Landing Page", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("should display the Speakify branding in the header", async ({
-    page,
-  }) => {
+  test("should display the Speakify branding in the header", async ({ page }) => {
     // The header contains the Speakify logo and name
     const header = page.locator("header");
     await expect(header).toBeVisible();
@@ -28,9 +26,7 @@ test.describe("Landing Page", () => {
 
   test("should display the hero tagline", async ({ page }) => {
     // Main hero text
-    const tagline = page.getByText(
-      "Learn, practice and master new languages with Speakify."
-    );
+    const tagline = page.getByText("Learn, practice and master new languages with Speakify.");
     await expect(tagline).toBeVisible();
   });
 
@@ -39,9 +35,7 @@ test.describe("Landing Page", () => {
     await expect(heroImage).toBeVisible();
   });
 
-  test("should show 'Get Started' button for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should show 'Get Started' button for unauthenticated users", async ({ page }) => {
     // When signed out, the CTA buttons should be visible
     const getStarted = page.getByRole("button", { name: "Get Started" });
     // Wait a bit for Clerk to load
