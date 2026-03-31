@@ -1,26 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// Mock google-auth-library before importing the module under test
-vi.mock("google-auth-library", () => {
-  const mockGetAccessToken = vi.fn();
-  const mockGetClient = vi.fn().mockResolvedValue({
-    getAccessToken: mockGetAccessToken,
+// Hoist mocks so they are available when vi.mock factory runs
+const { MockGoogleAuth } = vi.hoisted(() => {
+  const MockGoogleAuth = vi.fn().mockImplementation(function () {
+    return { getClient: vi.fn() };
   });
-  const MockGoogleAuth = vi.fn().mockImplementation(() => ({
-    getClient: mockGetClient,
-  }));
-
-  return { GoogleAuth: MockGoogleAuth };
+  return { MockGoogleAuth };
 });
 
-import { GoogleAuth } from "google-auth-library";
+vi.mock("google-auth-library", () => {
+  return { GoogleAuth: MockGoogleAuth };
+});
 
 describe("gcp-auth module", () => {
   const originalEnv = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
 
   beforeEach(() => {
     vi.resetModules();
-    vi.mocked(GoogleAuth).mockClear();
+    MockGoogleAuth.mockClear();
     process.env.GOOGLE_SERVICE_ACCOUNT_KEY = JSON.stringify({
       type: "service_account",
       project_id: "test-project",
@@ -36,7 +33,9 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: vi.fn().mockResolvedValue({ token: "mock-token-123" }),
       });
-      vi.mocked(GoogleAuth).mockImplementationOnce(() => ({ getClient: mockGetClient }) as never);
+      MockGoogleAuth.mockImplementationOnce(function () {
+        return { getClient: mockGetClient };
+      });
 
       const { getAccessToken } = await import("./gcp-auth");
       const token = await getAccessToken();
@@ -63,7 +62,9 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: vi.fn().mockResolvedValue({ token: null }),
       });
-      vi.mocked(GoogleAuth).mockImplementationOnce(() => ({ getClient: mockGetClient }) as never);
+      MockGoogleAuth.mockImplementationOnce(function () {
+        return { getClient: mockGetClient };
+      });
 
       const { getAccessToken } = await import("./gcp-auth");
       await expect(getAccessToken()).rejects.toThrow(
@@ -72,11 +73,15 @@ describe("gcp-auth module", () => {
     });
 
     it("returns a cached token on repeated calls within the same window", async () => {
-      const mockGetAccessToken = vi.fn().mockResolvedValue({ token: "cached-token" });
+      const mockGetAccessToken = vi
+        .fn()
+        .mockResolvedValue({ token: "cached-token" });
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: mockGetAccessToken,
       });
-      vi.mocked(GoogleAuth).mockImplementation(() => ({ getClient: mockGetClient }) as never);
+      MockGoogleAuth.mockImplementation(function () {
+        return { getClient: mockGetClient };
+      });
 
       const { getAccessToken } = await import("./gcp-auth");
       const first = await getAccessToken();
@@ -94,7 +99,9 @@ describe("gcp-auth module", () => {
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: vi.fn().mockResolvedValue({ token: "header-token" }),
       });
-      vi.mocked(GoogleAuth).mockImplementationOnce(() => ({ getClient: mockGetClient }) as never);
+      MockGoogleAuth.mockImplementationOnce(function () {
+        return { getClient: mockGetClient };
+      });
 
       const { getAuthHeaders } = await import("./gcp-auth");
       const headers = await getAuthHeaders();
