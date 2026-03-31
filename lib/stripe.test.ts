@@ -22,10 +22,7 @@ describe("getStripe", () => {
     const { getStripe } = await import("./stripe");
     const instance = getStripe();
     expect(instance).toBeDefined();
-    expect(MockStripe).toHaveBeenCalledWith(
-      "sk_test_mock_key",
-      expect.any(Object)
-    );
+    expect(MockStripe).toHaveBeenCalledWith("sk_test_mock_key", expect.any(Object));
   });
 
   it("returns the same instance on subsequent calls (singleton)", async () => {

@@ -3,9 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // Mock @google/genai before importing the module
 const { mockCreate, mockGenerateContent, MockGoogleGenAI } = vi.hoisted(() => {
   const mockCreate = vi.fn().mockReturnValue({ __mockChat: true });
-  const mockGenerateContent = vi
-    .fn()
-    .mockResolvedValue({ text: "mock response" });
+  const mockGenerateContent = vi.fn().mockResolvedValue({ text: "mock response" });
   const MockGoogleGenAI = vi.fn().mockImplementation(function () {
     return {
       models: { generateContent: mockGenerateContent },
@@ -75,8 +73,7 @@ describe("gemini module", () => {
 
     it("keeps BLOCK_MEDIUM_AND_ABOVE when GEMINI_UNSAFE_MODE=1 but NODE_ENV=production", async () => {
       process.env.GEMINI_UNSAFE_MODE = "1";
-      (process.env as Record<string, string | undefined>).NODE_ENV =
-        "production";
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
       const { safetySettings } = await import("./gemini");
       for (const setting of safetySettings) {
         expect(setting.threshold).toBe("BLOCK_MEDIUM_AND_ABOVE");
@@ -105,9 +102,7 @@ describe("gemini module", () => {
     it("throws when GEMINI_MODEL is not set", async () => {
       delete process.env.GEMINI_MODEL;
       const { getModel } = await import("./gemini");
-      expect(() => getModel()).toThrow(
-        "GEMINI_MODEL environment variable is not set"
-      );
+      expect(() => getModel()).toThrow("GEMINI_MODEL environment variable is not set");
     });
   });
 
@@ -146,9 +141,7 @@ describe("gemini module", () => {
     it("throws when GEMINI_API_KEY is not set and no service account key is present", async () => {
       process.env.GEMINI_API_KEY = undefined as unknown as string;
       const { getGeminiClient } = await import("./gemini");
-      expect(() => getGeminiClient()).toThrow(
-        "GEMINI_API_KEY environment variable is not set"
-      );
+      expect(() => getGeminiClient()).toThrow("GEMINI_API_KEY environment variable is not set");
     });
 
     it("falls back to API key when GOOGLE_SERVICE_ACCOUNT_KEY is invalid JSON", async () => {
@@ -205,9 +198,7 @@ describe("gemini module", () => {
       const client = getGeminiClient();
       const history = [{ role: "user" as const, parts: [{ text: "hi" }] }];
       startChatSession(history);
-      expect(client.chats.create).toHaveBeenCalledWith(
-        expect.objectContaining({ history })
-      );
+      expect(client.chats.create).toHaveBeenCalledWith(expect.objectContaining({ history }));
     });
   });
 });
