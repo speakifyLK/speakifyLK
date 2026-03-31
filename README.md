@@ -157,7 +157,6 @@ speakify/
   |- playwright.config.ts
   |- postcss.config.js
   |- tailwind.config.ts
-  |- test-output.txt
   |- tsconfig.json
   |- vercel.ts
   |- vitest.config.ts
