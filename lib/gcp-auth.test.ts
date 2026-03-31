@@ -73,7 +73,9 @@ describe("gcp-auth module", () => {
     });
 
     it("returns a cached token on repeated calls within the same window", async () => {
-      const mockGetAccessToken = vi.fn().mockResolvedValue({ token: "cached-token" });
+      const mockGetAccessToken = vi
+        .fn()
+        .mockResolvedValue({ token: "cached-token" });
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: mockGetAccessToken,
       });
@@ -89,6 +91,38 @@ describe("gcp-auth module", () => {
       expect(second).toBe("cached-token");
       // Auth client should only have been called once (cached on second call)
       expect(mockGetAccessToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("reuses GoogleAuth instance when token expires but re-fetches token", async () => {
+      vi.useFakeTimers();
+      const mockGetAccessToken = vi
+        .fn()
+        .mockResolvedValueOnce({ token: "token-1" })
+        .mockResolvedValueOnce({ token: "token-2" });
+      const mockGetClient = vi.fn().mockResolvedValue({
+        getAccessToken: mockGetAccessToken,
+      });
+      MockGoogleAuth.mockImplementation(function () {
+        return { getClient: mockGetClient };
+      });
+
+      const { getAccessToken } = await import("./gcp-auth");
+
+      // First call creates _auth and gets token-1
+      const first = await getAccessToken();
+      expect(first).toBe("token-1");
+      expect(MockGoogleAuth).toHaveBeenCalledTimes(1);
+
+      // Advance time beyond token expiry (3600s - 300s buffer = 3300s needed)
+      vi.advanceTimersByTime(3600 * 1000);
+
+      // Second call should reuse _auth but re-fetch token
+      const second = await getAccessToken();
+      expect(second).toBe("token-2");
+      // GoogleAuth constructor should still only have been called once
+      expect(MockGoogleAuth).toHaveBeenCalledTimes(1);
+
+      vi.useRealTimers();
     });
   });
 
