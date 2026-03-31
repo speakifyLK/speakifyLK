@@ -211,6 +211,26 @@ describe("computeAdaptiveDifficultyRecommendation", () => {
     expect(result!.recommendedDifficulty).toBe("intermediate");
   });
 
+  // ── Error / invalid inputs ──
+
+  it("handles invalid current difficulty gracefully (treats as beginner and steps up)", () => {
+    const result = computeAdaptiveDifficultyRecommendation(
+      makeSessions([90, 85, 95]),
+      "greetings",
+      "invalid-difficulty" as any
+    );
+    expect(result!.recommendedDifficulty).toBe("intermediate");
+  });
+
+  it("handles invalid current difficulty gracefully (treats as beginner and stays at beginner when stepping down)", () => {
+    const result = computeAdaptiveDifficultyRecommendation(
+      makeSessions([20, 30, 35]),
+      "greetings",
+      "invalid-difficulty" as any
+    );
+    expect(result!.recommendedDifficulty).toBe("beginner");
+  });
+
   // ── Result shape ──
 
   it("returns correct shape with all fields", () => {

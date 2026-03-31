@@ -293,6 +293,24 @@ describe("buildQuizPrompt — with learningContext", () => {
     expect(prompt).toContain("frequently get wrong");
   });
 
+  it("includes strong topics in prompt", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", {
+      topic: "greetings",
+      difficulty: "beginner",
+      count: 5,
+      learningContext: {
+        completedTopics: [],
+        weakTopics: [],
+        strongTopics: ["Alphabet", "Vowels"],
+        frequentlyMissedWords: [],
+        overallLevel: "beginner",
+      },
+    });
+    expect(prompt).toContain("Alphabet");
+    expect(prompt).toContain("Vowels");
+    expect(prompt).toContain("STRONG");
+  });
+
   it("does not include personalisation block when context is undefined", () => {
     const prompt = buildQuizPrompt("MULTIPLE_CHOICE", {
       topic: "greetings",

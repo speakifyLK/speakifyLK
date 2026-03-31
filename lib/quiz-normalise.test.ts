@@ -379,4 +379,10 @@ describe("parseGeminiQuizResponse", () => {
     expect(result).toHaveLength(1);
     expect(result[0].correctAnswer).toBe("ආයුබෝවන්");
   });
+
+  it("throws for unknown quiz type", () => {
+    expect(() =>
+      parseGeminiQuizResponse('[{"q": "test"}]', "UNKNOWN" as never)
+    ).toThrow(/No normaliser found/);
+  });
 });

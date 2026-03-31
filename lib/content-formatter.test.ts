@@ -144,6 +144,16 @@ describe("formatLessonChunk", () => {
     expect(result).toContain("SELECT");
     expect(result).toContain("ASSIST");
   });
+
+  it("shows N/A when a challenge has no correct option", () => {
+    const result = formatLessonChunk({ title: "L", order: 1 }, [
+      {
+        challenge: { question: "Q?", type: "SELECT", order: 1 },
+        options: [{ text: "Wrong", correct: false }],
+      },
+    ]);
+    expect(result).toContain("Correct Answer: N/A");
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════
