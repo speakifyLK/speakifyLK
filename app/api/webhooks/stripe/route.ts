@@ -5,7 +5,7 @@ import Stripe from "stripe";
 
 import db from "@/db/drizzle";
 import { userSubscription } from "@/db/schema";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // user subscription completed
   if (event.type === "checkout.session.completed") {
-    const subscription = await stripe.subscriptions.retrieve(
+    const subscription = await getStripe().subscriptions.retrieve(
       session.subscription as string
     );
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // renew user subscription
   if (event.type === "invoice.payment_succeeded") {
-    const subscription = await stripe.subscriptions.retrieve(
+    const subscription = await getStripe().subscriptions.retrieve(
       session.subscription as string
     );
 
