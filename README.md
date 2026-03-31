@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -94,14 +93,19 @@ speakify/
     |-- jira-rag.js
     |-- jira.js
   |- lib/
+    |-- adaptive-difficulty.test.ts
     |-- adaptive-difficulty.ts
     |-- admin.ts
     |-- chat-prompt.ts
+    |-- content-formatter.test.ts
     |-- content-formatter.ts
     |-- gcp-auth.ts
     |-- gemini.ts
+    |-- quiz-normalise.test.ts
     |-- quiz-normalise.ts
+    |-- quiz-prompt.test.ts
     |-- quiz-prompt.ts
+    |-- rate-limit.test.ts
     |-- rate-limit.ts
     |-- stripe.ts
     |-- utils.ts
@@ -122,6 +126,11 @@ speakify/
     |-- use-exit-modal.ts
     |-- use-hearts-modal.ts
     |-- use-practice-modal.ts
+  |- tests/
+    |-- api-validation.spec.ts
+    |-- auth-redirect.spec.ts
+    |-- landing-page.spec.ts
+    |-- navigation.spec.ts
   |- .env.example
   |- .env/.env.local
   |- .gitignore
@@ -130,6 +139,7 @@ speakify/
   |- bun.lock
   |- components.json
   |- constants.ts
+  |- coverage-output.txt
   |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
@@ -138,12 +148,15 @@ speakify/
   |- next.config.ts
   |- package-lock.json
   |- package.json
+  |- playwright.config.ts
   |- postcss.config.js
   |- tailwind.config.ts
+  |- test-output.txt
   |- tsconfig.json
   |- vercel.ts
+  |- vitest.config.ts
+  |- vitest.setup.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -316,12 +329,12 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
 - [@next/eslint-plugin-next](https://www.npmjs.com/package/@next/eslint-plugin-next): ^16.2.0
+- [@playwright/test](https://www.npmjs.com/package/@playwright/test): ^1.58.2
 - [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.1.11
 - [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.1.15
 - [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.1.8
@@ -329,10 +342,14 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.1.8
 - [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.2.4
 - [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query): ^5.95.2
+- [@testing-library/jest-dom](https://www.npmjs.com/package/@testing-library/jest-dom): ^6.9.1
+- [@testing-library/react](https://www.npmjs.com/package/@testing-library/react): ^16.3.2
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.5.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.41
+- [@vitejs/plugin-react](https://www.npmjs.com/package/@vitejs/plugin-react): ^6.0.1
+- [@vitest/coverage-v8](https://www.npmjs.com/package/@vitest/coverage-v8): 4.1.2
 - [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.27
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
@@ -343,6 +360,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
 - [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
 - [google-auth-library](https://www.npmjs.com/package/google-auth-library): ^10.6.2
+- [jsdom](https://www.npmjs.com/package/jsdom): ^29.0.1
 - [lucide-react](https://www.npmjs.com/package/lucide-react): ^0.577.0
 - [next](https://www.npmjs.com/package/next): ^16.2.1
 - [p-limit](https://www.npmjs.com/package/p-limit): ^7.3.0
@@ -365,6 +383,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [tsx](https://www.npmjs.com/package/tsx): ^4.21.0
 - [typescript](https://www.npmjs.com/package/typescript): ^5
 - [typescript-eslint](https://www.npmjs.com/package/typescript-eslint): ^8.57.1
+- [vitest](https://www.npmjs.com/package/vitest): ^4.1.2
 - [zustand](https://www.npmjs.com/package/zustand): ^5.0.12
 
 <!--- DEPENDENCIES_END --->
