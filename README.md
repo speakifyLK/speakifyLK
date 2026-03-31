@@ -151,7 +151,6 @@ speakify/
   |- bun.lock
   |- components.json
   |- constants.ts
-  |- coverage-output.txt
   |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
