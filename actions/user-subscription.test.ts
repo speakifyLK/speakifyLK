@@ -5,9 +5,7 @@ const mockAuth = vi.hoisted(() => vi.fn());
 const mockCurrentUser = vi.hoisted(() => vi.fn());
 const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetStripe = vi.hoisted(() => vi.fn());
-const mockAbsoluteUrl = vi.hoisted(() =>
-  vi.fn().mockReturnValue("http://localhost:3000/shop")
-);
+const mockAbsoluteUrl = vi.hoisted(() => vi.fn().mockReturnValue("http://localhost:3000/shop"));
 
 vi.mock("@clerk/nextjs/server", () => ({
   auth: mockAuth,
@@ -52,9 +50,7 @@ describe("createStripeUrl", () => {
     mockGetUserSubscription.mockResolvedValue({
       stripeCustomerId: "cus_123",
     });
-    const mockCreate = vi
-      .fn()
-      .mockResolvedValue({ url: "https://billing.stripe.com/portal" });
+    const mockCreate = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/portal" });
     mockGetStripe.mockReturnValue({
       billingPortal: {
         sessions: { create: mockCreate },
@@ -72,9 +68,7 @@ describe("createStripeUrl", () => {
 
   it("returns checkout URL for new subscription", async () => {
     mockGetUserSubscription.mockResolvedValue(null);
-    const mockCreate = vi
-      .fn()
-      .mockResolvedValue({ url: "https://checkout.stripe.com/session" });
+    const mockCreate = vi.fn().mockResolvedValue({ url: "https://checkout.stripe.com/session" });
     mockGetStripe.mockReturnValue({
       checkout: {
         sessions: { create: mockCreate },
@@ -98,9 +92,7 @@ describe("createStripeUrl", () => {
 
   it("returns checkout URL when subscription exists but has no stripeCustomerId", async () => {
     mockGetUserSubscription.mockResolvedValue({ stripeCustomerId: null });
-    const mockCreate = vi
-      .fn()
-      .mockResolvedValue({ url: "https://checkout.stripe.com/new" });
+    const mockCreate = vi.fn().mockResolvedValue({ url: "https://checkout.stripe.com/new" });
     mockGetStripe.mockReturnValue({
       checkout: {
         sessions: { create: mockCreate },

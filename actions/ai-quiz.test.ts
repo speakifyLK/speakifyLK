@@ -71,9 +71,7 @@ vi.mock("@/db/schema", () => ({
 import { generatePersonalizedQuiz } from "./ai-quiz";
 import db from "@/db/drizzle";
 
-const dbMocks = (
-  db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> }
-)._mocks;
+const dbMocks = (db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> })._mocks;
 
 const defaultInput = {
   topic: "greetings",
@@ -109,9 +107,7 @@ beforeEach(() => {
 describe("generatePersonalizedQuiz", () => {
   it("throws when not authenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
-    await expect(generatePersonalizedQuiz(defaultInput)).rejects.toThrow(
-      "Unauthorized."
-    );
+    await expect(generatePersonalizedQuiz(defaultInput)).rejects.toThrow("Unauthorized.");
   });
 
   it("throws when no active course", async () => {
@@ -177,10 +173,7 @@ describe("generatePersonalizedQuiz", () => {
 
     const result = await generatePersonalizedQuiz(defaultInput);
 
-    expect(mockParseGeminiQuizResponse).toHaveBeenCalledWith(
-      "",
-      "MULTIPLE_CHOICE"
-    );
+    expect(mockParseGeminiQuizResponse).toHaveBeenCalledWith("", "MULTIPLE_CHOICE");
     expect(result.sessionId).toBe(10);
     expect(result.questions).toHaveLength(0);
   });
@@ -202,9 +195,7 @@ describe("generatePersonalizedQuiz", () => {
     const deleteWhereFn = vi.fn().mockReturnValue({ catch: deleteCatchFn });
     mockDbDelete.mockReturnValue({ where: deleteWhereFn });
 
-    await expect(generatePersonalizedQuiz(defaultInput)).rejects.toThrow(
-      "DB insert failed"
-    );
+    await expect(generatePersonalizedQuiz(defaultInput)).rejects.toThrow("DB insert failed");
     expect(mockDbDelete).toHaveBeenCalled();
   });
 
@@ -212,20 +203,16 @@ describe("generatePersonalizedQuiz", () => {
     dbMocks.returningFn.mockResolvedValueOnce([{ id: 42 }]);
 
     const insertError = new Error("DB insert failed");
-    mockDbInsert
-      .mockReturnValueOnce({ values: dbMocks.valuesFn })
-      .mockReturnValueOnce({
-        values: vi.fn().mockRejectedValue(insertError),
-      });
+    mockDbInsert.mockReturnValueOnce({ values: dbMocks.valuesFn }).mockReturnValueOnce({
+      values: vi.fn().mockRejectedValue(insertError),
+    });
 
     // Make the delete().where() return a rejected promise so that
     // the actual .catch(() => {}) callback in the source code is invoked
     const deleteWhereFn = vi.fn().mockRejectedValue(new Error("delete failed"));
     mockDbDelete.mockReturnValue({ where: deleteWhereFn });
 
-    await expect(generatePersonalizedQuiz(defaultInput)).rejects.toThrow(
-      "DB insert failed"
-    );
+    await expect(generatePersonalizedQuiz(defaultInput)).rejects.toThrow("DB insert failed");
   });
 
   it("revalidates /learn path after success", async () => {

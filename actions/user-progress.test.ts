@@ -74,16 +74,10 @@ vi.mock("@/db/schema", () => ({
   userProgress: { userId: "up.userId" },
 }));
 
-import {
-  upsertUserProgress,
-  reduceHearts,
-  refillHearts,
-} from "./user-progress";
+import { upsertUserProgress, reduceHearts, refillHearts } from "./user-progress";
 import db from "@/db/drizzle";
 
-const dbMocks = (
-  db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> }
-)._mocks;
+const dbMocks = (db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> })._mocks;
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -73,9 +73,7 @@ describe("gcp-auth module", () => {
     });
 
     it("returns a cached token on repeated calls within the same window", async () => {
-      const mockGetAccessToken = vi
-        .fn()
-        .mockResolvedValue({ token: "cached-token" });
+      const mockGetAccessToken = vi.fn().mockResolvedValue({ token: "cached-token" });
       const mockGetClient = vi.fn().mockResolvedValue({
         getAccessToken: mockGetAccessToken,
       });

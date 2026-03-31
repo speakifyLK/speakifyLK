@@ -46,10 +46,7 @@ describe("vertex-rag module", () => {
     });
 
     it("returns empty array when fetch response is not ok", async () => {
-      vi.stubGlobal(
-        "fetch",
-        vi.fn().mockResolvedValue(mockResponse(500, "error", { ok: false }))
-      );
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockResponse(500, "error", { ok: false })));
       const { retrieveContext } = await import("./vertex-rag");
       const result = await retrieveContext("hello");
       expect(result).toEqual([]);
@@ -72,10 +69,7 @@ describe("vertex-rag module", () => {
           ],
         },
       };
-      vi.stubGlobal(
-        "fetch",
-        vi.fn().mockResolvedValue(mockResponse(200, responseBody))
-      );
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockResponse(200, responseBody)));
       const { retrieveContext } = await import("./vertex-rag");
       const result = await retrieveContext("greetings");
       expect(result).toHaveLength(2);
@@ -108,20 +102,14 @@ describe("vertex-rag module", () => {
           ],
         },
       };
-      vi.stubGlobal(
-        "fetch",
-        vi.fn().mockResolvedValue(mockResponse(200, responseBody))
-      );
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockResponse(200, responseBody)));
       const { retrieveContext } = await import("./vertex-rag");
       const result = await retrieveContext("query");
       expect(result[0]).toEqual({ text: "", source: "unknown", score: 0 });
     });
 
     it("returns empty array and does not throw on fetch error", async () => {
-      vi.stubGlobal(
-        "fetch",
-        vi.fn().mockRejectedValue(new Error("network failure"))
-      );
+      vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network failure")));
       const { retrieveContext } = await import("./vertex-rag");
       await expect(retrieveContext("query")).resolves.toEqual([]);
     });
@@ -150,12 +138,8 @@ describe("vertex-rag module", () => {
       await retrieveContext("query", "custom-corpus-id");
       const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string;
       expect(calledUrl).toContain("retrieveContexts");
-      const calledBody = JSON.parse(
-        vi.mocked(fetch).mock.calls[0][1]?.body as string
-      );
-      expect(calledBody.vertex_rag_store.rag_resources[0].rag_corpus).toContain(
-        "custom-corpus-id"
-      );
+      const calledBody = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+      expect(calledBody.vertex_rag_store.rag_resources[0].rag_corpus).toContain("custom-corpus-id");
     });
   });
 
@@ -201,9 +185,9 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      await expect(
-        generateWithRAG([{ role: "user", content: "hi" }], "system")
-      ).rejects.toThrow("No response stream from Vertex AI");
+      await expect(generateWithRAG([{ role: "user", content: "hi" }], "system")).rejects.toThrow(
+        "No response stream from Vertex AI"
+      );
     });
 
     it("returns a ReadableStream when successful", async () => {
@@ -224,10 +208,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hello" }],
-        "system prompt"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hello" }], "system prompt");
       expect(stream).toBeInstanceOf(ReadableStream);
     });
 
@@ -260,20 +241,11 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      await generateWithRAG(
-        [{ role: "user", content: "greetings" }],
-        "base system prompt"
-      );
+      await generateWithRAG([{ role: "user", content: "greetings" }], "base system prompt");
 
-      const secondCallBody = JSON.parse(
-        vi.mocked(fetch).mock.calls[1][1]?.body as string
-      );
-      expect(secondCallBody.systemInstruction.parts[0].text).toContain(
-        "GROUNDING CONTEXT"
-      );
-      expect(secondCallBody.systemInstruction.parts[0].text).toContain(
-        "RAG chunk content"
-      );
+      const secondCallBody = JSON.parse(vi.mocked(fetch).mock.calls[1][1]?.body as string);
+      expect(secondCallBody.systemInstruction.parts[0].text).toContain("GROUNDING CONTEXT");
+      expect(secondCallBody.systemInstruction.parts[0].text).toContain("RAG chunk content");
     });
 
     it("fully consumes the SSE stream and closes (covers done path)", async () => {
@@ -294,10 +266,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hi" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hi" }], "sys");
 
       // Read the stream to completion
       const reader = stream.getReader();
@@ -332,10 +301,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hi" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hi" }], "sys");
 
       const reader = stream.getReader();
       const decoder = new TextDecoder();
@@ -369,10 +335,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hi" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hi" }], "sys");
 
       const reader = stream.getReader();
       const decoder = new TextDecoder();
@@ -404,10 +367,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hi" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hi" }], "sys");
 
       const reader = stream.getReader();
       const result = await reader.read();
@@ -434,10 +394,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hi" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hi" }], "sys");
 
       const reader = stream.getReader();
       await expect(reader.read()).rejects.toThrow("stream read failure");
@@ -468,10 +425,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "user", content: "hi" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "user", content: "hi" }], "sys");
 
       // Cancel the stream
       await stream.cancel();
@@ -496,10 +450,7 @@ describe("vertex-rag module", () => {
           } as Response)
       );
       const { generateWithRAG } = await import("./vertex-rag");
-      const stream = await generateWithRAG(
-        [{ role: "assistant", content: "I can help" }],
-        "sys"
-      );
+      const stream = await generateWithRAG([{ role: "assistant", content: "I can help" }], "sys");
       expect(stream).toBeInstanceOf(ReadableStream);
     });
   });
