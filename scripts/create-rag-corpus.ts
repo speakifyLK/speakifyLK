@@ -175,7 +175,7 @@ async function createCorpus(): Promise<void> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      display_name: DISPLAY_NAME,
+      displayName: DISPLAY_NAME,
     }),
   });
 
@@ -225,11 +225,13 @@ function printCorpusResult(corpusResourceName: string): void {
   console.log("\n✅ RAG corpus created successfully!\n");
   console.log(`   Resource Name: ${corpusResourceName}`);
   console.log(`   Corpus ID:     ${corpusId}`);
+  
   console.log("\n   ┌─────────────────────────────────────────────┐");
   console.log(`   │  Add this to your .env.local:               │`);
   console.log(`   │                                             │`);
   console.log(`   │  RAG_CORPUS_ID=${corpusId.padEnd(28)}│`);
   console.log("   └─────────────────────────────────────────────┘");
+  
   console.log("\n   After adding, you can import content with:\n" + "   npm run rag:import\n");
 }
 
