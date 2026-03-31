@@ -88,7 +88,7 @@ jobs:
             const fs = require('fs');
             const marker = '<!-- ci-e2e-test -->';
             let output = fs.readFileSync('e2e-output.txt', 'utf8').trim();
-            if (output.length > 3000) output = output.slice(-3000) + '\n... (truncated from start)';
+            if (output.length > 60000) output = output.slice(-60000) + '\n... (truncated from start)';
             output = output.replace(/```/g, '` ` `');
 
             const sha = context.sha.slice(0, 7);
