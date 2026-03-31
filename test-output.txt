@@ -1,0 +1,110 @@
+﻿
+[1m[46m RUN [49m[22m [36mv4.1.2 [39m[90mC:/Users/Thevindu Kevin/Desktop/University/speakify/speakifyLK[39m
+
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for count of 0[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for negative count[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for non-integer count[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for count exceeding maximum (20)[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22maccepts count at maximum boundary (20)[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22maccepts count of 1 (minimum)[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for empty topic[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for whitespace-only topic[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for topic exceeding 100 characters[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22maccepts topic at 100 character boundary[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for topic with special characters (injection attempt)[32m 0[2mms[22m[39m
+ [31m├ù[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22maccepts topic with Sinhala Unicode characters[32m 5[2mms[22m[39m
+[31m   ΓåÆ expected [Function] to not throw an error but 'Error: "topic" contains invalid charaΓÇª' was thrown[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22maccepts topic with hyphens and apostrophes[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö input validation[2m > [22mthrows for unknown quiz type[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mincludes topic in the prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mincludes question count in the prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mincludes beginner difficulty guidelines[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mincludes intermediate difficulty guidelines[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mincludes advanced difficulty guidelines[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mincludes JSON instruction[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö MULTIPLE_CHOICE output[2m > [22mmentions MULTIPLE-CHOICE in the prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö FILL_IN_BLANK output[2m > [22mmentions FILL-IN-THE-BLANK in the prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö FILL_IN_BLANK output[2m > [22mincludes sentence and answer in format description[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö TRANSLATION output[2m > [22mmentions TRANSLATION in the prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö TRANSLATION output[2m > [22mincludes sourceText and correctTranslation in format[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö with learningContext[2m > [22mincludes completed topics in prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö with learningContext[2m > [22mincludes weak topics in prompt[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö with learningContext[2m > [22mincludes frequently missed words[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts[2m > [22mbuildQuizPrompt ΓÇö with learningContext[2m > [22mdoes not include personalisation block when context is undefined[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m28 passed[39m[22m[90m (29)[39m
+[2m   Start at [22m 16:55:20
+[2m   Duration [22m 1.31s[2m (transform 49ms, setup 99ms, import 43ms, tests 17ms, environment 709ms)[22m
+
+node.exe : 
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (:  
+  String) [], RemoteExc   
+ eption
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+[31mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+[39m[1m[41m Failed 
+Tests 1 [49m[22m[31mΓÄ»
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39m
+
+[41m[1m FAIL [22m[49m 
+lib/quiz-prompt.test.ts[2
+m > [22mbuildQuizPrompt 
+ΓÇö input validation[2m 
+> [22maccepts topic with 
+Sinhala Unicode characters
+[31m[1mAssertionError[2
+2m: expected [Function] 
+to not throw an error but 
+'Error: "topic" contains 
+invalid charaΓÇª' was 
+thrown[39m
+
+[32m- Expected:[39m
+undefined
+
+[31m+ Received:[39m
+"Error: \"topic\" 
+contains invalid 
+characters. Only letters, 
+numbers, spaces, hyphens, 
+and apostrophes are 
+allowed."
+
+[36m [2mΓ¥»[22m lib/qui
+z-prompt.test.ts:[2m94:11
+[22m[39m
+    [90m 92|[39m     
+[34mexpect[39m(() 
+[33m=>[39m
+    [90m 93|[39m       b
+uildQuizPrompt("MULTIPLE_C
+HOICE", { ...validParams, 
+topic: "α╖âα╖Æα╢éΓÇª
+    [90m 94|[39m     )[
+33m.[39mnot[33m.[39m[3
+4mtoThrow[39m()[33m;[39
+m
+    [90m   |[39m        
+   [31m^[39m
+    [90m 95|[39m   
+})[33m;[39m
+    [90m 96|[39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ
+»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»Γ
+Ä»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+ΓÄ»[1/1]ΓÄ»[22m[39m
+
