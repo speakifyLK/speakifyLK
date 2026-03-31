@@ -13,7 +13,27 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["lib/**", "actions/**"],
+      include: [
+        "lib/**",
+        "actions/**",
+        "store/**",
+        "db/**",
+        "components/**",
+        "app/**",
+        "config/index.ts",
+        "constants.ts",
+        "middleware.ts",
+      ],
+      exclude: [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.png",
+        "**/*.ico",
+        "**/*.css",
+        "**/*.json",
+        "**/*.yml",
+        "**/*.yaml",
+      ],
     },
   },
   resolve: {
