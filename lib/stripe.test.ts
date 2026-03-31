@@ -1,18 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock stripe before importing the module under test
+const { MockStripe } = vi.hoisted(() => {
+  const MockStripe = vi.fn().mockImplementation(function () {
+    return { __mock: true };
+  });
+  return { MockStripe };
+});
 vi.mock("stripe", () => {
-  const MockStripe = vi.fn().mockImplementation(() => ({
-    __mock: true,
-  }));
   return { default: MockStripe };
 });
-
-import Stripe from "stripe";
 
 describe("getStripe", () => {
   beforeEach(async () => {
     vi.resetModules();
+    MockStripe.mockClear();
     process.env.STRIPE_API_SECRET_KEY = "sk_test_mock_key";
   });
 
@@ -20,7 +22,10 @@ describe("getStripe", () => {
     const { getStripe } = await import("./stripe");
     const instance = getStripe();
     expect(instance).toBeDefined();
-    expect(Stripe).toHaveBeenCalledWith("sk_test_mock_key", expect.any(Object));
+    expect(MockStripe).toHaveBeenCalledWith(
+      "sk_test_mock_key",
+      expect.any(Object)
+    );
   });
 
   it("returns the same instance on subsequent calls (singleton)", async () => {
@@ -33,7 +38,7 @@ describe("getStripe", () => {
   it("initialises Stripe with the correct API version", async () => {
     const { getStripe } = await import("./stripe");
     getStripe();
-    expect(Stripe).toHaveBeenCalledWith(
+    expect(MockStripe).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({ apiVersion: "2026-02-25.clover" })
     );
@@ -42,7 +47,7 @@ describe("getStripe", () => {
   it("initialises Stripe with typescript:true", async () => {
     const { getStripe } = await import("./stripe");
     getStripe();
-    expect(Stripe).toHaveBeenCalledWith(
+    expect(MockStripe).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({ typescript: true })
     );
