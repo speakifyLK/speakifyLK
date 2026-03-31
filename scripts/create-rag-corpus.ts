@@ -17,7 +17,7 @@ import { getAuthHeaders } from "../lib/gcp-auth";
 // ── Config ───────────────────────────────────────────────────────────
 
 const PROJECT_ID = process.env.GCP_PROJECT_ID;
-const LOCATION = process.env.GCP_LOCATION || "us-west1";
+const LOCATION = process.env.GCP_LOCATION;
 const DISPLAY_NAME = "speakifylk-course-content";
 
 const BASE_URL = `https://${LOCATION}-aiplatform.googleapis.com/v1`;
@@ -31,6 +31,7 @@ const OP_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 function assertEnvVars(): void {
   const missing: string[] = [];
   if (!PROJECT_ID) missing.push("GCP_PROJECT_ID");
+  if (!LOCATION) missing.push("GCP_LOCATION");
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY) missing.push("GOOGLE_SERVICE_ACCOUNT_KEY");
 
   if (missing.length > 0) {
