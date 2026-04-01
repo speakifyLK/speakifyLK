@@ -37,24 +37,15 @@ vi.mock("./drizzle", () => {
     desc: (col: unknown) => ({ _type: "desc", col }),
     asc: (col: unknown) => ({ _type: "asc", col }),
   };
-  const fakeTable = new Proxy(
-    {},
-    { get: (_t, prop) => `table.${String(prop)}` }
-  );
+  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
 
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.where && typeof opts.where === "function") {
-        (opts.where as (t: unknown, h: unknown) => unknown)(
-          fakeTable,
-          fakeHelpers
-        );
+        (opts.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
       }
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
-          fakeTable,
-          fakeHelpers
-        );
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
       }
       // Handle nested `with` for orderBy/where callbacks
       if (opts?.with && typeof opts.with === "object") {
@@ -63,16 +54,10 @@ vi.mock("./drizzle", () => {
             if (val && typeof val === "object") {
               const nested = val as Record<string, unknown>;
               if (typeof nested.where === "function") {
-                (nested.where as (t: unknown, h: unknown) => unknown)(
-                  fakeTable,
-                  fakeHelpers
-                );
+                (nested.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
               }
               if (typeof nested.orderBy === "function") {
-                (nested.orderBy as (t: unknown, h: unknown) => unknown)(
-                  fakeTable,
-                  fakeHelpers
-                );
+                (nested.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
               }
               if (nested.with && typeof nested.with === "object") {
                 walkWith(nested.with as Record<string, unknown>);
@@ -252,9 +237,7 @@ describe("db/queries", () => {
             {
               id: 11,
               title: "Lesson 2",
-              challenges: [
-                { id: 102, challengeProgress: [{ completed: false }] },
-              ],
+              challenges: [{ id: 102, challengeProgress: [{ completed: false }] }],
             },
           ],
         },
@@ -817,15 +800,11 @@ describe("db/queries", () => {
 
       // Recent quiz sessions
       mockDbQuery.aiQuizSessions.findMany
-        .mockResolvedValueOnce([
-          { topic: "Greetings", score: 80, difficulty: "beginner" },
-        ])
+        .mockResolvedValueOnce([{ topic: "Greetings", score: 80, difficulty: "beginner" }])
         .mockResolvedValueOnce([{ id: 1 }]);
 
       // Wrong answers for missed words
-      mockDbQuery.aiQuizQuestions.findMany.mockResolvedValue([
-        { correctAnswer: "ayubowan" },
-      ]);
+      mockDbQuery.aiQuizQuestions.findMany.mockResolvedValue([{ correctAnswer: "ayubowan" }]);
 
       const result = await getUserLearningProfile();
       expect(result).not.toBeNull();
@@ -849,30 +828,22 @@ describe("db/queries", () => {
             {
               id: 10,
               title: "L1",
-              challenges: [
-                { id: 100, challengeProgress: [{ completed: false }] },
-              ],
+              challenges: [{ id: 100, challengeProgress: [{ completed: false }] }],
             },
             {
               id: 11,
               title: "L2",
-              challenges: [
-                { id: 101, challengeProgress: [{ completed: false }] },
-              ],
+              challenges: [{ id: 101, challengeProgress: [{ completed: false }] }],
             },
             {
               id: 12,
               title: "L3",
-              challenges: [
-                { id: 102, challengeProgress: [{ completed: false }] },
-              ],
+              challenges: [{ id: 102, challengeProgress: [{ completed: false }] }],
             },
             {
               id: 13,
               title: "L4",
-              challenges: [
-                { id: 103, challengeProgress: [{ completed: false }] },
-              ],
+              challenges: [{ id: 103, challengeProgress: [{ completed: false }] }],
             },
           ],
         },
@@ -898,23 +869,17 @@ describe("db/queries", () => {
             {
               id: 10,
               title: "L1",
-              challenges: [
-                { id: 100, challengeProgress: [{ completed: true }] },
-              ],
+              challenges: [{ id: 100, challengeProgress: [{ completed: true }] }],
             },
             {
               id: 11,
               title: "L2",
-              challenges: [
-                { id: 101, challengeProgress: [{ completed: true }] },
-              ],
+              challenges: [{ id: 101, challengeProgress: [{ completed: true }] }],
             },
             {
               id: 12,
               title: "L3",
-              challenges: [
-                { id: 102, challengeProgress: [{ completed: true }] },
-              ],
+              challenges: [{ id: 102, challengeProgress: [{ completed: true }] }],
             },
           ],
         },
@@ -956,9 +921,7 @@ describe("db/queries", () => {
         userId: "user1",
         activeCourseId: 1,
       });
-      mockDbQuery.units.findMany.mockResolvedValue([
-        { id: 1, title: "Empty Unit", lessons: [] },
-      ]);
+      mockDbQuery.units.findMany.mockResolvedValue([{ id: 1, title: "Empty Unit", lessons: [] }]);
       mockDbQuery.aiQuizSessions.findMany.mockResolvedValue([]);
 
       const result = await getUserLearningProfile();

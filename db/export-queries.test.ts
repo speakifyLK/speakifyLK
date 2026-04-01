@@ -11,41 +11,26 @@ vi.mock("./drizzle", () => {
     asc: (col: unknown) => ({ _type: "asc", col }),
     desc: (col: unknown) => ({ _type: "desc", col }),
   };
-  const fakeTable = new Proxy(
-    {},
-    { get: (_t, prop) => `table.${String(prop)}` }
-  );
+  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
 
   // Wrap findMany to invoke orderBy callbacks for branch coverage
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
-          fakeTable,
-          fakeHelpers
-        );
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
       }
       // Recursively handle nested `with` that may contain orderBy callbacks
       if (opts?.with && typeof opts.with === "object") {
         const withObj = opts.with as Record<string, unknown>;
         for (const val of Object.values(withObj)) {
-          if (
-            val &&
-            typeof val === "object" &&
-            "orderBy" in (val as Record<string, unknown>)
-          ) {
+          if (val && typeof val === "object" && "orderBy" in (val as Record<string, unknown>)) {
             const nested = val as Record<string, unknown>;
             if (typeof nested.orderBy === "function") {
-              (nested.orderBy as (t: unknown, h: unknown) => unknown)(
-                fakeTable,
-                fakeHelpers
-              );
+              (nested.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
             }
             // Handle deeper nesting (with.challenges inside with.lessons etc.)
             if (nested.with && typeof nested.with === "object") {
-              for (const inner of Object.values(
-                nested.with as Record<string, unknown>
-              )) {
+              for (const inner of Object.values(nested.with as Record<string, unknown>)) {
                 if (
                   inner &&
                   typeof inner === "object" &&
@@ -53,18 +38,14 @@ vi.mock("./drizzle", () => {
                 ) {
                   const innerNested = inner as Record<string, unknown>;
                   if (typeof innerNested.orderBy === "function") {
-                    (
-                      innerNested.orderBy as (t: unknown, h: unknown) => unknown
-                    )(fakeTable, fakeHelpers);
+                    (innerNested.orderBy as (t: unknown, h: unknown) => unknown)(
+                      fakeTable,
+                      fakeHelpers
+                    );
                   }
                   // 4th level nesting
-                  if (
-                    innerNested.with &&
-                    typeof innerNested.with === "object"
-                  ) {
-                    for (const deep of Object.values(
-                      innerNested.with as Record<string, unknown>
-                    )) {
+                  if (innerNested.with && typeof innerNested.with === "object") {
+                    for (const deep of Object.values(innerNested.with as Record<string, unknown>)) {
                       if (
                         deep &&
                         typeof deep === "object" &&
@@ -72,12 +53,10 @@ vi.mock("./drizzle", () => {
                       ) {
                         const deepNested = deep as Record<string, unknown>;
                         if (typeof deepNested.orderBy === "function") {
-                          (
-                            deepNested.orderBy as (
-                              t: unknown,
-                              h: unknown
-                            ) => unknown
-                          )(fakeTable, fakeHelpers);
+                          (deepNested.orderBy as (t: unknown, h: unknown) => unknown)(
+                            fakeTable,
+                            fakeHelpers
+                          );
                         }
                       }
                     }
@@ -131,9 +110,7 @@ describe("db/export-queries", () => {
         },
         {
           id: 2,
-          lessons: [
-            { id: 20, title: "L3", order: 1, unitId: 2, challenges: [] },
-          ],
+          lessons: [{ id: 20, title: "L3", order: 1, unitId: 2, challenges: [] }],
         },
       ]);
 
