@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("react-use", () => ({
-  useKey: (key: string, fn: () => void) => {
+  useKey: (_key: string, _fn: () => void) => {
     // We store the handler but don't auto-invoke it;
     // tests can simulate Enter via fireEvent
   },
@@ -13,7 +13,12 @@ vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, variant, asChild, ...rest }: any) => {
     if (asChild) return <>{children}</>;
     return (
-      <button onClick={onClick} disabled={disabled} data-variant={variant} {...rest}>
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        data-variant={variant}
+        {...rest}
+      >
         {children}
       </button>
     );

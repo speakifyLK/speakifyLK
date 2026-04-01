@@ -14,9 +14,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@clerk/nextjs", () => ({
-  ClerkLoading: ({ children }: any) => null,
+  ClerkLoading: ({ children: _children }: any) => null,
   ClerkLoaded: ({ children }: any) => <>{children}</>,
-  UserButton: (props: any) => <div data-testid="user-button" />,
+  UserButton: (_props: any) => <div data-testid="user-button" />,
 }));
 
 import { Sidebar } from "./sidebar";

@@ -1,14 +1,23 @@
-import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  beforeAll,
+  afterEach,
+} from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
-const { mockPush, mockRefresh, mockToast, mockCompleteQuizSession } = vi.hoisted(() => ({
-  mockPush: vi.fn(),
-  mockRefresh: vi.fn(),
-  mockToast: { error: vi.fn(), success: vi.fn() },
-  mockCompleteQuizSession: vi.fn(),
-}));
+const { mockPush, mockRefresh, mockToast, mockCompleteQuizSession } =
+  vi.hoisted(() => ({
+    mockPush: vi.fn(),
+    mockRefresh: vi.fn(),
+    mockToast: { error: vi.fn(), success: vi.fn() },
+    mockCompleteQuizSession: vi.fn(),
+  }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
@@ -32,7 +41,7 @@ vi.mock("@/components/ui/button", () => {
 });
 
 vi.mock("react-confetti", () => ({
-  default: (props: any) => <div data-testid="confetti" />,
+  default: (_props: any) => <div data-testid="confetti" />,
 }));
 
 vi.mock("react-use", () => ({
@@ -276,7 +285,11 @@ describe("QuizResult", () => {
   // ── Time label edge cases ──────────────────────────────────────────────
 
   it("shows '—' when no timestamps", () => {
-    render(<QuizResult session={makeSession({ startedAt: null, completedAt: null })} />);
+    render(
+      <QuizResult
+        session={makeSession({ startedAt: null, completedAt: null })}
+      />
+    );
     // Multiple "—" might appear, just check one exists
     const dashes = screen.getAllByText("—");
     expect(dashes.length).toBeGreaterThan(0);
@@ -337,7 +350,10 @@ describe("QuizResult", () => {
     render(<QuizResult session={makeSession({ completedAt: null })} />);
 
     await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith("+20 XP from AI Quiz!", expect.any(Object));
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "+20 XP from AI Quiz!",
+        expect.any(Object)
+      );
     });
   });
 
@@ -366,7 +382,9 @@ describe("QuizResult", () => {
   });
 
   it("ignores 'already completed' errors", async () => {
-    mockCompleteQuizSession.mockRejectedValue(new Error("Session already completed"));
+    mockCompleteQuizSession.mockRejectedValue(
+      new Error("Session already completed")
+    );
     render(<QuizResult session={makeSession({ completedAt: null })} />);
 
     await waitFor(() => {
@@ -380,7 +398,9 @@ describe("QuizResult", () => {
     render(<QuizResult session={makeSession({ completedAt: null })} />);
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Failed to finalise quiz session.");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Failed to finalise quiz session."
+      );
     });
   });
 
@@ -478,7 +498,9 @@ describe("QuizResult", () => {
     fireEvent.click(screen.getByText("Try Again"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Failed to start quiz: missing session ID");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Failed to start quiz: missing session ID"
+      );
     });
   });
 
@@ -543,7 +565,9 @@ describe("QuizResult", () => {
 
     await waitFor(() => {
       expect(navigator.clipboard.writeText).toHaveBeenCalled();
-      expect(mockToast.success).toHaveBeenCalledWith("Results copied to clipboard!");
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Results copied to clipboard!"
+      );
     });
   });
 
@@ -580,7 +604,9 @@ describe("QuizResult", () => {
     fireEvent.click(screen.getByText("Share Results"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Unable to copy to clipboard.");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Unable to copy to clipboard."
+      );
     });
   });
 
@@ -592,7 +618,9 @@ describe("QuizResult", () => {
       2: { userAnswer: "Local wrong", isCorrect: false },
     };
 
-    render(<QuizResult session={makeSession()} localQuestionAnswers={localAnswers} />);
+    render(
+      <QuizResult session={makeSession()} localQuestionAnswers={localAnswers} />
+    );
     expect(screen.getByText("Local answer")).toBeInTheDocument();
     expect(screen.getByText("Local wrong")).toBeInTheDocument();
   });
@@ -614,7 +642,9 @@ describe("QuizResult", () => {
 
   it("shows no questions message when session has no questions", () => {
     render(<QuizResult session={makeSession({ questions: [] })} />);
-    expect(screen.getByText("No questions found for this session.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No questions found for this session.")
+    ).toBeInTheDocument();
   });
 
   it("shows explanation when question has one", () => {
@@ -700,7 +730,9 @@ describe("QuizResult", () => {
     fireEvent.click(screen.getByText("Try Again"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Failed to start quiz: missing session ID");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Failed to start quiz: missing session ID"
+      );
     });
   });
 

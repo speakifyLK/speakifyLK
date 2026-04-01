@@ -42,17 +42,25 @@ vi.mock("@/db/drizzle", () => {
     desc: (col: unknown) => ({ _type: "desc", col }),
     asc: (col: unknown) => ({ _type: "asc", col }),
   };
-  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
+  const fakeTable = new Proxy(
+    {},
+    { get: (_t, prop) => `table.${String(prop)}` }
+  );
 
   // Wrap findFirst/findMany to invoke the where/orderBy callbacks if provided
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.where && typeof opts.where === "function") {
-        (opts.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.where as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       return mockFn(opts);
     };
@@ -89,7 +97,9 @@ import {
 } from "./chat";
 import db from "@/db/drizzle";
 
-const dbMocks = (db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> })._mocks;
+const dbMocks = (
+  db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> }
+)._mocks;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -209,12 +219,16 @@ describe("sendMessage", () => {
 describe("saveAssistantMessage", () => {
   it("throws when not authenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
-    await expect(saveAssistantMessage(1, "response")).rejects.toThrow("Unauthorized.");
+    await expect(saveAssistantMessage(1, "response")).rejects.toThrow(
+      "Unauthorized."
+    );
   });
 
   it("throws when not conversation owner", async () => {
     mockDbQuery.chatConversations.findFirst.mockResolvedValue(null);
-    await expect(saveAssistantMessage(1, "response")).rejects.toThrow("Unauthorized.");
+    await expect(saveAssistantMessage(1, "response")).rejects.toThrow(
+      "Unauthorized."
+    );
   });
 
   it("saves assistant message and updates conversation", async () => {
