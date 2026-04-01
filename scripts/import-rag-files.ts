@@ -374,7 +374,8 @@ async function main(): Promise<void> {
         importedUris.add(uri);
       }
     } catch (err) {
-      throw new Error(`Batch ${batchNum} failed`, { cause: err });
+      console.error(`  ❌ Batch ${batchNum} failed`);
+      throw err;
     }
   }
 

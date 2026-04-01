@@ -172,9 +172,11 @@ async function main(): Promise<void> {
   // 2. GCS Objects
   console.log("\nGCS Bucket");
   let gcsUris: string[] = [];
+  let gcsFetchOk = false;
   try {
     const gcs = await countGcsObjects();
     gcsUris = gcs.uris;
+    gcsFetchOk = true;
     console.log(`   Bucket:  ${contentBucket()}`);
     console.log(`   Prefix:  ${gcsPrefix()}`);
     console.log(`   Files:   ${gcs.count}`);
@@ -185,9 +187,11 @@ async function main(): Promise<void> {
   // 3. RagFiles
   console.log("\nImported RagFiles");
   let ragUris: string[] = [];
+  let ragFetchOk = false;
   try {
     const rag = await countRagFiles();
     ragUris = rag.uris;
+    ragFetchOk = true;
     console.log(`   Imported: ${rag.count}`);
   } catch (err) {
     console.error(`Could not list RagFiles:`, err instanceof Error ? err.message : err);
@@ -195,31 +199,35 @@ async function main(): Promise<void> {
 
   // 4. Sync Status
   console.log("\nSync Status");
-  const gcsSet = new Set(gcsUris);
-  const ragSet = new Set(ragUris);
-
-  const notImported = gcsUris.filter((u) => !ragSet.has(u));
-  const orphaned = ragUris.filter((u) => !gcsSet.has(u));
-
-  if (notImported.length === 0 && orphaned.length === 0) {
-    console.log("GCS and corpus are fully in sync!");
+  if (!gcsFetchOk || !ragFetchOk) {
+    console.log("   ⚠️  Sync status unknown — could not fetch GCS or RagFile data.");
   } else {
-    if (notImported.length > 0) {
-      console.log(`${notImported.length} GCS file(s) not yet imported:`);
-      for (const uri of notImported.slice(0, 5)) {
-        console.log(`      - ${uri}`);
+    const gcsSet = new Set(gcsUris);
+    const ragSet = new Set(ragUris);
+
+    const notImported = gcsUris.filter((u) => !ragSet.has(u));
+    const orphaned = ragUris.filter((u) => !gcsSet.has(u));
+
+    if (notImported.length === 0 && orphaned.length === 0) {
+      console.log("GCS and corpus are fully in sync!");
+    } else {
+      if (notImported.length > 0) {
+        console.log(`${notImported.length} GCS file(s) not yet imported:`);
+        for (const uri of notImported.slice(0, 5)) {
+          console.log(`      - ${uri}`);
+        }
+        if (notImported.length > 5) {
+          console.log(`      ... and ${notImported.length - 5} more`);
+        }
       }
-      if (notImported.length > 5) {
-        console.log(`      ... and ${notImported.length - 5} more`);
-      }
-    }
-    if (orphaned.length > 0) {
-      console.log(`${orphaned.length} RagFile(s) with no matching GCS object:`);
-      for (const uri of orphaned.slice(0, 5)) {
-        console.log(`      - ${uri}`);
-      }
-      if (orphaned.length > 5) {
-        console.log(`      ... and ${orphaned.length - 5} more`);
+      if (orphaned.length > 0) {
+        console.log(`${orphaned.length} RagFile(s) with no matching GCS object:`);
+        for (const uri of orphaned.slice(0, 5)) {
+          console.log(`      - ${uri}`);
+        }
+        if (orphaned.length > 5) {
+          console.log(`      ... and ${orphaned.length - 5} more`);
+        }
       }
     }
   }
