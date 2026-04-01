@@ -60,9 +60,9 @@ describe("db/drizzle", () => {
     const db = mod.default;
 
     // First access
-    db.query;
+    const firstAccess = db.query;
     // Second access
-    db.select;
+    const secondAccess = db.select;
 
     // neon and drizzle should only be called once
     expect(mockNeon).toHaveBeenCalledTimes(1);
