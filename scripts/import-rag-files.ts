@@ -362,9 +362,20 @@ async function main(): Promise<void> {
   const importedUris = new Set<string>();
   for (let i = 0; i < toImport.length; i += IMPORT_BATCH_SIZE) {
     const batch = toImport.slice(i, i + IMPORT_BATCH_SIZE).map((o) => o.gsUri);
-    console.log(`Importing batch ${i / IMPORT_BATCH_SIZE + 1} (${batch.length} file(s))…`);
-    await importRagFileBatch(batch);
-    batch.forEach((u) => importedUris.add(u));
+    const batchNum = Math.floor(i / IMPORT_BATCH_SIZE) + 1;
+    console.log(`\nImporting batch ${batchNum} (${batch.length} file(s))…`);
+    for (const uri of batch) {
+      console.log(`  📄 ${uri}`);
+    }
+    try {
+      await importRagFileBatch(batch);
+      for (const uri of batch) {
+        console.log(`  ✅ ${uri}`);
+        importedUris.add(uri);
+      }
+    } catch (err) {
+      throw new Error(`Batch ${batchNum} failed`, { cause: err });
+    }
   }
 
   const mergedManifest = buildManifest(objects, manifest, importedUris);
@@ -380,7 +391,7 @@ void (async () => {
   try {
     await main();
   } catch (e) {
-    console.error(e instanceof Error ? e.message : e);
+    console.error("❌ Fatal error during import:", e);
     process.exit(1);
   }
 })();

@@ -17,6 +17,7 @@
     "content:export:dry": "bun scripts/export-course-content.ts --dry-run",
     "rag:import": "tsx ./scripts/import-rag-files.ts",
     "rag:import:force": "tsx ./scripts/import-rag-files.ts --force",
+    "rag:import:diff": "tsx ./scripts/import-rag-files.ts --diff",
     "rag:create": "tsx ./scripts/create-rag-corpus.ts",
     "rag:create:check": "tsx ./scripts/create-rag-corpus.ts --check"
   },
