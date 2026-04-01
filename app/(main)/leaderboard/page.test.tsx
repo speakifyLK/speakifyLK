@@ -25,19 +25,13 @@ vi.mock("@/db/queries", () => ({
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => (
-    <div data-testid="feed-wrapper">{children}</div>
-  ),
+  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => (
-    <div data-testid="sticky-wrapper">{children}</div>
-  ),
+  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => (
-    <div data-testid="user-progress">{JSON.stringify(props)}</div>
-  ),
+  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/promo", () => ({
   Promo: () => <div data-testid="promo">Promo</div>,
@@ -54,9 +48,7 @@ vi.mock("@/components/ui/avatar", () => ({
   AvatarImage: ({ src }: any) => <img data-testid="avatar-image" src={src} />,
 }));
 vi.mock("@/components/ui/separator", () => ({
-  Separator: (props: any) => (
-    <hr data-testid="separator" className={props.className} />
-  ),
+  Separator: (props: any) => <hr data-testid="separator" className={props.className} />,
 }));
 
 const activeCourse = { id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" };
@@ -193,9 +185,7 @@ describe("LeaderboardPage", () => {
     render(jsx);
 
     expect(
-      screen.getByText(
-        "See where you stand among other learners in the community."
-      )
+      screen.getByText("See where you stand among other learners in the community.")
     ).toBeInTheDocument();
   });
 
