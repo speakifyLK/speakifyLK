@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 
 // ── Hoisted mocks ────────────────────────────────────────────────────
 const mockPush = vi.hoisted(() => vi.fn());
@@ -9,7 +15,9 @@ const mockOpenHeartsModal = vi.hoisted(() => vi.fn());
 const mockOpenPracticeModal = vi.hoisted(() => vi.fn());
 const mockToastError = vi.hoisted(() => vi.fn());
 const mockCorrectPlay = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const mockIncorrectPlay = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const mockIncorrectPlay = vi.hoisted(() =>
+  vi.fn().mockResolvedValue(undefined)
+);
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
@@ -25,7 +33,11 @@ vi.mock("react-use", () => ({
     audioCallCount++;
     // 1st call: correct audio, 2nd call: incorrect audio, 3rd call: finish audio
     if (audioCallCount % 3 === 1) {
-      return [<audio key="correct" data-testid="correct-audio" />, {}, { play: mockCorrectPlay }];
+      return [
+        <audio key="correct" data-testid="correct-audio" />,
+        {},
+        { play: mockCorrectPlay },
+      ];
     } else if (audioCallCount % 3 === 2) {
       return [
         <audio key="incorrect" data-testid="incorrect-audio" />,
@@ -33,7 +45,11 @@ vi.mock("react-use", () => ({
         { play: mockIncorrectPlay },
       ];
     } else {
-      return [<audio key="finish" data-testid="finish-audio" />, {}, { play: vi.fn() }];
+      return [
+        <audio key="finish" data-testid="finish-audio" />,
+        {},
+        { play: vi.fn() },
+      ];
     }
   },
   useWindowSize: () => ({ width: 1024, height: 768 }),
@@ -68,8 +84,20 @@ vi.mock("@/store/use-practice-modal", () => ({
 }));
 
 vi.mock("./challenge", () => ({
-  Challenge: ({ options, onSelect, status, selectedOption, disabled, type }: any) => (
-    <div data-testid="challenge" data-status={status} data-disabled={disabled} data-type={type}>
+  Challenge: ({
+    options,
+    onSelect,
+    status,
+    selectedOption,
+    disabled,
+    type,
+  }: any) => (
+    <div
+      data-testid="challenge"
+      data-status={status}
+      data-disabled={disabled}
+      data-type={type}
+    >
       {options.map((opt: any) => (
         <button
           key={opt.id}
@@ -86,7 +114,11 @@ vi.mock("./challenge", () => ({
 
 vi.mock("./footer", () => ({
   Footer: ({ onCheck, status, disabled, lessonId }: any) => (
-    <div data-testid="footer" data-status={status} data-disabled={String(disabled)}>
+    <div
+      data-testid="footer"
+      data-status={status}
+      data-disabled={String(disabled)}
+    >
       <button data-testid="check-btn" onClick={onCheck} disabled={disabled}>
         {status === "none" && "Check"}
         {status === "correct" && "Next"}
@@ -112,7 +144,9 @@ vi.mock("./header", () => ({
 }));
 
 vi.mock("./question-bubble", () => ({
-  QuestionBubble: ({ question }: any) => <div data-testid="question-bubble">{question}</div>,
+  QuestionBubble: ({ question }: any) => (
+    <div data-testid="question-bubble">{question}</div>
+  ),
 }));
 
 vi.mock("./result-card", () => ({
@@ -225,7 +259,10 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     expect(mockUpsertChallengeProgress).toHaveBeenCalledWith(1);
     expect(mockCorrectPlay).toHaveBeenCalled();
@@ -242,7 +279,10 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
 
     // Click Next
@@ -252,7 +292,9 @@ describe("Quiz", () => {
 
     // Should now show challenge 2 — ASSIST type shows QuestionBubble
     await waitFor(() => {
-      expect(screen.getByText("Select the correct meaning")).toBeInTheDocument();
+      expect(
+        screen.getByText("Select the correct meaning")
+      ).toBeInTheDocument();
     });
   });
 
@@ -268,7 +310,10 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "wrong");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "wrong"
+      );
     });
     expect(mockReduceHearts).toHaveBeenCalledWith(1);
     expect(mockIncorrectPlay).toHaveBeenCalled();
@@ -299,7 +344,10 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "wrong");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "wrong"
+      );
     });
 
     // Click Retry
@@ -309,7 +357,10 @@ describe("Quiz", () => {
 
     // Status should reset to none, and selection cleared
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "none");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "none"
+      );
     });
   });
 
@@ -369,7 +420,9 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith("Something went wrong. Please try again.");
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Something went wrong. Please try again."
+      );
     });
   });
 
@@ -383,7 +436,9 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith("Something went wrong. Please try again.");
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Something went wrong. Please try again."
+      );
     });
   });
 
@@ -398,7 +453,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
 
     // Next
@@ -415,7 +473,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
 
     // Next — should show completion
@@ -439,7 +500,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -453,7 +517,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -474,7 +541,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -487,7 +557,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -510,7 +583,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -523,7 +599,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -586,7 +665,10 @@ describe("Quiz", () => {
     render(
       <Quiz
         {...baseProps}
-        initialLessonChallenges={[{ ...challenge1, completed: true }, challenge2]}
+        initialLessonChallenges={[
+          { ...challenge1, completed: true },
+          challenge2,
+        ]}
       />
     );
 
@@ -618,7 +700,10 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
@@ -631,14 +716,19 @@ describe("Quiz", () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId("check-btn"));
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("result-card-hearts")).toHaveTextContent("Infinity");
+      expect(screen.getByTestId("result-card-hearts")).toHaveTextContent(
+        "Infinity"
+      );
     });
   });
 
@@ -674,14 +764,20 @@ describe("Quiz", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("footer")).toHaveAttribute("data-status", "correct");
+      expect(screen.getByTestId("footer")).toHaveAttribute(
+        "data-status",
+        "correct"
+      );
     });
 
     // Try to select another option while in "correct" state — should be ignored
     fireEvent.click(screen.getByTestId("option-11"));
 
     // The selected option should still be the correct one (10), not 11
-    expect(screen.getByTestId("option-10")).toHaveAttribute("data-selected", "true");
+    expect(screen.getByTestId("option-10")).toHaveAttribute(
+      "data-selected",
+      "true"
+    );
   });
 
   // ── onContinue does nothing when no option selected ──────────────
@@ -700,7 +796,10 @@ describe("Quiz", () => {
     render(
       <Quiz
         {...baseProps}
-        initialLessonChallenges={[{ ...challenge1, completed: true }, challenge2]}
+        initialLessonChallenges={[
+          { ...challenge1, completed: true },
+          challenge2,
+        ]}
       />
     );
     // Should show challenge 2 (ASSIST)
@@ -721,6 +820,64 @@ describe("Quiz", () => {
       const header = screen.getByTestId("header");
       // 100 / 2 challenges = 50
       expect(header).toHaveAttribute("data-percentage", "50");
+    });
+  });
+
+  // ── All challenges completed fallback (activeIndex = 0) ──────────
+  it("defaults activeIndex to 0 when all challenges are completed", () => {
+    render(
+      <Quiz
+        {...baseProps}
+        initialLessonChallenges={[
+          { ...challenge1, completed: true },
+          { ...challenge2, completed: true },
+        ]}
+      />
+    );
+    // Should default to challenge 1 (index 0) since all are completed
+    expect(screen.getByText("What is Hello?")).toBeInTheDocument();
+  });
+
+  // ── No correct option guard ──────────────────────────────────────
+  it("does nothing when challenge has no correct option", async () => {
+    const noCorrectChallenge = makeChallenge(
+      9,
+      "SELECT",
+      "Broken question?",
+      false,
+      [
+        { id: 90, text: "Option A", correct: false },
+        { id: 91, text: "Option B", correct: false },
+      ]
+    );
+    render(
+      <Quiz {...baseProps} initialLessonChallenges={[noCorrectChallenge]} />
+    );
+
+    fireEvent.click(screen.getByTestId("option-90"));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("check-btn"));
+    });
+
+    // No API calls — onContinue returns early when no correctOption
+    expect(mockUpsertChallengeProgress).not.toHaveBeenCalled();
+    expect(mockReduceHearts).not.toHaveBeenCalled();
+  });
+
+  // ── Wrong answer with non-hearts error doesn't decrement hearts ──
+  it("does not decrement hearts when reduceHearts returns a non-hearts error", async () => {
+    mockReduceHearts.mockResolvedValue({ error: "subscription" });
+    render(<Quiz {...baseProps} />);
+
+    fireEvent.click(screen.getByTestId("option-11"));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("check-btn"));
+    });
+
+    await waitFor(() => {
+      // Hearts should remain 5 since response.error is truthy (but not "hearts")
+      const header = screen.getByTestId("header");
+      expect(header).toHaveAttribute("data-hearts", "5");
     });
   });
 });

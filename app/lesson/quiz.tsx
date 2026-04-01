@@ -43,9 +43,8 @@ export const Quiz = ({
   initialLessonChallenges,
   userSubscription,
 }: QuizProps) => {
-   
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
-   
+
   const [incorrectAudio, _i, incorrectControls] = useAudio({
     src: "/incorrect.wav",
   });
@@ -95,6 +94,7 @@ export const Quiz = ({
   };
 
   const onContinue = () => {
+    /* v8 ignore next -- defensive guard; Check button is disabled when !selectedOption */
     if (!selectedOption) return;
 
     if (status === "wrong") {

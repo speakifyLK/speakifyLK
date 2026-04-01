@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 
 // ── Hoisted mocks ────────────────────────────────────────────────────
 const mockToastError = vi.hoisted(() => vi.fn());
@@ -20,13 +26,19 @@ vi.mock("@/components/chat/chat-window", () => ({
 }));
 
 vi.mock("@/components/chat/chat-bubble", () => ({
-  ChatBubble: ({ role, content }: any) => <div data-testid={`chat-bubble-${role}`}>{content}</div>,
+  ChatBubble: ({ role, content }: any) => (
+    <div data-testid={`chat-bubble-${role}`}>{content}</div>
+  ),
 }));
 
 vi.mock("@/components/chat/chat-input", () => ({
   ChatInput: ({ onSend, isLoading }: any) => (
     <div data-testid="chat-input" data-loading={isLoading}>
-      <button data-testid="send-btn" onClick={() => onSend("Hello")} disabled={isLoading}>
+      <button
+        data-testid="send-btn"
+        onClick={() => onSend("Hello")}
+        disabled={isLoading}
+      >
         Send
       </button>
       <button data-testid="send-sinhala-btn" onClick={() => onSend("ආයුබෝවන්")}>
@@ -73,7 +85,10 @@ function createMockFetchStream(text: string, ok = true, status = 200) {
   });
 }
 
-function createMockFetchError(status: number, errorBody: Record<string, any> = {}) {
+function createMockFetchError(
+  status: number,
+  errorBody: Record<string, any> = {}
+) {
   return vi.fn().mockResolvedValue({
     ok: false,
     status,
@@ -228,7 +243,10 @@ describe("ChatClient", () => {
   // ── Hearts guard ─────────────────────────────────────────────────
   it("shows toast and prevents sending when hearts are 0", async () => {
     render(
-      <ChatClient {...baseProps} userProgress={{ points: 100, hearts: 0, activeCourseId: 1 }} />
+      <ChatClient
+        {...baseProps}
+        userProgress={{ points: 100, hearts: 0, activeCourseId: 1 }}
+      />
     );
 
     await act(async () => {
@@ -353,7 +371,11 @@ describe("ChatClient", () => {
   // ── No conversationId guard ──────────────────────────────────────
   it("does not send when conversationId is falsy", async () => {
     render(
-      <ChatClient initialMessages={[]} conversationId={0} userProgress={baseProps.userProgress} />
+      <ChatClient
+        initialMessages={[]}
+        conversationId={0}
+        userProgress={baseProps.userProgress}
+      />
     );
 
     await act(async () => {
@@ -361,5 +383,135 @@ describe("ChatClient", () => {
     });
 
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  // ── Multi-byte Sinhala character flush ────────────────────────────
+  it("flushes remaining multi-byte characters from decoder", async () => {
+    // Simulate a stream where the final decoder.decode() returns remaining bytes.
+    // We send a Sinhala character (3-byte UTF-8) split so the last byte is held by
+    // the streaming decoder, then released on the final flush.
+    // "ආ" is U+0D86 encoded as 3 bytes: [0xE0, 0xB6, 0x86]
+    const chunk1 = new Uint8Array([0x48, 0x69, 0xe0, 0xb6]); // "Hi" + first 2 bytes of "ආ"
+    // The third byte is NOT sent in the stream; the decoder.decode() final flush
+    // won't produce valid text, but the code path will be exercised.
+    // Instead, let's send a complete split: chunk1 ends mid-char, chunk is all we send.
+    // Actually, let's use a proper approach: send all 3 bytes in chunk1 via stream:true,
+    // but the TextDecoder still has nothing left. We need the decode() to return non-empty.
+    //
+    // The simplest way: Override TextDecoder to control the remaining output.
+    const OriginalTextDecoder = globalThis.TextDecoder;
+    const mockDecode = vi.fn();
+    let callCount2 = 0;
+    class FakeTextDecoder {
+      decode(input?: BufferSource, options?: TextDecodeOptions) {
+        callCount2++;
+        if (!input && !options) {
+          // This is the final flush call - return remaining bytes
+          return "ン";
+        }
+        // Normal streaming call
+        return new OriginalTextDecoder().decode(input, options);
+      }
+    }
+    globalThis.TextDecoder = FakeTextDecoder as any;
+
+    global.fetch = createMockFetchStream("Hello");
+    render(<ChatClient {...baseProps} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("send-btn"));
+    });
+
+    // After flush, the assistant message should contain the remaining chars
+    await waitFor(() => {
+      expect(screen.getByText("Helloン")).toBeInTheDocument();
+    });
+
+    globalThis.TextDecoder = OriginalTextDecoder;
+  });
+
+  // ── Retry onClick in generic error toast ─────────────────────────
+  it("retry action in error toast calls startStreaming again", async () => {
+    // First call: fails with 500
+    // Second call: succeeds
+    let callCount = 0;
+    global.fetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          body: null,
+          json: () => Promise.resolve({ error: "Internal error" }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode("Retry response"));
+            controller.close();
+          },
+        }),
+        json: () => Promise.resolve({}),
+      });
+    });
+
+    render(<ChatClient {...baseProps} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("send-btn"));
+    });
+
+    // Wait for error toast with retry action
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Tutor connection failed",
+        expect.objectContaining({
+          action: expect.objectContaining({
+            label: "Retry",
+            onClick: expect.any(Function),
+          }),
+        })
+      );
+    });
+
+    // Extract and call the retry onClick
+    const lastCall = mockToastError.mock.calls.find(
+      (call: any[]) => call[0] === "Tutor connection failed"
+    )!;
+    const retryAction = lastCall[1].action;
+
+    await act(async () => {
+      retryAction.onClick();
+    });
+
+    // Second fetch should have been called
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  // ── json() rejection on error response ─────────────────────────────
+  it("handles json parse failure on error response gracefully", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      body: null,
+      json: () => Promise.reject(new Error("invalid json")),
+    });
+    render(<ChatClient {...baseProps} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("send-btn"));
+    });
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Tutor connection failed",
+        expect.objectContaining({
+          description: "Could not get a response. Try again?",
+        })
+      );
+    });
   });
 });

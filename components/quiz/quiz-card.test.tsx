@@ -105,7 +105,9 @@ describe("QuizCard", () => {
   describe("MCQ questions", () => {
     it("renders question text and all options", () => {
       render(<QuizCard {...defaultProps} question={makeMcqQuestion()} />);
-      expect(screen.getByText("What does 'ayubowan' mean?")).toBeInTheDocument();
+      expect(
+        screen.getByText("What does 'ayubowan' mean?")
+      ).toBeInTheDocument();
       expect(screen.getByText(/Hello/)).toBeInTheDocument();
       expect(screen.getByText(/Goodbye/)).toBeInTheDocument();
       expect(screen.getByText(/Thank you/)).toBeInTheDocument();
@@ -160,7 +162,9 @@ describe("QuizCard", () => {
       await waitFor(() => {
         expect(screen.getByText("AI Explanation")).toBeInTheDocument();
       });
-      expect(screen.getByText("Ayubowan is a traditional Sinhala greeting.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Ayubowan is a traditional Sinhala greeting.")
+      ).toBeInTheDocument();
       expect(defaultProps.onAnswerSubmittedAction).toHaveBeenCalledWith(false);
     });
 
@@ -196,7 +200,9 @@ describe("QuizCard", () => {
 
       // Expand
       fireEvent.click(screen.getByText("AI Explanation"));
-      expect(screen.getByText("Ayubowan is a traditional Sinhala greeting.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Ayubowan is a traditional Sinhala greeting.")
+      ).toBeInTheDocument();
     });
 
     it("Got it button acknowledges explanation and enables next", async () => {
@@ -225,7 +231,13 @@ describe("QuizCard", () => {
 
     it("shows 'Complete Quiz' for last question", async () => {
       mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
-      render(<QuizCard {...defaultProps} question={makeMcqQuestion()} isLastQuestion={true} />);
+      render(
+        <QuizCard
+          {...defaultProps}
+          question={makeMcqQuestion()}
+          isLastQuestion={true}
+        />
+      );
 
       fireEvent.click(screen.getByText(/Hello/).closest("button")!);
       fireEvent.click(screen.getByText("Submit Answer"));
@@ -260,7 +272,9 @@ describe("QuizCard", () => {
       await waitFor(() => {
         const buttons = screen.getAllByRole("button");
         const optionButtons = buttons.filter((b) =>
-          ["A.", "B.", "C.", "D."].some((label) => b.textContent?.includes(label))
+          ["A.", "B.", "C.", "D."].some((label) =>
+            b.textContent?.includes(label)
+          )
         );
         optionButtons.forEach((btn) => expect(btn).toBeDisabled());
       });
@@ -273,7 +287,9 @@ describe("QuizCard", () => {
     it("renders sentence with blank placeholder", () => {
       render(<QuizCard {...defaultProps} question={makeFillBlankQuestion()} />);
       expect(screen.getByText(/The cat is/)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("Type your answer here…")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("Type your answer here…")
+      ).toBeInTheDocument();
     });
 
     it("does not render question text as h2 for fill_blank", () => {
@@ -296,7 +312,9 @@ describe("QuizCard", () => {
       expect(screen.getByText("Hide hint")).toBeInTheDocument();
 
       fireEvent.click(screen.getByText("Hide hint"));
-      expect(screen.queryByText(/Think about position/)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Think about position/)
+      ).not.toBeInTheDocument();
     });
 
     it("does not render hint button when no hint", () => {
@@ -336,7 +354,9 @@ describe("QuizCard", () => {
 
   describe("Translation questions", () => {
     it("renders source text with language label", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       expect(screen.getByText("Mama giyaa")).toBeInTheDocument();
       expect(screen.getByText("Sinhala")).toBeInTheDocument();
     });
@@ -364,17 +384,25 @@ describe("QuizCard", () => {
     });
 
     it("renders textarea for translation", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
-      expect(screen.getByLabelText("Type your translation")).toBeInTheDocument();
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
+      expect(
+        screen.getByLabelText("Type your translation")
+      ).toBeInTheDocument();
     });
 
     it("shows character count", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       expect(screen.getByText("0/500")).toBeInTheDocument();
     });
 
     it("enforces max char limit of 500", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       const textarea = screen.getByLabelText("Type your translation");
       const longText = "a".repeat(501);
       fireEvent.change(textarea, { target: { value: longText } });
@@ -383,14 +411,18 @@ describe("QuizCard", () => {
     });
 
     it("updates character count on input", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       const textarea = screen.getByLabelText("Type your translation");
       fireEvent.change(textarea, { target: { value: "I went" } });
       expect(screen.getByText("6/500")).toBeInTheDocument();
     });
 
     it("shows warning color when approaching max chars", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       const textarea = screen.getByLabelText("Type your translation");
       const text = "a".repeat(460);
       fireEvent.change(textarea, { target: { value: text } });
@@ -400,7 +432,9 @@ describe("QuizCard", () => {
 
     it("prevents change on textarea when submitted", async () => {
       mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       const textarea = screen.getByLabelText("Type your translation");
       fireEvent.change(textarea, { target: { value: "I went" } });
       fireEvent.click(screen.getByText("Submit Answer"));
@@ -414,13 +448,40 @@ describe("QuizCard", () => {
   // ── Error handling ─────────────────────────────────────────────────────
 
   describe("Error handling", () => {
-    it("shows toast error when submitting empty answer", () => {
-      render(<QuizCard {...defaultProps} question={makeMcqQuestion()} />);
-      // The button is disabled when no answer, but let's test the handleSubmit guard
-      // We need to trigger handleSubmit with empty answer
-      // Since button is disabled, this tests the guard in handleSubmit
-      // Let's select and deselect instead - submit button stays disabled
-      expect(screen.getByText("Submit Answer")).toBeDisabled();
+    it("handles isNextPending guard in handleNextClick", async () => {
+      let resolveNext!: () => void;
+      const slowNext = vi.fn(
+        () =>
+          new Promise<void>((r) => {
+            resolveNext = r;
+          })
+      );
+      mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
+      render(
+        <QuizCard
+          question={makeMcqQuestion()}
+          onNextAction={slowNext}
+          onAnswerSubmittedAction={vi.fn()}
+        />
+      );
+
+      fireEvent.click(screen.getByText(/Hello/).closest("button")!);
+      fireEvent.click(screen.getByText("Submit Answer"));
+
+      await waitFor(() => {
+        expect(screen.getByText("Next Question")).toBeInTheDocument();
+      });
+
+      // First click starts the slow next
+      fireEvent.click(screen.getByText("Next Question"));
+      // Second click should hit the isNextPending guard (line 359)
+      fireEvent.click(screen.getByText("Next Question"));
+
+      await waitFor(() => {
+        expect(slowNext).toHaveBeenCalledTimes(1);
+      });
+
+      resolveNext();
     });
 
     it("shows toast error when server action fails", async () => {
@@ -443,7 +504,9 @@ describe("QuizCard", () => {
       fireEvent.click(screen.getByText("Submit Answer"));
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith("Failed to submit answer.");
+        expect(mockToast.error).toHaveBeenCalledWith(
+          "Failed to submit answer."
+        );
       });
     });
   });
@@ -532,7 +595,9 @@ describe("QuizCard", () => {
     });
 
     it("does not render MCQ options for translation", () => {
-      render(<QuizCard {...defaultProps} question={makeTranslationQuestion()} />);
+      render(
+        <QuizCard {...defaultProps} question={makeTranslationQuestion()} />
+      );
       expect(screen.queryByText("A.")).not.toBeInTheDocument();
     });
   });
@@ -541,7 +606,9 @@ describe("QuizCard", () => {
 
   describe("Question heading visibility", () => {
     it("shows h2 heading for mcq type", () => {
-      const { container } = render(<QuizCard {...defaultProps} question={makeMcqQuestion()} />);
+      const { container } = render(
+        <QuizCard {...defaultProps} question={makeMcqQuestion()} />
+      );
       const h2 = container.querySelector("h2");
       expect(h2?.textContent).toBe("What does 'ayubowan' mean?");
     });
@@ -579,12 +646,32 @@ describe("QuizCard", () => {
       // Should not crash; no options rendered
       expect(screen.queryByText("A.")).not.toBeInTheDocument();
     });
+
+    it("renders empty hint when fill_blank options.hint is undefined", () => {
+      const q = makeFillBlankQuestion({ options: { hint: undefined } });
+      render(<QuizCard {...defaultProps} question={q} />);
+      // hint is "" after ?? fallback, so no hint button should appear
+      expect(screen.queryByText("Show hint")).not.toBeInTheDocument();
+    });
+
+    it("defaults sourceLanguage to empty string when translation options.sourceLanguage is undefined", () => {
+      const q = makeTranslationQuestion({
+        options: { sourceLanguage: undefined },
+      });
+      const { container } = render(<QuizCard {...defaultProps} question={q} />);
+      // sourceLanguage is "" after ?? fallback; the language label badge renders empty text
+      const badge = container.querySelector(".bg-indigo-200");
+      expect(badge).toBeInTheDocument();
+      expect(badge?.textContent).toBe("");
+    });
   });
 
   // ── handleNextClick guard against double click ─────────────────────────
   describe("handleNextClick", () => {
     it("calls onNextAction only once on rapid double-clicks", async () => {
-      const slowNext = vi.fn(() => new Promise<void>((r) => setTimeout(r, 100)));
+      const slowNext = vi.fn(
+        () => new Promise<void>((r) => setTimeout(r, 100))
+      );
       mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
       render(
         <QuizCard

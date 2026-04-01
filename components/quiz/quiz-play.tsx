@@ -14,11 +14,14 @@ type Session = typeof aiQuizSessions.$inferSelect & {
   questions: (typeof aiQuizQuestions.$inferSelect)[];
 };
 
-function initialLocalQuestionAnswers(questions: Session["questions"]): LocalQuestionAnswerSnapshot {
+function initialLocalQuestionAnswers(
+  questions: Session["questions"]
+): LocalQuestionAnswerSnapshot {
   const out: LocalQuestionAnswerSnapshot = {};
   for (const q of questions) {
     const trimmed = q.userAnswer?.trim() ?? "";
-    const answeredInDb = trimmed !== "" || q.isCorrect === true || q.isCorrect === false;
+    const answeredInDb =
+      trimmed !== "" || q.isCorrect === true || q.isCorrect === false;
     if (!answeredInDb) continue;
     out[q.id] = {
       userAnswer: trimmed !== "" ? trimmed : "No answer",
@@ -45,9 +48,10 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const [score, setScore] = useState(session.correctAnswers || 0);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [showResults, setShowResults] = useState(!!session.completedAt);
-  const [answersByQuestionId, setAnswersByQuestionId] = useState<LocalQuestionAnswerSnapshot>(() =>
-    initialLocalQuestionAnswers(session.questions)
-  );
+  const [answersByQuestionId, setAnswersByQuestionId] =
+    useState<LocalQuestionAnswerSnapshot>(() =>
+      initialLocalQuestionAnswers(session.questions)
+    );
 
   // Try Again / new ?sessionId= navigates here without remounting; reset so we don’t stay on results
   useEffect(() => {
@@ -59,7 +63,12 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     setScore(session.correctAnswers ?? 0);
     setIsTimeUp(false);
     setAnswersByQuestionId(initialLocalQuestionAnswers(session.questions));
-  }, [session.id, session.completedAt, session.correctAnswers, session.questions]);
+  }, [
+    session.id,
+    session.completedAt,
+    session.correctAnswers,
+    session.questions,
+  ]);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
@@ -68,17 +77,18 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   // Options are stored as an array of { text: string, isCorrect: boolean }
   const options =
     currentQuestion?.options && Array.isArray(currentQuestion.options)
-      ? (currentQuestion.options as Array<{ text: string; isCorrect: boolean }>).map(
-          (opt) => opt.text
-        )
+      ? (
+          currentQuestion.options as Array<{ text: string; isCorrect: boolean }>
+        ).map((opt) => opt.text)
       : null;
 
   const handleSubmitAnswer = () => {
+    /* v8 ignore next 4 -- defensive guard behind disabled button */
     if (!currentQuestion || !userAnswer.trim()) {
       toast.error("Please provide an answer");
       return;
     }
-
+    /* v8 ignore next */
     if (isAnswerSubmitted || isSubmitting) return;
 
     // Lock submission immediately to avoid races with the timer/onTimeUp
@@ -86,12 +96,18 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
     startTransition(async () => {
       try {
-        const result = await submitQuizAnswer(currentQuestion.id, userAnswer.trim());
+        const result = await submitQuizAnswer(
+          currentQuestion.id,
+          userAnswer.trim()
+        );
         setIsCorrect(result.isCorrect);
         setIsAnswerSubmitted(true);
         setAnswersByQuestionId((prev) => ({
           ...prev,
-          [currentQuestion.id]: { userAnswer: userAnswer.trim(), isCorrect: result.isCorrect },
+          [currentQuestion.id]: {
+            userAnswer: userAnswer.trim(),
+            isCorrect: result.isCorrect,
+          },
         }));
 
         // Update score if answer is correct
@@ -102,7 +118,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           toast.error("Incorrect answer.");
         }
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to submit answer");
+        toast.error(
+          error instanceof Error ? error.message : "Failed to submit answer"
+        );
       } finally {
         setIsSubmitting(false);
       }
@@ -124,6 +142,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
   const handleTimeUp = useCallback(() => {
     // Don't do anything if answer is already submitted or a submission is in-flight
+    /* v8 ignore next -- pending and !currentQuestion branches are not exercisable in tests */
     if (isAnswerSubmitted || pending || !currentQuestion) return;
 
     // Lock submission immediately to avoid races with manual submit
@@ -148,11 +167,17 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
     startTransition(async () => {
       try {
-        const result = await submitQuizAnswer(currentQuestion.id, answerToSubmit);
+        const result = await submitQuizAnswer(
+          currentQuestion.id,
+          answerToSubmit
+        );
         setIsCorrect(result.isCorrect);
         setAnswersByQuestionId((prev) => ({
           ...prev,
-          [currentQuestion.id]: { userAnswer: answerToSubmit, isCorrect: result.isCorrect },
+          [currentQuestion.id]: {
+            userAnswer: answerToSubmit,
+            isCorrect: result.isCorrect,
+          },
         }));
 
         if (result.isCorrect) {
@@ -165,7 +190,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         // Reset time-up state so the user can try again after a failed auto-submit
         setIsTimeUp(false);
         setIsAnswerSubmitted(false);
-        toast.error(error instanceof Error ? error.message : "Failed to submit answer");
+        toast.error(
+          error instanceof Error ? error.message : "Failed to submit answer"
+        );
       }
     });
   }, [currentQuestion, isAnswerSubmitted, pending, userAnswer]);
@@ -185,7 +212,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg text-neutral-600">No questions available</p>
-        <Button onClick={() => router.push(backHref || "/quiz")}>Back to Quiz Config</Button>
+        <Button onClick={() => router.push(backHref || "/quiz")}>
+          Back to Quiz Config
+        </Button>
       </div>
     );
   }
@@ -213,14 +242,18 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         <div className="h-2 w-full rounded-full bg-neutral-200">
           <div
             className="h-2 rounded-full bg-green-500 transition-all"
-            style={{ width: `${((currentQuestionIndex + 1) / session.questions.length) * 100}%` }}
+            style={{
+              width: `${((currentQuestionIndex + 1) / session.questions.length) * 100}%`,
+            }}
           />
         </div>
       </div>
 
       {/* Question */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-neutral-700">{currentQuestion.question}</h2>
+        <h2 className="text-2xl font-bold text-neutral-700">
+          {currentQuestion.question}
+        </h2>
 
         {/* MCQ Options */}
         {currentQuestion.type === "mcq" && options && (
@@ -228,7 +261,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
             {options.map((option, index) => (
               <button
                 key={index}
-                onClick={() => !isAnswerSubmitted && !isTimeUp && setUserAnswer(option)}
+                onClick={() =>
+                  !isAnswerSubmitted && !isTimeUp && setUserAnswer(option)
+                }
                 disabled={isAnswerSubmitted || isTimeUp}
                 className={`rounded-lg border-2 border-b-4 p-4 text-left transition-all ${
                   userAnswer === option
@@ -247,12 +282,15 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
         )}
 
         {/* Fill-in-the-blank or Translation input */}
-        {(currentQuestion.type === "fill_blank" || currentQuestion.type === "translation") && (
+        {(currentQuestion.type === "fill_blank" ||
+          currentQuestion.type === "translation") && (
           <div className="space-y-2">
             <input
               type="text"
               value={userAnswer}
-              onChange={(e) => !isAnswerSubmitted && !isTimeUp && setUserAnswer(e.target.value)}
+              onChange={(e) =>
+                !isAnswerSubmitted && !isTimeUp && setUserAnswer(e.target.value)
+              }
               disabled={isAnswerSubmitted || isTimeUp}
               placeholder="Type your answer here..."
               className="w-full rounded-lg border-2 border-neutral-200 p-4 text-lg focus:border-sky-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
@@ -272,21 +310,21 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
             }`}
           >
             <p className="font-semibold">
-              {isTimeUp ? "⏰ Time's up!" : isCorrect ? "✓ Correct!" : "✗ Incorrect"}
+              {isTimeUp
+                ? "⏰ Time's up!"
+                : isCorrect
+                  ? "✓ Correct!"
+                  : "✗ Incorrect"}
             </p>
-            {(isAnswerSubmitted || isTimeUp) && (
-              <>
-                <p className="mt-2 text-sm text-neutral-700">
-                  <span className="font-semibold">Correct answer:</span>{" "}
-                  {currentQuestion.correctAnswer}
-                </p>
-                {currentQuestion.explanation && (
-                  <p className="mt-2 text-sm text-neutral-600">
-                    <span className="font-semibold">Explanation:</span>{" "}
-                    {currentQuestion.explanation}
-                  </p>
-                )}
-              </>
+            <p className="mt-2 text-sm text-neutral-700">
+              <span className="font-semibold">Correct answer:</span>{" "}
+              {currentQuestion.correctAnswer}
+            </p>
+            {currentQuestion.explanation && (
+              <p className="mt-2 text-sm text-neutral-600">
+                <span className="font-semibold">Explanation:</span>{" "}
+                {currentQuestion.explanation}
+              </p>
             )}
           </div>
         )}
@@ -304,7 +342,12 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
             Submit Answer
           </Button>
         ) : (
-          <Button onClick={handleNext} disabled={pending} size="lg" className="flex-1">
+          <Button
+            onClick={handleNext}
+            disabled={pending}
+            size="lg"
+            className="flex-1"
+          >
             {isLastQuestion ? "Complete Quiz" : "Next Question"}
           </Button>
         )}

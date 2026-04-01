@@ -52,7 +52,8 @@ const McqOptions = ({
     {options.map((opt, idx) => {
       const isSelected = selectedAnswer === opt.text;
 
-      let variant: "default" | "primary" | "secondary" | "danger" | "locked" = "default";
+      let variant: "default" | "primary" | "secondary" | "danger" | "locked" =
+        "default";
 
       if (isSubmitted) {
         if (opt.isCorrect)
@@ -103,7 +104,10 @@ const FillInBlankInput = ({
   const [showHint, setShowHint] = useState(false);
 
   // Replace underscores / blank placeholder with a visible gap
-  const displaySentence = sentence.replace(/_{2,}|\[blank\]|\[___\]/gi, " _______ ");
+  const displaySentence = sentence.replace(
+    /_{2,}|\[blank\]|\[___\]/gi,
+    " _______ "
+  );
 
   return (
     <div className="space-y-4">
@@ -168,7 +172,9 @@ const TranslationInput = ({
         <span className="mb-2 inline-block rounded-full bg-indigo-200 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-indigo-700">
           {LANGUAGE_LABELS[sourceLanguage.toLowerCase()] ?? sourceLanguage}
         </span>
-        <p className="mt-2 text-lg font-medium leading-relaxed text-neutral-800">{sourceText}</p>
+        <p className="mt-2 text-lg font-medium leading-relaxed text-neutral-800">
+          {sourceText}
+        </p>
       </div>
 
       {/* Translation textarea */}
@@ -240,7 +246,11 @@ const ExplanationPanel = ({
               <Info className="h-5 w-5" />
               <span className="text-base">AI Explanation</span>
             </span>
-            {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            {isOpen ? (
+              <ChevronUp className="h-5 w-5" />
+            ) : (
+              <ChevronDown className="h-5 w-5" />
+            )}
           </button>
 
           {isOpen && (
@@ -250,14 +260,20 @@ const ExplanationPanel = ({
             >
               <div className="mb-4 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-neutral-700">Correct Answer:</span>
+                  <span className="font-semibold text-neutral-700">
+                    Correct Answer:
+                  </span>
                   <span className="rounded bg-green-100 px-2 py-1 font-medium text-green-700">
                     {correctAnswer}
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-neutral-700">Your Answer:</span>
-                  <span className="text-rose-600 line-through">{userAnswer}</span>
+                  <span className="font-semibold text-neutral-700">
+                    Your Answer:
+                  </span>
+                  <span className="text-rose-600 line-through">
+                    {userAnswer}
+                  </span>
                 </div>
               </div>
 
@@ -328,14 +344,18 @@ export const QuizCard = ({
     question.options &&
     typeof question.options === "object" &&
     "sourceLanguage" in question.options
-      ? String((question.options as { sourceLanguage?: string }).sourceLanguage ?? "")
+      ? String(
+          (question.options as { sourceLanguage?: string }).sourceLanguage ?? ""
+        )
       : "Sinhala";
 
   const handleSubmit = () => {
+    /* v8 ignore next 4 -- defensive guard behind disabled button */
     if (!userAnswer.trim()) {
       toast.error("Please provide an answer.");
       return;
     }
+    /* v8 ignore next */
     if (isSubmitted) return;
 
     startTransition(async () => {
@@ -348,13 +368,16 @@ export const QuizCard = ({
         }
         onAnswerSubmittedAction?.(result.isCorrect);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to submit answer.");
+        toast.error(
+          error instanceof Error ? error.message : "Failed to submit answer."
+        );
       }
     });
   };
 
   const handleNextClick = async () => {
     // Guard against concurrent clicks and respect existing gating condition.
+    /* v8 ignore next 3 -- !isCorrect && !explanationAcknowledged branch is behind disabled button */
     if (isNextPending || (!isCorrect && !explanationAcknowledged)) {
       return;
     }
@@ -370,7 +393,9 @@ export const QuizCard = ({
     <div className="space-y-6">
       {/* ── Question text ── */}
       {question.type !== "fill_blank" && question.type !== "translation" && (
-        <h2 className="text-2xl font-bold text-neutral-800">{question.question}</h2>
+        <h2 className="text-2xl font-bold text-neutral-800">
+          {question.question}
+        </h2>
       )}
 
       {/* ── Type-specific input ── */}

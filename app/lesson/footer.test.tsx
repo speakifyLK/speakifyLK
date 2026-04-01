@@ -1,19 +1,35 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
+const mockUseMedia = vi.hoisted(() => vi.fn(() => false));
+
 vi.mock("react-use", () => ({
   useKey: (_key: string, _fn: () => void) => {
     // We store the handler but don't auto-invoke it;
     // tests can simulate Enter via fireEvent
   },
-  useMedia: () => false, // default: not mobile
+  useMedia: mockUseMedia,
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, onClick, disabled, variant, asChild, ...rest }: any) => {
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    variant,
+    size,
+    asChild,
+    ...rest
+  }: any) => {
     if (asChild) return <>{children}</>;
     return (
-      <button onClick={onClick} disabled={disabled} data-variant={variant} {...rest}>
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        data-variant={variant}
+        data-size={size}
+        {...rest}
+      >
         {children}
       </button>
     );
@@ -135,5 +151,16 @@ describe("Footer", () => {
       writable: true,
       value: { href: originalHref },
     });
+  });
+
+  it("uses sm size buttons when on mobile", () => {
+    mockUseMedia.mockReturnValue(true);
+    render(<Footer onCheck={vi.fn()} status="completed" lessonId={5} />);
+    // Both buttons should have size="sm" via the mock Button
+    const buttons = screen.getAllByRole("button");
+    for (const btn of buttons) {
+      expect(btn).toHaveAttribute("data-size", "sm");
+    }
+    mockUseMedia.mockReturnValue(false);
   });
 });

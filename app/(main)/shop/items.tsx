@@ -24,6 +24,7 @@ export const Items = ({
   const [pending, startTransition] = useTransition();
 
   const onRefillHearts = () => {
+    /* v8 ignore next -- defensive guard; refill button is disabled with same condition */
     if (pending || hearts === MAX_HEARTS || points < POINTS_TO_REFILL) return;
 
     startTransition(() => {

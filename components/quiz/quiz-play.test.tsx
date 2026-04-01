@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -153,7 +159,9 @@ describe("QuizPlay", () => {
   });
 
   it("navigates back when clicking Back to Quiz Config", () => {
-    render(<QuizPlay session={makeSession({ questions: [] })} backHref="/custom" />);
+    render(
+      <QuizPlay session={makeSession({ questions: [] })} backHref="/custom" />
+    );
     fireEvent.click(screen.getByText("Back to Quiz Config"));
     expect(mockPush).toHaveBeenCalledWith("/custom");
   });
@@ -210,7 +218,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(screen.getByText("Ayubowan", { exact: false })).toBeInTheDocument();
+      expect(
+        screen.getByText("Ayubowan", { exact: false })
+      ).toBeInTheDocument();
     });
   });
 
@@ -222,7 +232,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(screen.getByText(/Ayubowan is the Sinhala greeting/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Ayubowan is the Sinhala greeting/)
+      ).toBeInTheDocument();
     });
   });
 
@@ -334,7 +346,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Time's up! No answer submitted.");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Time's up! No answer submitted."
+      );
     });
   });
 
@@ -361,7 +375,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Time's up! Incorrect answer.");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Time's up! Incorrect answer."
+      );
     });
   });
 
@@ -373,7 +389,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith("Time's up! Correct answer!");
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Time's up! Correct answer!"
+      );
     });
   });
 
@@ -531,5 +549,41 @@ describe("QuizPlay", () => {
     await waitFor(() => {
       expect(screen.queryByText(/Explanation:/)).not.toBeInTheDocument();
     });
+  });
+
+  // ── correctAnswers ?? 0 fallback ─────────────────────────────────────
+
+  it("defaults score to 0 when session.correctAnswers is undefined", () => {
+    const session = makeSession({ correctAnswers: undefined });
+    render(<QuizPlay session={session} />);
+    expect(screen.getByTestId("timer-score").textContent).toBe("0");
+  });
+
+  it("defaults score to 0 when session.correctAnswers is null", () => {
+    const session = makeSession({ correctAnswers: null });
+    render(<QuizPlay session={session} />);
+    expect(screen.getByTestId("timer-score").textContent).toBe("0");
+  });
+
+  // ── time-up guard when answer is already submitted ───────────────────
+
+  it("ignores time up when answer is already submitted", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
+    render(<QuizPlay session={makeSession()} />);
+
+    // Submit answer first
+    fireEvent.click(screen.getByText("Ayubowan"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(mockSubmitQuizAnswer).toHaveBeenCalledTimes(1);
+    });
+
+    // Now trigger time up — should be ignored since answer is already submitted
+    mockSubmitQuizAnswer.mockClear();
+    fireEvent.click(screen.getByTestId("time-up-trigger"));
+
+    // No additional submit should happen
+    expect(mockSubmitQuizAnswer).not.toHaveBeenCalled();
   });
 });
