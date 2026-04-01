@@ -374,8 +374,7 @@ async function main(): Promise<void> {
         importedUris.add(uri);
       }
     } catch (err) {
-      console.error(`  ❌ Batch ${batchNum} failed:`, err);
-      throw err;
+      throw new Error(`Batch ${batchNum} failed`, { cause: err });
     }
   }
 
@@ -392,7 +391,7 @@ void (async () => {
   try {
     await main();
   } catch (e) {
-    console.error(e instanceof Error ? e.message : e);
+    console.error("❌ Fatal error during import:", e);
     process.exit(1);
   }
 })();
