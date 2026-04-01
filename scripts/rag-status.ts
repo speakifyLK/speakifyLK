@@ -125,7 +125,7 @@ async function countGcsObjects(): Promise<{ count: number; uris: string[] }> {
   let pageToken: string | undefined;
 
   do {
-    const q = new URLSearchParams({ prefix });
+    const q = new URLSearchParams({ prefix, fields: "items(name),nextPageToken" });
     if (pageToken) q.set("pageToken", pageToken);
     const url = `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucket)}/o?${q}`;
     const res = await fetch(url, { headers });
