@@ -35,13 +35,12 @@ test.describe("Error Handling — Non-Existent Pages", () => {
 
 test.describe("Error Handling — Invalid Route Patterns", () => {
   test("should handle /lesson/invalid-id gracefully", async ({ page }) => {
-    // This is a protected route, so it should redirect to sign-in
-    await page.goto("/lesson/invalid-id");
-    // Either 404 or redirect to sign-in
+    // This is a protected route, so Clerk middleware should redirect to sign-in
+    const response = await page.goto("/lesson/invalid-id");
+    expect(response).toBeTruthy();
     const url = page.url();
-    const isSignIn = url.includes("sign-in");
-    const status = !isSignIn; // If not redirected, check if page loaded
-    expect(isSignIn || status).toBeTruthy();
+    // Clerk redirects unauthenticated users to sign-in for protected routes
+    expect(url).toContain("sign-in");
   });
 
   test("should handle URL with special characters", async ({ page }) => {

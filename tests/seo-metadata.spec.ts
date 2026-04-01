@@ -119,10 +119,9 @@ test.describe("SEO — Document Structure", () => {
     expect(lang).toBe("en");
   });
 
-  test("should have exactly one h1 on the landing page", async ({ page }) => {
+  test("should have h1 heading(s) on the landing page", async ({ page }) => {
     await page.goto("/");
-    // There can be multiple h1s due to header branding + hero,
-    // but we should have at least one
+    // The landing page has h1 in both the header branding and the hero section
     const h1Count = await page.locator("h1").count();
     expect(h1Count).toBeGreaterThan(0);
   });
@@ -158,8 +157,8 @@ test.describe("SEO — Favicon & Icons", () => {
     const iconLink = page.locator('link[rel="icon"], link[rel="shortcut icon"]');
     const appleIcon = page.locator('link[rel="apple-touch-icon"]');
     const totalIcons = (await iconLink.count()) + (await appleIcon.count());
-    // At least one icon reference should exist (may vary by browser)
-    expect(totalIcons).toBeGreaterThanOrEqual(0);
+    // At least one icon reference should exist
+    expect(totalIcons).toBeGreaterThan(0);
     // Verify the favicon file itself is accessible
     const response = await page.request.get("/favicon.ico");
     expect(response.status()).toBeLessThan(400);

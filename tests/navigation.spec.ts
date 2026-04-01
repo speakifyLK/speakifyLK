@@ -35,6 +35,8 @@ test.describe("Navigation — Landing Page Header", () => {
   test("header should have border-bottom styling", async ({ page }) => {
     const header = page.locator("header");
     await expect(header).toBeVisible({ timeout: 15000 });
+    const headerClass = await header.getAttribute("class");
+    expect(headerClass).toContain("border-b-2");
   });
 });
 

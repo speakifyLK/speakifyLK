@@ -143,13 +143,26 @@ test.describe("Static Assets — Image Loading Performance", () => {
     if (browserName === "webkit") test.slow();
     await page.goto("/", { waitUntil: "load" });
 
-    // Wait for images to be rendered — on webkit, Clerk-gated images take longer
-    await page.waitForTimeout(browserName === "webkit" ? 15000 : 2000);
+    // Wait for key images to be fully loaded rather than using a fixed timeout.
+    // The hero and mascot images are always present outside ClerkLoaded gates.
+    const heroImage = page.getByAltText("Hero");
+    const mascotImage = page.locator('img[alt="Mascot"]');
+    await expect(heroImage).toBeVisible({ timeout: 30000 });
+    await expect(mascotImage).toBeVisible({ timeout: 30000 });
+
+    // Wait for all images to have their naturalWidth set (i.e., fully loaded)
+    await page.waitForFunction(
+      () => {
+        const imgs = document.querySelectorAll("img");
+        return Array.from(imgs).every(
+          (img) => img.complete && img.naturalWidth > 0
+        );
+      },
+      { timeout: 30000 }
+    );
 
     const images = page.locator("img");
     const count = await images.count();
-    // On webkit, Clerk-gated images may not have loaded yet;
-    // at minimum, the hero and mascot images should exist
     expect(count).toBeGreaterThan(0);
 
     for (let i = 0; i < count; i++) {
@@ -157,7 +170,8 @@ test.describe("Static Assets — Image Loading Performance", () => {
       const isVisible = await image.isVisible();
 
       if (isVisible) {
-        // Check image has dimensions (i.e., loaded properly)
+        // Scroll into view to ensure bounding box is computed
+        await image.scrollIntoViewIfNeeded();
         const box = await image.boundingBox();
         expect(
           box,
@@ -178,18 +192,19 @@ test.describe("Static Assets — Audio Files", () => {
   // rather than crashing.
   test("correct.wav request should not crash the server", async ({ request }) => {
     const response = await request.get("/correct.wav");
-    // Clerk middleware intercepts — returns redirect/block, not 200
-    expect(response).toBeTruthy();
+    // Clerk middleware intercepts — returns redirect/block, not 200.
+    // Assert the server did not return a 5xx error.
+    expect(response.status()).toBeLessThan(500);
   });
 
   test("incorrect.wav request should not crash the server", async ({ request }) => {
     const response = await request.get("/incorrect.wav");
-    expect(response).toBeTruthy();
+    expect(response.status()).toBeLessThan(500);
   });
 
   test("finish.mp3 request should not crash the server", async ({ request }) => {
     const response = await request.get("/finish.mp3");
-    expect(response).toBeTruthy();
+    expect(response.status()).toBeLessThan(500);
   });
 });
 

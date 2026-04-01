@@ -32,7 +32,9 @@ test.describe("Sign-Up Page — Layout & Header", () => {
     await expect(logoLink).toBeVisible();
   });
 
-  test("should have the GitHub source code link in header", async ({ page }) => {
+  test("should have the GitHub source code link in header", async ({
+    page,
+  }) => {
     const githubIcon = page.getByAltText("Source Code");
     await expect(githubIcon).toBeVisible();
   });
@@ -54,9 +56,13 @@ test.describe("Sign-Up Page — Clerk Form", () => {
     await expect(clerkForm).toBeVisible({ timeout: 15000 });
   });
 
-  test("page should not redirect away for unauthenticated users", async ({ page }) => {
-    // The sign-up page is a public route — should remain accessible
-    await page.waitForTimeout(3000);
+  test("page should not redirect away for unauthenticated users", async ({
+    page,
+  }) => {
+    // The sign-up page is a public route — should remain accessible.
+    // Wait for the Clerk form to render (deterministic signal that page is stable)
+    const clerkForm = page.locator('[class*="cl-"]').first();
+    await expect(clerkForm).toBeVisible({ timeout: 20000 });
     await expect(page).toHaveURL(/sign-up/);
   });
 });
@@ -69,7 +75,9 @@ test.describe("Sign-Up Page — Navigation", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("sign-up catch-all route should handle nested paths", async ({ page }) => {
+  test("sign-up catch-all route should handle nested paths", async ({
+    page,
+  }) => {
     // Clerk uses [[...sign-up]] catch-all route for multi-step flows
     const response = await page.goto("/sign-up");
     expect(response?.status()).toBe(200);
