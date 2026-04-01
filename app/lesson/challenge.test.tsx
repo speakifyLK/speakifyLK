@@ -2,16 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 vi.mock("./card", () => ({
-  Card: ({
-    id,
-    text,
-    shortcut,
-    selected,
-    status,
-    disabled,
-    type,
-    onClick,
-  }: any) => (
+  Card: ({ id, text, shortcut, selected, status, disabled, type, onClick }: any) => (
     <div
       data-testid={`card-${id}`}
       data-text={text}
@@ -64,28 +55,14 @@ describe("Challenge", () => {
   });
 
   it("renders all option cards", () => {
-    render(
-      <Challenge
-        options={options}
-        onSelect={onSelect}
-        status="none"
-        type="SELECT"
-      />
-    );
+    render(<Challenge options={options} onSelect={onSelect} status="none" type="SELECT" />);
     expect(screen.getByTestId("card-1")).toBeInTheDocument();
     expect(screen.getByTestId("card-2")).toBeInTheDocument();
     expect(screen.getByTestId("card-3")).toBeInTheDocument();
   });
 
   it("passes correct shortcut numbers to cards", () => {
-    render(
-      <Challenge
-        options={options}
-        onSelect={onSelect}
-        status="none"
-        type="SELECT"
-      />
-    );
+    render(<Challenge options={options} onSelect={onSelect} status="none" type="SELECT" />);
     expect(screen.getByTestId("card-1")).toHaveAttribute("data-shortcut", "1");
     expect(screen.getByTestId("card-2")).toHaveAttribute("data-shortcut", "2");
     expect(screen.getByTestId("card-3")).toHaveAttribute("data-shortcut", "3");
@@ -101,14 +78,8 @@ describe("Challenge", () => {
         type="SELECT"
       />
     );
-    expect(screen.getByTestId("card-1")).toHaveAttribute(
-      "data-selected",
-      "false"
-    );
-    expect(screen.getByTestId("card-2")).toHaveAttribute(
-      "data-selected",
-      "true"
-    );
+    expect(screen.getByTestId("card-1")).toHaveAttribute("data-selected", "false");
+    expect(screen.getByTestId("card-2")).toHaveAttribute("data-selected", "true");
   });
 
   it("passes status to cards", () => {
@@ -121,10 +92,7 @@ describe("Challenge", () => {
         type="SELECT"
       />
     );
-    expect(screen.getByTestId("card-1")).toHaveAttribute(
-      "data-status",
-      "correct"
-    );
+    expect(screen.getByTestId("card-1")).toHaveAttribute("data-status", "correct");
   });
 
   it("passes disabled to cards", () => {
@@ -137,33 +105,18 @@ describe("Challenge", () => {
         type="SELECT"
       />
     );
-    expect(screen.getByTestId("card-1")).toHaveAttribute(
-      "data-disabled",
-      "true"
-    );
+    expect(screen.getByTestId("card-1")).toHaveAttribute("data-disabled", "true");
   });
 
   it("calls onSelect with the card id when card is clicked", () => {
-    render(
-      <Challenge
-        options={options}
-        onSelect={onSelect}
-        status="none"
-        type="SELECT"
-      />
-    );
+    render(<Challenge options={options} onSelect={onSelect} status="none" type="SELECT" />);
     screen.getByTestId("card-2").click();
     expect(onSelect).toHaveBeenCalledWith(2);
   });
 
   it("renders grid-cols-1 for ASSIST type", () => {
     const { container } = render(
-      <Challenge
-        options={options}
-        onSelect={onSelect}
-        status="none"
-        type="ASSIST"
-      />
+      <Challenge options={options} onSelect={onSelect} status="none" type="ASSIST" />
     );
     const grid = container.firstElementChild as HTMLElement;
     expect(grid.className).toContain("grid-cols-1");
@@ -171,26 +124,14 @@ describe("Challenge", () => {
 
   it("renders grid-cols-2 for SELECT type", () => {
     const { container } = render(
-      <Challenge
-        options={options}
-        onSelect={onSelect}
-        status="none"
-        type="SELECT"
-      />
+      <Challenge options={options} onSelect={onSelect} status="none" type="SELECT" />
     );
     const grid = container.firstElementChild as HTMLElement;
     expect(grid.className).toContain("grid-cols-2");
   });
 
   it("passes type to each card", () => {
-    render(
-      <Challenge
-        options={options}
-        onSelect={onSelect}
-        status="none"
-        type="ASSIST"
-      />
-    );
+    render(<Challenge options={options} onSelect={onSelect} status="none" type="ASSIST" />);
     expect(screen.getByTestId("card-1")).toHaveAttribute("data-type", "ASSIST");
     expect(screen.getByTestId("card-2")).toHaveAttribute("data-type", "ASSIST");
   });

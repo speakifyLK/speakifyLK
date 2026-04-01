@@ -19,9 +19,7 @@ describe("GET /api/quiz/session", () => {
   it("returns 401 when unauthenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
 
-    const request = new NextRequest(
-      "http://localhost/api/quiz/session?sessionId=1"
-    );
+    const request = new NextRequest("http://localhost/api/quiz/session?sessionId=1");
     const response = await GET(request);
 
     expect(response.status).toBe(401);
@@ -41,9 +39,7 @@ describe("GET /api/quiz/session", () => {
   it("returns 400 when sessionId is NaN", async () => {
     mockAuth.mockResolvedValue({ userId: "user_123" });
 
-    const request = new NextRequest(
-      "http://localhost/api/quiz/session?sessionId=abc"
-    );
+    const request = new NextRequest("http://localhost/api/quiz/session?sessionId=abc");
     const response = await GET(request);
 
     expect(response.status).toBe(400);
@@ -53,9 +49,7 @@ describe("GET /api/quiz/session", () => {
   it("returns 400 when sessionId is 0", async () => {
     mockAuth.mockResolvedValue({ userId: "user_123" });
 
-    const request = new NextRequest(
-      "http://localhost/api/quiz/session?sessionId=0"
-    );
+    const request = new NextRequest("http://localhost/api/quiz/session?sessionId=0");
     const response = await GET(request);
 
     expect(response.status).toBe(400);
@@ -65,9 +59,7 @@ describe("GET /api/quiz/session", () => {
   it("returns 400 when sessionId is negative", async () => {
     mockAuth.mockResolvedValue({ userId: "user_123" });
 
-    const request = new NextRequest(
-      "http://localhost/api/quiz/session?sessionId=-5"
-    );
+    const request = new NextRequest("http://localhost/api/quiz/session?sessionId=-5");
     const response = await GET(request);
 
     expect(response.status).toBe(400);
@@ -78,9 +70,7 @@ describe("GET /api/quiz/session", () => {
     mockAuth.mockResolvedValue({ userId: "user_123" });
     mockGetQuizSessionWithQuestions.mockResolvedValue(null);
 
-    const request = new NextRequest(
-      "http://localhost/api/quiz/session?sessionId=999"
-    );
+    const request = new NextRequest("http://localhost/api/quiz/session?sessionId=999");
     const response = await GET(request);
 
     expect(response.status).toBe(404);
@@ -101,9 +91,7 @@ describe("GET /api/quiz/session", () => {
     };
     mockGetQuizSessionWithQuestions.mockResolvedValue(mockSession);
 
-    const request = new NextRequest(
-      "http://localhost/api/quiz/session?sessionId=1"
-    );
+    const request = new NextRequest("http://localhost/api/quiz/session?sessionId=1");
     const response = await GET(request);
 
     expect(response.status).toBe(200);

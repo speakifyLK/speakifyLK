@@ -47,10 +47,7 @@ describe("GET /api/units/[unitId]", () => {
   it("returns 401 when not admin", async () => {
     mockGetIsAdmin.mockResolvedValue(false);
 
-    const response = await GET(
-      new Request("http://localhost/api/units/1") as any,
-      makeParams("1")
-    );
+    const response = await GET(new Request("http://localhost/api/units/1") as any, makeParams("1"));
 
     expect(response.status).toBe(401);
     expect(await response.text()).toBe("Unauthorized.");
@@ -61,10 +58,7 @@ describe("GET /api/units/[unitId]", () => {
     const mockData = { id: 1, title: "Unit 1" };
     mockDbQuery.units.findFirst.mockResolvedValue(mockData);
 
-    const response = await GET(
-      new Request("http://localhost/api/units/1") as any,
-      makeParams("1")
-    );
+    const response = await GET(new Request("http://localhost/api/units/1") as any, makeParams("1"));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(mockData);

@@ -21,9 +21,7 @@ describe("Promo", () => {
   it("renders description text", () => {
     render(<Promo />);
 
-    expect(
-      screen.getByText("Get unlimited hearts and more!")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Get unlimited hearts and more!")).toBeInTheDocument();
   });
 
   it("renders 'Upgrade today' link", () => {

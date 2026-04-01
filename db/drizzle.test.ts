@@ -41,13 +41,8 @@ describe("db/drizzle", () => {
     // Access a property — triggers lazy init
     const q = db.query;
 
-    expect(mockNeon).toHaveBeenCalledWith(
-      "postgres://test:test@localhost/test"
-    );
-    expect(mockDrizzle).toHaveBeenCalledWith(
-      fakeSql,
-      expect.objectContaining({})
-    );
+    expect(mockNeon).toHaveBeenCalledWith("postgres://test:test@localhost/test");
+    expect(mockDrizzle).toHaveBeenCalledWith(fakeSql, expect.objectContaining({}));
     expect(q).toBe(fakeDb.query);
   });
 

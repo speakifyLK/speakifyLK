@@ -3,12 +3,8 @@ import { render, screen } from "@testing-library/react";
 
 vi.mock("@/components/ui/sheet", () => ({
   Sheet: ({ children }: any) => <div data-testid="sheet">{children}</div>,
-  SheetContent: ({ children }: any) => (
-    <div data-testid="sheet-content">{children}</div>
-  ),
-  SheetTrigger: ({ children }: any) => (
-    <div data-testid="sheet-trigger">{children}</div>
-  ),
+  SheetContent: ({ children }: any) => <div data-testid="sheet-content">{children}</div>,
+  SheetTrigger: ({ children }: any) => <div data-testid="sheet-trigger">{children}</div>,
 }));
 
 vi.mock("./sidebar", () => ({

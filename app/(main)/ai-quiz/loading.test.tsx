@@ -17,12 +17,7 @@ describe("AI Quiz Loading", () => {
     render(<Loading />);
     const loader = screen.getByTestId("loader");
     expect(loader).toBeInTheDocument();
-    expect(loader).toHaveClass(
-      "h-6",
-      "w-6",
-      "animate-spin",
-      "text-neutral-400"
-    );
+    expect(loader).toHaveClass("h-6", "w-6", "animate-spin", "text-neutral-400");
   });
 
   it("renders sidebar skeleton placeholders", () => {
@@ -34,9 +29,7 @@ describe("AI Quiz Loading", () => {
   it("renders main content skeleton", () => {
     const { container } = render(<Loading />);
     // Should have skeleton grid items
-    const gridItems = container.querySelectorAll(
-      ".rounded-xl.border-2.border-b-4"
-    );
+    const gridItems = container.querySelectorAll(".rounded-xl.border-2.border-b-4");
     expect(gridItems.length).toBeGreaterThan(0);
   });
 });

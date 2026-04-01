@@ -103,9 +103,7 @@ describe("ChatPage", () => {
     mockAuth.mockResolvedValue({ userId: null });
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/sign-in");
   });
 
@@ -117,9 +115,7 @@ describe("ChatPage", () => {
     mockGetUserProgress.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/courses");
   });
 
@@ -134,9 +130,7 @@ describe("ChatPage", () => {
     });
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/courses");
   });
 
@@ -148,9 +142,7 @@ describe("ChatPage", () => {
     mockGetUserProgress.mockResolvedValue(userProgress);
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/chat");
   });
 
@@ -225,9 +217,6 @@ describe("ChatPage", () => {
     const jsx = await Page({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    expect(screen.getByTestId("conversation-list")).toHaveAttribute(
-      "data-count",
-      "2"
-    );
+    expect(screen.getByTestId("conversation-list")).toHaveAttribute("data-count", "2");
   });
 });

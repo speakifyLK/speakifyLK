@@ -6,18 +6,10 @@ const { mockIsSignedIn } = vi.hoisted(() => ({
 }));
 
 vi.mock("@clerk/nextjs", () => ({
-  ClerkLoaded: ({ children }: any) => (
-    <div data-testid="clerk-loaded">{children}</div>
-  ),
-  ClerkLoading: ({ children }: any) => (
-    <div data-testid="clerk-loading">{children}</div>
-  ),
-  SignedOut: ({ children }: any) => (
-    <div data-testid="signed-out">{children}</div>
-  ),
-  SignInButton: ({ children }: any) => (
-    <div data-testid="sign-in-button">{children}</div>
-  ),
+  ClerkLoaded: ({ children }: any) => <div data-testid="clerk-loaded">{children}</div>,
+  ClerkLoading: ({ children }: any) => <div data-testid="clerk-loading">{children}</div>,
+  SignedOut: ({ children }: any) => <div data-testid="signed-out">{children}</div>,
+  SignInButton: ({ children }: any) => <div data-testid="sign-in-button">{children}</div>,
   useAuth: () => ({ isSignedIn: mockIsSignedIn.value }),
 }));
 
@@ -34,9 +26,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => (
-    <button {...props}>{children}</button>
-  ),
+  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("@/config", () => ({
@@ -110,10 +100,7 @@ describe("Auth Header", () => {
     expect(githubImg).toHaveAttribute("src", "/github.svg");
 
     const githubLink = githubImg.closest("a");
-    expect(githubLink).toHaveAttribute(
-      "href",
-      "https://github.com/speakifyLK/speakifyLK"
-    );
+    expect(githubLink).toHaveAttribute("href", "https://github.com/speakifyLK/speakifyLK");
     expect(githubLink).toHaveAttribute("target", "_blank");
     expect(githubLink).toHaveAttribute("rel", "noreferrer noopener");
   });

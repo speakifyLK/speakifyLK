@@ -17,23 +17,12 @@ describe("Learn Loading", () => {
     render(<Loading />);
     const loader = screen.getByTestId("loader");
     expect(loader).toBeInTheDocument();
-    expect(loader).toHaveClass(
-      "h-6",
-      "w-6",
-      "animate-spin",
-      "text-muted-foreground"
-    );
+    expect(loader).toHaveClass("h-6", "w-6", "animate-spin", "text-muted-foreground");
   });
 
   it("has a centered container", () => {
     const { container } = render(<Loading />);
     const wrapper = container.firstElementChild;
-    expect(wrapper).toHaveClass(
-      "flex",
-      "h-full",
-      "w-full",
-      "items-center",
-      "justify-center"
-    );
+    expect(wrapper).toHaveClass("flex", "h-full", "w-full", "items-center", "justify-center");
   });
 });

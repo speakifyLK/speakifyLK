@@ -35,9 +35,7 @@ describe("Textarea", () => {
   });
 
   it("passes through HTML textarea props", () => {
-    render(
-      <Textarea data-testid="ta" placeholder="Type here" disabled rows={5} />
-    );
+    render(<Textarea data-testid="ta" placeholder="Type here" disabled rows={5} />);
     const el = screen.getByTestId("ta") as HTMLTextAreaElement;
     expect(el.placeholder).toBe("Type here");
     expect(el).toBeDisabled();

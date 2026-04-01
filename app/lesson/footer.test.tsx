@@ -13,12 +13,7 @@ vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, variant, asChild, ...rest }: any) => {
     if (asChild) return <>{children}</>;
     return (
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        data-variant={variant}
-        {...rest}
-      >
+      <button onClick={onClick} disabled={disabled} data-variant={variant} {...rest}>
         {children}
       </button>
     );

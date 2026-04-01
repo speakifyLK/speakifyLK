@@ -17,9 +17,8 @@ import {
 
 // Make Radix portal render inline for testing
 vi.mock("@radix-ui/react-dialog", async () => {
-  const actual = await vi.importActual<typeof import("@radix-ui/react-dialog")>(
-    "@radix-ui/react-dialog"
-  );
+  const actual =
+    await vi.importActual<typeof import("@radix-ui/react-dialog")>("@radix-ui/react-dialog");
   return {
     ...actual,
     Portal: ({ children }: { children: React.ReactNode }) => <>{children}</>,

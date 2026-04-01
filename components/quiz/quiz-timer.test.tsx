@@ -1,12 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  beforeAll,
-} from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 
 import { QuizTimer } from "./quiz-timer";
@@ -70,9 +62,7 @@ describe("QuizTimer", () => {
 
   it("stops counting at 0 and calls onTimeUp", () => {
     const onTimeUp = vi.fn();
-    render(
-      <QuizTimer {...defaultProps} difficulty="advanced" onTimeUp={onTimeUp} />
-    );
+    render(<QuizTimer {...defaultProps} difficulty="advanced" onTimeUp={onTimeUp} />);
     // advanced = 15s
     expect(screen.getByText("15")).toBeInTheDocument();
 
@@ -177,9 +167,7 @@ describe("QuizTimer", () => {
       <QuizTimer {...defaultProps} difficulty="advanced" onTimeUp={onTimeUp1} />
     );
     // Switch the callback
-    rerender(
-      <QuizTimer {...defaultProps} difficulty="advanced" onTimeUp={onTimeUp2} />
-    );
+    rerender(<QuizTimer {...defaultProps} difficulty="advanced" onTimeUp={onTimeUp2} />);
     // Let timer expire (15s for advanced)
     act(() => {
       vi.advanceTimersByTime(15000);

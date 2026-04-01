@@ -6,9 +6,7 @@ import { Button, buttonVariants } from "./button";
 describe("Button", () => {
   it("renders without error", () => {
     render(<Button>Click me</Button>);
-    expect(
-      screen.getByRole("button", { name: "Click me" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Click me" })).toBeInTheDocument();
   });
 
   it("renders children", () => {
