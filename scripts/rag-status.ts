@@ -190,10 +190,7 @@ async function main(): Promise<void> {
     ragUris = rag.uris;
     console.log(`   Imported: ${rag.count}`);
   } catch (err) {
-    console.error(
-      `Could not list RagFiles:`,
-      err instanceof Error ? err.message : err
-    );
+    console.error(`Could not list RagFiles:`, err instanceof Error ? err.message : err);
   }
 
   // 4. Sync Status
