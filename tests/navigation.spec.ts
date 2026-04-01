@@ -13,9 +13,7 @@ test.describe("Navigation — Landing Page Header", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
   });
 
-  test("should have the Speakify logo link that navigates to home", async ({
-    page,
-  }) => {
+  test("should have the Speakify logo link that navigates to home", async ({ page }) => {
     const logoLink = page.locator('header a[href="/"]');
     await expect(logoLink).toBeVisible({ timeout: 15000 });
 
@@ -55,9 +53,7 @@ test.describe("Navigation — Cross-Page Links", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("GitHub link should point to the correct repository URL", async ({
-    page,
-  }) => {
+  test("GitHub link should point to the correct repository URL", async ({ page }) => {
     await page.goto("/");
     const githubLink = page.locator('header a[target="_blank"]');
     const href = await githubLink.getAttribute("href");
@@ -66,17 +62,13 @@ test.describe("Navigation — Cross-Page Links", () => {
 });
 
 test.describe("Navigation — Auth Page Flow", () => {
-  test("sign-in page should have a link back to home via logo", async ({
-    page,
-  }) => {
+  test("sign-in page should have a link back to home via logo", async ({ page }) => {
     await page.goto("/sign-in");
     const homeLink = page.locator('header a[href="/"]');
     await expect(homeLink).toBeVisible();
   });
 
-  test("sign-up page should have a link back to home via logo", async ({
-    page,
-  }) => {
+  test("sign-up page should have a link back to home via logo", async ({ page }) => {
     await page.goto("/sign-up");
     const homeLink = page.locator('header a[href="/"]');
     await expect(homeLink).toBeVisible();
@@ -88,9 +80,7 @@ test.describe("Responsive Design — Landing Page", () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
 
-    const tagline = page.getByText(
-      "Learn, practice and master new languages with Speakify."
-    );
+    const tagline = page.getByText("Learn, practice and master new languages with Speakify.");
     await expect(tagline).toBeVisible();
 
     // Hero image should still be visible on mobile
@@ -102,9 +92,7 @@ test.describe("Responsive Design — Landing Page", () => {
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto("/");
 
-    const tagline = page.getByText(
-      "Learn, practice and master new languages with Speakify."
-    );
+    const tagline = page.getByText("Learn, practice and master new languages with Speakify.");
     await expect(tagline).toBeVisible();
   });
 
@@ -112,15 +100,11 @@ test.describe("Responsive Design — Landing Page", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
 
-    const tagline = page.getByText(
-      "Learn, practice and master new languages with Speakify."
-    );
+    const tagline = page.getByText("Learn, practice and master new languages with Speakify.");
     await expect(tagline).toBeVisible();
   });
 
-  test("footer language buttons are visible on desktop but hidden on mobile", async ({
-    page,
-  }) => {
+  test("footer language buttons are visible on desktop but hidden on mobile", async ({ page }) => {
     // Desktop - footer should be visible
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
@@ -209,10 +193,7 @@ test.describe("Accessibility — Images", () => {
 
     for (let i = 0; i < count; i++) {
       const alt = await images.nth(i).getAttribute("alt");
-      expect(
-        alt,
-        `Image ${i} on sign-in page is missing alt text`
-      ).toBeTruthy();
+      expect(alt, `Image ${i} on sign-in page is missing alt text`).toBeTruthy();
     }
   });
 });
@@ -253,10 +234,7 @@ test.describe("Accessibility — Interactive Elements", () => {
 });
 
 test.describe("Accessibility — Language Attribute", () => {
-  test("HTML should have lang attribute set to en", async ({
-    page,
-    browserName,
-  }) => {
+  test("HTML should have lang attribute set to en", async ({ page, browserName }) => {
     // Webkit may not have the lang attribute set before full hydration
     if (browserName === "webkit") test.slow();
     await page.goto("/", { waitUntil: "load" });
@@ -320,9 +298,7 @@ test.describe("Performance — Console Errors", () => {
     expect(appErrors).toHaveLength(0);
   });
 
-  test("sign-in page should not have app-level console errors", async ({
-    page,
-  }) => {
+  test("sign-in page should not have app-level console errors", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (msg) => {
       if (msg.type() === "error") {

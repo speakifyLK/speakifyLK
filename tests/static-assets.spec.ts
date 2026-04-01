@@ -37,10 +37,7 @@ test.describe("Static Assets — Landing Page Images", () => {
     expect(box!.height).toBeGreaterThan(0);
   });
 
-  test("GitHub icon should load successfully", async ({
-    page,
-    browserName,
-  }) => {
+  test("GitHub icon should load successfully", async ({ page, browserName }) => {
     // GitHub icon is inside <ClerkLoaded>
     if (browserName === "webkit") test.slow();
     const githubIcon = page.getByAltText("Source Code");
@@ -53,10 +50,7 @@ test.describe("Static Assets — Landing Page Images", () => {
 });
 
 test.describe("Static Assets — Footer Images (Desktop)", () => {
-  test("Sinhala flag image should load on desktop", async ({
-    page,
-    browserName,
-  }) => {
+  test("Sinhala flag image should load on desktop", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/", { waitUntil: "load" });
@@ -69,10 +63,7 @@ test.describe("Static Assets — Footer Images (Desktop)", () => {
     expect(box!.width).toBeGreaterThan(0);
   });
 
-  test("Tamil flag image should load on desktop", async ({
-    page,
-    browserName,
-  }) => {
+  test("Tamil flag image should load on desktop", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/", { waitUntil: "load" });
@@ -107,10 +98,7 @@ test.describe("Static Assets — Auth Page Images", () => {
     await expect(githubIcon).toBeVisible();
   });
 
-  test("GitHub icon should load on sign-up page", async ({
-    page,
-    browserName,
-  }) => {
+  test("GitHub icon should load on sign-up page", async ({ page, browserName }) => {
     // GitHub icon is inside <ClerkLoaded> — webkit loads Clerk slowly
     if (browserName === "webkit") test.slow();
     await page.goto("/sign-up");
@@ -188,24 +176,18 @@ test.describe("Static Assets — Audio Files", () => {
   // Audio files (.wav, .mp3) are NOT excluded from Clerk middleware matcher,
   // so they require authentication. We verify they return a response (redirect/block)
   // rather than crashing.
-  test("correct.wav request should not crash the server", async ({
-    request,
-  }) => {
+  test("correct.wav request should not crash the server", async ({ request }) => {
     const response = await request.get("/correct.wav");
     // Clerk middleware intercepts — returns redirect/block, not 200
     expect(response).toBeTruthy();
   });
 
-  test("incorrect.wav request should not crash the server", async ({
-    request,
-  }) => {
+  test("incorrect.wav request should not crash the server", async ({ request }) => {
     const response = await request.get("/incorrect.wav");
     expect(response).toBeTruthy();
   });
 
-  test("finish.mp3 request should not crash the server", async ({
-    request,
-  }) => {
+  test("finish.mp3 request should not crash the server", async ({ request }) => {
     const response = await request.get("/finish.mp3");
     expect(response).toBeTruthy();
   });

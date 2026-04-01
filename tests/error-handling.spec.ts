@@ -17,17 +17,13 @@ test.describe("Error Handling — Non-Existent Pages", () => {
     expect(response?.status()).toBeLessThanOrEqual(404);
   });
 
-  test("should handle /totally/random/deep/path without crashing", async ({
-    page,
-  }) => {
+  test("should handle /totally/random/deep/path without crashing", async ({ page }) => {
     const response = await page.goto("/totally/random/deep/path");
     expect(response).toBeTruthy();
     expect(response?.status()).toBeLessThanOrEqual(404);
   });
 
-  test("should show a page with some content for non-existent route", async ({
-    page,
-  }) => {
+  test("should show a page with some content for non-existent route", async ({ page }) => {
     await page.goto("/nonexistent-page");
     // Should render something (either 404 page or redirect to sign-in)
     const body = page.locator("body");
@@ -54,9 +50,7 @@ test.describe("Error Handling — Invalid Route Patterns", () => {
     expect(response).toBeTruthy();
   });
 
-  test("should handle URL with extremely long path without crashing", async ({
-    page,
-  }) => {
+  test("should handle URL with extremely long path without crashing", async ({ page }) => {
     const longPath = "/a".repeat(200);
     const response = await page.goto(longPath);
     // Should not crash — either redirect, 404, or 200 are all acceptable
@@ -78,9 +72,7 @@ test.describe("Error Handling — API Edge Cases", () => {
     expect(response.ok()).toBe(false);
   });
 
-  test("should handle API request with very large payload", async ({
-    request,
-  }) => {
+  test("should handle API request with very large payload", async ({ request }) => {
     const largeMessage = "x".repeat(10000);
     const response = await request.post("/api/chat", {
       data: { conversationId: 1, message: largeMessage },
@@ -123,9 +115,7 @@ test.describe("Error Handling — Method Not Allowed", () => {
 });
 
 test.describe("Error Handling — Content Negotiation", () => {
-  test("API should handle request with Accept: text/html header", async ({
-    request,
-  }) => {
+  test("API should handle request with Accept: text/html header", async ({ request }) => {
     const response = await request.get("/api/courses", {
       headers: { Accept: "text/html" },
     });
@@ -134,9 +124,7 @@ test.describe("Error Handling — Content Negotiation", () => {
     expect(response).toBeTruthy();
   });
 
-  test("should handle request with unusual Accept header", async ({
-    request,
-  }) => {
+  test("should handle request with unusual Accept header", async ({ request }) => {
     const response = await request.get("/api/units", {
       headers: { Accept: "application/xml" },
     });

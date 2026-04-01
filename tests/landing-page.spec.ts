@@ -19,9 +19,7 @@ test.describe("Landing Page — Core Content", () => {
   });
 
   test("should display the hero tagline", async ({ page }) => {
-    const tagline = page.getByText(
-      "Learn, practice and master new languages with Speakify."
-    );
+    const tagline = page.getByText("Learn, practice and master new languages with Speakify.");
     await expect(tagline).toBeVisible();
   });
 
@@ -32,9 +30,7 @@ test.describe("Landing Page — Core Content", () => {
     await expect(h1).toBeVisible();
   });
 
-  test("should display the hero image with correct alt text", async ({
-    page,
-  }) => {
+  test("should display the hero image with correct alt text", async ({ page }) => {
     const heroImage = page.getByAltText("Hero");
     await expect(heroImage).toBeVisible();
   });
@@ -51,9 +47,7 @@ test.describe("Landing Page — Header", () => {
     await page.goto("/");
   });
 
-  test("should display the Speakify branding in the header", async ({
-    page,
-  }) => {
+  test("should display the Speakify branding in the header", async ({ page }) => {
     const header = page.locator("header");
     await expect(header).toBeVisible();
     await expect(header.getByText("Speakify")).toBeVisible();
@@ -69,20 +63,14 @@ test.describe("Landing Page — Header", () => {
     await expect(logoLink).toBeVisible();
   });
 
-  test("should have the GitHub source code link", async ({
-    page,
-    browserName,
-  }) => {
+  test("should have the GitHub source code link", async ({ page, browserName }) => {
     // GitHub icon is inside <ClerkLoaded> — webkit loads Clerk very slowly
     if (browserName === "webkit") test.slow();
     const githubIcon = page.getByAltText("Source Code");
     await expect(githubIcon).toBeVisible({ timeout: 30000 });
   });
 
-  test("GitHub link should open in a new tab", async ({
-    page,
-    browserName,
-  }) => {
+  test("GitHub link should open in a new tab", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     const githubLink = page.locator('header a[target="_blank"]');
     await expect(githubLink).toBeVisible({ timeout: 30000 });
@@ -91,10 +79,7 @@ test.describe("Landing Page — Header", () => {
     expect(rel).toContain("noopener");
   });
 
-  test("should display a Login button for unauthenticated users", async ({
-    page,
-    browserName,
-  }) => {
+  test("should display a Login button for unauthenticated users", async ({ page, browserName }) => {
     // Login button is inside <ClerkLoaded> — webkit needs extra time
     if (browserName === "webkit") test.slow();
     const loginButton = page.getByRole("button", { name: "Login" });
@@ -109,20 +94,14 @@ test.describe("Landing Page — Footer", () => {
     await page.goto("/");
   });
 
-  test("should display the Sinhala language button on desktop", async ({
-    page,
-    browserName,
-  }) => {
+  test("should display the Sinhala language button on desktop", async ({ page, browserName }) => {
     // Footer buttons are inside <ClerkLoaded> on webkit
     if (browserName === "webkit") test.slow();
     const sinhalaButton = page.getByRole("button", { name: /Sinhala/i });
     await expect(sinhalaButton).toBeVisible({ timeout: 30000 });
   });
 
-  test("should display the Tamil language button on desktop", async ({
-    page,
-    browserName,
-  }) => {
+  test("should display the Tamil language button on desktop", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     const tamilButton = page.getByRole("button", { name: /Tamil/i });
     await expect(tamilButton).toBeVisible({ timeout: 30000 });
@@ -173,20 +152,14 @@ test.describe("Landing Page — CTA Buttons (Unauthenticated)", () => {
     await expect(signIn).toBeVisible({ timeout: 30000 });
   });
 
-  test("'Get Started' button should be clickable", async ({
-    page,
-    browserName,
-  }) => {
+  test("'Get Started' button should be clickable", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     const getStarted = page.getByRole("button", { name: "Get Started" });
     await expect(getStarted).toBeVisible({ timeout: 30000 });
     await expect(getStarted).toBeEnabled();
   });
 
-  test("'I already have an account' button should be clickable", async ({
-    page,
-    browserName,
-  }) => {
+  test("'I already have an account' button should be clickable", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     const signIn = page.getByRole("button", {
       name: "I already have an account",
@@ -197,10 +170,7 @@ test.describe("Landing Page — CTA Buttons (Unauthenticated)", () => {
 });
 
 test.describe("Landing Page — Layout Structure", () => {
-  test("should have the correct document language attribute", async ({
-    page,
-    browserName,
-  }) => {
+  test("should have the correct document language attribute", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     await page.goto("/", { waitUntil: "load" });
     // Wait for Next.js hydration to set the lang attribute

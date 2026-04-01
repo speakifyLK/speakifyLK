@@ -8,99 +8,73 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("Authentication — Protected Routes (Main App)", () => {
-  test("should redirect /learn to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /learn to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/learn");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /quiz to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /quiz to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/quiz");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /ai-quiz to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /ai-quiz to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/ai-quiz");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /leaderboard to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /leaderboard to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/leaderboard");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /quests to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /quests to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/quests");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /shop to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /shop to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/shop");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /courses to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /courses to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/courses");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 });
 
 test.describe("Authentication — Protected Routes (Chat)", () => {
-  test("should redirect /chat to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /chat to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/chat");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /chat?id=1 to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /chat?id=1 to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/chat?id=1");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 });
 
 test.describe("Authentication — Protected Routes (Lesson)", () => {
-  test("should redirect /lesson to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /lesson to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/lesson");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /lesson/1 to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /lesson/1 to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/lesson/1");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 
-  test("should redirect /lesson/999 to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /lesson/999 to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/lesson/999");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
 });
 
 test.describe("Authentication — Protected Routes (Admin)", () => {
-  test("should redirect /admin to sign-in for unauthenticated users", async ({
-    page,
-  }) => {
+  test("should redirect /admin to sign-in for unauthenticated users", async ({ page }) => {
     await page.goto("/admin");
     await expect(page).toHaveURL(/sign-in/, { timeout: 15000 });
   });
@@ -123,9 +97,7 @@ test.describe("Authentication — Protected Routes (Quiz with params)", () => {
 });
 
 test.describe("Authentication — Public Routes", () => {
-  test("landing page (/) should be accessible without auth", async ({
-    page,
-  }) => {
+  test("landing page (/) should be accessible without auth", async ({ page }) => {
     const response = await page.goto("/");
     expect(response?.status()).toBe(200);
     await expect(page).toHaveURL("/");
@@ -141,17 +113,13 @@ test.describe("Authentication — Public Routes", () => {
     expect(response?.status()).toBe(200);
   });
 
-  test("/sign-in should not redirect to another sign-in page", async ({
-    page,
-  }) => {
+  test("/sign-in should not redirect to another sign-in page", async ({ page }) => {
     await page.goto("/sign-in");
     // Should stay on sign-in, not redirect further
     await expect(page).toHaveURL(/sign-in/);
   });
 
-  test("/sign-up should not redirect to another sign-up page", async ({
-    page,
-  }) => {
+  test("/sign-up should not redirect to another sign-up page", async ({ page }) => {
     await page.goto("/sign-up");
     // Should stay on sign-up, not redirect further
     await expect(page).toHaveURL(/sign-up/);
@@ -159,9 +127,7 @@ test.describe("Authentication — Public Routes", () => {
 });
 
 test.describe("Authentication — Redirect URL Patterns", () => {
-  test("protected route redirect should include redirect_url parameter", async ({
-    page,
-  }) => {
+  test("protected route redirect should include redirect_url parameter", async ({ page }) => {
     await page.goto("/learn");
     await page.waitForURL(/sign-in/, { timeout: 15000 });
     const url = page.url();
@@ -169,9 +135,7 @@ test.describe("Authentication — Redirect URL Patterns", () => {
     expect(url).toContain("sign-in");
   });
 
-  test("multiple protected routes all redirect to sign-in (batch check)", async ({
-    page,
-  }) => {
+  test("multiple protected routes all redirect to sign-in (batch check)", async ({ page }) => {
     const protectedRoutes = [
       "/learn",
       "/courses",

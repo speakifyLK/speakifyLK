@@ -8,10 +8,7 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("SEO — Page Titles", () => {
-  test("landing page should have a meaningful title", async ({
-    page,
-    browserName,
-  }) => {
+  test("landing page should have a meaningful title", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     await page.goto("/", { waitUntil: "load" });
     // Wait for title to be set by Next.js hydration
@@ -47,10 +44,7 @@ test.describe("SEO — Page Titles", () => {
 });
 
 test.describe("SEO — Meta Description", () => {
-  test("landing page should have a meta description", async ({
-    page,
-    browserName,
-  }) => {
+  test("landing page should have a meta description", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     await page.goto("/", { waitUntil: "load" });
     // Wait for meta description to be injected by Next.js
@@ -61,18 +55,12 @@ test.describe("SEO — Meta Description", () => {
       },
       { timeout: 30000 }
     );
-    const description = await page.getAttribute(
-      'meta[name="description"]',
-      "content"
-    );
+    const description = await page.getAttribute('meta[name="description"]', "content");
     expect(description).toBeTruthy();
     expect(description!.length).toBeGreaterThan(10);
   });
 
-  test("meta description should mention language learning", async ({
-    page,
-    browserName,
-  }) => {
+  test("meta description should mention language learning", async ({ page, browserName }) => {
     if (browserName === "webkit") test.slow();
     await page.goto("/", { waitUntil: "load" });
     await page.waitForFunction(
@@ -82,15 +70,10 @@ test.describe("SEO — Meta Description", () => {
       },
       { timeout: 30000 }
     );
-    const description = await page.getAttribute(
-      'meta[name="description"]',
-      "content"
-    );
+    const description = await page.getAttribute('meta[name="description"]', "content");
     expect(description).toBeTruthy();
     // The description from config mentions "language learning" or "lessons, quizzes"
-    expect(description!.toLowerCase()).toMatch(
-      /language|learning|lessons|quizzes/
-    );
+    expect(description!.toLowerCase()).toMatch(/language|learning|lessons|quizzes/);
   });
 });
 
@@ -106,10 +89,7 @@ test.describe("SEO — Viewport & Theme", () => {
       },
       { timeout: 30000 }
     );
-    const viewport = await page.getAttribute(
-      'meta[name="viewport"]',
-      "content"
-    );
+    const viewport = await page.getAttribute('meta[name="viewport"]', "content");
     expect(viewport).toBeTruthy();
     expect(viewport).toContain("width");
   });
@@ -125,10 +105,7 @@ test.describe("SEO — Viewport & Theme", () => {
       },
       { timeout: 30000 }
     );
-    const themeColor = await page.getAttribute(
-      'meta[name="theme-color"]',
-      "content"
-    );
+    const themeColor = await page.getAttribute('meta[name="theme-color"]', "content");
     expect(themeColor).toBeTruthy();
     // The theme color is #22C55E (green)
     expect(themeColor!.toLowerCase()).toBe("#22c55e");
@@ -161,20 +138,14 @@ test.describe("SEO — Document Structure", () => {
 test.describe("SEO — Keywords", () => {
   test("landing page should have keywords meta tag", async ({ page }) => {
     await page.goto("/");
-    const keywords = await page.getAttribute(
-      'meta[name="keywords"]',
-      "content"
-    );
+    const keywords = await page.getAttribute('meta[name="keywords"]', "content");
     expect(keywords).toBeTruthy();
     expect(keywords!.length).toBeGreaterThan(0);
   });
 
   test("keywords should include 'speakify'", async ({ page }) => {
     await page.goto("/");
-    const keywords = await page.getAttribute(
-      'meta[name="keywords"]',
-      "content"
-    );
+    const keywords = await page.getAttribute('meta[name="keywords"]', "content");
     expect(keywords).toBeTruthy();
     expect(keywords!.toLowerCase()).toContain("speakify");
   });
@@ -184,9 +155,7 @@ test.describe("SEO — Favicon & Icons", () => {
   test("should have a favicon or icon link", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     // Next.js generates icon links — check for any icon-related link tag
-    const iconLink = page.locator(
-      'link[rel="icon"], link[rel="shortcut icon"]'
-    );
+    const iconLink = page.locator('link[rel="icon"], link[rel="shortcut icon"]');
     const appleIcon = page.locator('link[rel="apple-touch-icon"]');
     const totalIcons = (await iconLink.count()) + (await appleIcon.count());
     // At least one icon reference should exist (may vary by browser)
