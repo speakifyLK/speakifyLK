@@ -66,10 +66,7 @@ describe("List", () => {
   it("marks active course card as active", () => {
     render(<List courses={courses} activeCourseId={1} />);
     expect(screen.getByTestId("card-1")).toHaveAttribute("data-active", "true");
-    expect(screen.getByTestId("card-2")).toHaveAttribute(
-      "data-active",
-      "false"
-    );
+    expect(screen.getByTestId("card-2")).toHaveAttribute("data-active", "false");
   });
 
   it("navigates to /learn when clicking active course", () => {
@@ -86,14 +83,8 @@ describe("List", () => {
 
   it("renders without activeCourseId", () => {
     render(<List courses={courses} />);
-    expect(screen.getByTestId("card-1")).toHaveAttribute(
-      "data-active",
-      "false"
-    );
-    expect(screen.getByTestId("card-2")).toHaveAttribute(
-      "data-active",
-      "false"
-    );
+    expect(screen.getByTestId("card-1")).toHaveAttribute("data-active", "false");
+    expect(screen.getByTestId("card-2")).toHaveAttribute("data-active", "false");
   });
 
   it("renders correct grid container", () => {

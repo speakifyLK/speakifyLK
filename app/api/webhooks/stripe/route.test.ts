@@ -76,9 +76,7 @@ describe("POST /api/webhooks/stripe", () => {
     vi.clearAllMocks();
 
     // Default: headers() returns a Map-like with Stripe-Signature
-    mocks.headers.mockResolvedValue(
-      new Map([["Stripe-Signature", "sig_test"]])
-    );
+    mocks.headers.mockResolvedValue(new Map([["Stripe-Signature", "sig_test"]]));
 
     // Default: subscriptions.retrieve returns our mock subscription
     mocks.subscriptionsRetrieve.mockResolvedValue(MOCK_SUBSCRIPTION);
@@ -234,10 +232,7 @@ describe("POST /api/webhooks/stripe", () => {
       stripeCurrentPeriodEnd: new Date(1700000000 * 1000),
     });
 
-    expect(mocks.eq).toHaveBeenCalledWith(
-      "stripe_subscription_id_col",
-      "sub_123"
-    );
+    expect(mocks.eq).toHaveBeenCalledWith("stripe_subscription_id_col", "sub_123");
 
     expect(mocks.where).toHaveBeenCalled();
 

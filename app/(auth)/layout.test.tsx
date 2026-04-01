@@ -45,13 +45,7 @@ describe("Auth Layout", () => {
     );
     const main = screen.getByRole("main");
     expect(main).toBeInTheDocument();
-    expect(main).toHaveClass(
-      "flex",
-      "flex-1",
-      "flex-col",
-      "items-center",
-      "justify-center"
-    );
+    expect(main).toHaveClass("flex", "flex-1", "flex-col", "items-center", "justify-center");
   });
 
   it("renders children inside main element", () => {

@@ -12,9 +12,7 @@ describe("Chat Loading", () => {
 
   it("shows the connecting message", () => {
     render(<Loading />);
-    expect(
-      screen.getByText("Connecting to AI Sinhala Tutor...")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Connecting to AI Sinhala Tutor...")).toBeInTheDocument();
   });
 
   it("applies pulse animation to the connecting text", () => {

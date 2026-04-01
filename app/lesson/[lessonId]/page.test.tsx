@@ -94,9 +94,9 @@ describe("LessonIdPage", () => {
     mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(
-      Page({ params: Promise.resolve({ lessonId: "99" }) })
-    ).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ params: Promise.resolve({ lessonId: "99" }) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/learn");
   });
 
@@ -106,9 +106,9 @@ describe("LessonIdPage", () => {
     mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(
-      Page({ params: Promise.resolve({ lessonId: "42" }) })
-    ).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ params: Promise.resolve({ lessonId: "42" }) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/learn");
   });
 

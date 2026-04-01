@@ -2,9 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 vi.mock("sonner", () => ({
-  Toaster: (props: Record<string, unknown>) => (
-    <div data-testid="sonner-toaster" {...props} />
-  ),
+  Toaster: (props: Record<string, unknown>) => <div data-testid="sonner-toaster" {...props} />,
 }));
 
 import { Toaster } from "./sonner";

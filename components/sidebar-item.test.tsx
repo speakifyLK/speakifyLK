@@ -41,11 +41,7 @@ describe("SidebarItem", () => {
 
   it("renders icon node when icon prop is provided instead of iconSrc", () => {
     render(
-      <SidebarItem
-        label="Chat"
-        icon={<span data-testid="lucide-icon">icon</span>}
-        href="/chat"
-      />
+      <SidebarItem label="Chat" icon={<span data-testid="lucide-icon">icon</span>} href="/chat" />
     );
 
     expect(screen.getByTestId("lucide-icon")).toBeInTheDocument();
@@ -54,9 +50,7 @@ describe("SidebarItem", () => {
   it("uses sidebarOutline variant when active", () => {
     mockUsePathname.mockReturnValue("/learn");
 
-    const { container } = render(
-      <SidebarItem label="Learn" iconSrc="/learn.svg" href="/learn" />
-    );
+    const { container } = render(<SidebarItem label="Learn" iconSrc="/learn.svg" href="/learn" />);
 
     const link = container.querySelector("a");
     expect(link?.className).toContain("bg-sky-500/15");
@@ -65,9 +59,7 @@ describe("SidebarItem", () => {
   it("uses sidebar variant when inactive", () => {
     mockUsePathname.mockReturnValue("/other");
 
-    const { container } = render(
-      <SidebarItem label="Learn" iconSrc="/learn.svg" href="/learn" />
-    );
+    const { container } = render(<SidebarItem label="Learn" iconSrc="/learn.svg" href="/learn" />);
 
     const link = container.querySelector("a");
     expect(link?.className).not.toContain("bg-sky-500/15");

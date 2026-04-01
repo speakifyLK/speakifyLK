@@ -44,9 +44,7 @@ describe("Header", () => {
   });
 
   it("renders infinity icon when user has active subscription", () => {
-    const { container } = render(
-      <Header hearts={5} percentage={0} hasActiveSubscription={true} />
-    );
+    const { container } = render(<Header hearts={5} percentage={0} hasActiveSubscription={true} />);
     // Should NOT render the numeric heart count
     expect(screen.queryByText("5")).not.toBeInTheDocument();
     // Should have an SVG (InfinityIcon)
@@ -72,9 +70,7 @@ describe("Header", () => {
   });
 
   it("renders full progress bar at 100%", () => {
-    render(
-      <Header hearts={5} percentage={100} hasActiveSubscription={false} />
-    );
+    render(<Header hearts={5} percentage={100} hasActiveSubscription={false} />);
     const progress = screen.getByTestId("progress-bar");
     expect(progress).toHaveAttribute("data-value", "100");
   });

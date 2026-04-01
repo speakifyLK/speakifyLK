@@ -103,9 +103,7 @@ describe("POST /api/chat", () => {
   });
 
   it("returns 400 when conversationId is not a finite integer", async () => {
-    const res = await POST(
-      makeRequest({ conversationId: "abc", message: "hi" })
-    );
+    const res = await POST(makeRequest({ conversationId: "abc", message: "hi" }));
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toContain("Invalid conversationId");
@@ -119,9 +117,7 @@ describe("POST /api/chat", () => {
   });
 
   it("returns 400 when conversationId is Infinity", async () => {
-    const res = await POST(
-      makeRequest({ conversationId: Infinity, message: "hi" })
-    );
+    const res = await POST(makeRequest({ conversationId: Infinity, message: "hi" }));
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toContain("Invalid conversationId");
@@ -244,9 +240,7 @@ describe("POST /api/chat", () => {
       })
     );
 
-    const res = await POST(
-      makeRequest({ conversationId: 1, message: "hello" })
-    );
+    const res = await POST(makeRequest({ conversationId: 1, message: "hello" }));
     expect(res.status).toBe(200);
   });
 
@@ -270,9 +264,7 @@ describe("POST /api/chat", () => {
       })
     );
 
-    const res = await POST(
-      makeRequest({ conversationId: 1, message: "hello" })
-    );
+    const res = await POST(makeRequest({ conversationId: 1, message: "hello" }));
     expect(res.status).toBe(200);
   });
 
@@ -296,9 +288,7 @@ describe("POST /api/chat", () => {
       })
     );
 
-    const res = await POST(
-      makeRequest({ conversationId: 1, message: "hello" })
-    );
+    const res = await POST(makeRequest({ conversationId: 1, message: "hello" }));
     expect(res.status).toBe(200);
   });
 
@@ -314,9 +304,7 @@ describe("POST /api/chat", () => {
       })
     );
 
-    const res = await POST(
-      makeRequest({ conversationId: 1, message: "hello" })
-    );
+    const res = await POST(makeRequest({ conversationId: 1, message: "hello" }));
     expect(res.status).toBe(200);
   });
 
@@ -354,9 +342,7 @@ describe("POST /api/chat", () => {
       })
     );
 
-    const res = await POST(
-      makeRequest({ conversationId: 1, message: "hello" })
-    );
+    const res = await POST(makeRequest({ conversationId: 1, message: "hello" }));
     expect(res.status).toBe(200);
     expect(res.headers.get("X-RAG-Status")).toBe("active");
     expect(res.headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
@@ -423,10 +409,7 @@ describe("POST /api/chat", () => {
 
     const text = await readStream(res);
     expect(text).toBe("fallback response");
-    expect(mockSaveAssistantMessage).toHaveBeenCalledWith(
-      1,
-      "fallback response"
-    );
+    expect(mockSaveAssistantMessage).toHaveBeenCalledWith(1, "fallback response");
   });
 
   it("falls back to Gemini when RAG fails with non-Error", async () => {
@@ -477,9 +460,7 @@ describe("POST /api/chat", () => {
     mockGenerateWithRAG.mockRejectedValue(new Error("RAG down"));
     mockGetGeminiClient.mockReturnValue({
       models: {
-        generateContentStream: vi
-          .fn()
-          .mockRejectedValue(new Error("Gemini down")),
+        generateContentStream: vi.fn().mockRejectedValue(new Error("Gemini down")),
       },
     });
 
@@ -594,9 +575,7 @@ describe("POST /api/chat", () => {
   // ── RAG error with status code in parentheses ──
   it("extracts status code from RAG error message for logging", async () => {
     mockGetMessages.mockResolvedValue([]);
-    mockGenerateWithRAG.mockRejectedValue(
-      new Error("Service unavailable (503)")
-    );
+    mockGenerateWithRAG.mockRejectedValue(new Error("Service unavailable (503)"));
 
     const mockResponse = {
       [Symbol.asyncIterator]: async function* () {

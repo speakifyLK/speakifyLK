@@ -34,8 +34,7 @@ describe("StickyWrapper", () => {
       </StickyWrapper>
     );
 
-    const inner = (container.firstChild as HTMLElement)
-      .firstChild as HTMLElement;
+    const inner = (container.firstChild as HTMLElement).firstChild as HTMLElement;
     expect(inner.className).toContain("sticky");
     expect(inner.className).toContain("top-6");
     expect(inner.className).toContain("flex-col");

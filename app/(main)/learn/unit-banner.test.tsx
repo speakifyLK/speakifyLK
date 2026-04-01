@@ -10,9 +10,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => (
-    <button {...props}>{children}</button>
-  ),
+  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("lucide-react", () => ({
@@ -45,9 +43,7 @@ describe("UnitBanner", () => {
   });
 
   it("has green background", () => {
-    const { container } = render(
-      <UnitBanner title="Unit 1" description="Basics" />
-    );
+    const { container } = render(<UnitBanner title="Unit 1" description="Basics" />);
     const banner = container.firstElementChild;
     expect(banner).toHaveClass("bg-green-500");
   });

@@ -25,9 +25,7 @@ describe("CoursesPage", () => {
   });
 
   it("renders heading and list with user progress", async () => {
-    mockGetCourses.mockResolvedValue([
-      { id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" },
-    ]);
+    mockGetCourses.mockResolvedValue([{ id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" }]);
     mockGetUserProgress.mockResolvedValue({
       activeCourseId: 1,
     });
@@ -39,16 +37,11 @@ describe("CoursesPage", () => {
     expect(screen.getByText("Language Courses")).toBeInTheDocument();
     expect(screen.getByTestId("list")).toBeInTheDocument();
     expect(screen.getByText("Sinhala")).toBeInTheDocument();
-    expect(screen.getByTestId("list")).toHaveAttribute(
-      "data-active-course-id",
-      "1"
-    );
+    expect(screen.getByTestId("list")).toHaveAttribute("data-active-course-id", "1");
   });
 
   it("renders list without active course when no user progress", async () => {
-    mockGetCourses.mockResolvedValue([
-      { id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" },
-    ]);
+    mockGetCourses.mockResolvedValue([{ id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" }]);
     mockGetUserProgress.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;

@@ -153,9 +153,7 @@ describe("QuizPlay", () => {
   });
 
   it("navigates back when clicking Back to Quiz Config", () => {
-    render(
-      <QuizPlay session={makeSession({ questions: [] })} backHref="/custom" />
-    );
+    render(<QuizPlay session={makeSession({ questions: [] })} backHref="/custom" />);
     fireEvent.click(screen.getByText("Back to Quiz Config"));
     expect(mockPush).toHaveBeenCalledWith("/custom");
   });
@@ -212,9 +210,7 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Ayubowan", { exact: false })
-      ).toBeInTheDocument();
+      expect(screen.getByText("Ayubowan", { exact: false })).toBeInTheDocument();
     });
   });
 
@@ -226,9 +222,7 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Ayubowan is the Sinhala greeting/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Ayubowan is the Sinhala greeting/)).toBeInTheDocument();
     });
   });
 
@@ -338,9 +332,7 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith(
-        "Time's up! No answer submitted."
-      );
+      expect(mockToast.error).toHaveBeenCalledWith("Time's up! No answer submitted.");
     });
   });
 
@@ -367,9 +359,7 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith(
-        "Time's up! Incorrect answer."
-      );
+      expect(mockToast.error).toHaveBeenCalledWith("Time's up! Incorrect answer.");
     });
   });
 
@@ -381,9 +371,7 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith(
-        "Time's up! Correct answer!"
-      );
+      expect(mockToast.success).toHaveBeenCalledWith("Time's up! Correct answer!");
     });
   });
 

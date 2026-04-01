@@ -5,28 +5,16 @@ vi.mock("react-admin", () => ({
   List: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="ra-list">{children}</div>
   ),
-  Datagrid: ({
-    children,
-    rowClick,
-  }: {
-    children: React.ReactNode;
-    rowClick?: string;
-  }) => (
+  Datagrid: ({ children, rowClick }: { children: React.ReactNode; rowClick?: string }) => (
     <table data-testid="ra-datagrid" data-row-click={rowClick}>
       <tbody>{children}</tbody>
     </table>
   ),
   NumberField: (props: { source: string }) => (
-    <span
-      data-testid={`ra-number-field-${props.source}`}
-      data-source={props.source}
-    />
+    <span data-testid={`ra-number-field-${props.source}`} data-source={props.source} />
   ),
   TextField: (props: { source: string }) => (
-    <span
-      data-testid={`ra-text-field-${props.source}`}
-      data-source={props.source}
-    />
+    <span data-testid={`ra-text-field-${props.source}`} data-source={props.source} />
   ),
 }));
 

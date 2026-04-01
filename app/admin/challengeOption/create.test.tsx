@@ -8,11 +8,7 @@ vi.mock("react-admin", () => ({
   SimpleForm: ({ children }: { children: React.ReactNode }) => (
     <form data-testid="ra-simple-form">{children}</form>
   ),
-  TextInput: (props: {
-    source: string;
-    label?: string;
-    validate?: unknown[];
-  }) => (
+  TextInput: (props: { source: string; label?: string; validate?: unknown[] }) => (
     <input
       data-testid={`ra-text-input-${props.source}`}
       data-source={props.source}

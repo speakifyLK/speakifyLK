@@ -10,9 +10,7 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 vi.mock("@/components/ui/sonner", () => ({
-  Toaster: (props: any) => (
-    <div data-testid="toaster" data-theme={props.theme} />
-  ),
+  Toaster: (props: any) => <div data-testid="toaster" data-theme={props.theme} />,
 }));
 
 vi.mock("@/components/modals/exit-modal", () => ({

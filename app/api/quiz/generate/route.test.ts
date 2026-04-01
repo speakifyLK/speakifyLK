@@ -195,9 +195,7 @@ describe("POST /api/quiz/generate", () => {
   });
 
   it("returns 400 when questionTypes contains invalid type", async () => {
-    const res = await POST(
-      makeRequest({ ...validBody, questionTypes: ["mcq", "essay"] })
-    );
+    const res = await POST(makeRequest({ ...validBody, questionTypes: ["mcq", "essay"] }));
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toContain("essay");
@@ -457,10 +455,7 @@ describe("POST /api/quiz/generate", () => {
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(200);
     // parseGeminiQuizResponse receives "" due to `?? ""`
-    expect(vi.mocked(parseGeminiQuizResponse)).toHaveBeenCalledWith(
-      "",
-      "multiple_choice"
-    );
+    expect(vi.mocked(parseGeminiQuizResponse)).toHaveBeenCalledWith("", "multiple_choice");
   });
 
   // ── Gemini network error (not retried) ──
@@ -512,9 +507,7 @@ describe("POST /api/quiz/generate", () => {
     const returningFn = vi.fn().mockResolvedValue([{ id: 88 }]);
     const sessionValuesFn = vi.fn().mockReturnValue({ returning: returningFn });
 
-    const questionsValuesFn = vi
-      .fn()
-      .mockRejectedValue(new Error("FK constraint"));
+    const questionsValuesFn = vi.fn().mockRejectedValue(new Error("FK constraint"));
 
     mockDbInsert
       .mockReturnValueOnce({ values: sessionValuesFn })
@@ -536,9 +529,7 @@ describe("POST /api/quiz/generate", () => {
 
     const returningFn = vi.fn().mockResolvedValue([{ id: 88 }]);
     const sessionValuesFn = vi.fn().mockReturnValue({ returning: returningFn });
-    const questionsValuesFn = vi
-      .fn()
-      .mockRejectedValue(new Error("insert fail"));
+    const questionsValuesFn = vi.fn().mockRejectedValue(new Error("insert fail"));
 
     mockDbInsert
       .mockReturnValueOnce({ values: sessionValuesFn })

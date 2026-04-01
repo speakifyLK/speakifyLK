@@ -24,9 +24,7 @@ describe("ChatInput", () => {
 
   it("calls onSend with trimmed content when clicking the send button", () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
-    const textarea = screen.getByPlaceholderText(
-      "Type your message in Sinhala or English..."
-    );
+    const textarea = screen.getByPlaceholderText("Type your message in Sinhala or English...");
     fireEvent.change(textarea, { target: { value: "Hello there" } });
 
     const button = screen.getByRole("button");
@@ -53,9 +51,7 @@ describe("ChatInput", () => {
 
   it("does not call onSend when message is only whitespace", () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
-    const textarea = screen.getByPlaceholderText(
-      "Type your message in Sinhala or English..."
-    );
+    const textarea = screen.getByPlaceholderText("Type your message in Sinhala or English...");
     fireEvent.change(textarea, { target: { value: "   " } });
     fireEvent.click(screen.getByRole("button"));
     expect(onSend).not.toHaveBeenCalled();
@@ -63,9 +59,7 @@ describe("ChatInput", () => {
 
   it("submits on Enter key (without Shift)", () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
-    const textarea = screen.getByPlaceholderText(
-      "Type your message in Sinhala or English..."
-    );
+    const textarea = screen.getByPlaceholderText("Type your message in Sinhala or English...");
     fireEvent.change(textarea, { target: { value: "Enter test" } });
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: false });
     expect(onSend).toHaveBeenCalledWith("Enter test");
@@ -73,9 +67,7 @@ describe("ChatInput", () => {
 
   it("does not submit on Shift+Enter", () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
-    const textarea = screen.getByPlaceholderText(
-      "Type your message in Sinhala or English..."
-    );
+    const textarea = screen.getByPlaceholderText("Type your message in Sinhala or English...");
     fireEvent.change(textarea, { target: { value: "Multiline" } });
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: true });
     expect(onSend).not.toHaveBeenCalled();
@@ -83,9 +75,7 @@ describe("ChatInput", () => {
 
   it("disables textarea when loading", () => {
     render(<ChatInput onSend={onSend} isLoading={true} />);
-    const textarea = screen.getByPlaceholderText(
-      "Type your message in Sinhala or English..."
-    );
+    const textarea = screen.getByPlaceholderText("Type your message in Sinhala or English...");
     expect(textarea).toBeDisabled();
   });
 
@@ -96,12 +86,8 @@ describe("ChatInput", () => {
   });
 
   it("does not call onSend when loading even if content exists", () => {
-    const { rerender } = render(
-      <ChatInput onSend={onSend} isLoading={false} />
-    );
-    const textarea = screen.getByPlaceholderText(
-      "Type your message in Sinhala or English..."
-    );
+    const { rerender } = render(<ChatInput onSend={onSend} isLoading={false} />);
+    const textarea = screen.getByPlaceholderText("Type your message in Sinhala or English...");
     fireEvent.change(textarea, { target: { value: "test" } });
 
     // Re-render with isLoading = true

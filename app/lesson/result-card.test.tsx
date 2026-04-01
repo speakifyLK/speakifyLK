@@ -29,9 +29,7 @@ describe("ResultCard", () => {
   });
 
   it("renders infinity icon when value is Infinity", () => {
-    const { container } = render(
-      <ResultCard variant="hearts" value={Infinity} />
-    );
+    const { container } = render(<ResultCard variant="hearts" value={Infinity} />);
     // InfinityIcon from lucide-react renders an SVG
     // The numeric value should NOT be displayed
     expect(screen.queryByText("Infinity")).not.toBeInTheDocument();

@@ -36,9 +36,7 @@ describe("Chat Error", () => {
     const reset = vi.fn();
     render(<ErrorPage error={new Error("test") as any} reset={reset} />);
     expect(
-      screen.getByText(
-        /We encountered an error while loading your tutor session/
-      )
+      screen.getByText(/We encountered an error while loading your tutor session/)
     ).toBeInTheDocument();
   });
 

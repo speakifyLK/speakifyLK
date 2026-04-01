@@ -169,9 +169,6 @@ describe("LessonPage", () => {
     const jsx = await Page();
     render(jsx);
 
-    expect(screen.getByTestId("quiz")).toHaveAttribute(
-      "data-percentage",
-      "100"
-    );
+    expect(screen.getByTestId("quiz")).toHaveAttribute("data-percentage", "100");
   });
 });

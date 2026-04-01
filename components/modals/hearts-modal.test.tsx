@@ -29,17 +29,10 @@ vi.mock("@/store/use-hearts-modal", () => ({
 }));
 
 vi.mock("@/components/ui/dialog", () => ({
-  Dialog: ({ children, open }: any) =>
-    open ? <div data-testid="dialog">{children}</div> : null,
-  DialogContent: ({ children }: any) => (
-    <div data-testid="dialog-content">{children}</div>
-  ),
-  DialogHeader: ({ children }: any) => (
-    <div data-testid="dialog-header">{children}</div>
-  ),
-  DialogFooter: ({ children }: any) => (
-    <div data-testid="dialog-footer">{children}</div>
-  ),
+  Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
+  DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
   DialogTitle: ({ children }: any) => <h2>{children}</h2>,
   DialogDescription: ({ children }: any) => <p>{children}</p>,
 }));
@@ -68,9 +61,7 @@ describe("HeartsModal", () => {
     render(<HeartsModal />);
 
     expect(
-      screen.getByText(
-        "Get Pro for unlimited hearts, or purchase them in the store."
-      )
+      screen.getByText("Get Pro for unlimited hearts, or purchase them in the store.")
     ).toBeInTheDocument();
   });
 

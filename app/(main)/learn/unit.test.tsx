@@ -7,14 +7,7 @@ vi.mock("@/db/schema", () => ({
 }));
 
 vi.mock("./lesson-button", () => ({
-  LessonButton: ({
-    id,
-    index,
-    totalCount,
-    current,
-    locked,
-    percentage,
-  }: any) => (
+  LessonButton: ({ id, index, totalCount, current, locked, percentage }: any) => (
     <div
       data-testid={`lesson-button-${id}`}
       data-current={current}
@@ -71,9 +64,7 @@ describe("Unit", () => {
         activeLessonPercentage={50}
       />
     );
-    expect(screen.getByTestId("unit-banner")).toHaveTextContent(
-      "Unit 1 - Learn the basics"
-    );
+    expect(screen.getByTestId("unit-banner")).toHaveTextContent("Unit 1 - Learn the basics");
   });
 
   it("renders all lesson buttons", () => {
@@ -105,14 +96,8 @@ describe("Unit", () => {
         activeLessonPercentage={50}
       />
     );
-    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute(
-      "data-current",
-      "true"
-    );
-    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute(
-      "data-current",
-      "false"
-    );
+    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute("data-current", "true");
+    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute("data-current", "false");
   });
 
   it("marks completed lessons as not locked", () => {
@@ -128,10 +113,7 @@ describe("Unit", () => {
       />
     );
     // Lesson 1: completed=true, isCurrent=false -> isLocked=false
-    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute(
-      "data-locked",
-      "false"
-    );
+    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute("data-locked", "false");
   });
 
   it("marks non-completed, non-current lessons as locked", () => {
@@ -147,10 +129,7 @@ describe("Unit", () => {
       />
     );
     // Lesson 3: completed=false, isCurrent=false -> isLocked=true
-    expect(screen.getByTestId("lesson-button-3")).toHaveAttribute(
-      "data-locked",
-      "true"
-    );
+    expect(screen.getByTestId("lesson-button-3")).toHaveAttribute("data-locked", "true");
   });
 
   it("passes totalCount as lessons.length - 1", () => {
@@ -165,10 +144,7 @@ describe("Unit", () => {
         activeLessonPercentage={50}
       />
     );
-    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute(
-      "data-total",
-      "2"
-    );
+    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute("data-total", "2");
   });
 
   it("passes activeLessonPercentage to all buttons", () => {
@@ -183,14 +159,8 @@ describe("Unit", () => {
         activeLessonPercentage={75}
       />
     );
-    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute(
-      "data-percentage",
-      "75"
-    );
-    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute(
-      "data-percentage",
-      "75"
-    );
+    expect(screen.getByTestId("lesson-button-1")).toHaveAttribute("data-percentage", "75");
+    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute("data-percentage", "75");
   });
 
   it("handles undefined activeLesson", () => {
@@ -206,13 +176,7 @@ describe("Unit", () => {
       />
     );
     // All non-completed should be locked, none should be current
-    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute(
-      "data-current",
-      "false"
-    );
-    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute(
-      "data-locked",
-      "true"
-    );
+    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute("data-current", "false");
+    expect(screen.getByTestId("lesson-button-2")).toHaveAttribute("data-locked", "true");
   });
 });

@@ -46,9 +46,8 @@ describe("db/schema", () => {
 
   it("invokes coursesRelations callback", async () => {
     const schema = await import("./schema");
-    const config = (
-      schema.coursesRelations as unknown as { config: (h: unknown) => unknown }
-    ).config;
+    const config = (schema.coursesRelations as unknown as { config: (h: unknown) => unknown })
+      .config;
     const result = config(helpers);
     expect(result).toHaveProperty("userProgress");
     expect(result).toHaveProperty("units");
@@ -57,9 +56,7 @@ describe("db/schema", () => {
 
   it("invokes unitsRelations callback", async () => {
     const schema = await import("./schema");
-    const config = (
-      schema.unitsRelations as unknown as { config: (h: unknown) => unknown }
-    ).config;
+    const config = (schema.unitsRelations as unknown as { config: (h: unknown) => unknown }).config;
     const result = config(helpers);
     expect(result).toHaveProperty("course");
     expect(result).toHaveProperty("lessons");
@@ -67,9 +64,8 @@ describe("db/schema", () => {
 
   it("invokes lessonsRelations callback", async () => {
     const schema = await import("./schema");
-    const config = (
-      schema.lessonsRelations as unknown as { config: (h: unknown) => unknown }
-    ).config;
+    const config = (schema.lessonsRelations as unknown as { config: (h: unknown) => unknown })
+      .config;
     const result = config(helpers);
     expect(result).toHaveProperty("unit");
     expect(result).toHaveProperty("challenges");
@@ -170,10 +166,7 @@ describe("db/schema", () => {
     const schema = await import("./schema");
     // Drizzle columns have an internal onUpdateFn
     const updatedAtCol = (
-      schema.chatConversations as unknown as Record<
-        string,
-        Record<string, unknown>
-      >
+      schema.chatConversations as unknown as Record<string, Record<string, unknown>>
     )["updatedAt"];
     if (updatedAtCol && typeof updatedAtCol === "object") {
       const config = (updatedAtCol as Record<string, unknown>)["config"] as

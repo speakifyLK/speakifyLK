@@ -54,9 +54,7 @@ describe("quiz-store", () => {
       message: "User is doing well",
     };
     useQuizStore.getState().setAdaptiveRecommendation(recommendation);
-    expect(useQuizStore.getState().adaptiveRecommendation).toEqual(
-      recommendation
-    );
+    expect(useQuizStore.getState().adaptiveRecommendation).toEqual(recommendation);
   });
 
   it("clears adaptive recommendation with null", () => {
