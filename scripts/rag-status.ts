@@ -163,7 +163,8 @@ async function main(): Promise<void> {
     const corpus = await getCorpusInfo();
     console.log(`   Display Name: ${corpus.displayName}`);
     console.log(`   Corpus ID:    ${CORPUS_ID}`);
-    console.log(`   Created:      ${new Date(corpus.createTime).toLocaleString()}`);
+    const created = new Date(corpus.createTime);
+    console.log(`   Created:      ${isNaN(created.getTime()) ? corpus.createTime : created.toLocaleString()}`);
     console.log(`   Location:     ${LOCATION}`);
   } catch (err) {
     console.error(`Could not fetch corpus info:`, err instanceof Error ? err.message : err);
