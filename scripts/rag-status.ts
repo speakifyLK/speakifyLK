@@ -240,7 +240,7 @@ async function main(): Promise<void> {
     const notImported = gcsUris.filter((u) => !new Set(ragUris).has(u));
     const orphaned = ragUris.filter((u) => !new Set(gcsUris).has(u));
     if (notImported.length > 0) {
-      console.log("   Run 'npm run rag:import:diff' to import missing files.");
+      console.log("   Run 'npm run rag:import' to import missing files.");
     }
     if (orphaned.length > 0) {
       console.log("   Run 'npm run rag:import:force' to clean up and re-import all files.");
