@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 vi.mock("next/font/google", () => ({
@@ -30,6 +30,19 @@ vi.mock("@/config", () => ({
 }));
 
 import RootLayout from "./layout";
+
+// Suppress React's "<html> cannot be a child of <div>" warning since RootLayout
+// renders <html> which jsdom cannot nest inside the test container div.
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    if (typeof args[0] === "string" && args[0].includes("cannot be a child of")) return;
+    originalConsoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 // Helper: RootLayout renders <html> and <body> which jsdom strips when
 // nested inside the test container div.  We render just the *body content*

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -246,7 +246,9 @@ describe("QuizCard", () => {
         expect(screen.getByText("Next Question")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Next Question"));
+      await act(async () => {
+        fireEvent.click(screen.getByText("Next Question"));
+      });
       expect(defaultProps.onNextAction).toHaveBeenCalled();
     });
 
@@ -439,15 +441,21 @@ describe("QuizCard", () => {
       });
 
       // First click starts the slow next
-      fireEvent.click(screen.getByText("Next Question"));
+      await act(async () => {
+        fireEvent.click(screen.getByText("Next Question"));
+      });
       // Second click should hit the isNextPending guard (line 359)
-      fireEvent.click(screen.getByText("Next Question"));
+      await act(async () => {
+        fireEvent.click(screen.getByText("Next Question"));
+      });
 
       await waitFor(() => {
         expect(slowNext).toHaveBeenCalledTimes(1);
       });
 
-      resolveNext();
+      await act(async () => {
+        resolveNext();
+      });
     });
 
     it("shows toast error when server action fails", async () => {
@@ -646,8 +654,12 @@ describe("QuizCard", () => {
         expect(screen.getByText("Next Question")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Next Question"));
-      fireEvent.click(screen.getByText("Next Question"));
+      await act(async () => {
+        fireEvent.click(screen.getByText("Next Question"));
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByText("Next Question"));
+      });
 
       await waitFor(() => {
         expect(slowNext).toHaveBeenCalledTimes(1);

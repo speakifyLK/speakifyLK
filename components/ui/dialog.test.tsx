@@ -55,7 +55,7 @@ describe("Dialog", () => {
     render(
       <Dialog>
         <DialogTrigger>Open</DialogTrigger>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle>Title</DialogTitle>
           <p>Body</p>
         </DialogContent>
@@ -69,7 +69,7 @@ describe("Dialog", () => {
   it("renders content when defaultOpen", () => {
     render(
       <Dialog defaultOpen>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle>Default Open</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -128,7 +128,7 @@ describe("DialogTitle", () => {
   it("applies default classes", () => {
     render(
       <Dialog defaultOpen>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle data-testid="title">T</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -140,7 +140,7 @@ describe("DialogTitle", () => {
   it("merges custom className", () => {
     render(
       <Dialog defaultOpen>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle data-testid="title" className="my-title">
             T
           </DialogTitle>
@@ -154,7 +154,7 @@ describe("DialogTitle", () => {
     const ref = createRef<HTMLHeadingElement>();
     render(
       <Dialog defaultOpen>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle ref={ref}>T</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -209,7 +209,7 @@ describe("DialogOverlay", () => {
   it("applies default classes", () => {
     render(
       <Dialog defaultOpen>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle>T</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -223,7 +223,7 @@ describe("DialogOverlay", () => {
     render(
       <Dialog defaultOpen>
         <DialogOverlay data-testid="overlay" className="custom-overlay" />
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogTitle>T</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -237,7 +237,7 @@ describe("DialogContent", () => {
   it("merges custom className", () => {
     render(
       <Dialog defaultOpen>
-        <DialogContent data-testid="content" className="my-content">
+        <DialogContent data-testid="content" className="my-content" aria-describedby={undefined}>
           <DialogTitle>T</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -249,7 +249,7 @@ describe("DialogContent", () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <Dialog defaultOpen>
-        <DialogContent ref={ref}>
+        <DialogContent ref={ref} aria-describedby={undefined}>
           <DialogTitle>T</DialogTitle>
         </DialogContent>
       </Dialog>

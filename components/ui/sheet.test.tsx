@@ -55,7 +55,7 @@ describe("Sheet", () => {
     render(
       <Sheet>
         <SheetTrigger>Open</SheetTrigger>
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle>Title</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -68,7 +68,7 @@ describe("Sheet", () => {
   it("renders content when defaultOpen", () => {
     render(
       <Sheet defaultOpen>
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle>Default Sheet</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -84,7 +84,7 @@ describe("SheetContent variants (side)", () => {
     it(`renders with side="${side}"`, () => {
       render(
         <Sheet defaultOpen>
-          <SheetContent side={side} data-testid="content">
+          <SheetContent side={side} data-testid="content" aria-describedby={undefined}>
             <SheetTitle>T</SheetTitle>
           </SheetContent>
         </Sheet>
@@ -96,7 +96,7 @@ describe("SheetContent variants (side)", () => {
   it("merges custom className on content", () => {
     render(
       <Sheet defaultOpen>
-        <SheetContent data-testid="content" className="my-sheet">
+        <SheetContent data-testid="content" className="my-sheet" aria-describedby={undefined}>
           <SheetTitle>T</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -108,7 +108,7 @@ describe("SheetContent variants (side)", () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <Sheet defaultOpen>
-        <SheetContent ref={ref}>
+        <SheetContent ref={ref} aria-describedby={undefined}>
           <SheetTitle>T</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -167,7 +167,7 @@ describe("SheetTitle", () => {
   it("applies default classes", () => {
     render(
       <Sheet defaultOpen>
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle data-testid="title">T</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -179,7 +179,7 @@ describe("SheetTitle", () => {
   it("merges custom className", () => {
     render(
       <Sheet defaultOpen>
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle data-testid="title" className="my-title">
             T
           </SheetTitle>
@@ -193,7 +193,7 @@ describe("SheetTitle", () => {
     const ref = createRef<HTMLHeadingElement>();
     render(
       <Sheet defaultOpen>
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle ref={ref}>T</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -249,7 +249,7 @@ describe("SheetOverlay", () => {
     render(
       <Sheet defaultOpen>
         <SheetOverlay data-testid="overlay" className="custom-overlay" />
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle>T</SheetTitle>
         </SheetContent>
       </Sheet>
@@ -263,7 +263,7 @@ describe("SheetOverlay", () => {
     render(
       <Sheet defaultOpen>
         <SheetOverlay ref={ref} />
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetTitle>T</SheetTitle>
         </SheetContent>
       </Sheet>

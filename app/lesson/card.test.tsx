@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next/image", () => ({
-  default: (props: any) => <img {...props} />,
+  default: ({ fill: _fill, priority: _priority, ...props }: any) => <img {...props} />,
 }));
 
 vi.mock("react-use", () => ({
