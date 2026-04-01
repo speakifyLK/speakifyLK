@@ -228,7 +228,7 @@ describe("QuizResult", () => {
   // ── Badge color ────────────────────────────────────────────────────────
 
   it("uses emerald badge for score >= 80", () => {
-    const { container } = render(
+    render(
       <QuizResult
         session={makeSession({ totalQuestions: 10, correctAnswers: 9 })}
         localCorrectAnswers={9}
@@ -239,7 +239,7 @@ describe("QuizResult", () => {
   });
 
   it("uses amber badge for score >= 50", () => {
-    const { container } = render(
+    render(
       <QuizResult
         session={makeSession({ totalQuestions: 10, correctAnswers: 5 })}
         localCorrectAnswers={5}

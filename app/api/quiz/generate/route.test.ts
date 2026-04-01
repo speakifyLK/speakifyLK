@@ -116,16 +116,6 @@ describe("POST /api/quiz/generate", () => {
     vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
   });
 
-  // Helper to set up DB mocks for a successful session+questions insert
-  function setupDbMocks(sessionId = 99) {
-    const returningFn = vi.fn().mockResolvedValue([{ id: sessionId }]);
-    const sessionValuesFn = vi.fn().mockReturnValue({ returning: returningFn });
-    const questionsValuesFn = vi.fn().mockResolvedValue(undefined);
-    mockDbInsert
-      .mockReturnValueOnce({ values: sessionValuesFn })
-      .mockReturnValueOnce({ values: questionsValuesFn });
-  }
-
   // ── Auth ──
   it("returns 401 when unauthenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
