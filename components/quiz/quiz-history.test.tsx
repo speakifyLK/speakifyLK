@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -336,14 +336,16 @@ describe("QuizHistory", () => {
         expect(screen.getByText("Loading session...")).toBeInTheDocument();
       });
 
-      resolveJson({
-        id: 1,
-        topic: "Greetings",
-        difficulty: "beginner",
-        totalQuestions: 10,
-        correctAnswers: 9,
-        startedAt: "2025-01-15T10:00:00Z",
-        questions: [],
+      await act(async () => {
+        resolveJson({
+          id: 1,
+          topic: "Greetings",
+          difficulty: "beginner",
+          totalQuestions: 10,
+          correctAnswers: 9,
+          startedAt: "2025-01-15T10:00:00Z",
+          questions: [],
+        });
       });
     });
 
@@ -558,25 +560,29 @@ describe("QuizHistory", () => {
       });
 
       // Resolve first (should be ignored due to generation check)
-      resolveFirst({
-        id: 1,
-        topic: "Greetings",
-        difficulty: "beginner",
-        totalQuestions: 10,
-        correctAnswers: 9,
-        startedAt: "2025-01-15T10:00:00Z",
-        questions: [],
+      await act(async () => {
+        resolveFirst({
+          id: 1,
+          topic: "Greetings",
+          difficulty: "beginner",
+          totalQuestions: 10,
+          correctAnswers: 9,
+          startedAt: "2025-01-15T10:00:00Z",
+          questions: [],
+        });
       });
 
       // Resolve second
-      resolveSecond({
-        id: 2,
-        topic: "Numbers",
-        difficulty: "intermediate",
-        totalQuestions: 10,
-        correctAnswers: 6,
-        startedAt: "2025-01-14T10:00:00Z",
-        questions: [],
+      await act(async () => {
+        resolveSecond({
+          id: 2,
+          topic: "Numbers",
+          difficulty: "intermediate",
+          totalQuestions: 10,
+          correctAnswers: 6,
+          startedAt: "2025-01-14T10:00:00Z",
+          questions: [],
+        });
       });
 
       await waitFor(() => {
@@ -751,18 +757,20 @@ describe("QuizHistory", () => {
       });
 
       // Now resolve the first fetch — generation will be stale at line 67
-      resolveFirst({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: 1,
-            topic: "Greetings",
-            difficulty: "beginner",
-            totalQuestions: 10,
-            correctAnswers: 9,
-            startedAt: "2025-01-15T10:00:00Z",
-            questions: [],
-          }),
+      await act(async () => {
+        resolveFirst({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              id: 1,
+              topic: "Greetings",
+              difficulty: "beginner",
+              totalQuestions: 10,
+              correctAnswers: 9,
+              startedAt: "2025-01-15T10:00:00Z",
+              questions: [],
+            }),
+        });
       });
 
       // Second call's result should be shown

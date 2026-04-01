@@ -266,7 +266,7 @@ describe("ChatClient", () => {
     render(<ChatClient {...baseProps} />);
 
     // Start first send (stream is blocked)
-    act(() => {
+    await act(async () => {
       fireEvent.click(screen.getByTestId("send-btn"));
     });
 
@@ -280,7 +280,9 @@ describe("ChatClient", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
 
     // Clean up the stream
-    resolveStream?.();
+    await act(async () => {
+      resolveStream?.();
+    });
   });
 
   // ── Conversation switching ───────────────────────────────────────

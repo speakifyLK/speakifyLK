@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -275,8 +275,10 @@ describe("QuizResult", () => {
 
   // ── Time label edge cases ──────────────────────────────────────────────
 
-  it("shows '—' when no timestamps", () => {
+  it("shows '—' when no timestamps", async () => {
     render(<QuizResult session={makeSession({ startedAt: null, completedAt: null })} />);
+    // Allow useEffect to settle (completeQuizSession fires when completedAt is null)
+    await act(async () => {});
     // Multiple "—" might appear, just check one exists
     const dashes = screen.getAllByText("—");
     expect(dashes.length).toBeGreaterThan(0);
@@ -564,7 +566,9 @@ describe("QuizResult", () => {
       expect(screen.getByText("Copied!")).toBeInTheDocument();
     });
 
-    vi.advanceTimersByTime(2500);
+    act(() => {
+      vi.advanceTimersByTime(2500);
+    });
 
     await waitFor(() => {
       expect(screen.getByText("Share Results")).toBeInTheDocument();
