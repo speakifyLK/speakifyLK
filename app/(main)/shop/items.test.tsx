@@ -115,7 +115,11 @@ describe("Items", () => {
     const originalLocation = window.location;
     // @ts-expect-error - mocking window.location
     delete window.location;
-    window.location = { ...originalLocation, href: "" } as Location;
+    Object.defineProperty(window, "location", {
+      value: { ...originalLocation, href: "" },
+      writable: true,
+      configurable: true,
+    });
 
     mockCreateStripeUrl.mockResolvedValue({
       data: "https://checkout.stripe.com/test",
@@ -127,7 +131,11 @@ describe("Items", () => {
       expect(window.location.href).toBe("https://checkout.stripe.com/test");
     });
 
-    window.location = originalLocation;
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
   });
 
   it("shows error toast when createStripeUrl fails", async () => {
