@@ -12,15 +12,7 @@ vi.mock("react-use", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    onClick,
-    disabled,
-    variant,
-    size,
-    asChild,
-    ...rest
-  }: any) => {
+  Button: ({ children, onClick, disabled, variant, size, asChild, ...rest }: any) => {
     if (asChild) return <>{children}</>;
     return (
       <button

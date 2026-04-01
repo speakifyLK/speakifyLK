@@ -47,11 +47,7 @@ export const LessonButton = ({
   const href = isCompleted ? `/lesson/${id}` : "/lesson";
 
   return (
-    <Link
-      href={href}
-      aria-disabled={locked}
-      style={{ pointerEvents: locked ? "none" : "auto" }}
-    >
+    <Link href={href} aria-disabled={locked} style={{ pointerEvents: locked ? "none" : "auto" }}>
       <div
         className="relative"
         style={{

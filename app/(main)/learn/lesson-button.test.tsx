@@ -17,9 +17,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => (
-    <button {...props}>{children}</button>
-  ),
+  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("@/lib/utils", () => ({
@@ -54,10 +52,7 @@ describe("LessonButton", () => {
     render(<LessonButton {...baseProps} current />);
     expect(screen.getByText("Start")).toBeInTheDocument();
     expect(screen.getByTestId("circular-progress")).toBeInTheDocument();
-    expect(screen.getByTestId("circular-progress")).toHaveAttribute(
-      "data-value",
-      "50"
-    );
+    expect(screen.getByTestId("circular-progress")).toHaveAttribute("data-value", "50");
   });
 
   it("renders Star icon for non-completed, non-last lesson", () => {
@@ -107,10 +102,7 @@ describe("LessonButton", () => {
 
   it("handles NaN percentage by passing 0", () => {
     render(<LessonButton {...baseProps} current percentage={NaN} />);
-    expect(screen.getByTestId("circular-progress")).toHaveAttribute(
-      "data-value",
-      "0"
-    );
+    expect(screen.getByTestId("circular-progress")).toHaveAttribute("data-value", "0");
   });
 
   it("renders non-current, non-completed (locked) without progress bar", () => {
@@ -126,36 +118,28 @@ describe("LessonButton", () => {
   });
 
   it("applies correct margin-top for non-first lesson", () => {
-    const { container } = render(
-      <LessonButton {...baseProps} index={1} current />
-    );
+    const { container } = render(<LessonButton {...baseProps} index={1} current />);
     const relativeDiv = container.querySelector(".relative");
     expect(relativeDiv).toHaveStyle({ marginTop: "24px" });
   });
 
   it("calculates indentation for cycleIndex > 6 (index=7)", () => {
     // cycleIndex = 7 % 8 = 7, indentationLevel = 7 - 8 = -1, rightPosition = -40
-    const { container } = render(
-      <LessonButton {...baseProps} index={7} locked />
-    );
+    const { container } = render(<LessonButton {...baseProps} index={7} locked />);
     const relativeDiv = container.querySelector(".relative");
     expect(relativeDiv).toHaveStyle({ right: "-40px" });
   });
 
   it("calculates indentation for cycleIndex 3-4 (index=3)", () => {
     // cycleIndex = 3, indentationLevel = 4 - 3 = 1, rightPosition = 40
-    const { container } = render(
-      <LessonButton {...baseProps} index={3} locked />
-    );
+    const { container } = render(<LessonButton {...baseProps} index={3} locked />);
     const relativeDiv = container.querySelector(".relative");
     expect(relativeDiv).toHaveStyle({ right: "40px" });
   });
 
   it("calculates indentation for cycleIndex 5-6 (index=5)", () => {
     // cycleIndex = 5, indentationLevel = 4 - 5 = -1, rightPosition = -40
-    const { container } = render(
-      <LessonButton {...baseProps} index={5} locked />
-    );
+    const { container } = render(<LessonButton {...baseProps} index={5} locked />);
     const relativeDiv = container.querySelector(".relative");
     expect(relativeDiv).toHaveStyle({ right: "-40px" });
   });

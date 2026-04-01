@@ -6,9 +6,7 @@ vi.mock("next/dynamic", () => ({
   default: (loader: () => Promise<any>) => {
     // Call the loader to exercise the arrow function for V8 coverage
     loader();
-    const MockAppContent = () => (
-      <div data-testid="app-content">AppContent</div>
-    );
+    const MockAppContent = () => <div data-testid="app-content">AppContent</div>;
     MockAppContent.displayName = "MockAppContent";
     return MockAppContent;
   },

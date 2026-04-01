@@ -11,11 +11,7 @@ vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
   return {
     ...actual,
-    useSyncExternalStore: (
-      subscribe: any,
-      getSnapshot: any,
-      getServerSnapshot?: any
-    ) => {
+    useSyncExternalStore: (subscribe: any, getSnapshot: any, getServerSnapshot?: any) => {
       if (mockUseSyncExternalStore.override !== null) {
         subscribe(() => {});
         getSnapshot();
@@ -25,11 +21,7 @@ vi.mock("react", async () => {
       subscribe(() => {});
       getSnapshot();
       if (getServerSnapshot) getServerSnapshot();
-      return actual.useSyncExternalStore(
-        subscribe,
-        getSnapshot,
-        getServerSnapshot
-      );
+      return actual.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
     },
   };
 });
@@ -43,17 +35,10 @@ vi.mock("@/store/use-practice-modal", () => ({
 }));
 
 vi.mock("@/components/ui/dialog", () => ({
-  Dialog: ({ children, open }: any) =>
-    open ? <div data-testid="dialog">{children}</div> : null,
-  DialogContent: ({ children }: any) => (
-    <div data-testid="dialog-content">{children}</div>
-  ),
-  DialogHeader: ({ children }: any) => (
-    <div data-testid="dialog-header">{children}</div>
-  ),
-  DialogFooter: ({ children }: any) => (
-    <div data-testid="dialog-footer">{children}</div>
-  ),
+  Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
+  DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
   DialogTitle: ({ children }: any) => <h2>{children}</h2>,
   DialogDescription: ({ children }: any) => <p>{children}</p>,
 }));
