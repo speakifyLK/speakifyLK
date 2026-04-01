@@ -11,8 +11,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogOverlay,
-  DialogClose,
-  DialogPortal,
 } from "./dialog";
 
 // Make the Radix portal render inline so content is testable in jsdom

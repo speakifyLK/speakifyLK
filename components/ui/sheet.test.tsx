@@ -11,8 +11,6 @@ import {
   SheetTitle,
   SheetDescription,
   SheetOverlay,
-  SheetClose,
-  SheetPortal,
 } from "./sheet";
 
 // Make Radix portal render inline for testing
