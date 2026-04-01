@@ -161,8 +161,13 @@ speakify/
   |- tests/
     |-- api-validation.spec.ts
     |-- auth-redirect.spec.ts
+    |-- error-handling.spec.ts
     |-- landing-page.spec.ts
     |-- navigation.spec.ts
+    |-- seo-metadata.spec.ts
+    |-- sign-in-page.spec.ts
+    |-- sign-up-page.spec.ts
+    |-- static-assets.spec.ts
   |- .env.example
   |- .env/.env.local
   |- .gitignore
