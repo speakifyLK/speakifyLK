@@ -362,7 +362,7 @@ async function main(): Promise<void> {
   const importedUris = new Set<string>();
   for (let i = 0; i < toImport.length; i += IMPORT_BATCH_SIZE) {
     const batch = toImport.slice(i, i + IMPORT_BATCH_SIZE).map((o) => o.gsUri);
-    const batchNum = i / IMPORT_BATCH_SIZE + 1;
+    const batchNum = Math.floor(i / IMPORT_BATCH_SIZE) + 1;
     console.log(`\nImporting batch ${batchNum} (${batch.length} file(s))…`);
     for (const uri of batch) {
       console.log(`  📄 ${uri}`);
