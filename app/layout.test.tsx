@@ -10,9 +10,7 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 vi.mock("@/components/ui/sonner", () => ({
-  Toaster: (props: any) => (
-    <div data-testid="toaster" data-theme={props.theme} />
-  ),
+  Toaster: (props: any) => <div data-testid="toaster" data-theme={props.theme} />,
 }));
 
 vi.mock("@/components/modals/exit-modal", () => ({
@@ -38,8 +36,7 @@ import RootLayout from "./layout";
 const originalConsoleError = console.error;
 beforeAll(() => {
   console.error = (...args: any[]) => {
-    if (typeof args[0] === "string" && args[0].includes("cannot be a child of"))
-      return;
+    if (typeof args[0] === "string" && args[0].includes("cannot be a child of")) return;
     originalConsoleError(...args);
   };
 });

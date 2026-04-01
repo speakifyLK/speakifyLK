@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -25,20 +19,13 @@ vi.mock("@/components/ui/dialog", () => ({
     open ? (
       <div data-testid="dialog" data-open={open}>
         {children}
-        <button
-          data-testid="dialog-close-trigger"
-          onClick={() => onOpenChange(false)}
-        >
+        <button data-testid="dialog-close-trigger" onClick={() => onOpenChange(false)}>
           trigger close
         </button>
       </div>
     ) : null,
-  DialogContent: ({ children }: any) => (
-    <div data-testid="dialog-content">{children}</div>
-  ),
-  DialogHeader: ({ children }: any) => (
-    <div data-testid="dialog-header">{children}</div>
-  ),
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
   DialogTitle: ({ children }: any) => <h2>{children}</h2>,
   DialogDescription: ({ children }: any) => <p>{children}</p>,
 }));
@@ -152,52 +139,31 @@ describe("QuizHistory", () => {
   });
 
   it("renders streak with correct pluralization (days)", () => {
-    render(
-      <QuizHistory
-        history={makeHistory()}
-        stats={makeStats({ quizStreak: 5 })}
-      />
-    );
+    render(<QuizHistory history={makeHistory()} stats={makeStats({ quizStreak: 5 })} />);
     expect(screen.getByText("days")).toBeInTheDocument();
   });
 
   it("renders streak with singular (day)", () => {
-    render(
-      <QuizHistory
-        history={makeHistory()}
-        stats={makeStats({ quizStreak: 1 })}
-      />
-    );
+    render(<QuizHistory history={makeHistory()} stats={makeStats({ quizStreak: 1 })} />);
     expect(screen.getByText("day")).toBeInTheDocument();
   });
 
   it("renders 'Declining' trend label", () => {
     render(
-      <QuizHistory
-        history={makeHistory()}
-        stats={makeStats({ improvementTrend: "declining" })}
-      />
+      <QuizHistory history={makeHistory()} stats={makeStats({ improvementTrend: "declining" })} />
     );
     expect(screen.getByText("Declining")).toBeInTheDocument();
   });
 
   it("renders 'Stable' trend label", () => {
     render(
-      <QuizHistory
-        history={makeHistory()}
-        stats={makeStats({ improvementTrend: "stable" })}
-      />
+      <QuizHistory history={makeHistory()} stats={makeStats({ improvementTrend: "stable" })} />
     );
     expect(screen.getByText("Stable")).toBeInTheDocument();
   });
 
   it("renders '—' when favourite topic is null", () => {
-    render(
-      <QuizHistory
-        history={makeHistory()}
-        stats={makeStats({ favouriteTopic: null })}
-      />
-    );
+    render(<QuizHistory history={makeHistory()} stats={makeStats({ favouriteTopic: null })} />);
     const dashes = screen.getAllByText("—");
     expect(dashes.length).toBeGreaterThan(0);
   });
@@ -249,9 +215,7 @@ describe("QuizHistory", () => {
 
   it("shows empty state when no history", () => {
     render(<QuizHistory history={[]} stats={makeStats()} />);
-    expect(
-      screen.getByText(/You haven't taken any AI quizzes yet/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/You haven't taken any AI quizzes yet/)).toBeInTheDocument();
     expect(screen.getByText("Showing last 0 sessions")).toBeInTheDocument();
   });
 
@@ -471,9 +435,7 @@ describe("QuizHistory", () => {
         expect(screen.getByText(/Hello\?/)).toBeInTheDocument();
         expect(screen.getByText(/Goodbye\?/)).toBeInTheDocument();
         // "Ayubowan" appears as both userAnswer and correctAnswer for Q1
-        expect(screen.getAllByText("Ayubowan").length).toBeGreaterThanOrEqual(
-          1
-        );
+        expect(screen.getAllByText("Ayubowan").length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText("No answer")).toBeInTheDocument();
         expect(screen.getByText(/Basic greeting/)).toBeInTheDocument();
         expect(screen.getByText("Correct")).toBeInTheDocument();
@@ -650,9 +612,7 @@ describe("QuizHistory", () => {
       await waitFor(() => {
         expect(screen.getByText("7 / 10")).toBeInTheDocument();
         // "intermediate" appears in both history list and dialog
-        expect(
-          screen.getAllByText("intermediate").length
-        ).toBeGreaterThanOrEqual(2);
+        expect(screen.getAllByText("intermediate").length).toBeGreaterThanOrEqual(2);
       });
     });
 
@@ -687,9 +647,7 @@ describe("QuizHistory", () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.getByText("Could not load this session.")
-          ).toBeInTheDocument();
+          expect(screen.getByText("Could not load this session.")).toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -716,9 +674,7 @@ describe("QuizHistory", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(
-            "Review how you answered each question compared to the correct answer."
-          )
+          screen.getByText("Review how you answered each question compared to the correct answer.")
         ).toBeInTheDocument();
       });
     });

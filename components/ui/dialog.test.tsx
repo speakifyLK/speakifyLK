@@ -15,9 +15,8 @@ import {
 
 // Make the Radix portal render inline so content is testable in jsdom
 vi.mock("@radix-ui/react-dialog", async () => {
-  const actual = await vi.importActual<typeof import("@radix-ui/react-dialog")>(
-    "@radix-ui/react-dialog"
-  );
+  const actual =
+    await vi.importActual<typeof import("@radix-ui/react-dialog")>("@radix-ui/react-dialog");
   return {
     ...actual,
     Portal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -238,11 +237,7 @@ describe("DialogContent", () => {
   it("merges custom className", () => {
     render(
       <Dialog defaultOpen>
-        <DialogContent
-          data-testid="content"
-          className="my-content"
-          aria-describedby={undefined}
-        >
+        <DialogContent data-testid="content" className="my-content" aria-describedby={undefined}>
           <DialogTitle>T</DialogTitle>
         </DialogContent>
       </Dialog>

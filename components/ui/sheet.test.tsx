@@ -15,9 +15,8 @@ import {
 
 // Make Radix portal render inline for testing
 vi.mock("@radix-ui/react-dialog", async () => {
-  const actual = await vi.importActual<typeof import("@radix-ui/react-dialog")>(
-    "@radix-ui/react-dialog"
-  );
+  const actual =
+    await vi.importActual<typeof import("@radix-ui/react-dialog")>("@radix-ui/react-dialog");
   return {
     ...actual,
     Portal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -85,11 +84,7 @@ describe("SheetContent variants (side)", () => {
     it(`renders with side="${side}"`, () => {
       render(
         <Sheet defaultOpen>
-          <SheetContent
-            side={side}
-            data-testid="content"
-            aria-describedby={undefined}
-          >
+          <SheetContent side={side} data-testid="content" aria-describedby={undefined}>
             <SheetTitle>T</SheetTitle>
           </SheetContent>
         </Sheet>
@@ -101,11 +96,7 @@ describe("SheetContent variants (side)", () => {
   it("merges custom className on content", () => {
     render(
       <Sheet defaultOpen>
-        <SheetContent
-          data-testid="content"
-          className="my-sheet"
-          aria-describedby={undefined}
-        >
+        <SheetContent data-testid="content" className="my-sheet" aria-describedby={undefined}>
           <SheetTitle>T</SheetTitle>
         </SheetContent>
       </Sheet>

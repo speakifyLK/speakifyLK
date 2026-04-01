@@ -84,26 +84,20 @@ describe("Card", () => {
   });
 
   it("applies sky styles when selected and status is none", () => {
-    const { container } = render(
-      <Card {...baseProps} selected={true} status="none" />
-    );
+    const { container } = render(<Card {...baseProps} selected={true} status="none" />);
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).toContain("border-sky-300");
     expect(outer.className).toContain("bg-sky-100");
   });
 
   it("applies green styles when selected and status is correct", () => {
-    const { container } = render(
-      <Card {...baseProps} selected={true} status="correct" />
-    );
+    const { container } = render(<Card {...baseProps} selected={true} status="correct" />);
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).toContain("border-green-300");
   });
 
   it("applies rose styles when selected and status is wrong", () => {
-    const { container } = render(
-      <Card {...baseProps} selected={true} status="wrong" />
-    );
+    const { container } = render(<Card {...baseProps} selected={true} status="wrong" />);
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).toContain("border-rose-300");
   });

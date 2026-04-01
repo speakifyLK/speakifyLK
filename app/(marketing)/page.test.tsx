@@ -2,18 +2,10 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 vi.mock("@clerk/nextjs", () => ({
-  ClerkLoaded: ({ children }: any) => (
-    <div data-testid="clerk-loaded">{children}</div>
-  ),
-  ClerkLoading: ({ children }: any) => (
-    <div data-testid="clerk-loading">{children}</div>
-  ),
-  SignedIn: ({ children }: any) => (
-    <div data-testid="signed-in">{children}</div>
-  ),
-  SignedOut: ({ children }: any) => (
-    <div data-testid="signed-out">{children}</div>
-  ),
+  ClerkLoaded: ({ children }: any) => <div data-testid="clerk-loaded">{children}</div>,
+  ClerkLoading: ({ children }: any) => <div data-testid="clerk-loading">{children}</div>,
+  SignedIn: ({ children }: any) => <div data-testid="signed-in">{children}</div>,
+  SignedOut: ({ children }: any) => <div data-testid="signed-out">{children}</div>,
   SignInButton: ({ children, mode }: any) => (
     <div data-testid="sign-in-button" data-mode={mode}>
       {children}
@@ -65,17 +57,13 @@ describe("Marketing Page", () => {
   it("renders the main heading text", () => {
     render(<MarketingPage />);
     expect(
-      screen.getByText(
-        "Learn, practice and master new languages with Speakify."
-      )
+      screen.getByText("Learn, practice and master new languages with Speakify.")
     ).toBeInTheDocument();
   });
 
   it("renders heading with correct classes", () => {
     render(<MarketingPage />);
-    const heading = screen.getByText(
-      "Learn, practice and master new languages with Speakify."
-    );
+    const heading = screen.getByText("Learn, practice and master new languages with Speakify.");
     expect(heading.tagName).toBe("H1");
     expect(heading).toHaveClass("text-xl", "font-bold", "text-neutral-600");
   });
@@ -126,9 +114,7 @@ describe("Marketing Page", () => {
 
   it("renders hero image container with correct responsive classes", () => {
     const { container } = render(<MarketingPage />);
-    const heroContainer = container.querySelector(
-      ".relative.mb-8.h-\\[240px\\].w-\\[240px\\]"
-    );
+    const heroContainer = container.querySelector(".relative.mb-8.h-\\[240px\\].w-\\[240px\\]");
     expect(heroContainer).toBeInTheDocument();
   });
 
