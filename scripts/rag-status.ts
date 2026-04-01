@@ -236,7 +236,20 @@ async function main(): Promise<void> {
   }
 
   console.log("\n" + "─".repeat(60));
-  console.log("   Run 'npm run rag:import:diff' to sync any missing files.\n");
+  if (gcsFetchOk && ragFetchOk) {
+    const notImported = gcsUris.filter((u) => !new Set(ragUris).has(u));
+    const orphaned = ragUris.filter((u) => !new Set(gcsUris).has(u));
+    if (notImported.length > 0) {
+      console.log("   Run 'npm run rag:import:diff' to import missing files.");
+    }
+    if (orphaned.length > 0) {
+      console.log("   Run 'npm run rag:import:force' to clean up and re-import all files.");
+    }
+    if (notImported.length === 0 && orphaned.length === 0) {
+      console.log("   Everything is up to date — no action needed.");
+    }
+  }
+  console.log("");
 }
 
 main().catch((err) => {
