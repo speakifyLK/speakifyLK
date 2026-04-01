@@ -32,9 +32,7 @@ test.describe("Sign-In Page — Layout & Header", () => {
     await expect(logoLink).toBeVisible({ timeout: 15000 });
   });
 
-  test("should have the GitHub source code link in header", async ({
-    page,
-  }) => {
+  test("should have the GitHub source code link in header", async ({ page }) => {
     // GitHub icon is rendered inside ClerkLoaded, so wait for Clerk
     const githubIcon = page.getByAltText("Source Code");
     await expect(githubIcon).toBeVisible({ timeout: 15000 });
@@ -57,9 +55,7 @@ test.describe("Sign-In Page — Clerk Form", () => {
     await expect(clerkForm).toBeVisible({ timeout: 20000 });
   });
 
-  test("page should not redirect away for unauthenticated users", async ({
-    page,
-  }) => {
+  test("page should not redirect away for unauthenticated users", async ({ page }) => {
     // The sign-in page is a public route — should remain accessible.
     // Wait for the Clerk form to render (deterministic signal that page is stable)
     const clerkForm = page.locator('[class*="cl-"]').first();
@@ -77,9 +73,7 @@ test.describe("Sign-In Page — Navigation", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("sign-in catch-all route should handle nested paths", async ({
-    page,
-  }) => {
+  test("sign-in catch-all route should handle nested paths", async ({ page }) => {
     // Clerk uses [[...sign-in]] catch-all route for multi-step flows
     const response = await page.goto("/sign-in");
     expect(response?.status()).toBe(200);

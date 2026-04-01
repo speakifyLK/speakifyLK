@@ -154,9 +154,7 @@ test.describe("Static Assets — Image Loading Performance", () => {
     await page.waitForFunction(
       () => {
         const imgs = document.querySelectorAll("img");
-        return Array.from(imgs).every(
-          (img) => img.complete && img.naturalWidth > 0
-        );
+        return Array.from(imgs).every((img) => img.complete && img.naturalWidth > 0);
       },
       { timeout: 30000 }
     );
