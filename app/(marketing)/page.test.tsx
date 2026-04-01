@@ -19,7 +19,7 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: ({ fill, priority, ...props }: any) => <img {...props} />,
+  default: ({ _fill, _priority, ...props }: any) => <img {...props} />,
 }));
 
 vi.mock("next/link", () => ({
