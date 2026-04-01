@@ -58,7 +58,7 @@ jobs:
         run: |
           set -o pipefail
           # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md|yml|yaml)$' || true)
+          CHANGED_FILES=$(git diff --diff-filter=d --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md|yml|yaml)$' || true)
 
           if [ -n "$CHANGED_FILES" ]; then
             echo "Formatting files:"

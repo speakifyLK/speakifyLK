@@ -46,6 +46,7 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
   };
 
   const onConfirmDelete = async () => {
+    /* v8 ignore next -- defensive guard; delete button only shown when deletingConv is set */
     if (!deletingConv) return;
 
     setIsDeleting(true);
@@ -101,7 +102,9 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
                 </Button>
               </div>
               <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(conv.updatedAt), { addSuffix: true })}
+                {formatDistanceToNow(new Date(conv.updatedAt), {
+                  addSuffix: true,
+                })}
               </span>
             </div>
           ))}
@@ -119,8 +122,9 @@ export const ConversationList = ({ conversations }: { conversations: Conversatio
           <DialogHeader>
             <DialogTitle>Delete conversation?</DialogTitle>
             <DialogDescription>
-              This will permanently delete &quot;{deletingConv?.title || "New Conversation"}&quot;
-              and all its messages. This action cannot be undone.
+              This will permanently delete &quot;
+              {deletingConv?.title || "New Conversation"}&quot; and all its messages. This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

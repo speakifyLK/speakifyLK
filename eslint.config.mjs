@@ -21,8 +21,22 @@ export default tseslint.config(
       // Allow unused variables/params when prefixed with _
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { varsIgnorePattern: "^_", argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+        {
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
       ],
+    },
+  },
+  // Relaxed rules for test files — mocks and test utilities legitimately use
+  // `any`, `require()` inside vi.mock factories, and raw `<img>` in stubs.
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@next/next/no-img-element": "off",
     },
   },
   // Ignore generated/build output and non-app tooling scripts
@@ -32,9 +46,10 @@ export default tseslint.config(
       ".next/**",
       "out/**",
       "build/**",
+      "coverage/**",
       "next-env.d.ts",
       "jira/**",
       "scripts/**",
     ],
-  },
+  }
 );

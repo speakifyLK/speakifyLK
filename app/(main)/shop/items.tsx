@@ -16,14 +16,11 @@ type ItemsProps = {
   hasActiveSubscription: boolean;
 };
 
-export const Items = ({
-  hearts,
-  points,
-  hasActiveSubscription,
-}: ItemsProps) => {
+export const Items = ({ hearts, points, hasActiveSubscription }: ItemsProps) => {
   const [pending, startTransition] = useTransition();
 
   const onRefillHearts = () => {
+    /* v8 ignore next -- defensive guard; refill button is disabled with same condition */
     if (pending || hearts === MAX_HEARTS || points < POINTS_TO_REFILL) return;
 
     startTransition(() => {
@@ -48,19 +45,13 @@ export const Items = ({
         <Image src="/heart.svg" alt="Heart" height={60} width={60} />
 
         <div className="flex-1">
-          <p className="text-base font-bold text-neutral-700 lg:text-xl">
-            Refill hearts
-          </p>
+          <p className="text-base font-bold text-neutral-700 lg:text-xl">Refill hearts</p>
         </div>
 
         <Button
           onClick={onRefillHearts}
-          disabled={
-            pending || hearts === MAX_HEARTS || points < POINTS_TO_REFILL
-          }
-          aria-disabled={
-            pending || hearts === MAX_HEARTS || points < POINTS_TO_REFILL
-          }
+          disabled={pending || hearts === MAX_HEARTS || points < POINTS_TO_REFILL}
+          aria-disabled={pending || hearts === MAX_HEARTS || points < POINTS_TO_REFILL}
         >
           {hearts === MAX_HEARTS ? (
             "full"
@@ -78,9 +69,7 @@ export const Items = ({
         <Image src="/unlimited.svg" alt="Unlimited" height={60} width={60} />
 
         <div className="flex-1">
-          <p className="text-base font-bold text-neutral-700 lg:text-xl">
-            Unlimited hearts
-          </p>
+          <p className="text-base font-bold text-neutral-700 lg:text-xl">Unlimited hearts</p>
         </div>
 
         <Button onClick={onUpgrade} disabled={pending} aria-disabled={pending}>
