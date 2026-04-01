@@ -64,6 +64,10 @@ describe("db/drizzle", () => {
     // Second access
     const secondAccess = db.select;
 
+    // Proxy returns the correct underlying properties
+    expect(firstAccess).toBe(fakeDb.query);
+    expect(secondAccess).toBe(fakeDb.select);
+
     // neon and drizzle should only be called once
     expect(mockNeon).toHaveBeenCalledTimes(1);
     expect(mockDrizzle).toHaveBeenCalledTimes(1);
