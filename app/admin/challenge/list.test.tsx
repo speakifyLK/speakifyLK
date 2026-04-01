@@ -5,18 +5,33 @@ vi.mock("react-admin", () => ({
   List: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="ra-list">{children}</div>
   ),
-  Datagrid: ({ children, rowClick }: { children: React.ReactNode; rowClick?: string }) => (
-    <table data-testid="ra-datagrid" data-row-click={rowClick}>
-      <tbody>{children}</tbody>
-    </table>
+  Datagrid: ({
+    children,
+    rowClick,
+  }: {
+    children: React.ReactNode;
+    rowClick?: string;
+  }) => (
+    <div data-testid="ra-datagrid" data-row-click={rowClick}>
+      {children}
+    </div>
   ),
   NumberField: (props: { source: string }) => (
-    <span data-testid={`ra-number-field-${props.source}`} data-source={props.source} />
+    <span
+      data-testid={`ra-number-field-${props.source}`}
+      data-source={props.source}
+    />
   ),
   TextField: (props: { source: string }) => (
-    <span data-testid={`ra-text-field-${props.source}`} data-source={props.source} />
+    <span
+      data-testid={`ra-text-field-${props.source}`}
+      data-source={props.source}
+    />
   ),
-  SelectField: (props: { source: string; choices?: { id: string; name: string }[] }) => (
+  SelectField: (props: {
+    source: string;
+    choices?: { id: string; name: string }[];
+  }) => (
     <span
       data-testid={`ra-select-field-${props.source}`}
       data-source={props.source}
@@ -48,12 +63,18 @@ describe("ChallengeList", () => {
 
   it('renders a NumberField for "id"', () => {
     render(<ChallengeList />);
-    expect(screen.getByTestId("ra-number-field-id")).toHaveAttribute("data-source", "id");
+    expect(screen.getByTestId("ra-number-field-id")).toHaveAttribute(
+      "data-source",
+      "id"
+    );
   });
 
   it('renders a TextField for "question"', () => {
     render(<ChallengeList />);
-    expect(screen.getByTestId("ra-text-field-question")).toHaveAttribute("data-source", "question");
+    expect(screen.getByTestId("ra-text-field-question")).toHaveAttribute(
+      "data-source",
+      "question"
+    );
   });
 
   it('renders a SelectField for "type" with SELECT and ASSIST choices', () => {
@@ -76,6 +97,9 @@ describe("ChallengeList", () => {
 
   it('renders a NumberField for "order"', () => {
     render(<ChallengeList />);
-    expect(screen.getByTestId("ra-number-field-order")).toHaveAttribute("data-source", "order");
+    expect(screen.getByTestId("ra-number-field-order")).toHaveAttribute(
+      "data-source",
+      "order"
+    );
   });
 });
