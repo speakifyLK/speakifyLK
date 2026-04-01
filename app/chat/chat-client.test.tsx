@@ -378,7 +378,6 @@ describe("ChatClient", () => {
       />
     );
 
-    await act(async () => {
       fireEvent.click(screen.getByTestId("send-btn"));
     });
 
