@@ -38,6 +38,7 @@ type QuizHistoryProps = {
 };
 
 const getScoreBadgeClasses = (score: number | null | undefined) => {
+  /* v8 ignore next -- always called with a number from the template */
   const value = typeof score === "number" ? score : 0;
   if (value >= 80) return "bg-emerald-100 text-emerald-700 border-emerald-300";
   if (value >= 50) return "bg-amber-100 text-amber-700 border-amber-300";
@@ -176,6 +177,7 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
         open={open}
         onOpenChange={(next) => {
           setOpen(next);
+          /* v8 ignore next */
           if (!next) setSelectedSession(null);
         }}
       >

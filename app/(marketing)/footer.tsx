@@ -13,6 +13,7 @@ export const Footer = () => {
             height={32}
             width={40}
             className="mr-4 rounded-md"
+            style={{ width: "auto", height: "auto" }}
           />
           Sinhala
         </Button>
@@ -24,6 +25,7 @@ export const Footer = () => {
             height={32}
             width={40}
             className="mr-4 rounded-md"
+            style={{ width: "auto", height: "auto" }}
           />
           Tamil
         </Button>

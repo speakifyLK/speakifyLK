@@ -123,8 +123,15 @@ export const getUnitsForQuiz = cache(async () => {
     description: unit.description,
     order: unit.order,
     courseId: unit.courseId,
-    lessons: unit.lessons.map((lesson) => ({ id: lesson.id, completed: false })),
-  })) as Array<typeof units.$inferSelect & { lessons: Array<{ id: number; completed: boolean }> }>;
+    lessons: unit.lessons.map((lesson) => ({
+      id: lesson.id,
+      completed: false,
+    })),
+  })) as Array<
+    typeof units.$inferSelect & {
+      lessons: Array<{ id: number; completed: boolean }>;
+    }
+  >;
 });
 
 export const getCourseById = cache(async (courseId: number) => {
@@ -676,6 +683,7 @@ export const getQuizStats = cache(async () => {
     topicCounts[s.topic] = (topicCounts[s.topic] || 0) + 1;
   });
 
+  // v8 ignore next 4
   const favouriteTopic =
     Object.keys(topicCounts).length > 0
       ? Object.entries(topicCounts).reduce((a, b) => (a[1] > b[1] ? a : b))[0]

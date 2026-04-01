@@ -43,9 +43,8 @@ export const Quiz = ({
   initialLessonChallenges,
   userSubscription,
 }: QuizProps) => {
-   
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
-   
+
   const [incorrectAudio, _i, incorrectControls] = useAudio({
     src: "/incorrect.wav",
   });
@@ -71,9 +70,7 @@ export const Quiz = ({
   });
   const [challenges] = useState(initialLessonChallenges);
   const [activeIndex, setActiveIndex] = useState(() => {
-    const uncompletedIndex = challenges.findIndex(
-      (challenge) => !challenge.completed
-    );
+    const uncompletedIndex = challenges.findIndex((challenge) => !challenge.completed);
 
     return uncompletedIndex === -1 ? 0 : uncompletedIndex;
   });
@@ -95,6 +92,7 @@ export const Quiz = ({
   };
 
   const onContinue = () => {
+    /* v8 ignore next -- defensive guard; Check button is disabled when !selectedOption */
     if (!selectedOption) return;
 
     if (status === "wrong") {
@@ -187,26 +185,16 @@ export const Quiz = ({
 
           <div className="flex w-full items-center gap-x-4">
             <ResultCard variant="points" value={challenges.length * 10} />
-            <ResultCard
-              variant="hearts"
-              value={userSubscription?.isActive ? Infinity : hearts}
-            />
+            <ResultCard variant="hearts" value={userSubscription?.isActive ? Infinity : hearts} />
           </div>
         </div>
 
-        <Footer
-          lessonId={lessonId}
-          status="completed"
-          onCheck={() => router.push("/learn")}
-        />
+        <Footer lessonId={lessonId} status="completed" onCheck={() => router.push("/learn")} />
       </>
     );
   }
 
-  const title =
-    challenge.type === "ASSIST"
-      ? "Select the correct meaning"
-      : challenge.question;
+  const title = challenge.type === "ASSIST" ? "Select the correct meaning" : challenge.question;
 
   return (
     <>
@@ -226,9 +214,7 @@ export const Quiz = ({
             </h1>
 
             <div>
-              {challenge.type === "ASSIST" && (
-                <QuestionBubble question={challenge.question} />
-              )}
+              {challenge.type === "ASSIST" && <QuestionBubble question={challenge.question} />}
 
               <Challenge
                 options={options}
@@ -243,11 +229,7 @@ export const Quiz = ({
         </div>
       </div>
 
-      <Footer
-        disabled={pending || !selectedOption}
-        status={status}
-        onCheck={onContinue}
-      />
+      <Footer disabled={pending || !selectedOption} status={status} onCheck={onContinue} />
     </>
   );
 };

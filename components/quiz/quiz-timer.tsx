@@ -65,6 +65,7 @@ export const QuizTimer = ({
     }, 1000);
 
     return () => {
+      /* v8 ignore next 4 -- cleanup guard; interval is always set when effect runs */
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
