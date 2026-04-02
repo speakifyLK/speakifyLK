@@ -41,7 +41,7 @@ describe("test-gcp-auth script", () => {
     process.env.GEMINI_MODEL = "gemini-pro";
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
@@ -57,7 +57,7 @@ describe("test-gcp-auth script", () => {
     process.env.GEMINI_MODEL = "gemini-pro";
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
