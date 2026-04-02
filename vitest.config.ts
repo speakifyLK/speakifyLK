@@ -23,7 +23,7 @@ export default defineConfig({
         "config/index.ts",
         "constants.ts",
         "middleware.ts",
-        "scripts/import-rag-files.ts",
+        "scripts/**",
       ],
       exclude: [
         "**/*.test.ts",
