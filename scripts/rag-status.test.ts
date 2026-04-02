@@ -231,7 +231,7 @@ describe("rag-status script", () => {
   // ── Error fetching corpus info ─────────────────────────────────────
 
   it("handles error fetching corpus info", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Corpus info fails
@@ -342,7 +342,7 @@ describe("rag-status script", () => {
 
   it("shows sync status unknown when both GCS and RagFiles fail", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Corpus succeeds
     fetchMock.mockResolvedValueOnce({
@@ -598,14 +598,16 @@ describe("rag-status script", () => {
   it("catches fatal errors in main()", async () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     let callCount = 0;
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {
+    vi.spyOn(console, "log").mockImplementation(() => {
       callCount++;
       // The 3rd log call is in main() after the header lines; throw to trigger .catch
       if (callCount === 3) {
         throw new Error("fatal log error");
       }
     });
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     await import("./rag-status");
     await flushPromises();
@@ -618,7 +620,7 @@ describe("rag-status script", () => {
   // ── Non-Error exceptions in catch blocks ───────────────────────────
 
   it("handles non-Error thrown from corpus info fetch", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Corpus info fetch rejects with a string (non-Error)
@@ -643,7 +645,7 @@ describe("rag-status script", () => {
   });
 
   it("handles non-Error thrown from GCS list", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Corpus info succeeds
@@ -671,7 +673,7 @@ describe("rag-status script", () => {
   });
 
   it("handles non-Error thrown from RagFiles list", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Corpus info succeeds

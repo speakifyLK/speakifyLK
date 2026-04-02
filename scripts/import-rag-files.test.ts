@@ -47,10 +47,12 @@ describe("import-rag-files script", () => {
   it("imports rag files successfully in force mode", async () => {
     process.argv.push("--force");
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 1, updatedAt: "", files: {} }));
+    mockFs.readFile.mockResolvedValue(
+      JSON.stringify({ version: 1, updatedAt: "", files: {} })
+    );
 
     fetchMock
       // 1. list GCS objects
@@ -237,7 +239,9 @@ describe("import-rag-files script", () => {
   it("handles GCS list API failure", async () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     // Response must be valid JSON so JSON.parse succeeds and !res.ok check is reached
     fetchMock.mockResolvedValueOnce({
@@ -259,7 +263,9 @@ describe("import-rag-files script", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS (valid)
@@ -286,10 +292,12 @@ describe("import-rag-files script", () => {
 
   it("handles import batch failure", async () => {
     process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS objects
@@ -357,7 +365,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS
@@ -378,7 +388,8 @@ describe("import-rag-files script", () => {
       // poll LRO: done with error
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify({ done: true, error: { message: "op failed" } }),
+        text: async () =>
+          JSON.stringify({ done: true, error: { message: "op failed" } }),
       });
 
     await import("./import-rag-files");
@@ -440,7 +451,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS
@@ -477,9 +490,11 @@ describe("import-rag-files script", () => {
   it("handles import operation with error field in done response", async () => {
     process.argv.push("--force");
     vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS
@@ -495,7 +510,8 @@ describe("import-rag-files script", () => {
       // import returns done with error
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify({ done: true, error: { message: "import err" } }),
+        text: async () =>
+          JSON.stringify({ done: true, error: { message: "import err" } }),
       });
 
     await import("./import-rag-files");
@@ -508,7 +524,9 @@ describe("import-rag-files script", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 2, files: "invalid" }));
+    mockFs.readFile.mockResolvedValue(
+      JSON.stringify({ version: 2, files: "invalid" })
+    );
 
     fetchMock
       // list GCS (must return items so readManifest is actually called)
@@ -537,7 +555,9 @@ describe("import-rag-files script", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 1, files: {} }));
+    mockFs.readFile.mockResolvedValue(
+      JSON.stringify({ version: 1, files: {} })
+    );
 
     fetchMock
       .mockResolvedValueOnce({
@@ -652,7 +672,8 @@ describe("import-rag-files script", () => {
       // list rag files page 2
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/2" }] }),
+        text: async () =>
+          JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/2" }] }),
       })
       // delete file 1
       .mockResolvedValueOnce({
@@ -767,9 +788,11 @@ describe("import-rag-files script", () => {
   it("handles delete operation with error field", async () => {
     process.argv.push("--force");
     vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS
@@ -791,7 +814,8 @@ describe("import-rag-files script", () => {
       // delete returns done with error
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify({ done: true, error: { message: "del failed" } }),
+        text: async () =>
+          JSON.stringify({ done: true, error: { message: "del failed" } }),
       });
 
     await import("./import-rag-files");
@@ -875,7 +899,10 @@ describe("import-rag-files script", () => {
         ok: true,
         text: async () =>
           JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: {} }, { name: "corpus/ragFiles/2" }],
+            ragFiles: [
+              { name: "corpus/ragFiles/1", gcsSource: {} },
+              { name: "corpus/ragFiles/2" },
+            ],
           }),
       })
       // import
@@ -912,7 +939,9 @@ describe("import-rag-files script", () => {
     process.env.GCP_PROJECT_ID = "";
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: true,
@@ -995,7 +1024,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS
@@ -1129,7 +1160,8 @@ describe("import-rag-files script", () => {
       // list rag files
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/1" }] }),
+        text: async () =>
+          JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/1" }] }),
       })
       // delete returns empty body (neither done nor LRO name)
       .mockResolvedValueOnce({ ok: true, text: async () => "" })
@@ -1180,7 +1212,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS (ok)
@@ -1242,7 +1276,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS (ok)
@@ -1435,7 +1471,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS (ok)
@@ -1592,7 +1630,9 @@ describe("import-rag-files script", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     fetchMock
       // list GCS
