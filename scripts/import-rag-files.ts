@@ -105,9 +105,7 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     body = text ? JSON.parse(text) : {};
   } catch {
-    throw new Error(
-      `Non-JSON response ${res.status} from ${url}: ${text.slice(0, 500)}`
-    );
+    throw new Error(`Non-JSON response ${res.status} from ${url}: ${text.slice(0, 500)}`);
   }
   if (!res.ok) {
     throw new Error(
@@ -144,10 +142,7 @@ async function waitForOperation(operationName: string): Promise<void> {
   }
 }
 
-async function listAllGcsObjects(
-  bucket: string,
-  prefix: string
-): Promise<GcsObjectMeta[]> {
+async function listAllGcsObjects(bucket: string, prefix: string): Promise<GcsObjectMeta[]> {
   const headers = await getAuthHeaders();
   const out: GcsObjectMeta[] = [];
   let pageToken: string | undefined;
@@ -173,10 +168,7 @@ async function listAllGcsObjects(
     for (const it of items) {
       if (!it.name) continue;
       const fingerprint =
-        it.md5Hash ??
-        (it.crc32c != null
-          ? `crc32c:${it.crc32c}`
-          : `gen:${it.generation ?? ""}`);
+        it.md5Hash ?? (it.crc32c != null ? `crc32c:${it.crc32c}` : `gen:${it.generation ?? ""}`);
       if (!fingerprint) continue;
       out.push({ gsUri: `gs://${bucket}/${it.name}`, md5Hash: fingerprint });
     }
@@ -191,9 +183,7 @@ type RagFile = RagFileStatus;
  * Vertex may omit chunk counts on ListRagFiles; try ListRagChunks under each RagFile.
  * Returns null if the endpoint is unavailable or the call fails.
  */
-async function listRagChunkCountForFile(
-  ragFileResourceName: string
-): Promise<number | null> {
+async function listRagChunkCountForFile(ragFileResourceName: string): Promise<number | null> {
   const base = getAiplatformBase();
   let total = 0;
   let pageToken: string | undefined;
@@ -322,9 +312,7 @@ async function readManifest(): Promise<ImportManifest> {
     return {
       version: 1,
       updatedAt:
-        typeof parsed.updatedAt === "string"
-          ? parsed.updatedAt
-          : new Date(0).toISOString(),
+        typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
       files: files as ImportManifest["files"],
     };
   } catch {
@@ -344,9 +332,7 @@ function buildManifest(
     files[o.gsUri] = {
       md5: o.md5Hash,
       /* v8 ignore start -- V8 optional-chaining / nullish-coalescing branch artifact */
-      lastImportedAt: importedUris.has(o.gsUri)
-        ? importTime
-        : (prev?.lastImportedAt ?? importTime),
+      lastImportedAt: importedUris.has(o.gsUri) ? importTime : (prev?.lastImportedAt ?? importTime),
       /* v8 ignore stop */
     };
   }
@@ -372,11 +358,7 @@ async function writeManifest(m: ImportManifest): Promise<void> {
   const manifestFilePath = manifestPath();
   const manifestDir = path.dirname(manifestFilePath);
   await fs.mkdir(manifestDir, { recursive: true });
-  await fs.writeFile(
-    manifestFilePath,
-    JSON.stringify(m, null, 2) + "\n",
-    "utf8"
-  );
+  await fs.writeFile(manifestFilePath, JSON.stringify(m, null, 2) + "\n", "utf8");
 }
 
 async function printRagStatus(): Promise<void> {
@@ -393,9 +375,7 @@ export function isExecutedAsCli(): boolean {
   const runPath = process.argv[1];
   if (!runPath) return false;
   try {
-    return (
-      path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url))
-    );
+    return path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url));
   } catch {
     /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
     return false;
@@ -433,12 +413,8 @@ export async function main(): Promise<void> {
   if (force) {
     await deleteAllRagFiles();
   } else if (diff) {
-    toImport = objects.filter(
-      (o) => manifest.files[o.gsUri]?.md5 !== o.md5Hash
-    );
-    console.log(
-      `--diff: ${toImport.length} file(s) changed or new (of ${objects.length}).`
-    );
+    toImport = objects.filter((o) => manifest.files[o.gsUri]?.md5 !== o.md5Hash);
+    console.log(`--diff: ${toImport.length} file(s) changed or new (of ${objects.length}).`);
     if (!toImport.length) {
       console.log("Manifest is up to date. No import needed.");
       const importTime = new Date().toISOString();
