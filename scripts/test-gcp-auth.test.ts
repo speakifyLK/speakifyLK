@@ -42,9 +42,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();
@@ -60,9 +58,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();
@@ -81,9 +77,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();
@@ -184,9 +178,7 @@ describe("test-gcp-auth script", () => {
     await flushPromises();
 
     const warnOutput = warnSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(warnOutput).toContain(
-      "Streamed response did not contain expected text"
-    );
+    expect(warnOutput).toContain("Streamed response did not contain expected text");
   });
 
   // ── generateContent error ──
@@ -207,9 +199,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();
@@ -234,9 +224,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();
@@ -270,9 +258,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();
@@ -302,9 +288,7 @@ describe("test-gcp-auth script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gcp-auth");
     await flushPromises();

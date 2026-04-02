@@ -62,9 +62,7 @@ describe("test-content-formatter script", () => {
           "Challenge Types: SELECT, ASSIST",
         ].join("\n")
       )
-      .mockReturnValueOnce(
-        ["Total Challenges: 0", "No challenges available"].join("\n")
-      );
+      .mockReturnValueOnce(["Total Challenges: 0", "No challenges available"].join("\n"));
 
     // formatCourseManifest called twice: once for full, once for empty
     formatCourseManifestMock
@@ -100,9 +98,7 @@ describe("test-content-formatter script", () => {
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter");
     await flushPromises();

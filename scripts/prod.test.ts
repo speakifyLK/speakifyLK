@@ -47,9 +47,7 @@ describe("prod script", () => {
     vi.restoreAllMocks();
     deleteMock.mockReset().mockReturnValue(Promise.resolve());
     insertMock.mockReset().mockReturnValue({ values: insertValuesMock });
-    insertValuesMock
-      .mockReset()
-      .mockReturnValue({ returning: insertReturnMock });
+    insertValuesMock.mockReset().mockReturnValue({ returning: insertReturnMock });
 
     courseId = 0;
     unitId = 0;
@@ -72,9 +70,7 @@ describe("prod script", () => {
     insertValuesMock.mockImplementation(() => ({
       returning: insertReturnMock,
     }));
-    insertReturnMock.mockImplementation(() =>
-      Promise.resolve([{ id: ++courseId }])
-    );
+    insertReturnMock.mockImplementation(() => Promise.resolve([{ id: ++courseId }]));
 
     process.env.DATABASE_URL = "postgres://test:test@localhost/test";
   });

@@ -63,9 +63,7 @@ describe("test-content-formatter-integration script", () => {
     findFirstMock.mockResolvedValue(null);
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter-integration");
     await flushPromises();
@@ -116,9 +114,7 @@ describe("test-content-formatter-integration script", () => {
     });
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter-integration");
     await flushPromises();
@@ -153,9 +149,7 @@ describe("test-content-formatter-integration script", () => {
     });
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter-integration");
     await flushPromises();
@@ -173,9 +167,7 @@ describe("test-content-formatter-integration script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter-integration");
     await flushPromises();
@@ -191,9 +183,7 @@ describe("test-content-formatter-integration script", () => {
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter-integration");
     await flushPromises();
