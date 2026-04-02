@@ -346,23 +346,17 @@ describe("buildQuizPrompt — with ragContext", () => {
 
   it("MULTIPLE_CHOICE prompt includes COURSE CONTENT instruction", () => {
     const prompt = buildQuizPrompt("MULTIPLE_CHOICE", baseParams);
-    expect(prompt).toContain(
-      "Use ONLY the following course content to generate questions"
-    );
+    expect(prompt).toContain("Use ONLY the following course content to generate questions");
   });
 
   it("FILL_IN_BLANK prompt includes COURSE CONTENT instruction", () => {
     const prompt = buildQuizPrompt("FILL_IN_BLANK", baseParams);
-    expect(prompt).toContain(
-      "Use ONLY the following course content to generate questions"
-    );
+    expect(prompt).toContain("Use ONLY the following course content to generate questions");
   });
 
   it("TRANSLATION prompt includes COURSE CONTENT instruction", () => {
     const prompt = buildQuizPrompt("TRANSLATION", baseParams);
-    expect(prompt).toContain(
-      "Use ONLY the following course content to generate questions"
-    );
+    expect(prompt).toContain("Use ONLY the following course content to generate questions");
   });
 
   // ── RAG chunks are embedded verbatim ──
@@ -379,7 +373,9 @@ describe("buildQuizPrompt — with ragContext", () => {
 
   it("instructs Gemini to reference specific source content", () => {
     const prompt = buildQuizPrompt("MULTIPLE_CHOICE", baseParams);
-    expect(prompt).toContain("Each question MUST reference specific content from the sources above");
+    expect(prompt).toContain(
+      "Each question MUST reference specific content from the sources above"
+    );
     expect(prompt).toContain("Do not invent facts, vocabulary, or sentences");
   });
 
@@ -390,9 +386,7 @@ describe("buildQuizPrompt — with ragContext", () => {
     expect(prompt).toContain(
       "source and target text for each translation MUST come from actual vocabulary"
     );
-    expect(prompt).toContain(
-      "Do not invent words or phrases that are not in the sources"
-    );
+    expect(prompt).toContain("Do not invent words or phrases that are not in the sources");
   });
 
   it("MULTIPLE_CHOICE prompt does NOT include translation vocabulary constraint", () => {
