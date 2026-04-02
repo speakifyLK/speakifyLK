@@ -182,7 +182,6 @@ describe("test-content-formatter-integration script", () => {
     findFirstMock.mockRejectedValue("string-error");
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-content-formatter-integration");
