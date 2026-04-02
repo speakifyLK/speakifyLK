@@ -53,7 +53,7 @@ describe("test-gemini script", () => {
     generateContentMock.mockRejectedValue(err);
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-gemini");
