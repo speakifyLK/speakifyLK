@@ -1,10 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import {
-  displayImportState,
-  formatBytes,
-  printRagStatus,
-} from "../../lib/rag-import-status";
+import { displayImportState, formatBytes, printRagStatus } from "../../lib/rag-import-status";
 
 export function getRagStatusNpmScript(): string {
   const pkgPath = path.join(process.cwd(), "package.json");

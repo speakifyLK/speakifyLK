@@ -85,9 +85,7 @@ describe("extractChunkCountFromObject", () => {
   });
 
   it("reads from one nested object", () => {
-    expect(
-      extractChunkCountFromObject({ meta: { indexedChunkCount: 4 }, other: 1 })
-    ).toBe(4);
+    expect(extractChunkCountFromObject({ meta: { indexedChunkCount: 4 }, other: 1 })).toBe(4);
   });
 
   it("returns undefined beyond depth 1 nesting for chunk keys", () => {
@@ -117,11 +115,15 @@ describe("readFileStatusFields", () => {
   });
 
   it("reads camelCase and snake_case errors", () => {
+    expect(readFileStatusFields({ state: "ERROR", errorStatus: "  boom  " })).toEqual({
+      state: "ERROR",
+      errorMessage: "boom",
+    });
     expect(
-      readFileStatusFields({ state: "ERROR", errorStatus: "  boom  " })
-    ).toEqual({ state: "ERROR", errorMessage: "boom" });
-    expect(
-      readFileStatusFields({ state: "ERROR", error_status: "snake" } as unknown as RagFileStatus["fileStatus"])
+      readFileStatusFields({
+        state: "ERROR",
+        error_status: "snake",
+      } as unknown as RagFileStatus["fileStatus"])
     ).toEqual({ state: "ERROR", errorMessage: "snake" });
   });
 

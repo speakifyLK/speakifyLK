@@ -68,8 +68,7 @@ describe("import-rag-files CLI (status mode)", () => {
   });
 
   it("aggregates paginated ragChunks for chunk counts", async () => {
-    const rf =
-      "projects/proj/locations/us-central1/ragCorpora/corpus1/ragFiles/file-a";
+    const rf = "projects/proj/locations/us-central1/ragCorpora/corpus1/ragFiles/file-a";
     globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input.toString();
       if (url.includes("/ragFiles?") && !url.includes("ragChunks")) {
@@ -86,9 +85,7 @@ describe("import-rag-files CLI (status mode)", () => {
         );
       }
       if (url.includes("/ragChunks") && !url.includes("pageToken")) {
-        return Promise.resolve(
-          jsonResponse({ ragChunks: [{ id: "1" }], nextPageToken: "t2" })
-        );
+        return Promise.resolve(jsonResponse({ ragChunks: [{ id: "1" }], nextPageToken: "t2" }));
       }
       if (url.includes("pageToken=t2")) {
         return Promise.resolve(jsonResponse({ ragChunks: [{ id: "2" }, { id: "3" }] }));
@@ -104,8 +101,7 @@ describe("import-rag-files CLI (status mode)", () => {
   });
 
   it("marks chunk totals partial when ragChunks request fails", async () => {
-    const rf =
-      "projects/proj/locations/us-central1/ragCorpora/corpus1/ragFiles/file-b";
+    const rf = "projects/proj/locations/us-central1/ragCorpora/corpus1/ragFiles/file-b";
     globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input.toString();
       if (url.includes("/ragFiles?") && !url.includes("ragChunks")) {
@@ -167,5 +163,4 @@ describe("isExecutedAsCli", () => {
     process.argv = ["node", path.join(process.cwd(), "package.json")];
     expect(isExecutedAsCliExport?.()).toBe(false);
   });
-
 });

@@ -20,7 +20,10 @@ dotenv.config();
 dotenv.config({ path: ".env.local", override: true });
 
 import { getAuthHeaders } from "../lib/gcp-auth";
-import { printRagStatus as printRagStatusReport, type RagFileStatus } from "../lib/rag-import-status";
+import {
+  printRagStatus as printRagStatusReport,
+  type RagFileStatus,
+} from "../lib/rag-import-status";
 
 const MANIFEST_FILENAME = path.join("tmp", ".rag-import-manifest.json");
 const CHUNK_SIZE = 512;
