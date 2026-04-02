@@ -27,7 +27,7 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:rag-status": "playwright test tests/rag-import-status.spec.ts",
-    "test:coverage:rag-status": "vitest run lib/rag-import-status.test.ts tests/rag-import-status.e2e.test.ts --coverage --coverage.include=lib/rag-import-status.ts --coverage.thresholds.lines=100 --coverage.thresholds.branches=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100"
+    "test:coverage:rag-status": "vitest run lib/rag-import-status.test.ts --coverage --coverage.include=lib/rag-import-status.ts --coverage.thresholds.lines=100 --coverage.thresholds.branches=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.12",

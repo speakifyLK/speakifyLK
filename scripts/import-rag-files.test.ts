@@ -26,7 +26,7 @@ describe("import-rag-files CLI (status mode)", () => {
   let main: () => Promise<void>;
 
   beforeAll(async () => {
-    const mod = await import("./import-rag-files.ts");
+    const mod = await import("./import-rag-files");
     main = mod.main;
   });
 
@@ -138,6 +138,16 @@ describe("import-rag-files CLI (status mode)", () => {
 describe("isExecutedAsCli", () => {
   const originalArgv = process.argv.slice();
 
+  let isExecutedAsCliExport: (() => boolean) | undefined;
+
+  beforeAll(async () => {
+    // Import once while argv[1] definitely does NOT equal the script path,
+    // so the module's CLI auto-run guard is not satisfied during import.
+    process.argv = ["node", path.join(process.cwd(), "some-other-entry.js")];
+    const mod = await import("./import-rag-files");
+    isExecutedAsCliExport = mod.isExecutedAsCli;
+  });
+
   afterEach(() => {
     process.argv = originalArgv.slice();
     vi.restoreAllMocks();
@@ -145,20 +155,17 @@ describe("isExecutedAsCli", () => {
 
   it("returns true when argv[1] resolves to this script path", async () => {
     process.argv = ["node", scriptEntryPath];
-    const { isExecutedAsCli } = await import("./import-rag-files.ts");
-    expect(isExecutedAsCli()).toBe(true);
+    expect(isExecutedAsCliExport?.()).toBe(true);
   });
 
   it("returns false without argv[1]", async () => {
     process.argv = ["node"];
-    const { isExecutedAsCli } = await import("./import-rag-files.ts");
-    expect(isExecutedAsCli()).toBe(false);
+    expect(isExecutedAsCliExport?.()).toBe(false);
   });
 
   it("returns false for a different entry script", async () => {
     process.argv = ["node", path.join(process.cwd(), "package.json")];
-    const { isExecutedAsCli } = await import("./import-rag-files.ts");
-    expect(isExecutedAsCli()).toBe(false);
+    expect(isExecutedAsCliExport?.()).toBe(false);
   });
 
 });

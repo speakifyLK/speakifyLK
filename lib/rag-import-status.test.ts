@@ -121,13 +121,13 @@ describe("readFileStatusFields", () => {
       readFileStatusFields({ state: "ERROR", errorStatus: "  boom  " })
     ).toEqual({ state: "ERROR", errorMessage: "boom" });
     expect(
-      readFileStatusFields({ state: "ERROR", error_status: "snake" })
+      readFileStatusFields({ state: "ERROR", error_status: "snake" } as unknown as RagFileStatus["fileStatus"])
     ).toEqual({ state: "ERROR", errorMessage: "snake" });
   });
 
   it("ignores non-string state values", () => {
     expect(
-      readFileStatusFields({ state: 1, errorStatus: "e" } as RagFileStatus["fileStatus"])
+      readFileStatusFields({ state: 1, errorStatus: "e" } as unknown as RagFileStatus["fileStatus"])
     ).toEqual({ state: undefined, errorMessage: "e" });
   });
 });
