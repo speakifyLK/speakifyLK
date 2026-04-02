@@ -9,7 +9,7 @@ import {
 /**
  * End-to-end contract tests for the RAG corpus status feature (`npm run rag:status`).
  * Shared assertions live in `tests/helpers/rag-status-e2e-shared.ts`, mirrored by
- * `tests/rag-import-status.e2e.test.ts` for Vitest coverage.
+ * `lib/rag-import-status.test.ts` for Vitest coverage.
  */
 test.describe("RAG corpus status (rag:status)", () => {
   test("package.json wires rag:status to import-rag-files.ts with --status", () => {
