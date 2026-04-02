@@ -1,10 +1,22 @@
 // @vitest-environment node
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from "vitest";
+import path from "node:path";
 
-const fetchMock = vi.fn();
-global.fetch = fetchMock;
+/* ------------------------------------------------------------------ */
+/*  Hoisted mocks                                                     */
+/* ------------------------------------------------------------------ */
+
+const { mockGetAuthHeaders, mockPrintRagStatusReport } = vi.hoisted(() => ({
+  mockGetAuthHeaders: vi.fn().mockResolvedValue({ Authorization: "Bearer test-token" }),
+  mockPrintRagStatusReport: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("../lib/gcp-auth", () => ({
-  getAuthHeaders: vi.fn().mockResolvedValue({ Authorization: "Bearer test" }),
+  getAuthHeaders: mockGetAuthHeaders,
+}));
+
+vi.mock("../lib/rag-import-status", () => ({
+  printRagStatus: mockPrintRagStatusReport,
 }));
 
 const mockFs = {
@@ -12,1611 +24,1136 @@ const mockFs = {
   writeFile: vi.fn(),
   mkdir: vi.fn(),
 };
-
 vi.mock("node:fs/promises", () => mockFs);
-const flushPromises = () => new Promise<void>((r) => setTimeout(r, 200));
 
-describe("import-rag-files script", () => {
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                           */
+/* ------------------------------------------------------------------ */
+
+function jsonResponse(data: unknown, ok = true, status?: number): Response {
+  return new Response(JSON.stringify(data), {
+    status: status ?? (ok ? 200 : 500),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function gcsListResponse(
+  items: {
+    name?: string;
+    md5Hash?: string;
+    crc32c?: string;
+    generation?: string;
+  }[],
+  nextPageToken?: string
+) {
+  return jsonResponse({ items, ...(nextPageToken ? { nextPageToken } : {}) });
+}
+
+function ragFilesResponse(ragFiles: Record<string, unknown>[], nextPageToken?: string) {
+  return jsonResponse({
+    ragFiles,
+    ...(nextPageToken ? { nextPageToken } : {}),
+  });
+}
+
+function opDone(error?: unknown) {
+  return jsonResponse({ done: true, ...(error ? { error } : {}) });
+}
+
+function opPending(name?: string) {
+  return jsonResponse(name ? { name } : {});
+}
+
+const scriptEntryPath = path.resolve(process.cwd(), "scripts/import-rag-files.ts");
+
+/* ------------------------------------------------------------------ */
+/*  Test suite                                                        */
+/* ------------------------------------------------------------------ */
+
+describe("import-rag-files", () => {
+  const savedArgv = process.argv.slice();
   const savedEnv = { ...process.env };
-  const savedArgv = [...process.argv];
+  const originalFetch = globalThis.fetch;
+
+  let main: () => Promise<void>;
+  let isExecutedAsCli: () => boolean;
+
+  beforeAll(async () => {
+    const mod = await import("./import-rag-files");
+    main = mod.main;
+    isExecutedAsCli = mod.isExecutedAsCli;
+  });
 
   beforeEach(() => {
-    vi.resetModules();
-    vi.restoreAllMocks();
-    fetchMock.mockReset();
-    mockFs.readFile.mockRejectedValue(new Error("enoent"));
-    mockFs.writeFile.mockResolvedValue(undefined);
-    mockFs.mkdir.mockResolvedValue(undefined);
-
-    process.env.GCP_PROJECT_ID = "pid";
-    process.env.GCP_LOCATION = "loc";
-    process.env.RAG_CORPUS_ID = "rag_id";
+    process.env.GCP_PROJECT_ID = "proj";
+    process.env.GCP_LOCATION = "us-central1";
+    process.env.RAG_CORPUS_ID = "corpus1";
     process.env.GOOGLE_SERVICE_ACCOUNT_KEY = JSON.stringify({
-      type: "service",
-      project_id: "test",
-      private_key: "pk",
+      type: "service_account",
+      project_id: "proj",
     });
-    process.argv = [...savedArgv.slice(0, 2)];
+    process.env.RAG_CONTENT_BUCKET = "";
+    process.env.RAG_GCS_PREFIX = "";
+    process.env.RAG_OP_TIMEOUT_MS = "";
+
+    process.argv = ["node", scriptEntryPath];
+
+    mockGetAuthHeaders.mockClear();
+    mockPrintRagStatusReport.mockClear();
+    mockFs.readFile.mockReset().mockRejectedValue(new Error("ENOENT"));
+    mockFs.writeFile.mockReset().mockResolvedValue(undefined);
+    mockFs.mkdir.mockReset().mockResolvedValue(undefined);
+
+    globalThis.fetch = vi.fn() as typeof fetch;
   });
 
   afterEach(() => {
+    process.argv = savedArgv.slice();
     process.env = { ...savedEnv };
-    process.argv = savedArgv;
+    globalThis.fetch = originalFetch;
+    vi.restoreAllMocks();
   });
 
-  it("imports rag files successfully in force mode", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  const fetchMock = () => globalThis.fetch as ReturnType<typeof vi.fn>;
 
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 1, updatedAt: "", files: {} }));
+  /* ======== --status mode ======== */
 
-    fetchMock
-      // 1. list GCS objects
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/file.json", md5Hash: "hash1" }],
-          }),
-      })
-      // 2. list rag files (for deletion in force mode)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }],
-          }),
-      })
-      // 3. delete rag file
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      })
-      // 4. import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Listing gs://");
-    expect(output).toContain("Importing batch 1 (1 file(s))");
-    expect(mockFs.writeFile).toHaveBeenCalled();
-  });
-
-  it("handles no objects found in GCS", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({}),
+  describe("--status mode", () => {
+    it("delegates to printRagStatusReport", async () => {
+      process.argv = ["node", scriptEntryPath, "--status"];
+      await main();
+      expect(mockPrintRagStatusReport).toHaveBeenCalledTimes(1);
+      const deps = mockPrintRagStatusReport.mock.calls[0][0];
+      expect(deps.corpusParent).toBe("projects/proj/locations/us-central1/ragCorpora/corpus1");
+      expect(typeof deps.listRagFiles).toBe("function");
+      expect(typeof deps.listChunkCount).toBe("function");
+      expect(typeof deps.log).toBe("function");
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("warns when --status is combined with --force", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      process.argv = ["node", scriptEntryPath, "--status", "--force"];
+      await main();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("--status ignores"));
+    });
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("No objects found");
+    it("warns when --status is combined with --diff", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      process.argv = ["node", scriptEntryPath, "--status", "--diff"];
+      await main();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("--status ignores"));
+    });
+
+    it("warns when --status combined with both --force and --diff", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      process.argv = ["node", scriptEntryPath, "--status", "--force", "--diff"];
+      await main();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("--status ignores"));
+      expect(mockPrintRagStatusReport).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it("runs in diff mode with changed files", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== No-flags (default) import ======== */
 
-    // Existing manifest has file with old hash
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {
-          "gs://speakifylk-rag-content/rag-content/file.json": {
-            md5: "old-hash",
-            lastImportedAt: "2024-01-01",
-          },
-        },
-      })
-    );
+  describe("default (no flags) import", () => {
+    it("imports all GCS objects successfully", async () => {
+      vi.spyOn(console, "log").mockImplementation(() => {});
 
-    fetchMock
-      // 1. list GCS objects (file has new hash)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/file.json", md5Hash: "new-hash" }],
-          }),
-      })
-      // 2. list rag files for deleteRagFilesForUris
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [
-              {
-                name: "corpus/ragFiles/1",
-                gcsSource: {
-                  uris: ["gs://speakifylk-rag-content/rag-content/file.json"],
-                },
-              },
-            ],
-          }),
-      })
-      // 3. delete stale rag file
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      })
-      // 4. import batch
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/a.json", md5Hash: "h1" }]))
+        .mockResolvedValueOnce(opDone()); // import batch
 
-    await import("./import-rag-files");
-    await flushPromises();
+      await main();
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("--diff");
-    expect(output).toContain("1 file(s) changed");
-    expect(output).toContain("removing stale RagFile");
+      expect(mockFs.writeFile).toHaveBeenCalled();
+    });
+
+    it("logs 'No objects found' when GCS returns empty", async () => {
+      const log = vi.spyOn(console, "log").mockImplementation(() => {});
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+
+      expect(log).toHaveBeenCalledWith("No objects found under prefix. Nothing to import.");
+    });
+
+    it("uses default bucket and prefix", async () => {
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+
+      const url = (fetchMock() as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(url).toContain("speakifylk-rag-content");
+      expect(url).toContain("prefix=rag-content%2F");
+    });
   });
 
-  it("skips import in diff mode when manifest is up to date", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== --force mode ======== */
 
-    // Manifest has same hash
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {
-          "gs://speakifylk-rag-content/rag-content/file.json": {
-            md5: "same-hash",
-            lastImportedAt: "2024-01-01",
-          },
-        },
-      })
-    );
+  describe("--force mode", () => {
+    beforeEach(() => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    });
 
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () =>
+    it("deletes all rag files then imports", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h1" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }])
+        )
+        .mockResolvedValueOnce(opDone()) // delete
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      expect(mockFs.writeFile).toHaveBeenCalled();
+    });
+
+    it("warns when combined with --diff", async () => {
+      process.argv = ["node", scriptEntryPath, "--force", "--diff"];
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({})) // list rag files (empty)
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("--diff is ignored"));
+    });
+
+    it("skips rag files with no name in deleteAllRagFiles", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([
+            { gcsSource: { uris: [] } }, // no name — skipped
+            { name: "corpus/ragFiles/1", gcsSource: { uris: [] } },
+          ])
+        )
+        .mockResolvedValueOnce(opDone()) // delete file 1
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      // Only 1 delete call should have been made (skipped the unnamed one)
+      const calls = (fetchMock() as ReturnType<typeof vi.fn>).mock.calls;
+      const deleteCalls = calls.filter(
+        (c: unknown[]) =>
+          typeof c[1] === "object" &&
+          c[1] !== null &&
+          (c[1] as Record<string, unknown>).method === "DELETE"
+      );
+      expect(deleteCalls.length).toBe(1);
+    });
+
+    it("handles paginated rag files in deleteAllRagFiles", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(ragFilesResponse([{ name: "corpus/ragFiles/1" }], "p2"))
+        .mockResolvedValueOnce(ragFilesResponse([{ name: "corpus/ragFiles/2" }]))
+        .mockResolvedValueOnce(opDone()) // delete 1
+        .mockResolvedValueOnce(opDone()) // delete 2
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("Deleting 2 existing RagFile");
+    });
+
+    it("handles delete returning an LRO", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }])
+        )
+        .mockResolvedValueOnce(opPending("operations/del-1")) // delete LRO
+        .mockResolvedValueOnce(opDone()) // poll delete
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+    });
+
+    it("handles delete returning empty body (no LRO, not done)", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(ragFilesResponse([{ name: "corpus/ragFiles/1" }]))
+        .mockResolvedValueOnce(new Response("", { status: 200 })) // delete: empty body
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+    });
+
+    it("throws on delete API error", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }])
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ error: "delete failed" }), {
+            status: 500,
+          })
+        );
+
+      await expect(main()).rejects.toThrow("DELETE ragFile");
+    });
+
+    it("throws on delete operation done with error", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }])
+        )
+        .mockResolvedValueOnce(opDone({ message: "del failed" }));
+
+      await expect(main()).rejects.toThrow("Delete failed");
+    });
+
+    it("handles import returning an LRO", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({})) // list rag files empty
+        .mockResolvedValueOnce(opPending("operations/imp-1")) // import LRO
+        .mockResolvedValueOnce(opDone()); // poll
+
+      await main();
+    });
+
+    it("throws on import done with error", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({})) // list rag files
+        .mockResolvedValueOnce(opDone({ message: "import err" }));
+
+      await expect(main()).rejects.toThrow("Import failed");
+    });
+
+    it("throws on import API error status", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ error: "bad" }), { status: 500 }));
+
+      await expect(main()).rejects.toThrow("import");
+    });
+
+    it("logs batch failure with ❌ before re-throwing", async () => {
+      const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ error: "bad" }), { status: 500 }));
+
+      await expect(main()).rejects.toThrow();
+      expect(errSpy).toHaveBeenCalledWith("  ❌ Batch 1 failed");
+    });
+
+    it("writes manifest with correct entries after import", async () => {
+      mockFs.readFile.mockResolvedValue(
         JSON.stringify({
-          items: [{ name: "rag-content/file.json", md5Hash: "same-hash" }],
-        }),
+          version: 1,
+          updatedAt: "2024-01-01",
+          files: {
+            "gs://speakifylk-rag-content/rag-content/existing.json": {
+              md5: "old",
+              lastImportedAt: "2024-01-01",
+            },
+          },
+        })
+      );
+
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([
+            { name: "rag-content/existing.json", md5Hash: "old" },
+            { name: "rag-content/new.json", md5Hash: "new" },
+          ])
+        )
+        .mockResolvedValueOnce(jsonResponse({})) // list rag files (empty)
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      const writeCall = mockFs.writeFile.mock.calls[0];
+      const manifest = JSON.parse(writeCall[1] as string);
+      expect(Object.keys(manifest.files).length).toBe(2);
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("produces 'Done.' with correct entry count (singular)", async () => {
+      const log = vi.mocked(console.log);
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Manifest is up to date");
-    expect(mockFs.writeFile).toHaveBeenCalled();
-  });
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opDone());
 
-  it("warns when --force and --diff are combined", async () => {
-    process.argv.push("--force", "--diff");
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+      await main();
 
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files for delete
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = warnSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("--force");
-    expect(output).toContain("--diff is ignored");
-  });
-
-  it("handles GCS list API failure", async () => {
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    // Response must be valid JSON so JSON.parse succeeds and !res.ok check is reached
-    fetchMock.mockResolvedValueOnce({
-      ok: false,
-      status: 403,
-      text: async () => JSON.stringify({ error: "forbidden" }),
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("Done.");
+      expect(output).toContain("1 entry");
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("produces 'entries' for multiple files", async () => {
+      const log = vi.mocked(console.log);
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("GCS list failed");
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([
+            { name: "rag-content/a.json", md5Hash: "h1" },
+            { name: "rag-content/b.json", md5Hash: "h2" },
+          ])
+        )
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("2 entries");
+    });
   });
 
-  it("handles fetchJson non-JSON response on API call", async () => {
-    process.argv.push("--force");
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== --diff mode ======== */
 
-    fetchMock
-      // list GCS (valid)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // listAllRagFiles via fetchJson returns non-JSON
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => "not-json{{{",
-      });
+  describe("--diff mode", () => {
+    beforeEach(() => {
+      process.argv = ["node", scriptEntryPath, "--diff"];
+      vi.spyOn(console, "log").mockImplementation(() => {});
+    });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("imports only changed files", async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({
+          version: 1,
+          updatedAt: "2024-01-01",
+          files: {
+            "gs://speakifylk-rag-content/rag-content/f.json": {
+              md5: "old-hash",
+              lastImportedAt: "2024-01-01",
+            },
+          },
+        })
+      );
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Non-JSON response");
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([{ name: "rag-content/f.json", md5Hash: "new-hash" }])
+        )
+        .mockResolvedValueOnce(
+          ragFilesResponse([
+            {
+              name: "corpus/ragFiles/1",
+              gcsSource: {
+                uris: ["gs://speakifylk-rag-content/rag-content/f.json"],
+              },
+            },
+          ])
+        )
+        .mockResolvedValueOnce(opDone()) // delete stale
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("1 file(s) changed");
+      expect(output).toContain("removing stale RagFile");
+    });
+
+    it("skips import when manifest is up to date", async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({
+          version: 1,
+          updatedAt: "2024-01-01",
+          files: {
+            "gs://speakifylk-rag-content/rag-content/f.json": {
+              md5: "same",
+              lastImportedAt: "2024-01-01",
+            },
+          },
+        })
+      );
+
+      fetchMock().mockResolvedValueOnce(
+        gcsListResponse([{ name: "rag-content/f.json", md5Hash: "same" }])
+      );
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("Manifest is up to date");
+      expect(mockFs.writeFile).toHaveBeenCalled();
+    });
+
+    it("up-to-date path uses prev.lastImportedAt fallback when missing", async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({
+          version: 1,
+          updatedAt: "2024-01-01",
+          files: {
+            "gs://speakifylk-rag-content/rag-content/f.json": { md5: "same" },
+          },
+        })
+      );
+
+      fetchMock().mockResolvedValueOnce(
+        gcsListResponse([{ name: "rag-content/f.json", md5Hash: "same" }])
+      );
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("Manifest is up to date");
+      expect(mockFs.writeFile).toHaveBeenCalled();
+    });
+
+    it("deleteRagFilesForUris skips rag files with no name", async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({ version: 1, updatedAt: "2024-01-01", files: {} })
+      );
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([
+            {
+              gcsSource: {
+                uris: ["gs://speakifylk-rag-content/rag-content/f.json"],
+              },
+            }, // no name
+          ])
+        )
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("1 file(s) changed");
+    });
+
+    it("deleteRagFilesForUris handles rag file with no matching URIs", async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({ version: 1, updatedAt: "2024-01-01", files: {} })
+      );
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([
+            {
+              name: "corpus/ragFiles/1",
+              gcsSource: { uris: ["gs://other/file.json"] },
+            },
+          ])
+        )
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+    });
+
+    it("handles rag file with no gcsSource or empty uris", async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({ version: 1, updatedAt: "2024-01-01", files: {} })
+      );
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          ragFilesResponse([
+            { name: "corpus/ragFiles/1", gcsSource: {} },
+            { name: "corpus/ragFiles/2" },
+          ])
+        )
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+    });
   });
 
-  it("handles import batch failure", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== GCS listing edge cases ======== */
 
-    fetchMock
-      // list GCS objects
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files for delete
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import fails (valid JSON so !res.ok is reached in importRagFileBatch)
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        text: async () => JSON.stringify({ error: "import error" }),
-      });
+  describe("GCS listing", () => {
+    beforeEach(() => {
+      vi.spyOn(console, "log").mockImplementation(() => {});
+    });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("handles paginated GCS listing", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([{ name: "rag-content/f1.json", md5Hash: "h1" }], "page2")
+        )
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f2.json", md5Hash: "h2" }]))
+        .mockResolvedValueOnce(opDone()); // import
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Batch 1 failed");
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("2 file(s)");
+    });
+
+    it("handles objects with crc32c instead of md5Hash", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", crc32c: "abc123" }]))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
+
+    it("handles objects with generation fallback", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([{ name: "rag-content/f.json", generation: "12345" }])
+        )
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
+
+    it("handles objects with empty generation (gen: fallback)", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json" }]))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
+
+    it("skips objects with no name", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([{ md5Hash: "h" } as { name?: string; md5Hash?: string }])
+        )
+        .mockResolvedValueOnce(jsonResponse({})); // actually hits "No objects"
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("No objects found");
+    });
+
+    it("skips objects where md5Hash is empty string (no fingerprint)", async () => {
+      fetchMock().mockResolvedValueOnce(
+        gcsListResponse([{ name: "rag-content/f.json", md5Hash: "" }])
+      );
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("No objects found");
+    });
+
+    it("throws on GCS list API failure", async () => {
+      fetchMock().mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: "forbidden" }), { status: 403 })
+      );
+
+      await expect(main()).rejects.toThrow("GCS list failed");
+    });
+
+    it("handles GCS empty text response", async () => {
+      fetchMock().mockResolvedValueOnce(new Response("", { status: 200 }));
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("No objects found");
+    });
   });
 
-  it("handles import operation that returns an LRO to poll", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== fetchJson edge cases ======== */
 
-    fetchMock
-      // list GCS objects
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns LRO
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ name: "operations/import-1" }),
-      })
-      // poll LRO: done
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
+  describe("fetchJson", () => {
+    beforeEach(() => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("throws Non-JSON error when response is not valid JSON", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(new Response("not-json{{{", { status: 200 }));
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Importing batch 1");
+      await expect(main()).rejects.toThrow("Non-JSON response");
+    });
+
+    it("throws with JSON.stringify(body) when error body is an object", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ error: { message: "bad request" } }), {
+            status: 400,
+          })
+        );
+
+      await expect(main()).rejects.toThrow("400");
+    });
+
+    it("throws with text when error body is not an object (number)", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(new Response("42", { status: 500 }));
+
+      await expect(main()).rejects.toThrow("42");
+    });
+
+    it("throws with text when error body is a JSON string", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(new Response('"just a string"', { status: 400 }));
+
+      await expect(main()).rejects.toThrow("400");
+    });
+
+    it("handles empty text response as empty object", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(new Response("", { status: 200 })) // listAllRagFiles empty
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("Deleting 0 existing RagFile");
+    });
   });
 
-  it("handles operation error in waitForOperation", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== waitForOperation ======== */
 
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns LRO
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ name: "operations/import-1" }),
-      })
-      // poll LRO: done with error
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true, error: { message: "op failed" } }),
-      });
+  describe("waitForOperation", () => {
+    beforeEach(() => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("polls until done", async () => {
+      process.env.RAG_OP_TIMEOUT_MS = "60000";
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Fatal error");
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({})) // empty rag files
+        .mockResolvedValueOnce(opPending("operations/imp-1")) // import returns LRO
+        .mockResolvedValueOnce(jsonResponse({})) // poll: not done
+        .mockResolvedValueOnce(opDone()); // poll: done
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("Done.");
+    }, 10000);
+
+    it("throws on operation error", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opPending("operations/imp-1"))
+        .mockResolvedValueOnce(opDone({ message: "op failed" }));
+
+      await expect(main()).rejects.toThrow("Operation failed");
+    });
+
+    it("throws on timeout", async () => {
+      process.env.RAG_OP_TIMEOUT_MS = "1"; // 1ms
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opPending("operations/slow"))
+        .mockResolvedValueOnce(jsonResponse({})) // not done
+        .mockResolvedValueOnce(opDone()); // never reached
+
+      await expect(main()).rejects.toThrow("Timed out");
+    }, 10000);
   });
 
-  it("handles delete operation returning LRO", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== Environment helpers ======== */
 
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (has one)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }],
-          }),
-      })
-      // delete returns LRO (not done)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ name: "operations/del-1" }),
-      })
-      // poll delete LRO: done
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
+  describe("environment helpers", () => {
+    beforeEach(() => {
+      vi.spyOn(console, "log").mockImplementation(() => {});
+    });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("getEnv throws for missing env var", async () => {
+      process.env.GCP_PROJECT_ID = "";
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Deleting 1 existing RagFile");
+      fetchMock().mockResolvedValueOnce(
+        gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }])
+      );
+
+      await expect(main()).rejects.toThrow("Missing required environment variable");
+    });
+
+    it("uses custom RAG_CONTENT_BUCKET", async () => {
+      process.env.RAG_CONTENT_BUCKET = "custom-bucket";
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("custom-bucket");
+    });
+
+    it("uses custom RAG_GCS_PREFIX", async () => {
+      process.env.RAG_GCS_PREFIX = "custom-prefix";
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("custom-prefix/");
+    });
+
+    it("appends trailing slash to prefix if missing", async () => {
+      process.env.RAG_GCS_PREFIX = "no-slash";
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+
+      const url = (fetchMock() as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(url).toContain("prefix=no-slash%2F");
+    });
+
+    it("getOpTimeoutMs returns custom value from env", async () => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      process.env.RAG_OP_TIMEOUT_MS = "5000";
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
+
+    it("getOpTimeoutMs falls back for invalid (non-numeric) env", async () => {
+      process.env.RAG_OP_TIMEOUT_MS = "not-a-number";
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+    });
+
+    it("getOpTimeoutMs falls back for negative env value", async () => {
+      process.env.RAG_OP_TIMEOUT_MS = "-1";
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      await main();
+    });
+
+    it("getOpTimeoutMs falls back for zero env value", async () => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      process.env.RAG_OP_TIMEOUT_MS = "0";
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opPending("operations/op1"))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
   });
 
-  it("handles delete API error", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== Manifest reading/writing ======== */
 
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }],
-          }),
-      })
-      // delete fails (valid JSON so !res.ok check is reached)
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        text: async () => JSON.stringify({ error: "delete failed" }),
-      });
+  describe("manifest handling", () => {
+    beforeEach(() => {
+      vi.spyOn(console, "log").mockImplementation(() => {});
+    });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("handles manifest with invalid version", async () => {
+      mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 2, files: "invalid" }));
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("DELETE ragFile");
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
+
+    it("handles manifest with valid version but missing updatedAt", async () => {
+      process.argv = ["node", scriptEntryPath, "--diff"];
+      mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 1, files: {} }));
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({})) // listAllRagFiles for deleteRagFilesForUris
+        .mockResolvedValueOnce(opDone()); // import
+
+      await main();
+    });
+
+    it("handles manifest read error (falls back to empty)", async () => {
+      mockFs.readFile.mockRejectedValue(new Error("ENOENT"));
+
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+    });
+
+    it("buildManifest preserves previous lastImportedAt for non-imported files", async () => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({
+          version: 1,
+          updatedAt: "2024-01-01",
+          files: {
+            "gs://speakifylk-rag-content/rag-content/existing.json": {
+              md5: "old",
+              lastImportedAt: "2024-01-01",
+            },
+          },
+        })
+      );
+
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([
+            { name: "rag-content/existing.json", md5Hash: "old" },
+            { name: "rag-content/new.json", md5Hash: "new" },
+          ])
+        )
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+
+      const writeCall = mockFs.writeFile.mock.calls[0];
+      const manifest = JSON.parse(writeCall[1] as string);
+      expect(Object.keys(manifest.files).length).toBe(2);
+    });
+
+    it("buildManifest assigns importTime for brand new files not in prev", async () => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({ version: 1, updatedAt: "2024-01-01", files: {} })
+      );
+
+      fetchMock()
+        .mockResolvedValueOnce(
+          gcsListResponse([{ name: "rag-content/brand-new.json", md5Hash: "h1" }])
+        )
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(opDone());
+
+      await main();
+
+      const writeCall = mockFs.writeFile.mock.calls[0];
+      const manifest = JSON.parse(writeCall[1] as string);
+      const keys = Object.keys(manifest.files);
+      expect(keys.length).toBe(1);
+      expect(manifest.files[keys[0]].md5).toBe("h1");
+      expect(manifest.files[keys[0]].lastImportedAt).toBeDefined();
+    });
   });
 
-  it("handles import operation with error field in done response", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== listRagChunkCountForFile (exercised via --status deps) ======== */
 
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns done with error
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true, error: { message: "import err" } }),
-      });
+  describe("listRagChunkCountForFile", () => {
+    it("counts chunks across pages", async () => {
+      process.argv = ["node", scriptEntryPath, "--status"];
 
-    await import("./import-rag-files");
-    await flushPromises();
+      // Capture the deps passed to printRagStatusReport
+      let capturedDeps: {
+        listChunkCount: (name: string) => Promise<number | null>;
+      };
+      mockPrintRagStatusReport.mockImplementation(
+        async (deps: { listChunkCount: (name: string) => Promise<number | null> }) => {
+          capturedDeps = deps;
+        }
+      );
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
+      await main();
+
+      // Now call listChunkCount directly (it's listRagChunkCountForFile)
+      fetchMock()
+        .mockResolvedValueOnce(jsonResponse({ ragChunks: [{ id: "1" }], nextPageToken: "t2" }))
+        .mockResolvedValueOnce(jsonResponse({ ragChunks: [{ id: "2" }, { id: "3" }] }));
+
+      const count = await capturedDeps!.listChunkCount("some/ragFile/name");
+      expect(count).toBe(3);
+    });
+
+    it("returns null on error", async () => {
+      process.argv = ["node", scriptEntryPath, "--status"];
+
+      let capturedDeps: {
+        listChunkCount: (name: string) => Promise<number | null>;
+      };
+      mockPrintRagStatusReport.mockImplementation(
+        async (deps: { listChunkCount: (name: string) => Promise<number | null> }) => {
+          capturedDeps = deps;
+        }
+      );
+
+      await main();
+
+      // Make fetchJson throw
+      fetchMock().mockResolvedValueOnce(new Response("server error", { status: 500 }));
+
+      const count = await capturedDeps!.listChunkCount("some/ragFile/name");
+      expect(count).toBeNull();
+    });
+
+    it("returns 0 when no chunks exist", async () => {
+      process.argv = ["node", scriptEntryPath, "--status"];
+
+      let capturedDeps: {
+        listChunkCount: (name: string) => Promise<number | null>;
+      };
+      mockPrintRagStatusReport.mockImplementation(
+        async (deps: { listChunkCount: (name: string) => Promise<number | null> }) => {
+          capturedDeps = deps;
+        }
+      );
+
+      await main();
+
+      fetchMock().mockResolvedValueOnce(jsonResponse({}));
+
+      const count = await capturedDeps!.listChunkCount("some/ragFile/name");
+      expect(count).toBe(0);
+    });
   });
 
-  it("reads manifest with invalid version", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== listAllRagFiles (exercised via --status deps) ======== */
 
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 2, files: "invalid" }));
+  describe("listAllRagFiles via --status deps", () => {
+    it("paginates rag files", async () => {
+      process.argv = ["node", scriptEntryPath, "--status"];
 
-    fetchMock
-      // list GCS (must return items so readManifest is actually called)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // import batch
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
+      let capturedDeps: {
+        listRagFiles: () => Promise<unknown[]>;
+      };
+      mockPrintRagStatusReport.mockImplementation(
+        async (deps: { listRagFiles: () => Promise<unknown[]> }) => {
+          capturedDeps = deps;
+        }
+      );
 
-    await import("./import-rag-files");
-    await flushPromises();
+      await main();
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Importing batch 1");
-  });
-
-  it("reads manifest with valid data and missing updatedAt", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ version: 1, files: {} }));
-
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("--diff");
-  });
-
-  it("handles GCS object with crc32c instead of md5Hash", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [
-              { name: "rag-content/f1.json", crc32c: "abc123" },
-              { name: "rag-content/f2.json", generation: "gen1" },
-              { name: "rag-content/f3.json" }, // no hash at all, should be skipped (no fingerprint)
-              { name: undefined }, // no name, should be skipped
-            ],
-          }),
-      })
-      // import batch
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Importing batch 1");
-  });
-
-  it("handles paginated GCS listing", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // first page of GCS objects
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f1.json", md5Hash: "h1" }],
-            nextPageToken: "page2",
-          }),
-      })
-      // second page
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f2.json", md5Hash: "h2" }],
-          }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("2 file(s)");
-  });
-
-  it("handles paginated rag files listing in force mode", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files page 1
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1" }],
+      fetchMock()
+        .mockResolvedValueOnce(
+          jsonResponse({
+            ragFiles: [{ name: "f1" }],
             nextPageToken: "p2",
-          }),
-      })
-      // list rag files page 2
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/2" }] }),
-      })
-      // delete file 1
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      })
-      // delete file 2
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
+          })
+        )
+        .mockResolvedValueOnce(jsonResponse({ ragFiles: [{ name: "f2" }] }));
 
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Deleting 2 existing RagFile");
+      const files = await capturedDeps!.listRagFiles();
+      expect(files).toHaveLength(2);
+    });
   });
 
-  it("uses custom RAG_CONTENT_BUCKET and RAG_GCS_PREFIX", async () => {
-    process.env.RAG_CONTENT_BUCKET = "custom-bucket";
-    process.env.RAG_GCS_PREFIX = "custom-prefix";
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== isExecutedAsCli ======== */
 
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({}),
+  describe("isExecutedAsCli", () => {
+    it("returns false when argv[1] is missing", () => {
+      process.argv = ["node"];
+      expect(isExecutedAsCli()).toBe(false);
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("custom-bucket");
-    expect(output).toContain("custom-prefix/");
-  });
-
-  it("uses custom RAG_OP_TIMEOUT_MS env", async () => {
-    process.env.RAG_OP_TIMEOUT_MS = "1000";
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Importing batch 1");
-  });
-
-  it("falls back to default for invalid RAG_OP_TIMEOUT_MS", async () => {
-    process.env.RAG_OP_TIMEOUT_MS = "not-a-number";
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({}),
+    it("returns false for a different script path", () => {
+      process.argv = ["node", path.join(process.cwd(), "package.json")];
+      expect(isExecutedAsCli()).toBe(false);
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("No objects found");
+    it("returns true when argv[1] matches the script", () => {
+      process.argv = ["node", scriptEntryPath];
+      expect(isExecutedAsCli()).toBe(true);
+    });
   });
 
-  it("handles empty text response from fetchJson as empty object", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== Batching ======== */
 
-    fetchMock
-      // list GCS - empty text
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => "",
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("No objects found");
-  });
-
-  it("handles delete operation with error field", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }],
-          }),
-      })
-      // delete returns done with error
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true, error: { message: "del failed" } }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    expect(exitSpy).toHaveBeenCalledWith(1);
-  });
-
-  it("handles diff mode with deleteRagFilesForUris where no rag file matches", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {},
-      })
-    );
-
-    fetchMock
-      // list GCS (new file)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/new-file.json", md5Hash: "newhash" }],
-          }),
-      })
-      // list rag files for deleteRagFilesForUris (no match)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [
-              {
-                name: "corpus/ragFiles/1",
-                gcsSource: { uris: ["gs://other/file.json"] },
-              },
-            ],
-          }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("1 file(s) changed");
-  });
-
-  it("handles rag file with no gcsSource.uris (ragFileGcsUris returns empty)", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {},
-      })
-    );
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files for deleteRagFilesForUris (no uris)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: {} }, { name: "corpus/ragFiles/2" }],
-          }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("1 file(s) changed");
-  });
-
-  it("handles GCS prefix without trailing slash", async () => {
-    process.env.RAG_GCS_PREFIX = "my-prefix";
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({}),
+  describe("import batching", () => {
+    beforeEach(() => {
+      process.argv = ["node", scriptEntryPath];
+      vi.spyOn(console, "log").mockImplementation(() => {});
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("batches imports in groups of 20", async () => {
+      const items = Array.from({ length: 25 }, (_, i) => ({
+        name: `rag-content/f${i}.json`,
+        md5Hash: `h${i}`,
+      }));
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("my-prefix/");
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse(items))
+        .mockResolvedValueOnce(opDone()) // batch 1 (20 files)
+        .mockResolvedValueOnce(opDone()); // batch 2 (5 files)
+
+      await main();
+
+      const log = vi.mocked(console.log);
+      const output = log.mock.calls.map((c) => c.join(" ")).join("\n");
+      expect(output).toContain("batch 1 (20 file(s))");
+      expect(output).toContain("batch 2 (5 file(s))");
+    });
   });
 
-  it("handles missing required env var (getEnv throws)", async () => {
-    process.env.GCP_PROJECT_ID = "";
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+  /* ======== importRagFileBatch error status after POST ======== */
 
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () =>
-        JSON.stringify({
-          items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-        }),
+  describe("importRagFileBatch", () => {
+    beforeEach(() => {
+      process.argv = ["node", scriptEntryPath, "--force"];
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("throws on POST error status (not ok)", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({})) // list rag files
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ error: "bad request" }), {
+            status: 400,
+          })
+        );
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Missing required environment variable");
-  });
-
-  it("handles negative RAG_OP_TIMEOUT_MS", async () => {
-    process.env.RAG_OP_TIMEOUT_MS = "-1";
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({}),
+      await expect(main()).rejects.toThrow("import");
     });
 
-    await import("./import-rag-files");
-    await flushPromises();
+    it("handles import with empty text response (no LRO, not done)", async () => {
+      fetchMock()
+        .mockResolvedValueOnce(gcsListResponse([{ name: "rag-content/f.json", md5Hash: "h" }]))
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(new Response("", { status: 200 }));
 
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("No objects found");
-  });
-
-  it("handles waitForOperation with polling loop and sleep", async () => {
-    process.argv.push("--force");
-    process.env.RAG_OP_TIMEOUT_MS = "60000";
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns LRO
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ name: "operations/import-poll" }),
-      })
-      // first poll: not done (triggers sleep)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({}),
-      })
-      // second poll: done
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    // Wait longer to account for OP_POLL_MS (4000ms)
-    await new Promise<void>((r) => setTimeout(r, 5000));
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Done.");
-  }, 10000);
-
-  it("handles waitForOperation timeout", async () => {
-    process.argv.push("--force");
-    process.env.RAG_OP_TIMEOUT_MS = "1"; // 1ms timeout to trigger immediately
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns LRO
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ name: "operations/slow-op" }),
-      })
-      // first poll: not done (after this the loop will sleep then timeout check)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({}),
-      })
-      // second poll won't happen because timeout fires first
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    // Wait for the OP_POLL_MS (4000ms) sleep + some buffer
-    await new Promise<void>((r) => setTimeout(r, 5000));
-
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Timed out");
-  }, 10000);
-
-  it("handles importRagFileBatch with empty uris (no-op)", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    // Manifest is up to date, no files changed
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {
-          "gs://speakifylk-rag-content/rag-content/f.json": {
-            md5: "same",
-            lastImportedAt: "2024-01-01",
-          },
-        },
-      })
-    );
-
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () =>
-        JSON.stringify({
-          items: [{ name: "rag-content/f.json", md5Hash: "same" }],
-        }),
+      await main();
     });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Manifest is up to date");
-  });
-
-  it("handles rag file with no name in force deleteAllRagFiles", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files - one has name, one doesn't
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [
-              { gcsSource: { uris: [] } }, // no name - should be skipped
-              { name: "corpus/ragFiles/1", gcsSource: { uris: [] } },
-            ],
-          }),
-      })
-      // delete file 1
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Deleting 2 existing RagFile");
-  });
-
-  it("handles deleteRagFile with empty response text", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/1" }] }),
-      })
-      // delete returns empty body (neither done nor LRO name)
-      .mockResolvedValueOnce({ ok: true, text: async () => "" })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Deleting 1 existing RagFile");
-  });
-
-  it("handles GCS item with generation fallback (no md5Hash, no crc32c)", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [
-              { name: "rag-content/f1.json", generation: "12345" },
-              { name: "rag-content/f2.json" }, // no hash info at all - gets gen: fallback
-              { name: "rag-content/f3.json", md5Hash: "" }, // empty md5Hash is falsy, triggers !fingerprint skip
-            ],
-          }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Importing batch 1");
-  });
-
-  it("handles fetchJson with error status and object body", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS (ok)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // listAllRagFiles returns error with JSON body
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        text: async () => JSON.stringify({ error: { message: "bad request" } }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    expect(exitSpy).toHaveBeenCalledWith(1);
-  });
-
-  it("handles fetchJson with empty text response (returns empty object)", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS (ok)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // listAllRagFiles via fetchJson returns empty text (ok status)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => "",
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Deleting 0 existing RagFile");
-  });
-
-  it("handles fetchJson with non-object error body (typeof body !== object)", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS (ok)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // listAllRagFiles via fetchJson returns a JSON primitive (number) with error status
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        text: async () => "42",
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    // The error message should use `text` instead of JSON.stringify(body) since body is not object
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("42");
-  });
-
-  it("handles getOpTimeoutMs returning default for zero value while waitForOperation is called", async () => {
-    process.argv.push("--force");
-    process.env.RAG_OP_TIMEOUT_MS = "0"; // 0 <= 0, triggers return DEFAULT
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns LRO (triggers waitForOperation which calls getOpTimeoutMs)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ name: "operations/op1" }),
-      })
-      // poll: done immediately
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Done.");
-  });
-
-  it("handles deleteRagFilesForUris with rag file that has no name", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {},
-      })
-    );
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files for deleteRagFilesForUris (rag file has no name)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            ragFiles: [
-              {
-                gcsSource: {
-                  uris: ["gs://speakifylk-rag-content/rag-content/f.json"],
-                },
-              }, // no name
-            ],
-          }),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("1 file(s) changed");
-  });
-
-  it("handles importRagFileBatch with empty text response", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns empty response (ok, empty text)
-      .mockResolvedValueOnce({ ok: true, text: async () => "" });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Done.");
-  });
-
-  it("handles buildManifest with previous manifest data", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    // Previous manifest with existing file data
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {
-          "gs://speakifylk-rag-content/rag-content/existing.json": {
-            md5: "old",
-            lastImportedAt: "2024-01-01",
-          },
-        },
-      })
-    );
-
-    fetchMock
-      // list GCS with 2 files (one existing, one new)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [
-              { name: "rag-content/existing.json", md5Hash: "old" },
-              { name: "rag-content/new.json", md5Hash: "new" },
-            ],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("2 file(s)");
-    expect(output).toContain("Done.");
-    expect(mockFs.writeFile).toHaveBeenCalled();
-  });
-
-  it("handles fetchJson error with non-object body (string from JSON)", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS (ok)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // listAllRagFiles returns a JSON string (not object) with error status
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        text: async () => '"just a string"',
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Fatal error");
-  });
-
-  it("handles deleteRagFilesForUris with empty targetUris set (early return)", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    // Manifest has no files, so there's nothing in manifest
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {
-          "gs://speakifylk-rag-content/rag-content/f.json": {
-            md5: "old-hash",
-            lastImportedAt: "2024-01-01",
-          },
-        },
-      })
-    );
-
-    fetchMock
-      // list GCS (file with changed hash)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "new-hash" }],
-          }),
-      })
-      // list rag files for deleteRagFilesForUris (empty - no rag files to delete)
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({}),
-      })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("1 file(s) changed");
-  });
-
-  it("diff mode up-to-date with file missing lastImportedAt (fallback to importTime)", async () => {
-    process.argv.push("--diff");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    // Manifest has file with same hash but no lastImportedAt
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        version: 1,
-        updatedAt: "2024-01-01",
-        files: {
-          "gs://speakifylk-rag-content/rag-content/f.json": {
-            md5: "same",
-          },
-        },
-      })
-    );
-
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () =>
-        JSON.stringify({
-          items: [{ name: "rag-content/f.json", md5Hash: "same" }],
-        }),
-    });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Manifest is up to date");
-    expect(mockFs.writeFile).toHaveBeenCalled();
-  });
-
-  it("buildManifest assigns importTime for new files not in previous manifest", async () => {
-    process.argv.push("--force");
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-    mockFs.writeFile.mockClear();
-
-    // Previous manifest with NO file entries
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({ version: 1, updatedAt: "2024-01-01", files: {} })
-    );
-
-    fetchMock
-      // list GCS with a file that has no prev entry
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/brand-new.json", md5Hash: "h1" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () => JSON.stringify({ done: true }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Done.");
-    // Verify manifest was written with the new file
-    const writeCall = mockFs.writeFile.mock.calls[0];
-    const manifestContent = JSON.parse(writeCall[1] as string);
-    // The key is gs://<bucket>/<object-name>
-    const fileKeys = Object.keys(manifestContent.files);
-    expect(fileKeys.length).toBe(1);
-    const entry = manifestContent.files[fileKeys[0]];
-    expect(entry).toBeDefined();
-    expect(entry.md5).toBe("h1");
-    expect(entry.lastImportedAt).toBeDefined();
-  });
-
-  it("handles importRagFileBatch error status after POST", async () => {
-    process.argv.push("--force");
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-
-    fetchMock
-      // list GCS
-      .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            items: [{ name: "rag-content/f.json", md5Hash: "h" }],
-          }),
-      })
-      // list rag files (empty)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({}) })
-      // import returns NOT OK status (valid JSON body so !res.ok is reached)
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        text: async () => JSON.stringify({ error: "bad request body" }),
-      });
-
-    await import("./import-rag-files");
-    await flushPromises();
-
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    const output = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
-    expect(output).toContain("Batch 1 failed");
   });
 });

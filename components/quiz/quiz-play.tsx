@@ -113,7 +113,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (isLastQuestion) {
       // Show result screen; completion and XP will be handled there
       setShowResults(true);

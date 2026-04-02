@@ -8,16 +8,22 @@
  *   npx tsx ./scripts/import-rag-files.ts
  *   npx tsx ./scripts/import-rag-files.ts --diff
  *   npx tsx ./scripts/import-rag-files.ts --force
+ *   npx tsx ./scripts/import-rag-files.ts --status
  */
 
 import * as dotenv from "dotenv";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 dotenv.config();
 dotenv.config({ path: ".env.local", override: true });
 
 import { getAuthHeaders } from "../lib/gcp-auth";
+import {
+  printRagStatus as printRagStatusReport,
+  type RagFileStatus,
+} from "../lib/rag-import-status";
 
 const MANIFEST_FILENAME = path.join("tmp", ".rag-import-manifest.json");
 const CHUNK_SIZE = 512;
@@ -72,10 +78,15 @@ function gcsPrefix(): string {
   return p.endsWith("/") ? p : `${p}/`;
 }
 
-function parseFlags(argv: string[]): { force: boolean; diff: boolean } {
+function parseFlags(argv: string[]): {
+  force: boolean;
+  diff: boolean;
+  status: boolean;
+} {
   return {
     force: argv.includes("--force"),
     diff: argv.includes("--diff"),
+    status: argv.includes("--status"),
   };
 }
 
@@ -166,10 +177,33 @@ async function listAllGcsObjects(bucket: string, prefix: string): Promise<GcsObj
   return out;
 }
 
-type RagFile = {
-  name?: string;
-  gcsSource?: { uris?: string[] };
-};
+type RagFile = RagFileStatus;
+
+/**
+ * Vertex may omit chunk counts on ListRagFiles; try ListRagChunks under each RagFile.
+ * Returns null if the endpoint is unavailable or the call fails.
+ */
+async function listRagChunkCountForFile(ragFileResourceName: string): Promise<number | null> {
+  const base = getAiplatformBase();
+  let total = 0;
+  let pageToken: string | undefined;
+  try {
+    do {
+      const q = new URLSearchParams({ pageSize: "500" });
+      if (pageToken) q.set("pageToken", pageToken);
+      const url = `${base}/${ragFileResourceName}/ragChunks?${q}`;
+      const data = await fetchJson<{
+        ragChunks?: unknown[];
+        nextPageToken?: string;
+      }>(url);
+      total += data.ragChunks?.length ?? 0;
+      pageToken = data.nextPageToken;
+    } while (pageToken);
+    return total;
+  } catch {
+    return null;
+  }
+}
 
 async function listAllRagFiles(): Promise<RagFile[]> {
   const parent = corpusParent();
@@ -327,8 +361,37 @@ async function writeManifest(m: ImportManifest): Promise<void> {
   await fs.writeFile(manifestFilePath, JSON.stringify(m, null, 2) + "\n", "utf8");
 }
 
-async function main(): Promise<void> {
-  const { force, diff } = parseFlags(process.argv.slice(2));
+async function printRagStatus(): Promise<void> {
+  await printRagStatusReport({
+    corpusParent: corpusParent(),
+    listRagFiles: listAllRagFiles,
+    listChunkCount: listRagChunkCountForFile,
+    log: console.log.bind(console),
+  });
+}
+
+/** Exported for tests (CLI entry detection). */
+export function isExecutedAsCli(): boolean {
+  const runPath = process.argv[1];
+  if (!runPath) return false;
+  try {
+    return path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url));
+  } catch {
+    /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
+    return false;
+  }
+}
+
+export async function main(): Promise<void> {
+  const { force, diff, status } = parseFlags(process.argv.slice(2));
+  if (status) {
+    if (force || diff) {
+      console.warn("Note: --status ignores import flags (--force, --diff).");
+    }
+    await printRagStatus();
+    return;
+  }
+
   if (force && diff) {
     console.warn(
       "Note: --force performs a full re-import; --diff is ignored when combined with --force."
@@ -399,11 +462,15 @@ async function main(): Promise<void> {
   );
 }
 
-void (async () => {
-  try {
-    await main();
-  } catch (e) {
-    console.error("❌ Fatal error during import:", e);
-    process.exit(1);
-  }
-})();
+/* v8 ignore start -- CLI entry point; only runs when executed directly, not importable in tests */
+if (isExecutedAsCli()) {
+  void (async () => {
+    try {
+      await main();
+    } catch (e) {
+      console.error("❌ Fatal error during import:", e);
+      process.exit(1);
+    }
+  })();
+}
+/* v8 ignore stop */
