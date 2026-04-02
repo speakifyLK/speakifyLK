@@ -51,7 +51,11 @@ vi.mock("@google-cloud/storage", () => ({
 vi.mock("p-limit", () => ({ default: () => (fn: () => Promise<unknown>) => fn() }));
 
 vi.mock("fs", () => ({
-  default: { existsSync: vi.fn().mockReturnValue(true), mkdirSync: vi.fn(), writeFileSync: vi.fn() },
+  default: {
+    existsSync: vi.fn().mockReturnValue(true),
+    mkdirSync: vi.fn(),
+    writeFileSync: vi.fn(),
+  },
 }));
 
 const flushPromises = () => new Promise<void>((r) => setTimeout(r, 100));
@@ -64,7 +68,9 @@ describe("export-course-content script", () => {
     vi.resetModules();
     vi.restoreAllMocks();
     process.env.GOOGLE_SERVICE_ACCOUNT_KEY = JSON.stringify({
-      type: "service", project_id: "test", private_key: "fake-key\\nnewlines",
+      type: "service",
+      project_id: "test",
+      private_key: "fake-key\\nnewlines",
     });
     process.argv = [...savedArgv.slice(0, 2)];
     mockSelect.mockReset();
@@ -81,7 +87,9 @@ describe("export-course-content script", () => {
   it("exits when GOOGLE_SERVICE_ACCOUNT_KEY is missing", async () => {
     delete process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
     vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(process, "exit").mockImplementation(((c: number) => { throw new Error(`exit ${c}`); }) as any);
+    vi.spyOn(process, "exit").mockImplementation(((c: number) => {
+      throw new Error(`exit ${c}`);
+    }) as any);
     await expect(import("./export-course-content")).rejects.toThrow("exit 1");
   });
 

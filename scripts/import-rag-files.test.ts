@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
-vi.mock("../lib/gcp-auth", () => ({ getAuthHeaders: vi.fn().mockResolvedValue({ Authorization: "Bearer test" }) }));
+vi.mock("../lib/gcp-auth", () => ({
+  getAuthHeaders: vi.fn().mockResolvedValue({ Authorization: "Bearer test" }),
+}));
 
 const mockFs = {
   readFile: vi.fn(),
@@ -24,9 +26,15 @@ describe("import-rag-files script", () => {
     mockFs.readFile.mockRejectedValue(new Error("enoent"));
     mockFs.writeFile.mockResolvedValue(undefined);
     mockFs.mkdir.mockResolvedValue(undefined);
-    
-    process.env.GCP_PROJECT_ID = "pid"; process.env.GCP_LOCATION = "loc"; process.env.RAG_CORPUS_ID = "rag_id";
-    process.env.GOOGLE_SERVICE_ACCOUNT_KEY = JSON.stringify({ type: "service", project_id: "test", private_key: "pk" });
+
+    process.env.GCP_PROJECT_ID = "pid";
+    process.env.GCP_LOCATION = "loc";
+    process.env.RAG_CORPUS_ID = "rag_id";
+    process.env.GOOGLE_SERVICE_ACCOUNT_KEY = JSON.stringify({
+      type: "service",
+      project_id: "test",
+      private_key: "pk",
+    });
     process.argv = [...savedArgv.slice(0, 2)];
   });
 
@@ -44,9 +52,17 @@ describe("import-rag-files script", () => {
 
     fetchMock
       // 1. list GCS objects
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({ items: [{ name: "rag-content/file.json", md5Hash: "hash1" }] }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () =>
+          JSON.stringify({ items: [{ name: "rag-content/file.json", md5Hash: "hash1" }] }),
+      })
       // 2. list rag files (for deletion in force mode)
-      .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }] }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () =>
+          JSON.stringify({ ragFiles: [{ name: "corpus/ragFiles/1", gcsSource: { uris: [] } }] }),
+      })
       // 3. delete rag file
       .mockResolvedValueOnce({ ok: true, text: async () => JSON.stringify({ done: true }) })
       // 4. import
