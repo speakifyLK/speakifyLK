@@ -117,7 +117,6 @@ describe("prod script", () => {
     await flushPromises();
 
     // The error is console.error'd then thrown
-    const errOutput = errSpy.mock.calls.map((c) => String(c[0])).join("\n");
     // The original error is logged
     expect(errSpy).toHaveBeenCalled();
 
