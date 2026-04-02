@@ -14,12 +14,10 @@ vi.mock("@/db/drizzle", () => ({
           where: (condition: unknown) => {
             mockWhere(condition);
             return {
-              then: (resolve: any, reject: any) =>
-                mockSelect().then(resolve).catch(reject),
+              then: (resolve: any, reject: any) => mockSelect().then(resolve).catch(reject),
             };
           },
-          then: (resolve: any, reject: any) =>
-            mockSelect().then(resolve).catch(reject),
+          then: (resolve: any, reject: any) => mockSelect().then(resolve).catch(reject),
         };
       },
     }),
@@ -125,9 +123,7 @@ describe("export-course-content script", () => {
     mockSelect
       .mockResolvedValueOnce([{ id: 1, title: "Basic", description: "desc" }])
       .mockResolvedValueOnce([{ id: 1, title: "U", courseId: 1 }])
-      .mockResolvedValueOnce([
-        { id: 1, title: "L", unitId: 1, content: "text" },
-      ]);
+      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -172,9 +168,7 @@ describe("export-course-content script", () => {
     mockSelect
       .mockResolvedValueOnce([{ id: 1, title: "C" }])
       .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([
-        { id: 1, title: "L", unitId: 1, content: "text" },
-      ]);
+      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
     await import("./export-course-content");
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -189,9 +183,7 @@ describe("export-course-content script", () => {
     mockSelect
       .mockResolvedValueOnce([{ id: 1, title: "C" }])
       .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([
-        { id: 1, title: "L", unitId: 1, content: "text" },
-      ]);
+      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -210,19 +202,14 @@ describe("export-course-content script", () => {
     mockSelect
       .mockResolvedValueOnce([{ id: 1, title: "C" }])
       .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([
-        { id: 1, title: "L", unitId: 1, content: "text" },
-      ]);
+      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
 
     await import("./export-course-content");
     await flushPromises();
 
-    expect(mockMkdirSync).toHaveBeenCalledWith(
-      expect.stringContaining("rag-content"),
-      {
-        recursive: true,
-      }
-    );
+    expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("rag-content"), {
+      recursive: true,
+    });
   });
 
   it("runs in dry-run mode without writing files", async () => {
@@ -234,9 +221,7 @@ describe("export-course-content script", () => {
     mockSelect
       .mockResolvedValueOnce([{ id: 1, title: "C" }])
       .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([
-        { id: 1, title: "L", unitId: 1, content: "text" },
-      ]);
+      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -250,9 +235,7 @@ describe("export-course-content script", () => {
   it("handles database error in exportContent", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     mockSelect.mockRejectedValueOnce(new Error("DB connection failed"));
 
@@ -269,16 +252,12 @@ describe("export-course-content script", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockExists.mockResolvedValue([true]);
     // Return a different hash that won't match the local content hash
-    mockGetMetadata.mockResolvedValue([
-      { md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" },
-    ]);
+    mockGetMetadata.mockResolvedValue([{ md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" }]);
 
     mockSelect
       .mockResolvedValueOnce([{ id: 1, title: "C" }])
       .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([
-        { id: 1, title: "L", unitId: 1, content: "text" },
-      ]);
+      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
     await import("./export-course-content");
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -289,9 +268,7 @@ describe("export-course-content script", () => {
   it("handles non-Error thrown in exportContent catch block", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     mockSelect.mockRejectedValueOnce("string error");
 

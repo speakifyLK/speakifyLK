@@ -36,9 +36,7 @@ describe("create-rag-corpus script", () => {
   it("exits when GCP_PROJECT_ID is missing", async () => {
     process.env.GCP_PROJECT_ID = "";
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./create-rag-corpus");
     await flushPromises();
@@ -51,9 +49,7 @@ describe("create-rag-corpus script", () => {
   it("exits when GCP_LOCATION is missing", async () => {
     process.env.GCP_LOCATION = "";
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./create-rag-corpus");
     await flushPromises();
@@ -66,9 +62,7 @@ describe("create-rag-corpus script", () => {
   it("exits when GOOGLE_SERVICE_ACCOUNT_KEY is missing", async () => {
     process.env.GOOGLE_SERVICE_ACCOUNT_KEY = "";
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./create-rag-corpus");
     await flushPromises();
@@ -152,9 +146,7 @@ describe("create-rag-corpus script", () => {
     process.argv.push("--check");
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: false,
@@ -175,9 +167,7 @@ describe("create-rag-corpus script", () => {
     process.argv.push("--check");
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: false,
@@ -198,9 +188,7 @@ describe("create-rag-corpus script", () => {
     process.argv.push("--check");
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: false,
@@ -221,9 +209,7 @@ describe("create-rag-corpus script", () => {
     process.argv.push("--check");
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: false,
@@ -244,9 +230,7 @@ describe("create-rag-corpus script", () => {
     process.argv.push("--check");
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: false,
@@ -330,9 +314,7 @@ describe("create-rag-corpus script", () => {
   it("exits when API returns unexpected response with no name", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: true,
@@ -350,9 +332,7 @@ describe("create-rag-corpus script", () => {
   it("exits when create API returns error status", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     fetchMock.mockResolvedValueOnce({
       ok: false,
@@ -372,9 +352,7 @@ describe("create-rag-corpus script", () => {
   it("handles operation completed with error", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     // Creation returns an LRO
     fetchMock.mockResolvedValueOnce({
@@ -401,9 +379,7 @@ describe("create-rag-corpus script", () => {
   it("handles poll API error", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     // Creation returns an LRO
     fetchMock.mockResolvedValueOnce({
@@ -427,9 +403,7 @@ describe("create-rag-corpus script", () => {
   it("handles operation with done response but no corpus name", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     // Creation returns an LRO
     fetchMock.mockResolvedValueOnce({
@@ -452,9 +426,7 @@ describe("create-rag-corpus script", () => {
 
   it("polls operation multiple times before completion", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const writeSpy = vi
-      .spyOn(process.stdout, "write")
-      .mockImplementation(() => true);
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     // Creation returns an LRO
@@ -490,9 +462,7 @@ describe("create-rag-corpus script", () => {
 
   it("catches unexpected errors in main()", async () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
     vi.spyOn(console, "log").mockImplementation(() => {});
 
     // Make fetch throw to trigger the main().catch()
@@ -508,9 +478,7 @@ describe("create-rag-corpus script", () => {
 
   it("catches non-Error unexpected errors in main()", async () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
     vi.spyOn(console, "log").mockImplementation(() => {});
 
     // Make fetch throw a string (non-Error)
@@ -535,9 +503,7 @@ describe("create-rag-corpus script", () => {
     const trickObj = {
       get name() {
         readCount++;
-        return readCount === 1
-          ? undefined
-          : "projects/p/locations/l/ragCorpora/trick";
+        return readCount === 1 ? undefined : "projects/p/locations/l/ragCorpora/trick";
       },
     };
 
@@ -556,9 +522,7 @@ describe("create-rag-corpus script", () => {
 
   it("handles pollOperation timeout by mocking Date.now", async () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
