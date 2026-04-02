@@ -605,9 +605,7 @@ describe("rag-status script", () => {
         throw new Error("fatal log error");
       }
     });
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./rag-status");
     await flushPromises();
