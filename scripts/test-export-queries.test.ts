@@ -128,7 +128,7 @@ describe("test-export-queries script", () => {
     getAllChallengesWithOptionsMock.mockRejectedValue(new Error("DB down"));
 
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     await import("./test-export-queries");
