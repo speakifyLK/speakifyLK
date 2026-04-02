@@ -21,7 +21,7 @@
     "rag:status": "tsx ./scripts/import-rag-files.ts --status",
     "rag:create": "tsx ./scripts/create-rag-corpus.ts",
     "rag:create:check": "tsx ./scripts/create-rag-corpus.ts --check",
-    "rag:status": "tsx ./scripts/rag-status.ts",
+    "rag:pipeline-status": "tsx ./scripts/rag-status.ts",
     "export:content": "bun scripts/export-course-content.ts",
     "export:content:dry-run": "bun scripts/export-course-content.ts --dry-run",
     "test": "vitest run",
