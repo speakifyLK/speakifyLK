@@ -50,6 +50,12 @@ export interface QuizPromptParams {
   count: number;
   /** Optional – when provided, Gemini tailors questions to the learner */
   learningContext?: LearningContext;
+  /**
+   * Optional – pre-formatted RAG content chunks retrieved from the course
+   * material. When supplied, prompts instruct Gemini to generate questions
+   * exclusively from this content rather than using general knowledge.
+   */
+  ragContext?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -144,6 +150,28 @@ function buildLearningContextBlock(ctx: LearningContext | undefined): string {
   return lines.join("\n");
 }
 
+/**
+ * Build the RAG context block that is prepended to prompts when course
+ * content chunks are available.  The block instructs Gemini to restrict
+ * question generation to the provided sources and formats the raw
+ * `ragContext` string for clarity.
+ */
+function buildRagContextBlock(ragContext: string | undefined): string {
+  if (!ragContext) return "";
+
+  const lines: string[] = [
+    "",
+    "COURSE CONTENT — Use ONLY the following course content to generate questions. Do not use general knowledge.",
+    "",
+    ragContext,
+    "",
+    "IMPORTANT: Each question MUST reference specific content from the sources above. " +
+      "Do not invent facts, vocabulary, or sentences that are not present in the provided content.",
+  ];
+
+  return lines.join("\n");
+}
+
 // ---------------------------------------------------------------------------
 // Template builders
 // ---------------------------------------------------------------------------
@@ -164,7 +192,7 @@ function buildLearningContextBlock(ctx: LearningContext | undefined): string {
  * ```
  */
 function buildMultipleChoicePrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count, learningContext } = params;
+  const { topic, difficulty, count, learningContext, ragContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -174,6 +202,7 @@ Generate exactly ${count} MULTIPLE-CHOICE question(s) about the topic "${topic}"
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
 ${buildLearningContextBlock(learningContext)}
+${buildRagContextBlock(ragContext)}
 
 For each question, respond with an object that has:
 - "question": A clear Sinhala-language question (string).
@@ -216,7 +245,7 @@ Example response format:
  * ```
  */
 function buildFillInBlankPrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count, learningContext } = params;
+  const { topic, difficulty, count, learningContext, ragContext } = params;
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -226,6 +255,7 @@ Generate exactly ${count} FILL-IN-THE-BLANK question(s) about the topic "${topic
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
 ${buildLearningContextBlock(learningContext)}
+${buildRagContextBlock(ragContext)}
 
 For each question, respond with an object that has:
 - "sentence": A Sinhala sentence with a blank represented by "___" where the missing word should be (string).
@@ -262,7 +292,12 @@ Example response format:
  * ```
  */
 function buildTranslationPrompt(params: QuizPromptParams): string {
-  const { topic, difficulty, count, learningContext } = params;
+  const { topic, difficulty, count, learningContext, ragContext } = params;
+
+  const ragVocabInstruction = ragContext
+    ? "\nIMPORTANT: The source and target text for each translation MUST come from actual vocabulary " +
+      "found in the provided course content. Do not invent words or phrases that are not in the sources.\n"
+    : "";
 
   return `
 You are a Sinhala language quiz generator for the "SpeakifyLK" learning platform.
@@ -272,7 +307,8 @@ Generate exactly ${count} TRANSLATION question(s) about the topic "${topic}".
 Difficulty level: ${difficulty}
 ${difficultyGuidelines[difficulty]}
 ${buildLearningContextBlock(learningContext)}
-
+${buildRagContextBlock(ragContext)}
+${ragVocabInstruction}
 Mix the translation direction: some questions should be Sinhala-to-English, others English-to-Sinhala.
 
 For each question, respond with an object that has:

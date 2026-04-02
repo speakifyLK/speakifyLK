@@ -319,3 +319,152 @@ describe("buildQuizPrompt — with learningContext", () => {
     expect(prompt).not.toContain("PERSONALISATION");
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// buildQuizPrompt — RAG Context
+// ═══════════════════════════════════════════════════════════════════════
+
+describe("buildQuizPrompt — with ragContext", () => {
+  const sampleRag = [
+    "Source 1 — Lesson: Greetings, Unit: Basics",
+    "ආයුබෝවන් (aayubowan) = Hello",
+    "ස්තූතියි (sthuthiyi) = Thank you",
+    "",
+    "Source 2 — Lesson: Colours, Unit: Vocabulary",
+    "රතු (rathu) = Red",
+    "නිල් (nil) = Blue",
+  ].join("\n");
+
+  const baseParams: QuizPromptParams = {
+    topic: "greetings",
+    difficulty: "beginner",
+    count: 5,
+    ragContext: sampleRag,
+  };
+
+  // ── RAG block appears in all three prompt types ──
+
+  it("MULTIPLE_CHOICE prompt includes COURSE CONTENT instruction", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", baseParams);
+    expect(prompt).toContain(
+      "Use ONLY the following course content to generate questions"
+    );
+  });
+
+  it("FILL_IN_BLANK prompt includes COURSE CONTENT instruction", () => {
+    const prompt = buildQuizPrompt("FILL_IN_BLANK", baseParams);
+    expect(prompt).toContain(
+      "Use ONLY the following course content to generate questions"
+    );
+  });
+
+  it("TRANSLATION prompt includes COURSE CONTENT instruction", () => {
+    const prompt = buildQuizPrompt("TRANSLATION", baseParams);
+    expect(prompt).toContain(
+      "Use ONLY the following course content to generate questions"
+    );
+  });
+
+  // ── RAG chunks are embedded verbatim ──
+
+  it("embeds raw RAG chunks in the prompt", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", baseParams);
+    expect(prompt).toContain("Source 1 — Lesson: Greetings, Unit: Basics");
+    expect(prompt).toContain("ආයුබෝවන් (aayubowan) = Hello");
+    expect(prompt).toContain("Source 2 — Lesson: Colours, Unit: Vocabulary");
+    expect(prompt).toContain("රතු (rathu) = Red");
+  });
+
+  // ── Source-referencing requirement ──
+
+  it("instructs Gemini to reference specific source content", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", baseParams);
+    expect(prompt).toContain("Each question MUST reference specific content from the sources above");
+    expect(prompt).toContain("Do not invent facts, vocabulary, or sentences");
+  });
+
+  // ── Translation-specific vocabulary constraint ──
+
+  it("TRANSLATION prompt includes vocabulary constraint with ragContext", () => {
+    const prompt = buildQuizPrompt("TRANSLATION", baseParams);
+    expect(prompt).toContain(
+      "source and target text for each translation MUST come from actual vocabulary"
+    );
+    expect(prompt).toContain(
+      "Do not invent words or phrases that are not in the sources"
+    );
+  });
+
+  it("MULTIPLE_CHOICE prompt does NOT include translation vocabulary constraint", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", baseParams);
+    expect(prompt).not.toContain(
+      "source and target text for each translation MUST come from actual vocabulary"
+    );
+  });
+
+  it("FILL_IN_BLANK prompt does NOT include translation vocabulary constraint", () => {
+    const prompt = buildQuizPrompt("FILL_IN_BLANK", baseParams);
+    expect(prompt).not.toContain(
+      "source and target text for each translation MUST come from actual vocabulary"
+    );
+  });
+
+  // ── No RAG block when ragContext is not provided ──
+
+  it("does not include RAG block when ragContext is undefined", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", {
+      topic: "greetings",
+      difficulty: "beginner",
+      count: 5,
+    });
+    expect(prompt).not.toContain("COURSE CONTENT");
+    expect(prompt).not.toContain("Do not use general knowledge");
+  });
+
+  it("does not include RAG block when ragContext is empty string", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", {
+      topic: "greetings",
+      difficulty: "beginner",
+      count: 5,
+      ragContext: "",
+    });
+    expect(prompt).not.toContain("COURSE CONTENT");
+    expect(prompt).not.toContain("Do not use general knowledge");
+  });
+
+  it("TRANSLATION prompt omits vocabulary constraint without ragContext", () => {
+    const prompt = buildQuizPrompt("TRANSLATION", {
+      topic: "food",
+      difficulty: "advanced",
+      count: 5,
+    });
+    expect(prompt).not.toContain(
+      "source and target text for each translation MUST come from actual vocabulary"
+    );
+  });
+
+  // ── RAG + learningContext coexistence ──
+
+  it("includes both RAG and learningContext blocks when both provided", () => {
+    const prompt = buildQuizPrompt("MULTIPLE_CHOICE", {
+      topic: "greetings",
+      difficulty: "beginner",
+      count: 5,
+      ragContext: sampleRag,
+      learningContext: {
+        completedTopics: ["Hello"],
+        weakTopics: ["Colours"],
+        strongTopics: [],
+        frequentlyMissedWords: [],
+        overallLevel: "beginner",
+      },
+    });
+    // RAG block present
+    expect(prompt).toContain("COURSE CONTENT");
+    expect(prompt).toContain("Source 1");
+    // Learning context block present
+    expect(prompt).toContain("PERSONALISATION");
+    expect(prompt).toContain("Hello");
+    expect(prompt).toContain("STRUGGLE");
+  });
+});
