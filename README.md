@@ -139,10 +139,14 @@ speakify/
     |-- vertex-rag.ts
   |- public/
   |- scripts/
+    |-- create-rag-corpus.test.ts
     |-- create-rag-corpus.ts
+    |-- export-course-content.test.ts
     |-- export-course-content.ts
+    |-- import-rag-files.test.ts
     |-- import-rag-files.ts
     |-- prod.ts
+    |-- rag-status.test.ts
     |-- rag-status.ts
     |-- test-content-formatter-integration.ts
     |-- test-content-formatter.ts
