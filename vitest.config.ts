@@ -9,7 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.ts", "**/*.test.tsx"],
-    exclude: ["node_modules", ".next", "tests/**"], // keep Playwright E2E separate
+    exclude: ["node_modules", ".next", "tests/**/*.spec.ts"], // Playwright specs only; allow tests/*.e2e.test.ts
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
@@ -23,6 +23,7 @@ export default defineConfig({
         "config/index.ts",
         "constants.ts",
         "middleware.ts",
+        "scripts/import-rag-files.ts",
       ],
       exclude: [
         "**/*.test.ts",
