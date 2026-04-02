@@ -96,7 +96,6 @@ describe("test-content-formatter script", () => {
     formatLessonChunkMock.mockReturnValue("missing everything");
     formatCourseManifestMock.mockReturnValue("missing everything");
 
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
