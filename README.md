@@ -145,13 +145,19 @@ speakify/
     |-- export-course-content.ts
     |-- import-rag-files.test.ts
     |-- import-rag-files.ts
+    |-- prod.test.ts
     |-- prod.ts
     |-- rag-status.test.ts
     |-- rag-status.ts
+    |-- test-content-formatter-integration.test.ts
     |-- test-content-formatter-integration.ts
+    |-- test-content-formatter.test.ts
     |-- test-content-formatter.ts
+    |-- test-export-queries.test.ts
     |-- test-export-queries.ts
+    |-- test-gcp-auth.test.ts
     |-- test-gcp-auth.ts
+    |-- test-gemini.test.ts
     |-- test-gemini.ts
   |- store/
     |-- quiz-store.test.ts
