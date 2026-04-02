@@ -104,7 +104,6 @@ describe("prod script", () => {
   it("throws when database operations fail", async () => {
     deleteMock.mockReturnValue(Promise.reject(new Error("DB error")));
 
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // The main() function catches errors, logs them, and throws new Error("Failed to seed database")
