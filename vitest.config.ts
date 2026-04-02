@@ -23,6 +23,7 @@ export default defineConfig({
         "config/index.ts",
         "constants.ts",
         "middleware.ts",
+        "scripts/**",
       ],
       exclude: [
         "**/*.test.ts",
