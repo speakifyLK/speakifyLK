@@ -80,7 +80,7 @@ describe("test-content-formatter script", () => {
       .mockReturnValueOnce("No units available");
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
 
     await import("./test-content-formatter");
     await flushPromises();
