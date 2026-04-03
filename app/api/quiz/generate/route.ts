@@ -244,7 +244,10 @@ export async function POST(request: Request) {
           questions = await callGeminiWithRetry(prompt, quizType, count);
           isSuccessWithRag = true;
         } catch (ragError) {
-          console.error("[quiz/generate] RAG generation failed, reverting to original flow:", ragError);
+          console.error(
+            "[quiz/generate] RAG generation failed, reverting to original flow:",
+            ragError
+          );
           isRagGrounded = false;
         }
       }
