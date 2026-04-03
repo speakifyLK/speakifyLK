@@ -192,6 +192,7 @@ speakify/
   |- constants.test.ts
   |- constants.ts
   |- cov_check.log
+  |- cov.json
   |- cov.txt
   |- cov2.log
   |- coverage.log
@@ -207,11 +208,14 @@ speakify/
   |- playwright.config.ts
   |- postcss.config.js
   |- refact_cov.log
+  |- result.json
+  |- result.txt
   |- tailwind.config.ts
   |- test_report.json
   |- tsc.log
   |- tsconfig.json
   |- vercel.ts
+  |- vitest_cov_out.txt
   |- vitest.config.ts
   |- vitest.log
   |- vitest.setup.ts
