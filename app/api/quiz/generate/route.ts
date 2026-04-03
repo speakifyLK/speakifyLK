@@ -260,10 +260,11 @@ export async function POST(request: Request) {
           isRagGrounded = true; // Mark that at least ONE type succeeded with RAG
         } catch (ragError) {
           console.warn(
-            "[quiz/generate] RAG-enhanced generation failed for this type, reverting to original flow:",
+            "[quiz/generate] RAG-enhanced generation failed for this type, reverting to original flow for the remainder of the request:",
             ragError
           );
-          // We keep ragContextAvailable = true so subsequent question types can still attempt it
+          ragContextAvailable = false;
+          sharedRagContext = undefined;
         }
       }
 

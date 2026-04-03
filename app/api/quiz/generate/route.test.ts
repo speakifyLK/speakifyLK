@@ -571,7 +571,7 @@ describe("POST /api/quiz/generate", () => {
     );
   });
 
-  it("skips RAG for subsequent question types if RAG fails on the first", async () => {
+  it("skips RAG for all question types if context retrieval fails", async () => {
     const body = {
       ...validBody,
       questionCount: 5,
@@ -592,8 +592,15 @@ describe("POST /api/quiz/generate", () => {
     const res = await POST(makeRequest(body));
     expect(res.status).toBe(200);
 
-    // Should only be called once because the second iteration evaluates `if (isRagGrounded)` to false
+    // retrieval is hoisted outside the loop, so it is only called once
     expect(mockRetrieveContext).toHaveBeenCalledTimes(1);
+    
+    // Since RAG retrieval failed, the entire session should fall back natively
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
+      })
+    );
   });
 
   // ── DB operations ──
