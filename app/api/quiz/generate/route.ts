@@ -212,7 +212,27 @@ export async function POST(request: Request) {
     const remainder = body.questionCount % typeCount;
 
     const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
-    let isRagGrounded = true;
+    let isRagGrounded = false; // Final flag for the DB session (true if any question was RAG grounded)
+    let ragContextAvailable = true; // Flag to determine if we should still try RAG
+    let sharedRagContext: string | undefined = undefined;
+
+    // Fetch RAG context once for all question types
+    try {
+      const ragChunks = await retrieveContext(`${body.topic} ${body.difficulty}`);
+      const validChunks = ragChunks.filter((c) => c.text && c.text.trim().length > 0);
+
+      if (validChunks.length > 0) {
+        sharedRagContext = validChunks.map((c) => c.text).join("\n");
+      } else {
+        ragContextAvailable = false;
+        console.info(
+          "[quiz/generate] No relevant RAG context found for this topic. Proceeding without context."
+        );
+      }
+    } catch (err) {
+      ragContextAvailable = false;
+      console.warn("[quiz/generate] Error retrieving RAG context:", err);
+    }
 
     for (let i = 0; i < body.questionTypes.length; i++) {
       const quizType = body.questionTypes[i];
@@ -225,37 +245,30 @@ export async function POST(request: Request) {
       let isSuccessWithRag = false;
 
       // ── Try RAG-enhanced generation path ──
-      if (isRagGrounded) {
+      if (ragContextAvailable && sharedRagContext) {
         try {
-          const ragChunks = await retrieveContext(`${body.topic} ${body.difficulty}`);
-          if (ragChunks.length === 0) {
-            throw new Error("No RAG context found.");
-          }
-          const ragContext = ragChunks.map((c) => c.text).join("\n");
-
           const prompt = buildQuizPrompt(quizType, {
             topic: body.topic,
             difficulty: body.difficulty,
             count,
             learningContext,
-            ragContext,
+            ragContext: sharedRagContext,
           });
 
           questions = await callGeminiWithRetry(prompt, quizType, count);
           isSuccessWithRag = true;
+          isRagGrounded = true; // Mark that at least ONE type succeeded with RAG
         } catch (ragError) {
-          console.error(
-            "[quiz/generate] RAG generation failed, reverting to original flow:",
+          console.warn(
+            "[quiz/generate] RAG-enhanced generation failed for this type, reverting to original flow:",
             ragError
           );
-          isRagGrounded = false;
+          // We keep ragContextAvailable = true so subsequent question types can still attempt it
         }
       }
 
       // ── Fallback to original non-RAG flow ──
       if (!isSuccessWithRag) {
-        isRagGrounded = false;
-
         // Build prompt — errors here are client input problems (400)
         let prompt: string;
         try {
