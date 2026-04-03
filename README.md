@@ -191,6 +191,9 @@ speakify/
   |- components.json
   |- constants.test.ts
   |- constants.ts
+  |- cov.txt
+  |- cov2.log
+  |- coverage.log
   |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
@@ -207,6 +210,7 @@ speakify/
   |- tsconfig.json
   |- vercel.ts
   |- vitest.config.ts
+  |- vitest.log
   |- vitest.setup.ts
 ```
 <!--- FOLDER_STRUCTURE_END --->
