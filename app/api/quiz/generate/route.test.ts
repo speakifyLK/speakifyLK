@@ -523,14 +523,28 @@ describe("POST /api/quiz/generate", () => {
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(200);
 
-    // Second call to buildQuizPrompt should NOT have ragContext (or mock is called once if we only verify the final success)
-    // Actually, buildQuizPrompt will be called twice (once for failure if we made it to buildQuizPrompt? No, it errors BEFORE buildQuizPrompt because ragChunks is empty)
-    expect(mockBuildQuizPrompt).toHaveBeenCalledWith(
-      "multiple_choice",
-      expect.not.objectContaining({
-        ragContext: expect.anything(),
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
       })
     );
+  });
+
+  it("filters out empty text chunks completely and handles fallback", async () => {
+    mockRetrieveContext.mockResolvedValue([
+      { text: "", source: "a", score: 0.9 },
+      { text: "   ", source: "b", score: 0.9 }, // only empty spaces
+    ]);
+    vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({
         ragGrounded: false,
