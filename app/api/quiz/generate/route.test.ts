@@ -111,7 +111,9 @@ describe("POST /api/quiz/generate", () => {
     mockGetUserLearningProfile.mockResolvedValue(null);
 
     // Default: RAG succeeds
-    mockRetrieveContext.mockResolvedValue([{ text: "Some course text", source: "...", score: 0.9 }]);
+    mockRetrieveContext.mockResolvedValue([
+      { text: "Some course text", source: "...", score: 0.9 },
+    ]);
 
     // Default: build prompt returns a string
     mockBuildQuizPrompt.mockReturnValue("generated prompt");
@@ -562,7 +564,7 @@ describe("POST /api/quiz/generate", () => {
       questionTypes: ["mcq", "fill_blank"],
     };
     mockRetrieveContext.mockRejectedValueOnce(new Error("RAG dead"));
-    
+
     vi.mocked(parseGeminiQuizResponse)
       .mockReturnValueOnce(fakeQuestions(3))
       .mockReturnValueOnce(fakeQuestions(2));
