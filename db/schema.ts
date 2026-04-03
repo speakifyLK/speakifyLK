@@ -221,6 +221,7 @@ export const aiQuizSessions = pgTable("ai_quiz_sessions", {
   courseId: integer("course_id")
     .references(() => courses.id, { onDelete: "cascade" })
     .notNull(),
+  ragGrounded: boolean("rag_grounded").notNull().default(false),
 });
 
 export const aiQuizSessionsRelations = relations(

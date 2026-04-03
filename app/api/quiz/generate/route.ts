@@ -19,6 +19,7 @@ import {
   type LearningContext,
   type QuizType,
 } from "@/lib/quiz-prompt";
+import { retrieveContext } from "@/lib/vertex-rag";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -211,6 +212,7 @@ export async function POST(request: Request) {
     const remainder = body.questionCount % typeCount;
 
     const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
+    let isRagGrounded = true;
 
     for (let i = 0; i < body.questionTypes.length; i++) {
       const quizType = body.questionTypes[i];
@@ -219,28 +221,62 @@ export async function POST(request: Request) {
       // v8 ignore next
       if (count === 0) continue;
 
-      // Build prompt — errors here are client input problems (400)
-      let prompt: string;
-      try {
-        prompt = buildQuizPrompt(quizType, {
-          topic: body.topic,
-          difficulty: body.difficulty,
-          count,
-          learningContext,
-        });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
-        return NextResponse.json({ error: message }, { status: 400 });
+      let questions: ParsedQuestion[] = [];
+      let isSuccessWithRag = false;
+
+      // ── Try RAG-enhanced generation path ──
+      if (isRagGrounded) {
+        try {
+          const ragChunks = await retrieveContext(`${body.topic} ${body.difficulty}`);
+          if (ragChunks.length === 0) {
+            throw new Error("No RAG context found.");
+          }
+          const ragContext = ragChunks.map((c) => c.text).join("\n");
+
+          const prompt = buildQuizPrompt(quizType, {
+            topic: body.topic,
+            difficulty: body.difficulty,
+            count,
+            learningContext,
+            ragContext,
+          });
+
+          questions = await callGeminiWithRetry(prompt, quizType, count);
+          isSuccessWithRag = true;
+        } catch (ragError) {
+          console.error("[quiz/generate] RAG generation failed, reverting to original flow:", ragError);
+          isRagGrounded = false;
+        }
       }
 
-      // Call Gemini — errors here are upstream failures (502)
-      try {
-        const questions = await callGeminiWithRetry(prompt, quizType, count);
-        allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to generate quiz.";
-        return NextResponse.json({ error: message }, { status: 502 });
+      // ── Fallback to original non-RAG flow ──
+      if (!isSuccessWithRag) {
+        isRagGrounded = false;
+
+        // Build prompt — errors here are client input problems (400)
+        let prompt: string;
+        try {
+          prompt = buildQuizPrompt(quizType, {
+            topic: body.topic,
+            difficulty: body.difficulty,
+            count,
+            learningContext,
+          });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
+          return NextResponse.json({ error: message }, { status: 400 });
+        }
+
+        // Call Gemini — errors here are upstream failures (502)
+        try {
+          questions = await callGeminiWithRetry(prompt, quizType, count);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Failed to generate quiz.";
+          return NextResponse.json({ error: message }, { status: 502 });
+        }
       }
+
+      allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
     }
 
     /* v8 ignore next 3 -- defensive guard; questionTypes is validated non-empty above */
@@ -260,6 +296,7 @@ export async function POST(request: Request) {
         difficulty: body.difficulty,
         totalQuestions: allQuestions.length,
         courseId: userProgress.activeCourseId!,
+        ragGrounded: isRagGrounded,
       })
       .returning({ id: aiQuizSessions.id });
 
