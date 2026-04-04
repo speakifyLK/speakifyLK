@@ -25,6 +25,11 @@ coverage-output.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
+cov*.json
+cov*.txt
+result.txt
+result.json
 
 # local env files
 .env*.local
