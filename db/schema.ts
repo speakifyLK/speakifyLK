@@ -99,15 +99,12 @@ export const challengeOptions = pgTable("challenge_options", {
   audioSrc: text("audio_src"),
 });
 
-export const challengeOptionsRelations = relations(
-  challengeOptions,
-  ({ one }) => ({
-    challenge: one(challenges, {
-      fields: [challengeOptions.challengeId],
-      references: [challenges.id],
-    }),
-  })
-);
+export const challengeOptionsRelations = relations(challengeOptions, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [challengeOptions.challengeId],
+    references: [challenges.id],
+  }),
+}));
 
 export const challengeProgress = pgTable("challenge_progress", {
   id: serial("id").primaryKey(),
@@ -120,15 +117,12 @@ export const challengeProgress = pgTable("challenge_progress", {
   completed: boolean("completed").notNull().default(false),
 });
 
-export const challengeProgressRelations = relations(
-  challengeProgress,
-  ({ one }) => ({
-    challenge: one(challenges, {
-      fields: [challengeProgress.challengeId],
-      references: [challenges.id],
-    }),
-  })
-);
+export const challengeProgressRelations = relations(challengeProgress, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [challengeProgress.challengeId],
+    references: [challenges.id],
+  }),
+}));
 
 export const userProgress = pgTable("user_progress", {
   userId: text("user_id").primaryKey(),
@@ -167,15 +161,15 @@ export const chatConversations = pgTable("chat_conversations", {
   title: text("title").notNull().default("New Conversation"),
   language: text("language").notNull().default("sinhala"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const chatConversationsRelations = relations(
-  chatConversations,
-  ({ many }) => ({
-    messages: many(chatMessages),
-  })
-);
+export const chatConversationsRelations = relations(chatConversations, ({ many }) => ({
+  messages: many(chatMessages),
+}));
 
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
@@ -221,18 +215,16 @@ export const aiQuizSessions = pgTable("ai_quiz_sessions", {
   courseId: integer("course_id")
     .references(() => courses.id, { onDelete: "cascade" })
     .notNull(),
+  ragGrounded: boolean("rag_grounded").notNull().default(false),
 });
 
-export const aiQuizSessionsRelations = relations(
-  aiQuizSessions,
-  ({ one, many }) => ({
-    course: one(courses, {
-      fields: [aiQuizSessions.courseId],
-      references: [courses.id],
-    }),
-    questions: many(aiQuizQuestions),
-  })
-);
+export const aiQuizSessionsRelations = relations(aiQuizSessions, ({ one, many }) => ({
+  course: one(courses, {
+    fields: [aiQuizSessions.courseId],
+    references: [courses.id],
+  }),
+  questions: many(aiQuizQuestions),
+}));
 
 export const aiQuizQuestions = pgTable("ai_quiz_questions", {
   id: serial("id").primaryKey(),
@@ -249,12 +241,9 @@ export const aiQuizQuestions = pgTable("ai_quiz_questions", {
   order: integer("order").notNull(),
 });
 
-export const aiQuizQuestionsRelations = relations(
-  aiQuizQuestions,
-  ({ one }) => ({
-    session: one(aiQuizSessions, {
-      fields: [aiQuizQuestions.sessionId],
-      references: [aiQuizSessions.id],
-    }),
-  })
-);
+export const aiQuizQuestionsRelations = relations(aiQuizQuestions, ({ one }) => ({
+  session: one(aiQuizSessions, {
+    fields: [aiQuizQuestions.sessionId],
+    references: [aiQuizSessions.id],
+  }),
+}));

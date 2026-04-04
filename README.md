@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -192,6 +191,11 @@ speakify/
   |- components.json
   |- constants.test.ts
   |- constants.ts
+  |- cov_check.log
+  |- cov.json
+  |- cov.txt
+  |- cov2.log
+  |- coverage.log
   |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
@@ -203,13 +207,19 @@ speakify/
   |- package.json
   |- playwright.config.ts
   |- postcss.config.js
+  |- refact_cov.log
+  |- result.json
+  |- result.txt
   |- tailwind.config.ts
+  |- test_report.json
+  |- tsc.log
   |- tsconfig.json
   |- vercel.ts
+  |- vitest_cov_out.txt
   |- vitest.config.ts
+  |- vitest.log
   |- vitest.setup.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -382,7 +392,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
