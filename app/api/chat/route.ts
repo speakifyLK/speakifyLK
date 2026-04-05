@@ -207,7 +207,18 @@ export async function POST(req: Request) {
       throw new Error("E2E Forced RAG Failure (503)");
     }
 
-    const ragStream = await generateWithRAG(chatHistory, systemPrompt);
+    let ragStream: ReadableStream<Uint8Array>;
+    if (userId === "e2e_test_user" && process.env.NODE_ENV !== "production") {
+      const encoder = new TextEncoder();
+      ragStream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode("Ayubowan! This is a mock RAG response with more than 10 characters."));
+          controller.close();
+        }
+      });
+    } else {
+      ragStream = await generateWithRAG(chatHistory, systemPrompt);
+    }
 
     // RAG succeeded — stream the response
     const stream = createStreamResponse(
@@ -246,28 +257,33 @@ export async function POST(req: Request) {
 
   // ── 9. Fallback: Non-RAG flow using Gemini SDK ──
   try {
-    const ai = getGeminiClient();
-
-    const response = await ai.models.generateContentStream({
-      model: getModel(),
-      contents: [
-        { role: "user", parts: [{ text: systemPrompt }] },
-        {
-          role: "model",
-          parts: [
-            { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
-          ],
-        },
-        ...geminiHistory,
-      ],
-      config: {
-        safetySettings,
-        ...generationConfig,
-      },
-    });
-
     const stream = createStreamResponse(
       async function* () {
+        if (userId === "e2e_test_user" && process.env.NODE_ENV !== "production") {
+          yield "This is a mock Gemini fallback response with more than 10 characters.";
+          return;
+        }
+
+        const ai = getGeminiClient();
+
+        const response = await ai.models.generateContentStream({
+          model: getModel(),
+          contents: [
+            { role: "user", parts: [{ text: systemPrompt }] },
+            {
+              role: "model",
+              parts: [
+                { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
+              ],
+            },
+            ...geminiHistory,
+          ],
+          config: {
+            safetySettings,
+            ...generationConfig,
+          },
+        });
+
         for await (const chunk of response) {
           yield chunk.text ?? "";
         }
