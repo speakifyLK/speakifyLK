@@ -202,6 +202,17 @@ export const quizQuestionTypeEnum = pgEnum("quiz_question_type", [
   "translation",
 ]);
 
+/** Optional JSON payload on AI quiz sessions (e.g. RAG retrieval trace). */
+export type AiQuizSessionMetadata = {
+  rag?: {
+    provider: "vertex_rag_retrieveContexts";
+    chunkCount: number;
+    chunkSources: Array<{ source: string; score: number }>;
+    /** True when generation used retrieved chunks in the prompt for at least one type. */
+    groundedGeneration: boolean;
+  };
+};
+
 export const aiQuizSessions = pgTable("ai_quiz_sessions", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
@@ -216,6 +227,7 @@ export const aiQuizSessions = pgTable("ai_quiz_sessions", {
     .references(() => courses.id, { onDelete: "cascade" })
     .notNull(),
   ragGrounded: boolean("rag_grounded").notNull().default(false),
+  metadata: json("metadata").$type<AiQuizSessionMetadata | null>(),
 });
 
 export const aiQuizSessionsRelations = relations(aiQuizSessions, ({ one, many }) => ({

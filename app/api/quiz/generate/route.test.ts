@@ -15,9 +15,13 @@ vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
   getUserLearningProfile: mockGetUserLearningProfile,
 }));
-vi.mock("@/lib/quiz-rag", () => ({
-  getQuizContext: mockGetQuizContext,
-}));
+vi.mock("@/lib/quiz-rag", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/quiz-rag")>();
+  return {
+    ...actual,
+    getQuizContext: mockGetQuizContext,
+  };
+});
 vi.mock("@/lib/gemini", () => ({
   generateContent: mockGenerateContent,
 }));
@@ -67,6 +71,7 @@ vi.mock("@/db/drizzle", () => {
 
 import { POST } from "./route";
 import { parseGeminiQuizResponse } from "@/lib/quiz-normalise";
+import { formatQuizRagChunksForPrompt } from "@/lib/quiz-rag";
 
 // Helper
 function makeRequest(body: unknown): Request {
@@ -494,17 +499,28 @@ describe("POST /api/quiz/generate", () => {
     expect(res.status).toBe(200);
 
     expect(mockGetQuizContext).toHaveBeenCalledWith("Greetings", "beginner");
+    const expectedRagContext = formatQuizRagChunksForPrompt([
+      { text: "Some course text", source: "...", score: 0.9 },
+    ]);
     expect(mockBuildQuizPrompt).toHaveBeenCalledWith(
       "multiple_choice",
       expect.objectContaining({
-        ragContext: "Some course text",
+        ragContext: expectedRagContext,
       })
     );
 
-    // Session DB insert uses ragGrounded: true
+    // Session DB insert uses ragGrounded: true and RAG trace metadata
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({
         ragGrounded: true,
+        metadata: {
+          rag: {
+            provider: "vertex_rag_retrieveContexts",
+            chunkCount: 1,
+            chunkSources: [{ source: "...", score: 0.9 }],
+            groundedGeneration: true,
+          },
+        },
       })
     );
   });
@@ -524,6 +540,7 @@ describe("POST /api/quiz/generate", () => {
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({
         ragGrounded: false,
+        metadata: null,
       })
     );
   });
@@ -546,6 +563,7 @@ describe("POST /api/quiz/generate", () => {
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({
         ragGrounded: false,
+        metadata: null,
       })
     );
   });
@@ -565,6 +583,79 @@ describe("POST /api/quiz/generate", () => {
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({
         ragGrounded: false,
+        metadata: null,
+      })
+    );
+  });
+
+  it("stores RAG metadata with multiple chunk sources and matching chunkCount", async () => {
+    mockGetQuizContext.mockResolvedValue([
+      { text: "Chunk A", source: "gs://a", score: 0.95 },
+      { text: "Chunk B", source: "gs://b", score: 0.85 },
+    ]);
+    vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
+
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: {
+          rag: {
+            provider: "vertex_rag_retrieveContexts",
+            chunkCount: 2,
+            chunkSources: [
+              { source: "gs://a", score: 0.95 },
+              { source: "gs://b", score: 0.85 },
+            ],
+            groundedGeneration: true,
+          },
+        },
+      })
+    );
+  });
+
+  it("sets groundedGeneration false in metadata when RAG generation fails but fallback succeeds", async () => {
+    mockGetQuizContext.mockResolvedValue([{ text: "course bit", source: "doc-1", score: 0.88 }]);
+
+    let parseCalls = 0;
+    vi.mocked(parseGeminiQuizResponse).mockImplementation(() => {
+      parseCalls += 1;
+      // Exhaust RAG path retries (3 attempts), then succeed on non-RAG path
+      if (parseCalls <= 3) {
+        throw new Error("invalid RAG JSON");
+      }
+      return fakeQuestions(5);
+    });
+
+    mockGenerateContent.mockResolvedValue({ text: "{}" });
+
+    const returningFn = vi.fn().mockResolvedValue([{ id: 101 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
+        metadata: {
+          rag: {
+            provider: "vertex_rag_retrieveContexts",
+            chunkCount: 1,
+            chunkSources: [{ source: "doc-1", score: 0.88 }],
+            groundedGeneration: false,
+          },
+        },
       })
     );
   });
@@ -597,6 +688,7 @@ describe("POST /api/quiz/generate", () => {
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({
         ragGrounded: false,
+        metadata: null,
       })
     );
   });

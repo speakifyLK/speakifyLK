@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
-import { aiQuizQuestions, aiQuizSessions } from "@/db/schema";
+import { aiQuizQuestions, aiQuizSessions, type AiQuizSessionMetadata } from "@/db/schema";
 import { generateContent } from "@/lib/gemini";
 import {
   dbTypeToQuizType,
@@ -13,7 +13,7 @@ import {
   quizTypeToDbType,
   type ParsedQuestion,
 } from "@/lib/quiz-normalise";
-import { getQuizContext } from "@/lib/quiz-rag";
+import { formatQuizRagChunksForPrompt, getQuizContext } from "@/lib/quiz-rag";
 import {
   buildQuizPrompt,
   type Difficulty,
@@ -215,6 +215,8 @@ export async function POST(request: Request) {
     let isRagGrounded = false; // Final flag for the DB session (true if any question was RAG grounded)
     let ragContextAvailable = true; // Flag to determine if we should still try RAG
     let sharedRagContext: string | undefined = undefined;
+    /** Non-empty retrieved chunks (for prompt formatting and session metadata). */
+    let ragChunksForMetadata: Awaited<ReturnType<typeof getQuizContext>> = [];
 
     // Fetch RAG context once for all question types
     try {
@@ -222,7 +224,8 @@ export async function POST(request: Request) {
       const validChunks = ragChunks.filter((c) => c.text && c.text.trim().length > 0);
 
       if (validChunks.length > 0) {
-        sharedRagContext = validChunks.map((c) => c.text).join("\n");
+        ragChunksForMetadata = validChunks;
+        sharedRagContext = formatQuizRagChunksForPrompt(validChunks);
       } else {
         ragContextAvailable = false;
         console.info(
@@ -301,6 +304,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
     }
 
+    const sessionMetadata: AiQuizSessionMetadata | null =
+      ragChunksForMetadata.length > 0
+        ? {
+            rag: {
+              provider: "vertex_rag_retrieveContexts",
+              chunkCount: ragChunksForMetadata.length,
+              chunkSources: ragChunksForMetadata.map((c) => ({
+                source: c.source,
+                score: c.score,
+              })),
+              groundedGeneration: isRagGrounded,
+            },
+          }
+        : null;
+
     // ── 5. Save session and questions to the database ──
     // Note: neon-http driver does not support transactions, so we use
     // sequential inserts. The session is created first, then questions
@@ -314,6 +332,7 @@ export async function POST(request: Request) {
         totalQuestions: allQuestions.length,
         courseId: userProgress.activeCourseId!,
         ragGrounded: isRagGrounded,
+        metadata: sessionMetadata,
       })
       .returning({ id: aiQuizSessions.id });
 
