@@ -216,9 +216,11 @@ export async function POST(req: Request) {
       const encoder = new TextEncoder();
       ragStream = new ReadableStream({
         start(controller) {
-          controller.enqueue(encoder.encode("Ayubowan! This is a mock RAG response with more than 10 characters."));
+          controller.enqueue(
+            encoder.encode("Ayubowan! This is a mock RAG response with more than 10 characters.")
+          );
           controller.close();
-        }
+        },
       });
     } else {
       ragStream = await generateWithRAG(chatHistory, systemPrompt);
@@ -277,7 +279,9 @@ export async function POST(req: Request) {
             {
               role: "model",
               parts: [
-                { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
+                {
+                  text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?",
+                },
               ],
             },
             ...geminiHistory,
