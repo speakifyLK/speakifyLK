@@ -9,9 +9,9 @@ import { test, expect } from "@playwright/test";
  * - HTTP method validation
  * - Admin CRUD endpoint protection
  *
- * NOTE: Clerk middleware intercepts unauthenticated requests before they
- * reach the route handler. Protected routes return a non-success status
- * (typically 401 or 404 via redirect) rather than 200.
+ * NOTE: Unauthenticated calls to /api/* reach route handlers (middleware
+ * skips auth.protect on API routes). Expect JSON error bodies (e.g. 401)
+ * rather than HTML 404 from Clerk rewrites.
  */
 
 // ──────────────────────────────────────────────────

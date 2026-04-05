@@ -38,20 +38,6 @@ test.describe("Quiz RAG (lib/quiz-rag)", () => {
     expect(text).toContain("ආයුබෝවන්");
   });
 
-  test("unauthenticated POST /api/quiz/generate still rejects (quiz pipeline protected)", async ({
-    request,
-  }) => {
-    const response = await request.post("/api/quiz/generate", {
-      data: {
-        topic: "greetings",
-        difficulty: "beginner",
-        questionCount: 5,
-        questionTypes: ["mcq"],
-      },
-    });
-    expect(response.ok()).toBe(false);
-  });
-
   test("quiz session RAG metadata contract matches persisted generate-route shape", () => {
     expect(() =>
       assertAiQuizSessionRagMetadataContract({

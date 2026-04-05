@@ -46,6 +46,9 @@ export function formatQuizRagChunksForPrompt(chunks: RagChunk[]): string {
  * the given topic and difficulty.
  */
 export async function getQuizContext(topic: string, difficulty: Difficulty): Promise<RagChunk[]> {
+  if (process.env.QUIZ_DISABLE_RAG === "1") {
+    return [];
+  }
   const query = buildQuizRagRetrievalQuery(topic, difficulty);
   return retrieveContext(query);
 }

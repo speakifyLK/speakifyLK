@@ -260,6 +260,9 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
       .where(eq(aiQuizSessions.id, question.sessionId));
   }
 
+  revalidatePath("/learn");
+  revalidatePath("/quiz");
+
   return { isCorrect };
 }
 
