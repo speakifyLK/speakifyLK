@@ -36,16 +36,21 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run unit tests
+        id: unit-tests-run
         run: bun run test:coverage
         continue-on-error: true
 
       - name: Upload unit test Allure results
         uses: actions/upload-artifact@v7
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         with:
           name: allure-results-unit
           path: allure-results/
           retention-days: 30
+
+      - name: Fail if unit tests failed
+        if: ${{ steps.unit-tests-run.outcome == 'failure' }}
+        run: exit 1
 
   e2e-tests:
     name: E2E Tests
@@ -103,22 +108,27 @@ jobs:
         run: bunx playwright install-deps
 
       - name: Run Playwright tests
+        id: playwright-tests
         run: bunx playwright test
         continue-on-error: true
 
       - name: Upload E2E Allure results
         uses: actions/upload-artifact@v7
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         with:
           name: allure-results-e2e
           path: allure-results/
           retention-days: 30
 
+      - name: Fail if Playwright tests failed
+        if: ${{ steps.playwright-tests.outcome == 'failure' }}
+        run: exit 1
+
   generate-report:
     name: Generate Allure Report
     runs-on: ubuntu-latest
     needs: [unit-tests, e2e-tests]
-    if: ${{ !cancelled() }}
+    if: ${{ always() && !cancelled() }}
 
     steps:
       - name: Download unit test Allure results
