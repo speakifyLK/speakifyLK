@@ -111,9 +111,7 @@ describe("POST /api/quiz/generate", () => {
     mockGetUserLearningProfile.mockResolvedValue(null);
 
     // Default: RAG succeeds
-    mockGetQuizContext.mockResolvedValue([
-      { text: "Some course text", source: "...", score: 0.9 },
-    ]);
+    mockGetQuizContext.mockResolvedValue([{ text: "Some course text", source: "...", score: 0.9 }]);
 
     // Default: build prompt returns a string
     mockBuildQuizPrompt.mockReturnValue("generated prompt");
@@ -594,7 +592,7 @@ describe("POST /api/quiz/generate", () => {
 
     // retrieval is hoisted outside the loop, so it is only called once
     expect(mockGetQuizContext).toHaveBeenCalledTimes(1);
-    
+
     // Since RAG retrieval failed, the entire session should fall back natively
     expect(valuesFn).toHaveBeenCalledWith(
       expect.objectContaining({

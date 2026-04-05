@@ -102,7 +102,10 @@ async function callGeminiWithRetry(
  * Splits `total` questions across `types` using floor division, assigning the
  * remainder to the earliest types (same strategy as the quiz generate API).
  */
-export function distributeQuestionCountByType(total: number, types: QuizType[]): Map<QuizType, number> {
+export function distributeQuestionCountByType(
+  total: number,
+  types: QuizType[]
+): Map<QuizType, number> {
   const uniqueTypes = dedupeQuizTypesPreservingOrder(types);
   const map = new Map<QuizType, number>();
   for (const t of uniqueTypes) map.set(t, 0);

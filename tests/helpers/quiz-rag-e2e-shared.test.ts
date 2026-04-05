@@ -34,9 +34,7 @@ describe("quiz-rag-e2e-shared", () => {
     vi.spyOn(quizRag, "buildQuizRagRetrievalQuery").mockReturnValue(
       "SpeakifyLK Sinhala course content for quiz generation.\nTopic: hello.\nDifficulty level: wrong."
     );
-    expect(() => assertQuizRagRetrievalQueryShape("hello", "beginner")).toThrow(
-      "difficulty line"
-    );
+    expect(() => assertQuizRagRetrievalQueryShape("hello", "beginner")).toThrow("difficulty line");
   });
 
   it("snapshotQuestionDistribution delegates to distributeQuestionCountByType", () => {

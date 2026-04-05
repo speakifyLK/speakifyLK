@@ -152,9 +152,9 @@ describe("quiz-rag module", () => {
 
   describe("generateQuizWithRAG", () => {
     it("throws when questionTypes is empty", async () => {
-      await expect(
-        generateQuizWithRAG("greetings", "beginner", 5, [])
-      ).rejects.toThrow('"questionTypes" must be a non-empty array.');
+      await expect(generateQuizWithRAG("greetings", "beginner", 5, [])).rejects.toThrow(
+        '"questionTypes" must be a non-empty array.'
+      );
     });
 
     it("throws when questionCount is zero", async () => {

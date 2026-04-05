@@ -12,9 +12,7 @@ import {
  */
 test.describe("Quiz RAG (lib/quiz-rag)", () => {
   test("buildQuizRagRetrievalQuery includes SpeakifyLK preamble, topic, and difficulty", () => {
-    expect(() =>
-      assertQuizRagRetrievalQueryShape("  numbers  ", "advanced")
-    ).not.toThrow();
+    expect(() => assertQuizRagRetrievalQueryShape("  numbers  ", "advanced")).not.toThrow();
   });
 
   test("distributeQuestionCountByType matches remainder-to-early-types strategy", () => {
