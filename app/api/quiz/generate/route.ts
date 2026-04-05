@@ -5,11 +5,7 @@ import { eq } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getUserLearningProfile, getUserProgress } from "@/db/queries";
-import {
-  aiQuizQuestions,
-  aiQuizSessions,
-  type AiQuizSessionMetadata,
-} from "@/db/schema";
+import { aiQuizQuestions, aiQuizSessions, type AiQuizSessionMetadata } from "@/db/schema";
 import { generateContent } from "@/lib/gemini";
 import {
   dbTypeToQuizType,
