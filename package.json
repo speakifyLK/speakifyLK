@@ -31,6 +31,7 @@
     "test:e2e": "playwright test",
     "test:e2e:rag-status": "playwright test tests/rag-import-status.spec.ts",
     "test:coverage:rag-status": "vitest run lib/rag-import-status.test.ts --coverage --coverage.include=lib/rag-import-status.ts --coverage.thresholds.lines=100 --coverage.thresholds.branches=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100",
+    "test:coverage:quiz-rag": "vitest run lib/quiz-rag.test.ts tests/helpers/quiz-rag-e2e-shared.test.ts --reporter=default --coverage --coverage.include=lib/quiz-rag.ts --coverage.include=tests/helpers/quiz-rag-e2e-shared.ts --coverage.thresholds.lines=100 --coverage.thresholds.branches=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100",
     "report:clean": "rm -rf allure-results allure-report",
     "report:generate": "allure generate allure-results --clean -o allure-report",
     "report:open": "allure open allure-report",
