@@ -368,36 +368,27 @@ jobs:
         run: set -o pipefail && bun run test:coverage 2>&1 | tee test-output.txt
         continue-on-error: true
 
-      - name: Check coverage is 100%
+      - name: Determine test vs coverage failure
         id: coverage-check
-        if: steps.unit-test.outcome == 'success'
+        if: always()
         shell: bash
         run: |
-          # Extract the "All files" summary line from coverage output
-          all_files_line=$(grep '^\s*All files' test-output.txt || true)
-          if [ -z "$all_files_line" ]; then
-            echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
-            echo "Could not find coverage summary in test output"
-            exit 0
-          fi
-
-          # Parse coverage percentages from the "All files" line
-          # Format: All files | % Stmts | % Branch | % Funcs | % Lines |
-          stmts=$(echo "$all_files_line" | awk -F'|' '{gsub(/[ ]+/,"",$2); print $2}')
-          branch=$(echo "$all_files_line" | awk -F'|' '{gsub(/[ ]+/,"",$3); print $3}')
-          funcs=$(echo "$all_files_line" | awk -F'|' '{gsub(/[ ]+/,"",$4); print $4}')
-          lines=$(echo "$all_files_line" | awk -F'|' '{gsub(/[ ]+/,"",$5); print $5}')
-
-          echo "Statements: $stmts%, Branches: $branch%, Functions: $funcs%, Lines: $lines%"
-
-          if [ "$stmts" = "100" ] && [ "$branch" = "100" ] && [ "$funcs" = "100" ] && [ "$lines" = "100" ]; then
+          if [ "${{ steps.unit-test.outcome }}" = "success" ]; then
+            # Tests passed and coverage thresholds met (Vitest enforces thresholds via config)
+            echo "tests_passed=true" >> "$GITHUB_OUTPUT"
             echo "coverage_ok=true" >> "$GITHUB_OUTPUT"
+          elif grep -q "does not meet global threshold" test-output.txt 2>/dev/null; then
+            # Tests passed but coverage thresholds were not met
+            echo "tests_passed=true" >> "$GITHUB_OUTPUT"
+            echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
           else
+            # Tests themselves failed
+            echo "tests_passed=false" >> "$GITHUB_OUTPUT"
             echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Comment on PR if unit tests failed
-        if: steps.unit-test.outcome == 'failure' && github.event_name == 'pull_request'
+        if: steps.coverage-check.outputs.tests_passed == 'false' && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -452,7 +443,7 @@ jobs:
             }
 
       - name: Comment on PR if coverage is not 100%
-        if: steps.unit-test.outcome == 'success' && steps.coverage-check.outputs.coverage_ok == 'false' && github.event_name == 'pull_request'
+        if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'false' && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -547,7 +538,7 @@ jobs:
             }
 
       - name: Delete comment if unit tests and coverage passed
-        if: steps.unit-test.outcome == 'success' && steps.coverage-check.outputs.coverage_ok == 'true' && github.event_name == 'pull_request'
+        if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -568,11 +559,11 @@ jobs:
             }
 
       - name: Fail if unit tests failed
-        if: steps.unit-test.outcome == 'failure'
+        if: steps.coverage-check.outputs.tests_passed == 'false'
         run: exit 1
 
       - name: Fail if coverage is not 100%
-        if: steps.unit-test.outcome == 'success' && steps.coverage-check.outputs.coverage_ok == 'false'
+        if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'false'
         run: |
           echo "::error::Code coverage is not at 100%. Please add tests to cover all code paths."
           echo "Run 'bun run test:coverage' locally to see the full coverage report."
