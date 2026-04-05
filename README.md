@@ -34,6 +34,7 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
+
 ```bash
 speakify/
   |- actions/
@@ -210,6 +211,7 @@ speakify/
   |- vitest.config.ts
   |- vitest.setup.ts
 ```
+
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -382,6 +384,7 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
+
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@clerk/testing](https://www.npmjs.com/package/@clerk/testing): ^2.0.8
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
