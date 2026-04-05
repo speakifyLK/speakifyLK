@@ -35,6 +35,12 @@ export default defineConfig({
         "**/*.yml",
         "**/*.yaml",
       ],
+      thresholds: {
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
+      },
     },
   },
   resolve: {
