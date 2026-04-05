@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
+  assertAiQuizSessionRagMetadataContract,
+  assertAiQuizSessionRagMetadataWhenPresent,
   assertQuizRagRetrievalQueryShape,
   snapshotFormattedRagChunks,
   snapshotQuestionDistribution,
@@ -48,5 +50,20 @@ test.describe("Quiz RAG (lib/quiz-rag)", () => {
       },
     });
     expect(response.ok()).toBe(false);
+  });
+
+  test("quiz session RAG metadata contract matches persisted generate-route shape", () => {
+    expect(() =>
+      assertAiQuizSessionRagMetadataContract({
+        rag: {
+          provider: "vertex_rag_retrieveContexts",
+          chunkCount: 1,
+          chunkSources: [{ source: "gs://corpus/chunk", score: 0.91 }],
+          groundedGeneration: true,
+        },
+      })
+    ).not.toThrow();
+
+    expect(() => assertAiQuizSessionRagMetadataWhenPresent(null)).not.toThrow();
   });
 });

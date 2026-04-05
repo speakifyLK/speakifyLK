@@ -284,8 +284,10 @@ describe("QuizPlay", () => {
 
     fireEvent.click(screen.getByText("Next Question"));
 
-    expect(screen.getByText("Question 2 of 2")).toBeInTheDocument();
-    expect(screen.getByText("Fill in: ___")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Question 2 of 2")).toBeInTheDocument();
+      expect(screen.getByText("Fill in: ___")).toBeInTheDocument();
+    });
   });
 
   it("shows Complete Quiz on last question", async () => {
