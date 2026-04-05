@@ -191,7 +191,6 @@ speakify/
   |- constants.ts
   |- custom-modules.d.ts
   |- drizzle.config.ts
-  |- e2e_log_utf8.txt
   |- e2e_output.txt
   |- environment.d.ts
   |- eslint.config.mjs
@@ -383,7 +382,6 @@ Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
-- [@clerk/testing](https://www.npmjs.com/package/@clerk/testing): ^2.0.8
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
