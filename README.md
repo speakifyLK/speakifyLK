@@ -396,6 +396,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/node](https://www.npmjs.com/package/@types/node): ^25.5.0
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
+- [@vercel/analytics](https://www.npmjs.com/package/@vercel/analytics): ^2.0.1
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.41
 - [@vercel/speed-insights](https://www.npmjs.com/package/@vercel/speed-insights): ^2.0.0
 - [@vitejs/plugin-react](https://www.npmjs.com/package/@vitejs/plugin-react): ^6.0.1
