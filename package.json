@@ -22,6 +22,7 @@
     "rag:create": "tsx ./scripts/create-rag-corpus.ts",
     "rag:create:check": "tsx ./scripts/create-rag-corpus.ts --check",
     "rag:pipeline-status": "tsx ./scripts/rag-status.ts",
+    "rag:test-quiz": "tsx ./scripts/test-rag-quiz.ts",
     "export:content": "bun scripts/export-course-content.ts",
     "export:content:dry-run": "bun scripts/export-course-content.ts --dry-run",
     "test": "vitest run",
