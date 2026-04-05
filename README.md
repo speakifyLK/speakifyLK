@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -131,6 +130,8 @@ speakify/
     |-- quiz-rag.ts
     |-- rag-import-status.test.ts
     |-- rag-import-status.ts
+    |-- rag-quiz-e2e-helpers.test.ts
+    |-- rag-quiz-e2e-helpers.ts
     |-- rate-limit.test.ts
     |-- rate-limit.ts
     |-- stripe.test.ts
@@ -161,6 +162,8 @@ speakify/
     |-- test-gcp-auth.ts
     |-- test-gemini.test.ts
     |-- test-gemini.ts
+    |-- test-rag-quiz.test.ts
+    |-- test-rag-quiz.ts
   |- store/
     |-- quiz-store.test.ts
     |-- quiz-store.ts
@@ -177,6 +180,7 @@ speakify/
     |-- error-handling.spec.ts
     |-- landing-page.spec.ts
     |-- navigation.spec.ts
+    |-- quiz-generate-api.spec.ts
     |-- quiz-rag-e2e.spec.ts
     |-- rag-chat-e2e.spec.ts
     |-- rag-import-status.spec.ts
@@ -210,7 +214,6 @@ speakify/
   |- vitest.config.ts
   |- vitest.setup.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -383,7 +386,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
