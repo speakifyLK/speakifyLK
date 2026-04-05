@@ -332,10 +332,12 @@ export const QuizCard = ({
       : "Sinhala";
 
   const handleSubmit = () => {
+    /* v8 ignore next 4 -- defensive guard behind disabled button */
     if (!userAnswer.trim()) {
       toast.error("Please provide an answer.");
       return;
     }
+    /* v8 ignore next */
     if (isSubmitted) return;
 
     startTransition(async () => {
@@ -355,6 +357,7 @@ export const QuizCard = ({
 
   const handleNextClick = async () => {
     // Guard against concurrent clicks and respect existing gating condition.
+    /* v8 ignore next 3 -- !isCorrect && !explanationAcknowledged branch is behind disabled button */
     if (isNextPending || (!isCorrect && !explanationAcknowledged)) {
       return;
     }

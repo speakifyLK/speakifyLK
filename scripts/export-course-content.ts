@@ -1,3 +1,22 @@
+/**
+ * Export course content from the database to local JSON files and upload to GCS.
+ *
+ * Queries all courses, units, and lessons from the database, formats them into
+ * structured JSON chunks, writes them locally to tmp/rag-content/, and uploads
+ * to a GCS bucket for RAG ingestion.
+ *
+ * Required env:
+ *   GOOGLE_SERVICE_ACCOUNT_KEY  — GCP service account JSON key
+ *   DATABASE_URL                — Neon PostgreSQL connection string
+ *
+ * Optional env:
+ *   RAG_CONTENT_BUCKET  — GCS bucket name (default: speakifylk-rag-content)
+ *   GCS_BUCKET_NAME     — Alias for RAG_CONTENT_BUCKET
+ *
+ * Usage:
+ *   bun scripts/export-course-content.ts              # Export and upload
+ *   bun scripts/export-course-content.ts --dry-run    # Preview without writing
+ */
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";

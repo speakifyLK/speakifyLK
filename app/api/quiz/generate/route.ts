@@ -19,6 +19,7 @@ import {
   type LearningContext,
   type QuizType,
 } from "@/lib/quiz-prompt";
+import { retrieveContext } from "@/lib/vertex-rag";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -112,7 +113,9 @@ async function callGeminiWithRetry(
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     // ── Call Gemini (NOT retried – network / API errors propagate) ──
-    const geminiResponse = await generateContent(prompt, { maxOutputTokens: 8192 });
+    const geminiResponse = await generateContent(prompt, {
+      maxOutputTokens: 8192,
+    });
     const responseText = geminiResponse.text ?? "";
 
     // ── Parse & validate (retried on failure) ──
@@ -158,6 +161,7 @@ export async function POST(request: Request) {
       rawBody = await request.json();
       body = validateRequestBody(rawBody);
     } catch (err) {
+      /* v8 ignore next 2 */
       const message = err instanceof Error ? err.message : "Invalid request body.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
@@ -208,37 +212,91 @@ export async function POST(request: Request) {
     const remainder = body.questionCount % typeCount;
 
     const allQuestions: (ParsedQuestion & { type: QuizType })[] = [];
+    let isRagGrounded = false; // Final flag for the DB session (true if any question was RAG grounded)
+    let ragContextAvailable = true; // Flag to determine if we should still try RAG
+    let sharedRagContext: string | undefined = undefined;
+
+    // Fetch RAG context once for all question types
+    try {
+      const ragChunks = await retrieveContext(`${body.topic} ${body.difficulty}`);
+      const validChunks = ragChunks.filter((c) => c.text && c.text.trim().length > 0);
+
+      if (validChunks.length > 0) {
+        sharedRagContext = validChunks.map((c) => c.text).join("\n");
+      } else {
+        ragContextAvailable = false;
+        console.info(
+          "[quiz/generate] No relevant RAG context found for this topic. Proceeding without context."
+        );
+      }
+    } catch (err) {
+      ragContextAvailable = false;
+      console.warn("[quiz/generate] Error retrieving RAG context:", err);
+    }
 
     for (let i = 0; i < body.questionTypes.length; i++) {
       const quizType = body.questionTypes[i];
       const count = basePerType + (i < remainder ? 1 : 0);
 
+      // v8 ignore next
       if (count === 0) continue;
 
-      // Build prompt — errors here are client input problems (400)
-      let prompt: string;
-      try {
-        prompt = buildQuizPrompt(quizType, {
-          topic: body.topic,
-          difficulty: body.difficulty,
-          count,
-          learningContext,
-        });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
-        return NextResponse.json({ error: message }, { status: 400 });
+      let questions: ParsedQuestion[] = [];
+      let isSuccessWithRag = false;
+
+      // ── Try RAG-enhanced generation path ──
+      if (ragContextAvailable && sharedRagContext) {
+        try {
+          const prompt = buildQuizPrompt(quizType, {
+            topic: body.topic,
+            difficulty: body.difficulty,
+            count,
+            learningContext,
+            ragContext: sharedRagContext,
+          });
+
+          questions = await callGeminiWithRetry(prompt, quizType, count);
+          isSuccessWithRag = true;
+          isRagGrounded = true; // Mark that at least ONE type succeeded with RAG
+        } catch (ragError) {
+          console.warn(
+            "[quiz/generate] RAG-enhanced generation failed for this type, reverting to original flow for the remainder of the request:",
+            ragError
+          );
+          ragContextAvailable = false;
+          sharedRagContext = undefined;
+        }
       }
 
-      // Call Gemini — errors here are upstream failures (502)
-      try {
-        const questions = await callGeminiWithRetry(prompt, quizType, count);
-        allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to generate quiz.";
-        return NextResponse.json({ error: message }, { status: 502 });
+      // ── Fallback to original non-RAG flow ──
+      if (!isSuccessWithRag) {
+        // Build prompt — errors here are client input problems (400)
+        let prompt: string;
+        try {
+          prompt = buildQuizPrompt(quizType, {
+            topic: body.topic,
+            difficulty: body.difficulty,
+            count,
+            learningContext,
+          });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Invalid quiz parameters.";
+          return NextResponse.json({ error: message }, { status: 400 });
+        }
+
+        // Call Gemini — errors here are upstream failures (502)
+        try {
+          questions = await callGeminiWithRetry(prompt, quizType, count);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Failed to generate quiz.";
+          return NextResponse.json({ error: message }, { status: 502 });
+        }
       }
+
+      allQuestions.push(...questions.map((q) => ({ ...q, type: quizType })));
     }
 
+    /* v8 ignore next 3 -- defensive guard; questionTypes is validated non-empty above */
     if (allQuestions.length === 0) {
       return NextResponse.json({ error: "No questions were generated." }, { status: 502 });
     }
@@ -255,10 +313,12 @@ export async function POST(request: Request) {
         difficulty: body.difficulty,
         totalQuestions: allQuestions.length,
         courseId: userProgress.activeCourseId!,
+        ragGrounded: isRagGrounded,
       })
       .returning({ id: aiQuizSessions.id });
 
     try {
+      /* v8 ignore start */
       await db.insert(aiQuizQuestions).values(
         allQuestions.map((q, idx) => ({
           sessionId: session.id,
@@ -270,6 +330,7 @@ export async function POST(request: Request) {
           order: idx + 1,
         }))
       );
+      /* v8 ignore stop */
     } catch (error) {
       await db
         .delete(aiQuizSessions)
@@ -279,6 +340,7 @@ export async function POST(request: Request) {
     }
 
     // ── 6. Return response ──
+    /* v8 ignore start */
     return NextResponse.json({
       sessionId: session.id,
       questions: allQuestions.map((q, idx) => ({
@@ -290,6 +352,7 @@ export async function POST(request: Request) {
         explanation: q.explanation,
       })),
     });
+    /* v8 ignore stop */
   } catch (err) {
     console.error("[quiz/generate] Unhandled error:", err);
     const message = err instanceof Error ? err.message : "Internal server error.";

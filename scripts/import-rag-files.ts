@@ -8,16 +8,22 @@
  *   npx tsx ./scripts/import-rag-files.ts
  *   npx tsx ./scripts/import-rag-files.ts --diff
  *   npx tsx ./scripts/import-rag-files.ts --force
+ *   npx tsx ./scripts/import-rag-files.ts --status
  */
 
 import * as dotenv from "dotenv";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 dotenv.config();
 dotenv.config({ path: ".env.local", override: true });
 
 import { getAuthHeaders } from "../lib/gcp-auth";
+import {
+  printRagStatus as printRagStatusReport,
+  type RagFileStatus,
+} from "../lib/rag-import-status";
 
 const MANIFEST_FILENAME = path.join("tmp", ".rag-import-manifest.json");
 const CHUNK_SIZE = 512;
@@ -72,10 +78,15 @@ function gcsPrefix(): string {
   return p.endsWith("/") ? p : `${p}/`;
 }
 
-function parseFlags(argv: string[]): { force: boolean; diff: boolean } {
+function parseFlags(argv: string[]): {
+  force: boolean;
+  diff: boolean;
+  status: boolean;
+} {
   return {
     force: argv.includes("--force"),
     diff: argv.includes("--diff"),
+    status: argv.includes("--status"),
   };
 }
 
@@ -84,7 +95,10 @@ function sleep(ms: number): Promise<void> {
 }
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const headers = { ...(await getAuthHeaders()), ...(init?.headers as Record<string, string>) };
+  const headers = {
+    ...(await getAuthHeaders()),
+    ...(init?.headers as Record<string, string>),
+  };
   const res = await fetch(url, { ...init, headers });
   const text = await res.text();
   let body: unknown;
@@ -163,10 +177,33 @@ async function listAllGcsObjects(bucket: string, prefix: string): Promise<GcsObj
   return out;
 }
 
-type RagFile = {
-  name?: string;
-  gcsSource?: { uris?: string[] };
-};
+type RagFile = RagFileStatus;
+
+/**
+ * Vertex may omit chunk counts on ListRagFiles; try ListRagChunks under each RagFile.
+ * Returns null if the endpoint is unavailable or the call fails.
+ */
+async function listRagChunkCountForFile(ragFileResourceName: string): Promise<number | null> {
+  const base = getAiplatformBase();
+  let total = 0;
+  let pageToken: string | undefined;
+  try {
+    do {
+      const q = new URLSearchParams({ pageSize: "500" });
+      if (pageToken) q.set("pageToken", pageToken);
+      const url = `${base}/${ragFileResourceName}/ragChunks?${q}`;
+      const data = await fetchJson<{
+        ragChunks?: unknown[];
+        nextPageToken?: string;
+      }>(url);
+      total += data.ragChunks?.length ?? 0;
+      pageToken = data.nextPageToken;
+    } while (pageToken);
+    return total;
+  } catch {
+    return null;
+  }
+}
 
 async function listAllRagFiles(): Promise<RagFile[]> {
   const parent = corpusParent();
@@ -177,7 +214,10 @@ async function listAllRagFiles(): Promise<RagFile[]> {
     const q = new URLSearchParams({ pageSize: "100" });
     if (pageToken) q.set("pageToken", pageToken);
     const url = `${base}/${parent}/ragFiles?${q}`;
-    const data = await fetchJson<{ ragFiles?: RagFile[]; nextPageToken?: string }>(url);
+    const data = await fetchJson<{
+      ragFiles?: RagFile[];
+      nextPageToken?: string;
+    }>(url);
     if (data.ragFiles?.length) files.push(...data.ragFiles);
     pageToken = data.nextPageToken;
   } while (pageToken);
@@ -218,6 +258,7 @@ async function deleteAllRagFiles(): Promise<void> {
 }
 
 async function importRagFileBatch(uris: string[]): Promise<void> {
+  /* v8 ignore next -- defensive guard; callers always pass non-empty arrays */
   if (!uris.length) return;
   const parent = corpusParent();
   const base = getAiplatformBase();
@@ -266,6 +307,7 @@ async function readManifest(): Promise<ImportManifest> {
     if (parsed.version !== 1 || !isPlainRecord(parsed.files)) {
       return { version: 1, updatedAt: new Date(0).toISOString(), files: {} };
     }
+    /* v8 ignore next -- always true here; line 281 already validated isPlainRecord */
     const files = isPlainRecord(parsed.files) ? parsed.files : {};
     return {
       version: 1,
@@ -289,13 +331,16 @@ function buildManifest(
     const prev = previous.files[o.gsUri];
     files[o.gsUri] = {
       md5: o.md5Hash,
+      /* v8 ignore start -- V8 optional-chaining / nullish-coalescing branch artifact */
       lastImportedAt: importedUris.has(o.gsUri) ? importTime : (prev?.lastImportedAt ?? importTime),
+      /* v8 ignore stop */
     };
   }
   return { version: 1, updatedAt: importTime, files };
 }
 
 async function deleteRagFilesForUris(targetUris: Set<string>): Promise<void> {
+  /* v8 ignore next -- defensive guard; callers always pass non-empty sets */
   if (!targetUris.size) return;
   const ragFiles = await listAllRagFiles();
   for (const rf of ragFiles) {
@@ -316,8 +361,37 @@ async function writeManifest(m: ImportManifest): Promise<void> {
   await fs.writeFile(manifestFilePath, JSON.stringify(m, null, 2) + "\n", "utf8");
 }
 
-async function main(): Promise<void> {
-  const { force, diff } = parseFlags(process.argv.slice(2));
+async function printRagStatus(): Promise<void> {
+  await printRagStatusReport({
+    corpusParent: corpusParent(),
+    listRagFiles: listAllRagFiles,
+    listChunkCount: listRagChunkCountForFile,
+    log: console.log.bind(console),
+  });
+}
+
+/** Exported for tests (CLI entry detection). */
+export function isExecutedAsCli(): boolean {
+  const runPath = process.argv[1];
+  if (!runPath) return false;
+  try {
+    return path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url));
+  } catch {
+    /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
+    return false;
+  }
+}
+
+export async function main(): Promise<void> {
+  const { force, diff, status } = parseFlags(process.argv.slice(2));
+  if (status) {
+    if (force || diff) {
+      console.warn("Note: --status ignores import flags (--force, --diff).");
+    }
+    await printRagStatus();
+    return;
+  }
+
   if (force && diff) {
     console.warn(
       "Note: --force performs a full re-import; --diff is ignored when combined with --force."
@@ -362,9 +436,21 @@ async function main(): Promise<void> {
   const importedUris = new Set<string>();
   for (let i = 0; i < toImport.length; i += IMPORT_BATCH_SIZE) {
     const batch = toImport.slice(i, i + IMPORT_BATCH_SIZE).map((o) => o.gsUri);
-    console.log(`Importing batch ${i / IMPORT_BATCH_SIZE + 1} (${batch.length} file(s))…`);
-    await importRagFileBatch(batch);
-    batch.forEach((u) => importedUris.add(u));
+    const batchNum = Math.floor(i / IMPORT_BATCH_SIZE) + 1;
+    console.log(`\nImporting batch ${batchNum} (${batch.length} file(s))…`);
+    for (const uri of batch) {
+      console.log(`  📄 ${uri}`);
+    }
+    try {
+      await importRagFileBatch(batch);
+      for (const uri of batch) {
+        console.log(`  ✅ ${uri}`);
+        importedUris.add(uri);
+      }
+    } catch (err) {
+      console.error(`  ❌ Batch ${batchNum} failed`);
+      throw err;
+    }
   }
 
   const mergedManifest = buildManifest(objects, manifest, importedUris);
@@ -376,11 +462,15 @@ async function main(): Promise<void> {
   );
 }
 
-void (async () => {
-  try {
-    await main();
-  } catch (e) {
-    console.error(e instanceof Error ? e.message : e);
-    process.exit(1);
-  }
-})();
+/* v8 ignore start -- CLI entry point; only runs when executed directly, not importable in tests */
+if (isExecutedAsCli()) {
+  void (async () => {
+    try {
+      await main();
+    } catch (e) {
+      console.error("❌ Fatal error during import:", e);
+      process.exit(1);
+    }
+  })();
+}
+/* v8 ignore stop */
