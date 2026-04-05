@@ -90,6 +90,48 @@ describe("POST /api/chat", () => {
     expect(await res.json()).toEqual({ error: "Unauthorized" });
   });
 
+  it("allows access when x-e2e-bypass-auth header is present and not production", async () => {
+    mockAuth.mockResolvedValue({ userId: null });
+    mockGetMessages.mockResolvedValue([]);
+    mockGenerateWithRAG.mockResolvedValue(
+      new ReadableStream({
+        start(c) {
+          c.enqueue(new TextEncoder().encode("ok"));
+          c.close();
+        },
+      })
+    );
+
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true" },
+      body: JSON.stringify({ conversationId: 1, message: "hi" }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+  });
+
+  it("does not allow access via x-e2e-bypass-auth when in production env", async () => {
+    mockAuth.mockResolvedValue({ userId: null });
+
+    const origEnv = process.env.NODE_ENV;
+    // @ts-expect-error -- overriding for test
+    process.env.NODE_ENV = "production";
+
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true" },
+      body: JSON.stringify({ conversationId: 1, message: "hi" }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+
+    // @ts-expect-error -- overriding for test
+    process.env.NODE_ENV = origEnv;
+  });
+
   // ── Body validation ──
   it("returns 400 for invalid JSON body", async () => {
     const req = new Request("http://localhost/api/chat", {
@@ -387,6 +429,63 @@ describe("POST /api/chat", () => {
   });
 
   // ── RAG failure → Gemini fallback ──
+  it("falls back to Gemini when x-mock-rag-failure header is present using E2E shortcut", async () => {
+    mockGetMessages.mockResolvedValue([]);
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true" },
+      body: JSON.stringify({ conversationId: 1, message: "hi" }),
+    });
+
+    const mockResponse = {
+      [Symbol.asyncIterator]: async function* () {
+        yield { text: "fallback data" };
+      },
+    };
+    mockGetGeminiClient.mockReturnValue({
+      models: {
+        generateContentStream: vi.fn().mockResolvedValue(mockResponse),
+      },
+    });
+
+    // We don't change NODE_ENV here because Vitest typically runs with NODE_ENV="test" which satisfies !== "production".
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-RAG-Status")).toBe("fallback");
+
+    const text = await readStream(res);
+    expect(text).toBe("fallback data");
+    expect(mockGenerateWithRAG).not.toHaveBeenCalled();
+  });
+
+  it("does not force fallback if x-mock-rag-failure is set in production env", async () => {
+    mockGetMessages.mockResolvedValue([]);
+    mockGenerateWithRAG.mockResolvedValue(
+      new ReadableStream({
+        start(c) {
+          c.enqueue(new TextEncoder().encode("rag ok"));
+          c.close();
+        },
+      })
+    );
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true" },
+      body: JSON.stringify({ conversationId: 1, message: "hi" }),
+    });
+
+    const origEnv = process.env.NODE_ENV;
+    // @ts-expect-error -- overriding for test
+    process.env.NODE_ENV = "production";
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-RAG-Status")).toBe("active");
+
+    // @ts-expect-error -- overriding for test
+    process.env.NODE_ENV = origEnv;
+  });
+
   it("falls back to Gemini when RAG fails", async () => {
     mockGetMessages.mockResolvedValue([]);
     mockGenerateWithRAG.mockRejectedValue(new Error("RAG failed (503)"));

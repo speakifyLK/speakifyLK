@@ -76,11 +76,52 @@ describe("middleware", () => {
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
-    const request = { url: "/" };
+    const request = { url: "/", headers: new Map() };
 
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
     await middlewareCallback(authObj, request);
 
     expect(mockProtect).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call auth.protect() if x-e2e-bypass-auth is true and not production", async () => {
+    mockCreateRouteMatcher.mockImplementation(() => () => false);
+    mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
+
+    await import("./middleware");
+
+    const authObj = { protect: mockProtect };
+    const headers = new Map();
+    headers.set("x-e2e-bypass-auth", "true");
+    const request = { url: "/api/chat", headers };
+
+    const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
+    await middlewareCallback(authObj, request);
+
+    expect(mockProtect).not.toHaveBeenCalled();
+  });
+
+  it("CALLS auth.protect() if x-e2e-bypass-auth is true but environment is production", async () => {
+    mockCreateRouteMatcher.mockImplementation(() => () => false);
+    mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
+
+    const origEnv = process.env.NODE_ENV;
+    // @ts-expect-error -- overriding for test
+    process.env.NODE_ENV = "production";
+
+    await import("./middleware");
+
+    const authObj = { protect: mockProtect };
+    const headers = new Map();
+    headers.set("x-e2e-bypass-auth", "true");
+    const request = { url: "/api/chat", headers };
+
+    const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
+    await middlewareCallback(authObj, request);
+
+    expect(mockProtect).toHaveBeenCalled();
+
+    // @ts-expect-error -- resetting
+    process.env.NODE_ENV = origEnv;
   });
 });

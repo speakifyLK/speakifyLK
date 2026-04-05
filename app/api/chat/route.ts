@@ -44,7 +44,14 @@ function createStreamResponse(
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
-  const { userId } = await auth();
+  const clerkAuth = await auth();
+  let userId = clerkAuth.userId;
+
+  // E2E Test Auth Bypass
+  if (!userId && req.headers.get("x-e2e-bypass-auth") === "true" && process.env.NODE_ENV !== "production") {
+    userId = "e2e_test_user";
+  }
+
   if (!userId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -149,16 +156,20 @@ export async function POST(req: Request) {
 
   // ── 5. Save user message to DB ──
   try {
-    await sendMessage(conversationId, message);
+    if (userId !== "e2e_test_user") {
+      await sendMessage(conversationId, message);
+    }
   } catch (err) {
     console.error(`[Chat] Failed to save user message:`, err);
     return Response.json({ error: "Failed to save message" }, { status: 500 });
   }
 
   // ── 6. Load conversation history ──
-  let history;
+  let history: { role: string; content: string }[] = [];
   try {
-    history = await getMessages(conversationId);
+    if (userId !== "e2e_test_user") {
+      history = await getMessages(conversationId);
+    }
   } catch (err) {
     console.error(`[Chat] Failed to load history:`, err);
     return Response.json({ error: "Failed to load conversation" }, { status: 500 });
@@ -179,7 +190,11 @@ export async function POST(req: Request) {
 
   const systemPrompt = SINHALA_TUTOR_PROMPT + courseContext;
 
-  const saveResponse = (text: string) => saveAssistantMessage(conversationId, text);
+  const saveResponse = async (text: string) => {
+    if (userId !== "e2e_test_user") {
+      await saveAssistantMessage(conversationId, text);
+    }
+  };
   const logStreamError = (err: unknown) =>
     console.error(
       `[Chat] Streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
@@ -188,6 +203,10 @@ export async function POST(req: Request) {
 
   // ── 8. Try RAG flow, fall back to Gemini SDK on failure ──
   try {
+    if (req.headers.get("x-mock-rag-failure") === "true" && process.env.NODE_ENV !== "production") {
+      throw new Error("E2E Forced RAG Failure (503)");
+    }
+
     const ragStream = await generateWithRAG(chatHistory, systemPrompt);
 
     // RAG succeeded — stream the response
