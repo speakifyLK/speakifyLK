@@ -126,6 +126,8 @@ speakify/
     |-- quiz-normalise.ts
     |-- quiz-prompt.test.ts
     |-- quiz-prompt.ts
+    |-- quiz-rag.test.ts
+    |-- quiz-rag.ts
     |-- rag-import-status.test.ts
     |-- rag-import-status.ts
     |-- rate-limit.test.ts
@@ -174,6 +176,7 @@ speakify/
     |-- error-handling.spec.ts
     |-- landing-page.spec.ts
     |-- navigation.spec.ts
+    |-- quiz-rag-e2e.spec.ts
     |-- rag-chat-e2e.spec.ts
     |-- rag-import-status.spec.ts
     |-- seo-metadata.spec.ts
