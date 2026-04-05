@@ -48,7 +48,11 @@ export async function POST(req: Request) {
   let userId = clerkAuth.userId;
 
   // E2E Test Auth Bypass
-  if (!userId && req.headers.get("x-e2e-bypass-auth") === "true" && process.env.NODE_ENV !== "production") {
+  if (
+    !userId &&
+    req.headers.get("x-e2e-bypass-auth") === "true" &&
+    process.env.NODE_ENV !== "production"
+  ) {
     userId = "e2e_test_user";
   }
 
