@@ -1,13 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+
+vi.mock("@/components/loader", () => ({
+  default: () => <div data-testid="custom-loader" className="loader" />,
+}));
+
 import Loading from "./loading";
 
 describe("Chat Loading", () => {
-  it("renders a loading spinner", () => {
+  it("renders the custom loader", () => {
     render(<Loading />);
-    // The Loader icon from lucide-react renders an svg with the animate-spin class
-    const container = screen.getByText("Connecting to AI Sinhala Tutor...");
-    expect(container).toBeInTheDocument();
+    const loader = screen.getByTestId("custom-loader");
+    expect(loader).toBeInTheDocument();
+    expect(loader).toHaveClass("loader");
   });
 
   it("shows the connecting message", () => {

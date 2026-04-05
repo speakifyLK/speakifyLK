@@ -1,4 +1,4 @@
-import { Loader } from "lucide-react";
+import Loader from "@/components/loader";
 
 const Loading = () => {
   return (
@@ -30,7 +30,7 @@ const Loading = () => {
       <div className="flex w-full flex-col items-center">
         {/* Header Skeleton */}
         <div className="mb-5 flex w-full items-center justify-between border-b-2 pb-4 text-neutral-400 lg:z-50 lg:-mt-[28px] lg:pt-[28px]">
-          <Loader className="h-6 w-6 animate-spin text-neutral-400" />
+          <Loader />
           <div className="h-8 w-24 animate-pulse rounded-md bg-neutral-200" />
           <div className="h-6 w-6 opacity-0" />
         </div>
