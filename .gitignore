@@ -21,6 +21,10 @@ coverage-output.txt
 .DS_Store
 *.pem
 
+# editor/IDE
+.vscode/
+.idea/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -30,6 +34,8 @@ cov*.json
 cov*.txt
 result.txt
 result.json
+test_report.json
+vitest_cov_out.txt
 
 # local env files
 .env*.local
