@@ -152,7 +152,12 @@ export function validateMcq(
   }
 }
 
-export function validateFillBlank(q: GeneratedQ, qi: number, tally: Tally, r: RagE2eReporters): void {
+export function validateFillBlank(
+  q: GeneratedQ,
+  qi: number,
+  tally: Tally,
+  r: RagE2eReporters
+): void {
   const hasBlank =
     q.question.includes("___") || q.question.includes("____") || q.question.includes("…");
   if (!hasBlank) {
@@ -166,7 +171,12 @@ export function validateFillBlank(q: GeneratedQ, qi: number, tally: Tally, r: Ra
   }
 }
 
-export function validateTranslation(q: GeneratedQ, qi: number, tally: Tally, r: RagE2eReporters): void {
+export function validateTranslation(
+  q: GeneratedQ,
+  qi: number,
+  tally: Tally,
+  r: RagE2eReporters
+): void {
   if (q.question.trim().length === 0) {
     r.fail(`Q${qi}: translation source text is empty`);
     tally.errors++;

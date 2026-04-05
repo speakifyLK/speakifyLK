@@ -102,15 +102,9 @@ interface TimingRow {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export async function runRagQuizE2eMain() {
-  console.log(
-    `\n${C.bold}${C.magenta}╔═══════════════════════════════════════════════╗${C.reset}`
-  );
-  console.log(
-    `${C.bold}${C.magenta}║  RAG-Powered Quiz Generation — E2E Test       ║${C.reset}`
-  );
-  console.log(
-    `${C.bold}${C.magenta}╚═══════════════════════════════════════════════╝${C.reset}`
-  );
+  console.log(`\n${C.bold}${C.magenta}╔═══════════════════════════════════════════════╗${C.reset}`);
+  console.log(`${C.bold}${C.magenta}║  RAG-Powered Quiz Generation — E2E Test       ║${C.reset}`);
+  console.log(`${C.bold}${C.magenta}╚═══════════════════════════════════════════════╝${C.reset}`);
 
   const timings: TimingRow[] = [];
   const tally: Tally = { errors: 0, warnings: 0 };
@@ -203,7 +197,9 @@ export async function runRagQuizE2eMain() {
         ok(`Vocab terms for overlap scoring: ${vocab.size}`);
       }
     } catch (err: unknown) {
-      fail(`RAG retrieval failed in ${ms(Date.now() - t)}: ${String((err as Error)?.message ?? err)}`);
+      fail(
+        `RAG retrieval failed in ${ms(Date.now() - t)}: ${String((err as Error)?.message ?? err)}`
+      );
       warn("Continuing — grounded checks may be limited.");
       tally.errors++;
     }
@@ -298,7 +294,9 @@ export async function runRagQuizE2eMain() {
         });
 
         if (status !== 200) {
-          fail(`no-RAG HTTP ${status} in ${ms(durationMs)} — ${JSON.stringify(body).substring(0, 200)}`);
+          fail(
+            `no-RAG HTTP ${status} in ${ms(durationMs)} — ${JSON.stringify(body).substring(0, 200)}`
+          );
           tally.errors++;
         } else {
           ok(`no-RAG HTTP 200 in ${ms(durationMs)}`);
@@ -359,7 +357,12 @@ export async function runRagQuizE2eMain() {
 
       if (ragChunks.length === 0) {
         warn("Skipped — no RAG chunks were retrieved.");
-        timings.push({ label: `${qt.label} + RAG`, durationMs: 0, questions: 0, ragGrounded: true });
+        timings.push({
+          label: `${qt.label} + RAG`,
+          durationMs: 0,
+          questions: 0,
+          ragGrounded: true,
+        });
         continue;
       }
 
@@ -420,8 +423,15 @@ export async function runRagQuizE2eMain() {
         }
       } catch (err: unknown) {
         const elapsed = Date.now() - t;
-        fail(`${qt.label} RAG generation failed in ${ms(elapsed)}: ${String((err as Error)?.message ?? err)}`);
-        timings.push({ label: `${qt.label} + RAG`, durationMs: elapsed, questions: 0, ragGrounded: true });
+        fail(
+          `${qt.label} RAG generation failed in ${ms(elapsed)}: ${String((err as Error)?.message ?? err)}`
+        );
+        timings.push({
+          label: `${qt.label} + RAG`,
+          durationMs: elapsed,
+          questions: 0,
+          ragGrounded: true,
+        });
         tally.errors++;
       }
     }
@@ -479,15 +489,14 @@ export async function runRagQuizE2eMain() {
         ragQs.length > 0 && vocab.size > 0
           ? Math.round(
               ragQs.reduce(
-                (sum, q) => sum + Math.max(0, overlapPct(`${q.question} ${q.correctAnswer}`, vocab)),
+                (sum, q) =>
+                  sum + Math.max(0, overlapPct(`${q.question} ${q.correctAnswer}`, vocab)),
                 0
               ) / ragQs.length
             )
           : -1;
       const noRagOverlapAvg =
-        questions.length > 0 && vocab.size > 0
-          ? Math.round(overlapTotal / questions.length)
-          : -1;
+        questions.length > 0 && vocab.size > 0 ? Math.round(overlapTotal / questions.length) : -1;
 
       if (ragOverlapAvg >= 0 && noRagOverlapAvg >= 0) {
         const delta = ragOverlapAvg - noRagOverlapAvg;
@@ -503,7 +512,9 @@ export async function runRagQuizE2eMain() {
       }
     } catch (err: unknown) {
       const elapsed = Date.now() - t;
-      fail(`${qt.label} no-RAG failed in ${ms(elapsed)}: ${String((err as Error)?.message ?? err)}`);
+      fail(
+        `${qt.label} no-RAG failed in ${ms(elapsed)}: ${String((err as Error)?.message ?? err)}`
+      );
       timings.push({
         label: `${qt.label} no-RAG (lib)`,
         durationMs: elapsed,
@@ -546,14 +557,13 @@ export async function runRagQuizE2eMain() {
     if (!n) continue;
     const rMs = r?.durationMs ?? 0;
     const nMs = n.durationMs;
-    const rStr =
-      usedHttpPrimary
-        ? "—"
-        : r && r.questions > 0
-          ? `${rMs}ms`
-          : r && rMs === 0
-            ? "skip"
-            : `${rMs}ms`;
+    const rStr = usedHttpPrimary
+      ? "—"
+      : r && r.questions > 0
+        ? `${rMs}ms`
+        : r && rMs === 0
+          ? "skip"
+          : `${rMs}ms`;
     const d = usedHttpPrimary ? nMs - nMs : rMs - nMs;
     const dStr = usedHttpPrimary ? "—" : `${d >= 0 ? "+" : ""}${d}ms`;
     console.log(

@@ -2,14 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import type { ApiQuestionRow } from "../lib/rag-quiz-e2e-helpers";
 
-const { mockGetQuizContext, mockGenerateQuizWithRAG, mockBuildQuizPrompt, mockGenerateContent, mockParse } =
-  vi.hoisted(() => ({
-    mockGetQuizContext: vi.fn().mockResolvedValue([]),
-    mockGenerateQuizWithRAG: vi.fn().mockResolvedValue([]),
-    mockBuildQuizPrompt: vi.fn().mockReturnValue("prompt"),
-    mockGenerateContent: vi.fn().mockResolvedValue({ text: "{}" }),
-    mockParse: vi.fn().mockReturnValue([]),
-  }));
+const {
+  mockGetQuizContext,
+  mockGenerateQuizWithRAG,
+  mockBuildQuizPrompt,
+  mockGenerateContent,
+  mockParse,
+} = vi.hoisted(() => ({
+  mockGetQuizContext: vi.fn().mockResolvedValue([]),
+  mockGenerateQuizWithRAG: vi.fn().mockResolvedValue([]),
+  mockBuildQuizPrompt: vi.fn().mockReturnValue("prompt"),
+  mockGenerateContent: vi.fn().mockResolvedValue({ text: "{}" }),
+  mockParse: vi.fn().mockReturnValue([]),
+}));
 
 vi.mock("../lib/quiz-rag", () => ({
   getQuizContext: (...args: unknown[]) => mockGetQuizContext(...args),
@@ -67,7 +72,17 @@ function trRow(id: number): ApiQuestionRow {
 }
 
 function nineValidQuestions(): ApiQuestionRow[] {
-  return [mcqRow(1), mcqRow(2), mcqRow(3), fillRow(4), fillRow(5), fillRow(6), trRow(7), trRow(8), trRow(9)];
+  return [
+    mcqRow(1),
+    mcqRow(2),
+    mcqRow(3),
+    fillRow(4),
+    fillRow(5),
+    fillRow(6),
+    trRow(7),
+    trRow(8),
+    trRow(9),
+  ];
 }
 
 describe("test-rag-quiz runner", () => {
@@ -144,7 +159,9 @@ describe("test-rag-quiz runner", () => {
   });
 
   it("runs library RAG generation when HTTP is not configured and chunks exist", async () => {
-    mockGetQuizContext.mockResolvedValue([{ text: "hello world lesson", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "hello world lesson", source: "a.md", score: 0.5 },
+    ]);
     mockGenerateQuizWithRAG.mockResolvedValue([
       {
         type: "MULTIPLE_CHOICE",
@@ -167,7 +184,9 @@ describe("test-rag-quiz runner", () => {
   });
 
   it("warns about low average vocab overlap in library RAG when vocab exists", async () => {
-    mockGetQuizContext.mockResolvedValue([{ text: "uniquecorpusword alpha", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "uniquecorpusword alpha", source: "a.md", score: 0.5 },
+    ]);
     mockGenerateQuizWithRAG.mockResolvedValue([
       {
         type: "MULTIPLE_CHOICE",
@@ -237,7 +256,9 @@ describe("test-rag-quiz runner", () => {
   });
 
   it("exercises fill-blank and translation branches inside library RAG loops", async () => {
-    mockGetQuizContext.mockResolvedValue([{ text: "hello lesson course", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "hello lesson course", source: "a.md", score: 0.5 },
+    ]);
     mockGenerateQuizWithRAG.mockImplementation(async (_topic, _d, _n, types: unknown[]) => {
       const t = types[0] as string;
       if (t === "MULTIPLE_CHOICE") {
@@ -477,7 +498,9 @@ describe("test-rag-quiz runner", () => {
   it("prints overlap comparison when RAG and no-RAG averages are available", async () => {
     vi.stubEnv("QUIZ_E2E_BASE_URL", "http://localhost:3000");
     vi.stubEnv("QUIZ_E2E_COOKIE", "c=1");
-    mockGetQuizContext.mockResolvedValue([{ text: "alpha beta gamma delta", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "alpha beta gamma delta", source: "a.md", score: 0.5 },
+    ]);
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -486,7 +509,13 @@ describe("test-rag-quiz runner", () => {
       })
     );
     mockParse.mockReturnValue([
-      { type: "MULTIPLE_CHOICE", question: "alpha", correctAnswer: "beta", explanation: "", options: [] },
+      {
+        type: "MULTIPLE_CHOICE",
+        question: "alpha",
+        correctAnswer: "beta",
+        explanation: "",
+        options: [],
+      },
     ]);
     const exitSpy = vi.spyOn(process, "exit");
     await runRagQuizE2eMain();
@@ -498,7 +527,9 @@ describe("test-rag-quiz runner", () => {
     vi.stubEnv("QUIZ_E2E_BASE_URL", "http://primary.local");
     vi.stubEnv("QUIZ_E2E_NO_RAG_BASE_URL", "http://norag.local");
     vi.stubEnv("QUIZ_E2E_COOKIE", "c=1");
-    mockGetQuizContext.mockResolvedValue([{ text: "hello world course material here", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "hello world course material here", source: "a.md", score: 0.5 },
+    ]);
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -547,7 +578,10 @@ describe("test-rag-quiz runner", () => {
         if (call === 1) {
           return { status: 200, json: async () => ({ questions: nineValidQuestions() }) };
         }
-        return { status: 200, json: async () => ({ questions: { x: 1 } as unknown as ApiQuestionRow[] }) };
+        return {
+          status: 200,
+          json: async () => ({ questions: { x: 1 } as unknown as ApiQuestionRow[] }),
+        };
       })
     );
     const exitSpy = vi.spyOn(process, "exit");
@@ -600,7 +634,9 @@ describe("test-rag-quiz runner", () => {
   });
 
   it("logs per-question vocab overlap in section 4 when overlap is non-negative", async () => {
-    mockGetQuizContext.mockResolvedValue([{ text: "hello planet vocabulary", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "hello planet vocabulary", source: "a.md", score: 0.5 },
+    ]);
     mockParse.mockImplementation((_text: string, internal: string) => {
       if (internal === "MULTIPLE_CHOICE") {
         return [
@@ -618,13 +654,17 @@ describe("test-rag-quiz runner", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit");
     await runRagQuizE2eMain();
-    expect(logSpy.mock.calls.some((c) => String(c[0]).includes("vocab overlap with RAG corpus:"))).toBe(true);
+    expect(
+      logSpy.mock.calls.some((c) => String(c[0]).includes("vocab overlap with RAG corpus:"))
+    ).toBe(true);
     logSpy.mockRestore();
     exitSpy.mockRestore();
   });
 
   it("prints all three overlap delta indicator styles in section 4", async () => {
-    mockGetQuizContext.mockResolvedValue([{ text: "onlyragword alpha beta gamma", source: "a.md", score: 0.5 }]);
+    mockGetQuizContext.mockResolvedValue([
+      { text: "onlyragword alpha beta gamma", source: "a.md", score: 0.5 },
+    ]);
     mockGenerateQuizWithRAG.mockImplementation(async (_topic, _diff, _count, types) => {
       const t = types[0];
       if (t === "MULTIPLE_CHOICE") {
@@ -738,10 +778,7 @@ describe("test-rag-quiz runner", () => {
       })
     );
     let idx = 0;
-    const seq = [
-      10_000, 20_000,
-      10_000, 12_000,
-    ];
+    const seq = [10_000, 20_000, 10_000, 12_000];
     const nowSpy = vi.spyOn(Date, "now").mockImplementation(() => {
       const v = seq[Math.min(idx, seq.length - 1)]!;
       idx++;
@@ -750,7 +787,9 @@ describe("test-rag-quiz runner", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit");
     await runRagQuizE2eMain();
-    const httpLine = logSpy.mock.calls.map((c) => String(c[0])).find((s) => s.includes("HTTP (no-RAG server)"));
+    const httpLine = logSpy.mock.calls
+      .map((c) => String(c[0]))
+      .find((s) => s.includes("HTTP (no-RAG server)"));
     expect(httpLine).toBeDefined();
     expect(httpLine).toMatch(/Δ -\d+ms/);
     expect(httpLine).not.toMatch(/Δ \+\d+ms/);
