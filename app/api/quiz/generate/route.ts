@@ -13,13 +13,13 @@ import {
   quizTypeToDbType,
   type ParsedQuestion,
 } from "@/lib/quiz-normalise";
+import { getQuizContext } from "@/lib/quiz-rag";
 import {
   buildQuizPrompt,
   type Difficulty,
   type LearningContext,
   type QuizType,
 } from "@/lib/quiz-prompt";
-import { retrieveContext } from "@/lib/vertex-rag";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -218,7 +218,7 @@ export async function POST(request: Request) {
 
     // Fetch RAG context once for all question types
     try {
-      const ragChunks = await retrieveContext(`${body.topic} ${body.difficulty}`);
+      const ragChunks = await getQuizContext(body.topic, body.difficulty);
       const validChunks = ragChunks.filter((c) => c.text && c.text.trim().length > 0);
 
       if (validChunks.length > 0) {

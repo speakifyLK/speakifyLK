@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------------------
 
 /** Maximum number of questions allowed per prompt */
-const MAX_QUESTION_COUNT = 20;
+export const MAX_QUIZ_PROMPT_QUESTION_COUNT = 20;
 
 /** Maximum allowed length for the topic string */
 const MAX_TOPIC_LENGTH = 100;
@@ -396,8 +396,10 @@ export function buildQuizPrompt(type: QuizType, params: QuizPromptParams): strin
   if (!Number.isInteger(params.count) || params.count < 1) {
     throw new Error(`"count" must be a positive integer, received: ${params.count}`);
   }
-  if (params.count > MAX_QUESTION_COUNT) {
-    throw new Error(`"count" must not exceed ${MAX_QUESTION_COUNT}, received: ${params.count}`);
+  if (params.count > MAX_QUIZ_PROMPT_QUESTION_COUNT) {
+    throw new Error(
+      `"count" must not exceed ${MAX_QUIZ_PROMPT_QUESTION_COUNT}, received: ${params.count}`
+    );
   }
 
   // --- Validate & sanitise topic ---
