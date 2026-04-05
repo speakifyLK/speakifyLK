@@ -174,6 +174,7 @@ speakify/
     |-- error-handling.spec.ts
     |-- landing-page.spec.ts
     |-- navigation.spec.ts
+    |-- rag-chat-e2e.spec.ts
     |-- rag-import-status.spec.ts
     |-- seo-metadata.spec.ts
     |-- sign-in-page.spec.ts
@@ -190,8 +191,12 @@ speakify/
   |- constants.ts
   |- custom-modules.d.ts
   |- drizzle.config.ts
+  |- e2e_log_utf8.txt
+  |- e2e_output.txt
   |- environment.d.ts
   |- eslint.config.mjs
+  |- middleware-output-ansi.txt
+  |- middleware-output.txt
   |- middleware.test.ts
   |- middleware.ts
   |- next.config.ts
@@ -378,6 +383,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
+- [@clerk/testing](https://www.npmjs.com/package/@clerk/testing): ^2.0.8
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
 - [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.0.2
