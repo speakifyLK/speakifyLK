@@ -34,11 +34,7 @@ vi.mock("@/components/ui/button", () => {
 vi.mock("./quiz-progress", () => ({
   QuizProgress: (props: any) => (
     <div data-testid="quiz-progress" data-difficulty={props.difficulty}>
-      <button
-        type="button"
-        data-testid="time-up-trigger"
-        onClick={() => props.onTimeUp?.()}
-      >
+      <button type="button" data-testid="time-up-trigger" onClick={() => props.onTimeUp?.()}>
         Trigger Time Up
       </button>
       <span data-testid="timer-score">{props.score}</span>

@@ -290,7 +290,13 @@ describe("rag-quiz-e2e-helpers", () => {
       const r = reporters({ ok: vi.fn(), warn: vi.fn(), fail: vi.fn(), log: vi.fn() });
       const vocab = new Set(["hello", "there"]);
       reportGrounding(
-        { type: "MULTIPLE_CHOICE", question: "hello", correctAnswer: "there", explanation: "", options: [] },
+        {
+          type: "MULTIPLE_CHOICE",
+          question: "hello",
+          correctAnswer: "there",
+          explanation: "",
+          options: [],
+        },
         1,
         vocab,
         tally,
@@ -304,7 +310,13 @@ describe("rag-quiz-e2e-helpers", () => {
       const r = reporters({ ok: vi.fn(), warn: vi.fn(), fail: vi.fn(), log: vi.fn() });
       const vocab = new Set(["only"]);
       reportGrounding(
-        { type: "MULTIPLE_CHOICE", question: "zzz", correctAnswer: "yyy", explanation: "", options: [] },
+        {
+          type: "MULTIPLE_CHOICE",
+          question: "zzz",
+          correctAnswer: "yyy",
+          explanation: "",
+          options: [],
+        },
         1,
         vocab,
         tally,
@@ -317,7 +329,13 @@ describe("rag-quiz-e2e-helpers", () => {
       const tally: Tally = { errors: 0, warnings: 0 };
       const r = reporters({ ok: vi.fn(), warn: vi.fn(), fail: vi.fn(), log: vi.fn() });
       reportGrounding(
-        { type: "MULTIPLE_CHOICE", question: "hello", correctAnswer: "world", explanation: "", options: [] },
+        {
+          type: "MULTIPLE_CHOICE",
+          question: "hello",
+          correctAnswer: "world",
+          explanation: "",
+          options: [],
+        },
         1,
         new Set(),
         tally,
