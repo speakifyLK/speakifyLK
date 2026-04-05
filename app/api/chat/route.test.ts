@@ -575,7 +575,11 @@ describe("POST /api/chat", () => {
     mockGetMessages.mockResolvedValue([]);
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true", "x-mock-rag-failure": "true" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-e2e-bypass-auth": "true",
+        "x-mock-rag-failure": "true",
+      },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
