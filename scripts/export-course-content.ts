@@ -20,11 +20,13 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import * as dotenv from "dotenv";
 import { Storage } from "@google-cloud/storage";
+
+dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 import pLimit from "p-limit";
 import db from "@/db/drizzle";
-import { courses, units, lessons } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 // Parse GCS Credentials from .env string
 const gcsKeyString = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
@@ -61,14 +63,31 @@ const limit = pLimit(5);
 
 const getHash = (content: string) => crypto.createHash("md5").update(content).digest("hex");
 
-//Transforms lesson data into structured text chunks.
-
 const formatContent = (course: any, unit: any, lesson: any) => {
+  let contentText = "";
+  if (lesson.challenges && lesson.challenges.length > 0) {
+    const challengeTexts = lesson.challenges.map((c: any) => {
+      let text = `Challenge: ${c.question} (Type: ${c.type})`;
+      if (c.challengeOptions && c.challengeOptions.length > 0) {
+        const optionsText = c.challengeOptions
+          .map((opt: any) => `  - ${opt.text} ${opt.correct ? "(Correct Answer)" : ""}`)
+          .join("\n");
+        text += `\nOptions:\n${optionsText}`;
+      }
+      return text;
+    });
+    contentText = challengeTexts.join("\n\n");
+  } else {
+    contentText = "No detailed content provided.";
+  }
+
   return `
-    Course: ${course.title}
-    Unit: ${unit.title}
-    Lesson: ${lesson.title}
-    Content: ${lesson.content || "No detailed content provided."}
+Course: ${course.title}
+Unit: ${unit.title}
+Lesson: ${lesson.title}
+
+--- Lesson Content ---
+${contentText}
   `.trim();
 };
 
@@ -116,16 +135,35 @@ async function exportContent() {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const allCourses = await db.select().from(courses);
+    const courseStructure = await db.query.courses.findMany({
+      orderBy: (courses, { asc }) => [asc(courses.id)],
+      with: {
+        units: {
+          orderBy: (units, { asc }) => [asc(units.order)],
+          with: {
+            lessons: {
+              orderBy: (lessons, { asc }) => [asc(lessons.order)],
+              with: {
+                challenges: {
+                  orderBy: (challenges, { asc }) => [asc(challenges.order)],
+                  with: {
+                    challengeOptions: {
+                      orderBy: (challengeOptions, { asc }) => [asc(challengeOptions.id)],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    
     const tasks: Promise<void>[] = [];
 
-    for (const course of allCourses) {
-      const allUnits = await db.select().from(units).where(eq(units.courseId, course.id));
-
-      for (const unit of allUnits) {
-        const allLessons = await db.select().from(lessons).where(eq(lessons.unitId, unit.id));
-
-        for (const lesson of allLessons) {
+    for (const course of courseStructure) {
+      for (const unit of course.units) {
+        for (const lesson of unit.lessons) {
           const formattedText = formatContent(course, unit, lesson);
           const fileName = `course-${course.id}_unit-${unit.id}_lesson-${lesson.id}.json`;
           const filePath = path.join(outputDir, fileName);
