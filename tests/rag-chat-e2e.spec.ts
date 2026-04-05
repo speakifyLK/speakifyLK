@@ -6,7 +6,7 @@ import { test, expect } from "@playwright/test";
  * Tests the interaction with the Vertex AI RAG corpus by verifying responses
  * and testing the Gemini fallback mechanism.
  *
- * Uses 'x-e2e-bypass-auth' to cleanly bypass Next.js Clerk auth in non-production.
+ * Uses 'x-e2e-test-bypass' (secret-gated) to bypass Next.js Clerk auth in non-production.
  */
 
 test.describe("RAG API E2E Validation", () => {

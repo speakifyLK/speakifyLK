@@ -220,7 +220,12 @@ export async function POST(req: Request) {
     }
 
     let ragStream: ReadableStream<Uint8Array>;
-    if (userId === "e2e_test_user" && process.env.NODE_ENV !== "production") {
+    const useMockAI =
+      userId === "e2e_test_user" &&
+      process.env.NODE_ENV !== "production" &&
+      process.env.E2E_MOCK_AI === "true";
+
+    if (useMockAI) {
       const encoder = new TextEncoder();
       ragStream = new ReadableStream({
         start(controller) {
@@ -273,7 +278,12 @@ export async function POST(req: Request) {
   try {
     let responseStream: AsyncIterable<{ text?: string }>;
 
-    if (userId === "e2e_test_user" && process.env.NODE_ENV !== "production") {
+    const useMockGemini =
+      userId === "e2e_test_user" &&
+      process.env.NODE_ENV !== "production" &&
+      process.env.E2E_MOCK_AI === "true";
+
+    if (useMockGemini) {
       responseStream = (async function* () {
         yield { text: "This is a mock Gemini fallback response with more than 10 characters." };
       })();

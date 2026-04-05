@@ -66,6 +66,7 @@ describe("POST /api/chat", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.E2E_BYPASS_AUTH_SECRET = "test-secret";
+    process.env.E2E_MOCK_AI = "true";
     mockGetModel.mockReturnValue("gemini-pro");
     // Default: authenticated user
     mockAuth.mockResolvedValue({ userId: "user1" });
@@ -429,7 +430,7 @@ describe("POST /api/chat", () => {
     expect(mockSaveAssistantMessage).not.toHaveBeenCalled();
   });
 
-  it("uses local RAG mock stream when x-e2e-test-bypass header matches secret", async () => {
+  it("uses local RAG mock stream when E2E_MOCK_AI is true", async () => {
     mockAuth.mockResolvedValue({ userId: null });
     mockGetMessages.mockResolvedValue([]);
 
@@ -444,6 +445,32 @@ describe("POST /api/chat", () => {
     const text = await readStream(res);
     expect(text).toContain("mock RAG response");
     expect(mockGenerateWithRAG).not.toHaveBeenCalled();
+  });
+
+  it("calls real generateWithRAG when E2E_MOCK_AI is not set", async () => {
+    delete process.env.E2E_MOCK_AI;
+    mockAuth.mockResolvedValue({ userId: null });
+    mockGetMessages.mockResolvedValue([]);
+    mockGenerateWithRAG.mockResolvedValue(
+      new ReadableStream({
+        start(c) {
+          c.enqueue(new TextEncoder().encode("real rag"));
+          c.close();
+        },
+      })
+    );
+
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-e2e-test-bypass": "test-secret" },
+      body: JSON.stringify({ conversationId: 1, message: "hi" }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const text = await readStream(res);
+    expect(text).toBe("real rag");
+    expect(mockGenerateWithRAG).toHaveBeenCalled();
   });
 
   // ── RAG failure → Gemini fallback ──
@@ -579,7 +606,7 @@ describe("POST /api/chat", () => {
     expect(text).toBe("data");
   });
 
-  it("uses local Gemini mock stream when x-e2e-test-bypass header matches secret", async () => {
+  it("uses local Gemini mock stream when E2E_MOCK_AI is true", async () => {
     mockAuth.mockResolvedValue({ userId: null });
     mockGetMessages.mockResolvedValue([]);
     const req = new Request("http://localhost/api/chat", {
@@ -596,6 +623,41 @@ describe("POST /api/chat", () => {
     expect(res.status).toBe(200);
     const text = await readStream(res);
     expect(text).toContain("mock Gemini fallback response");
+  });
+
+  it("calls real Gemini SDK when E2E_MOCK_AI is not set and RAG fails", async () => {
+    delete process.env.E2E_MOCK_AI;
+    mockAuth.mockResolvedValue({ userId: null });
+    mockGetMessages.mockResolvedValue([]);
+    mockGenerateWithRAG.mockRejectedValue(new Error("RAG down"));
+
+    const mockResponse = {
+      [Symbol.asyncIterator]: async function* () {
+        yield { text: "real gemini" };
+      },
+    };
+    mockGetGeminiClient.mockReturnValue({
+      models: {
+        generateContentStream: vi.fn().mockResolvedValue(mockResponse),
+      },
+    });
+
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-e2e-test-bypass": "test-secret",
+        "x-mock-rag-failure": "true",
+      },
+      body: JSON.stringify({ conversationId: 1, message: "hi" }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-RAG-Status")).toBe("fallback");
+    const text = await readStream(res);
+    expect(text).toBe("real gemini");
+    expect(mockGetGeminiClient).toHaveBeenCalled();
   });
 
   // ── Both RAG and Gemini fail ──
