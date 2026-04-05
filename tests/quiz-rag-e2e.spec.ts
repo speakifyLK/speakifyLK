@@ -11,7 +11,7 @@ import {
  * `rag-import-status` e2e + `lib/rag-import-status.test.ts`).
  */
 test.describe("Quiz RAG (lib/quiz-rag)", () => {
-  test("buildQuizRagRetrievalQuery includes topic, difficulty, and course scope", () => {
+  test("buildQuizRagRetrievalQuery includes SpeakifyLK preamble, topic, and difficulty", () => {
     expect(() =>
       assertQuizRagRetrievalQueryShape("  numbers  ", "advanced")
     ).not.toThrow();

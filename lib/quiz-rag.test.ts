@@ -14,6 +14,7 @@ vi.mock("@/lib/gemini", () => ({
 import * as quizNormalise from "@/lib/quiz-normalise";
 import {
   buildQuizRagRetrievalQuery,
+  dedupeQuizTypesPreservingOrder,
   distributeQuestionCountByType,
   formatQuizRagChunksForPrompt,
   generateQuizWithRAG,
@@ -87,9 +88,33 @@ describe("quiz-rag module", () => {
     });
   });
 
+  describe("dedupeQuizTypesPreservingOrder", () => {
+    it("returns an empty array for an empty input", () => {
+      expect(dedupeQuizTypesPreservingOrder([])).toEqual([]);
+    });
+
+    it("preserves order and drops later duplicates", () => {
+      expect(
+        dedupeQuizTypesPreservingOrder([
+          "MULTIPLE_CHOICE",
+          "FILL_IN_BLANK",
+          "MULTIPLE_CHOICE",
+          "TRANSLATION",
+          "FILL_IN_BLANK",
+        ])
+      ).toEqual(["MULTIPLE_CHOICE", "FILL_IN_BLANK", "TRANSLATION"]);
+    });
+  });
+
   describe("distributeQuestionCountByType", () => {
     it("returns an empty map for an empty type list", () => {
       expect(distributeQuestionCountByType(5, []).size).toBe(0);
+    });
+
+    it("treats duplicate types as one bucket (matches unique order)", () => {
+      const m = distributeQuestionCountByType(4, ["MULTIPLE_CHOICE", "MULTIPLE_CHOICE"]);
+      expect(m.size).toBe(1);
+      expect(m.get("MULTIPLE_CHOICE")).toBe(4);
     });
 
     it("assigns all questions to a single type", () => {
@@ -132,11 +157,50 @@ describe("quiz-rag module", () => {
       ).rejects.toThrow('"questionTypes" must be a non-empty array.');
     });
 
+    it("throws when questionCount is zero", async () => {
+      await expect(
+        generateQuizWithRAG("greetings", "beginner", 0, ["MULTIPLE_CHOICE"])
+      ).rejects.toThrow('"questionCount" must be a positive integer.');
+      expect(mockRetrieveContext).not.toHaveBeenCalled();
+    });
+
+    it("throws when questionCount is negative", async () => {
+      await expect(
+        generateQuizWithRAG("greetings", "beginner", -1, ["MULTIPLE_CHOICE"])
+      ).rejects.toThrow('"questionCount" must be a positive integer.');
+      expect(mockRetrieveContext).not.toHaveBeenCalled();
+    });
+
+    it("throws when questionCount is not an integer", async () => {
+      await expect(
+        generateQuizWithRAG("greetings", "beginner", 2.5, ["MULTIPLE_CHOICE"])
+      ).rejects.toThrow('"questionCount" must be a positive integer.');
+      expect(mockRetrieveContext).not.toHaveBeenCalled();
+    });
+
+    it("throws when questionCount exceeds buildQuizPrompt maximum", async () => {
+      await expect(
+        generateQuizWithRAG("greetings", "beginner", 21, ["MULTIPLE_CHOICE"])
+      ).rejects.toThrow('"questionCount" must not exceed 20');
+      expect(mockRetrieveContext).not.toHaveBeenCalled();
+    });
+
     it("throws when retrieval returns no usable text", async () => {
       mockRetrieveContext.mockResolvedValueOnce([{ text: "", source: "x", score: 1 }]);
       await expect(
         generateQuizWithRAG("greetings", "beginner", 5, ["MULTIPLE_CHOICE"])
       ).rejects.toThrow("No course content was retrieved");
+    });
+
+    it("dedupes duplicate question types and generates the correct total count", async () => {
+      mockGenerateContent.mockResolvedValue({ text: mcqJson(4) });
+      const out = await generateQuizWithRAG("greetings", "beginner", 4, [
+        "MULTIPLE_CHOICE",
+        "MULTIPLE_CHOICE",
+      ]);
+      expect(out).toHaveLength(4);
+      expect(mockGenerateContent).toHaveBeenCalledTimes(1);
+      expect(mockGenerateContent.mock.calls[0][0] as string).toContain("Generate exactly 4");
     });
 
     it("generates MCQ questions with RAG context", async () => {

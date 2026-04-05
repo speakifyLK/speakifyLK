@@ -1,6 +1,11 @@
 import { generateContent } from "@/lib/gemini";
 import { parseGeminiQuizResponse, type ParsedQuestion } from "@/lib/quiz-normalise";
-import { buildQuizPrompt, type Difficulty, type QuizType } from "@/lib/quiz-prompt";
+import {
+  buildQuizPrompt,
+  MAX_QUIZ_PROMPT_QUESTION_COUNT,
+  type Difficulty,
+  type QuizType,
+} from "@/lib/quiz-prompt";
 import { retrieveContext } from "@/lib/vertex-rag";
 
 const MAX_GEMINI_RETRIES = 2;
@@ -45,6 +50,21 @@ export async function getQuizContext(topic: string, difficulty: Difficulty): Pro
   return retrieveContext(query);
 }
 
+/**
+ * Removes duplicate {@link QuizType} values, keeping the first occurrence order.
+ * Needed so distribution and generation stay aligned with the requested total question count.
+ */
+export function dedupeQuizTypesPreservingOrder(types: QuizType[]): QuizType[] {
+  const seen = new Set<QuizType>();
+  const out: QuizType[] = [];
+  for (const t of types) {
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+}
+
 async function callGeminiWithRetry(
   prompt: string,
   quizType: QuizType,
@@ -83,15 +103,16 @@ async function callGeminiWithRetry(
  * remainder to the earliest types (same strategy as the quiz generate API).
  */
 export function distributeQuestionCountByType(total: number, types: QuizType[]): Map<QuizType, number> {
+  const uniqueTypes = dedupeQuizTypesPreservingOrder(types);
   const map = new Map<QuizType, number>();
-  for (const t of types) map.set(t, 0);
+  for (const t of uniqueTypes) map.set(t, 0);
 
-  const n = types.length;
+  const n = uniqueTypes.length;
   if (n === 0) return map;
 
   const base = Math.floor(total / n);
   const remainder = total % n;
-  types.forEach((t, i) => {
+  uniqueTypes.forEach((t, i) => {
     map.set(t, base + (i < remainder ? 1 : 0));
   });
   return map;
@@ -114,6 +135,15 @@ export async function generateQuizWithRAG(
     throw new Error('"questionTypes" must be a non-empty array.');
   }
 
+  if (!Number.isInteger(questionCount) || questionCount <= 0) {
+    throw new Error('"questionCount" must be a positive integer.');
+  }
+  if (questionCount > MAX_QUIZ_PROMPT_QUESTION_COUNT) {
+    throw new Error(
+      `"questionCount" must not exceed ${MAX_QUIZ_PROMPT_QUESTION_COUNT}, received: ${questionCount}.`
+    );
+  }
+
   const chunks = await getQuizContext(topic, difficulty);
   const validChunks = chunks.filter((c) => c.text && c.text.trim().length > 0);
 
@@ -128,8 +158,7 @@ export async function generateQuizWithRAG(
 
   const out: RagQuizQuestion[] = [];
 
-  for (const quizType of questionTypes) {
-    const count = counts.get(quizType);
+  for (const [quizType, count] of counts) {
     if (!count) continue;
 
     const prompt = buildQuizPrompt(quizType, {

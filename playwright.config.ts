@@ -8,6 +8,8 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./tests",
+  /* Vitest unit tests may live under tests/ (e.g. helpers); do not run them as Playwright files. */
+  testIgnore: "**/*.test.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
