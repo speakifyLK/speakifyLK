@@ -451,7 +451,11 @@ describe("POST /api/chat", () => {
     mockGetMessages.mockResolvedValue([]);
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true", "x-e2e-test-bypass": "test-secret" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-mock-rag-failure": "true",
+        "x-e2e-test-bypass": "test-secret",
+      },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -488,7 +492,11 @@ describe("POST /api/chat", () => {
     );
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true", "x-e2e-test-bypass": "test-secret" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-mock-rag-failure": "true",
+        "x-e2e-test-bypass": "test-secret",
+      },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -576,7 +584,11 @@ describe("POST /api/chat", () => {
     mockGetMessages.mockResolvedValue([]);
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-e2e-test-bypass": "test-secret", "x-mock-rag-failure": "true" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-e2e-test-bypass": "test-secret",
+        "x-mock-rag-failure": "true",
+      },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
