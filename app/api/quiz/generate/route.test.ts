@@ -8,11 +8,15 @@ const mockGenerateContent = vi.hoisted(() => vi.fn());
 const mockBuildQuizPrompt = vi.hoisted(() => vi.fn());
 const mockDbInsert = vi.hoisted(() => vi.fn());
 const mockDbDelete = vi.hoisted(() => vi.fn());
+const mockRetrieveContext = vi.hoisted(() => vi.fn());
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: mockAuth }));
 vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
   getUserLearningProfile: mockGetUserLearningProfile,
+}));
+vi.mock("@/lib/vertex-rag", () => ({
+  retrieveContext: mockRetrieveContext,
 }));
 vi.mock("@/lib/gemini", () => ({
   generateContent: mockGenerateContent,
@@ -105,6 +109,11 @@ describe("POST /api/quiz/generate", () => {
 
     // Default: no learning profile
     mockGetUserLearningProfile.mockResolvedValue(null);
+
+    // Default: RAG succeeds
+    mockRetrieveContext.mockResolvedValue([
+      { text: "Some course text", source: "...", score: 0.9 },
+    ]);
 
     // Default: build prompt returns a string
     mockBuildQuizPrompt.mockReturnValue("generated prompt");
@@ -472,6 +481,126 @@ describe("POST /api/quiz/generate", () => {
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(502);
     expect((await res.json()).error).toBe("Failed to generate quiz.");
+  });
+
+  // ── RAG Integration ──
+  it("uses RAG context when available and marks ragGrounded true", async () => {
+    vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
+    expect(mockRetrieveContext).toHaveBeenCalledWith("Greetings beginner");
+    expect(mockBuildQuizPrompt).toHaveBeenCalledWith(
+      "multiple_choice",
+      expect.objectContaining({
+        ragContext: "Some course text",
+      })
+    );
+
+    // Session DB insert uses ragGrounded: true
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: true,
+      })
+    );
+  });
+
+  it("falls back to non-RAG flow if RAG context is empty array", async () => {
+    mockRetrieveContext.mockResolvedValue([]);
+    vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
+      })
+    );
+  });
+
+  it("filters out empty text chunks completely and handles fallback", async () => {
+    mockRetrieveContext.mockResolvedValue([
+      { text: "", source: "a", score: 0.9 },
+      { text: "   ", source: "b", score: 0.9 }, // only empty spaces
+    ]);
+    vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
+      })
+    );
+  });
+
+  it("falls back to non-RAG flow if retrieveContext throws", async () => {
+    mockRetrieveContext.mockRejectedValue(new Error("RAG dead"));
+    vi.mocked(parseGeminiQuizResponse).mockReturnValue(fakeQuestions(5));
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
+      })
+    );
+  });
+
+  it("skips RAG for all question types if context retrieval fails", async () => {
+    const body = {
+      ...validBody,
+      questionCount: 5,
+      questionTypes: ["mcq", "fill_blank"],
+    };
+    mockRetrieveContext.mockRejectedValueOnce(new Error("RAG dead"));
+
+    vi.mocked(parseGeminiQuizResponse)
+      .mockReturnValueOnce(fakeQuestions(3))
+      .mockReturnValueOnce(fakeQuestions(2));
+
+    const returningFn = vi.fn().mockResolvedValue([{ id: 99 }]);
+    const valuesFn = vi.fn().mockReturnValue({ returning: returningFn });
+    mockDbInsert
+      .mockReturnValueOnce({ values: valuesFn })
+      .mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+
+    const res = await POST(makeRequest(body));
+    expect(res.status).toBe(200);
+
+    // retrieval is hoisted outside the loop, so it is only called once
+    expect(mockRetrieveContext).toHaveBeenCalledTimes(1);
+    
+    // Since RAG retrieval failed, the entire session should fall back natively
+    expect(valuesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ragGrounded: false,
+      })
+    );
   });
 
   // ── DB operations ──

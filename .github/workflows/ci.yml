@@ -368,8 +368,47 @@ jobs:
         run: set -o pipefail && bun run test:coverage 2>&1 | tee test-output.txt
         continue-on-error: true
 
+      - name: Determine test vs coverage failure
+        id: coverage-check
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.unit-test.outcome }}" = "success" ]; then
+            # Tests passed and coverage thresholds met (Vitest enforces thresholds via config)
+            echo "tests_passed=true" >> "$GITHUB_OUTPUT"
+            echo "coverage_ok=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Command failed — determine whether tests failed, coverage failed, or both
+          coverage_failed=false
+          tests_failed=false
+
+          if grep -q "does not meet global threshold" test-output.txt 2>/dev/null; then
+            coverage_failed=true
+          fi
+
+          # Check for Vitest test failure markers (e.g. "Tests  2 failed | 10 passed")
+          if grep -Eq '(^|[[:space:]])FAIL([[:space:]]|$)|^[[:space:]]*(Test Files|Tests)[[:space:]].*[1-9][0-9]* failed' test-output.txt 2>/dev/null; then
+            tests_failed=true
+          fi
+
+          if [ "$tests_failed" = "true" ]; then
+            # Tests themselves failed (with or without an additional coverage failure)
+            echo "tests_passed=false" >> "$GITHUB_OUTPUT"
+            echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
+          elif [ "$coverage_failed" = "true" ]; then
+            # Tests passed but coverage thresholds were not met
+            echo "tests_passed=true" >> "$GITHUB_OUTPUT"
+            echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
+          else
+            # Unknown failure (e.g. config error, missing dependencies)
+            echo "tests_passed=false" >> "$GITHUB_OUTPUT"
+            echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Comment on PR if unit tests failed
-        if: steps.unit-test.outcome == 'failure' && github.event_name == 'pull_request'
+        if: steps.coverage-check.outputs.tests_passed == 'false' && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -423,8 +462,106 @@ jobs:
               });
             }
 
-      - name: Delete comment if unit tests passed
-        if: steps.unit-test.outcome == 'success' && github.event_name == 'pull_request'
+      - name: Comment on PR if coverage is not 100%
+        if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'false' && github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- ci-unit-test -->';
+            let output = fs.readFileSync('test-output.txt', 'utf8').trim();
+            if (output.length > 60000) output = output.slice(-60000) + '\n... (truncated from start)';
+            output = output.replace(/```/g, '` ` `');
+
+            // Extract test summary (Test Files, Tests, Start at, Duration lines)
+            const testSummaryLines = output.match(/Test Files .+|Tests {2}.+|Start at .+|Duration .+/g) || [];
+            const testSummary = testSummaryLines.join('\n');
+
+            // Extract coverage table (from "% Coverage report" to the closing dashes line)
+            const coverageMatch = output.match(/% Coverage report[\s\S]*?-{10,}\s*$/m);
+            let coverageTable = coverageMatch ? coverageMatch[0] : 'Coverage report not found';
+            if (coverageTable.length > 50000) coverageTable = coverageTable.slice(0, 50000) + '\n... (truncated)';
+
+            // Find files that are not at 100%
+            const lines = output.split('\n');
+            const uncoveredFiles = lines.filter(line => {
+              // Match coverage table data rows (not header/separator)
+              if (!line.includes('|') || line.includes('% Stmts') || line.match(/^[\s-|]+$/)) return false;
+              if (line.includes('All files')) return false;
+              // Check if any percentage is not 100
+              const parts = line.split('|').map(p => p.trim());
+              return parts.slice(1, 5).some(p => p !== '100' && p !== '' && !isNaN(p));
+            });
+
+            const sha = context.sha.slice(0, 7);
+            const bodyParts = [
+              marker,
+              '## Unit Test Coverage Below 100%',
+              '',
+              `Commit: \`${sha}\``,
+              '',
+              'All tests passed, but code coverage is not at **100%**. Please add tests to cover all code paths.',
+              '',
+              '### Test Results',
+              '```',
+              testSummary,
+              '```',
+              '',
+              '### Coverage Report',
+              '<details>',
+              '<summary>Full coverage report from v8 (click to expand)</summary>',
+              '',
+              '```',
+              coverageTable,
+              '```',
+              '',
+              '</details>',
+            ];
+
+            if (uncoveredFiles.length > 0) {
+              bodyParts.push('');
+              bodyParts.push('### Files Below 100% Coverage');
+              bodyParts.push('');
+              bodyParts.push('| File | % Stmts | % Branch | % Funcs | % Lines | Uncovered Lines |');
+              bodyParts.push('|------|---------|----------|---------|---------|-----------------|');
+              for (const line of uncoveredFiles) {
+                const parts = line.split('|').map(p => p.trim());
+                bodyParts.push(`| ${parts[0]} | ${parts[1]} | ${parts[2]} | ${parts[3]} | ${parts[4]} | ${parts[5] || ''} |`);
+              }
+            }
+
+            bodyParts.push('');
+            bodyParts.push('**Target: 100% coverage across Statements, Branches, Functions, and Lines.**');
+            bodyParts.push('');
+            bodyParts.push('**How to fix:** Run `bun run test:coverage` locally to see the full coverage report and add missing tests.');
+
+            const body = bodyParts.join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+      - name: Delete comment if unit tests and coverage passed
+        if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
@@ -441,9 +578,16 @@ jobs:
                 repo: context.repo.repo,
                 comment_id: existing.id
               });
-              console.log('Deleted stale unit test failure comment');
+              console.log('Deleted stale unit test/coverage failure comment');
             }
 
       - name: Fail if unit tests failed
-        if: steps.unit-test.outcome == 'failure'
+        if: steps.coverage-check.outputs.tests_passed == 'false'
         run: exit 1
+
+      - name: Fail if coverage is not 100%
+        if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'false'
+        run: |
+          echo "::error::Code coverage is not at 100%. Please add tests to cover all code paths."
+          echo "Run 'bun run test:coverage' locally to see the full coverage report."
+          exit 1
