@@ -34,6 +34,7 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
+
 ```bash
 speakify/
   |- actions/
@@ -205,6 +206,7 @@ speakify/
   |- vitest.config.ts
   |- vitest.setup.ts
 ```
+
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -377,6 +379,7 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
+
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
@@ -398,6 +401,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/analytics](https://www.npmjs.com/package/@vercel/analytics): ^2.0.1
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.41
+- [@vercel/speed-insights](https://www.npmjs.com/package/@vercel/speed-insights): ^2.0.0
 - [@vitejs/plugin-react](https://www.npmjs.com/package/@vitejs/plugin-react): ^6.0.1
 - [@vitest/coverage-v8](https://www.npmjs.com/package/@vitest/coverage-v8): 4.1.2
 - [allure-commandline](https://www.npmjs.com/package/allure-commandline): ^2.38.1
