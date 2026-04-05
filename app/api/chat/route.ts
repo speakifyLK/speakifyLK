@@ -261,34 +261,38 @@ export async function POST(req: Request) {
 
   // ── 9. Fallback: Non-RAG flow using Gemini SDK ──
   try {
+    let responseStream: AsyncIterable<{ text?: string }>;
+
+    if (userId === "e2e_test_user" && process.env.NODE_ENV !== "production") {
+      responseStream = (async function* () {
+        yield { text: "This is a mock Gemini fallback response with more than 10 characters." };
+      })();
+    } else {
+      const ai = getGeminiClient();
+
+      const response = await ai.models.generateContentStream({
+        model: getModel(),
+        contents: [
+          { role: "user", parts: [{ text: systemPrompt }] },
+          {
+            role: "model",
+            parts: [
+              { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
+            ],
+          },
+          ...geminiHistory,
+        ],
+        config: {
+          safetySettings,
+          ...generationConfig,
+        },
+      });
+      responseStream = response;
+    }
+
     const stream = createStreamResponse(
       async function* () {
-        if (userId === "e2e_test_user" && process.env.NODE_ENV !== "production") {
-          yield "This is a mock Gemini fallback response with more than 10 characters.";
-          return;
-        }
-
-        const ai = getGeminiClient();
-
-        const response = await ai.models.generateContentStream({
-          model: getModel(),
-          contents: [
-            { role: "user", parts: [{ text: systemPrompt }] },
-            {
-              role: "model",
-              parts: [
-                { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
-              ],
-            },
-            ...geminiHistory,
-          ],
-          config: {
-            safetySettings,
-            ...generationConfig,
-          },
-        });
-
-        for await (const chunk of response) {
+        for await (const chunk of responseStream) {
           yield chunk.text ?? "";
         }
       },
