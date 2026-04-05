@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { ExitModal } from "@/components/modals/exit-modal";
 import { HeartsModal } from "@/components/modals/hearts-modal";
@@ -42,6 +43,7 @@ export default function RootLayout({
           <HeartsModal />
           <PracticeModal />
           {children}
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
