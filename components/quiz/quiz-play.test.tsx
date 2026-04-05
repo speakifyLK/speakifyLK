@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -317,9 +317,7 @@ describe("QuizPlay", () => {
 
     // Wait for the transition to complete and "Complete Quiz" to appear
     const completeBtn = await screen.findByText("Complete Quiz");
-    await act(async () => {
-      fireEvent.click(completeBtn);
-    });
+    fireEvent.click(completeBtn);
 
     await waitFor(() => {
       expect(screen.getByTestId("quiz-result")).toBeInTheDocument();
