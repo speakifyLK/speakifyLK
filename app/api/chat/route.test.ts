@@ -65,6 +65,7 @@ async function readStream(response: Response): Promise<string> {
 describe("POST /api/chat", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.E2E_BYPASS_AUTH_SECRET = "test-secret";
     mockGetModel.mockReturnValue("gemini-pro");
     // Default: authenticated user
     mockAuth.mockResolvedValue({ userId: "user1" });
@@ -90,7 +91,7 @@ describe("POST /api/chat", () => {
     expect(await res.json()).toEqual({ error: "Unauthorized" });
   });
 
-  it("allows access when x-e2e-bypass-auth header is present and not production", async () => {
+  it("allows access when x-e2e-test-bypass header matches secret and not production", async () => {
     mockAuth.mockResolvedValue({ userId: null });
     mockGetMessages.mockResolvedValue([]);
     mockGenerateWithRAG.mockResolvedValue(
@@ -104,7 +105,7 @@ describe("POST /api/chat", () => {
 
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true" },
+      headers: { "Content-Type": "application/json", "x-e2e-test-bypass": "test-secret" },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -112,7 +113,7 @@ describe("POST /api/chat", () => {
     expect(res.status).toBe(200);
   });
 
-  it("does not allow access via x-e2e-bypass-auth when in production env", async () => {
+  it("does not allow access via x-e2e-test-bypass when in production env", async () => {
     mockAuth.mockResolvedValue({ userId: null });
 
     const origEnv = process.env.NODE_ENV;
@@ -121,7 +122,7 @@ describe("POST /api/chat", () => {
 
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true" },
+      headers: { "Content-Type": "application/json", "x-e2e-test-bypass": "test-secret" },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -428,13 +429,13 @@ describe("POST /api/chat", () => {
     expect(mockSaveAssistantMessage).not.toHaveBeenCalled();
   });
 
-  it("uses local RAG mock stream when x-e2e-bypass-auth header is present", async () => {
+  it("uses local RAG mock stream when x-e2e-test-bypass header matches secret", async () => {
     mockAuth.mockResolvedValue({ userId: null });
     mockGetMessages.mockResolvedValue([]);
 
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true" },
+      headers: { "Content-Type": "application/json", "x-e2e-test-bypass": "test-secret" },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -450,7 +451,7 @@ describe("POST /api/chat", () => {
     mockGetMessages.mockResolvedValue([]);
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true" },
+      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true", "x-e2e-test-bypass": "test-secret" },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -487,7 +488,7 @@ describe("POST /api/chat", () => {
     );
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true" },
+      headers: { "Content-Type": "application/json", "x-mock-rag-failure": "true", "x-e2e-test-bypass": "test-secret" },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 
@@ -570,12 +571,12 @@ describe("POST /api/chat", () => {
     expect(text).toBe("data");
   });
 
-  it("uses local Gemini mock stream when x-e2e-bypass-auth header is present", async () => {
+  it("uses local Gemini mock stream when x-e2e-test-bypass header matches secret", async () => {
     mockAuth.mockResolvedValue({ userId: null });
     mockGetMessages.mockResolvedValue([]);
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-e2e-bypass-auth": "true", "x-mock-rag-failure": "true" },
+      headers: { "Content-Type": "application/json", "x-e2e-test-bypass": "test-secret", "x-mock-rag-failure": "true" },
       body: JSON.stringify({ conversationId: 1, message: "hi" }),
     });
 

@@ -79,3 +79,4 @@ node_modules/
 # Allure
 /allure-results/
 /allure-report/
+e2e_log_utf8.txt

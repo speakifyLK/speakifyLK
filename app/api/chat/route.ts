@@ -48,10 +48,12 @@ export async function POST(req: Request) {
   let userId = clerkAuth.userId;
 
   // E2E Test Auth Bypass
+  const e2eBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
   if (
     !userId &&
-    req.headers.get("x-e2e-bypass-auth") === "true" &&
-    process.env.NODE_ENV !== "production"
+    process.env.NODE_ENV !== "production" &&
+    !!e2eBypassSecret &&
+    req.headers.get("x-e2e-test-bypass") === e2eBypassSecret
   ) {
     userId = "e2e_test_user";
   }
@@ -207,7 +209,13 @@ export async function POST(req: Request) {
 
   // ── 8. Try RAG flow, fall back to Gemini SDK on failure ──
   try {
-    if (req.headers.get("x-mock-rag-failure") === "true" && process.env.NODE_ENV !== "production") {
+    const mockRagFailureRequested = req.headers.get("x-mock-rag-failure") === "true";
+    const canForceMockRagFailure =
+      process.env.NODE_ENV !== "production" &&
+      !!e2eBypassSecret &&
+      req.headers.get("x-e2e-test-bypass") === e2eBypassSecret;
+
+    if (mockRagFailureRequested && canForceMockRagFailure) {
       throw new Error("E2E Forced RAG Failure (503)");
     }
 
