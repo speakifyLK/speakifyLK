@@ -21,7 +21,12 @@ import {
   type Tally,
 } from "./rag-quiz-e2e-helpers";
 
-function reporters(spies: { ok: ReturnType<typeof vi.fn>; warn: ReturnType<typeof vi.fn>; fail: ReturnType<typeof vi.fn>; log: ReturnType<typeof vi.fn> }): RagE2eReporters {
+function reporters(spies: {
+  ok: ReturnType<typeof vi.fn>;
+  warn: ReturnType<typeof vi.fn>;
+  fail: ReturnType<typeof vi.fn>;
+  log: ReturnType<typeof vi.fn>;
+}): RagE2eReporters {
   return spies as RagE2eReporters;
 }
 
