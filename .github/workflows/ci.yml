@@ -407,6 +407,14 @@ jobs:
             echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Upload unit test Allure results
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: allure-results-unit
+          path: allure-results/
+          retention-days: 30
+
       - name: Comment on PR if unit tests failed
         if: steps.coverage-check.outputs.tests_passed == 'false' && github.event_name == 'pull_request'
         uses: actions/github-script@v8

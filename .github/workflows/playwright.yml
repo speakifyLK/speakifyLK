@@ -80,6 +80,14 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Upload E2E Allure results
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: allure-results-e2e
+          path: allure-results/
+          retention-days: 30
+
       - name: Comment on PR if E2E tests failed
         if: steps.e2e-test.outcome == 'failure' && github.event_name == 'pull_request'
         uses: actions/github-script@v8
