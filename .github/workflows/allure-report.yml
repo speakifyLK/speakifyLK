@@ -11,20 +11,124 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_run:
-    workflows: ["CI", "Playwright Tests"]
-    types: [completed]
+  push:
     branches: [main]
 
 jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run unit tests
+        id: unit-tests-run
+        run: bun run test:coverage
+        continue-on-error: true
+
+      - name: Upload unit test Allure results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: allure-results-unit
+          path: allure-results/
+          retention-days: 30
+
+      - name: Fail if unit tests failed
+        if: ${{ steps.unit-tests-run.outcome == 'failure' }}
+        run: exit 1
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
+      NEXT_PUBLIC_CLERK_SIGN_UP_URL: /sign-up
+      NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: /
+      NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: /
+      STRIPE_API_SECRET_KEY: ${{ secrets.STRIPE_API_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+      CLERK_ADMIN_IDS: ${{ secrets.CLERK_ADMIN_IDS }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(bunx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: bunx playwright install --with-deps
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps
+
+      - name: Run Playwright tests
+        id: playwright-tests
+        run: bunx playwright test
+        continue-on-error: true
+
+      - name: Upload E2E Allure results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: allure-results-e2e
+          path: allure-results/
+          retention-days: 30
+
+      - name: Fail if Playwright tests failed
+        if: ${{ steps.playwright-tests.outcome == 'failure' }}
+        run: exit 1
+
   generate-report:
     name: Generate Allure Report
     runs-on: ubuntu-latest
-
-    # Only run when triggered on main (push or merged PR)
-    if: >
-      github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.conclusion != 'cancelled'
+    needs: [unit-tests, e2e-tests]
+    if: ${{ always() && !cancelled() }}
 
     steps:
       - name: Download unit test Allure results
@@ -32,8 +136,6 @@ jobs:
         with:
           name: allure-results-unit
           path: allure-results/unit
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
         continue-on-error: true
 
       - name: Download E2E Allure results
@@ -41,8 +143,6 @@ jobs:
         with:
           name: allure-results-e2e
           path: allure-results/e2e
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
         continue-on-error: true
 
       - name: Check for results
@@ -65,12 +165,31 @@ jobs:
           echo "Merged result files:"
           ls -la allure-results/merged/ | head -20
 
-      - name: Download previous report for history
+      - name: Find previous workflow run for history
         if: steps.check.outputs.result_count != '0'
+        id: prev-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the most recent completed run of this workflow (excluding current)
+          prev_run_id=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/allure-report.yml/runs?status=completed&per_page=5" \
+            --jq "[.workflow_runs[] | select(.id != ${{ github.run_id }})][0].id // empty")
+          if [ -n "$prev_run_id" ]; then
+            echo "run_id=$prev_run_id" >> "$GITHUB_OUTPUT"
+            echo "Found previous run: $prev_run_id"
+          else
+            echo "No previous run found."
+          fi
+
+      - name: Download previous report for history
+        if: steps.check.outputs.result_count != '0' && steps.prev-run.outputs.run_id != ''
         uses: actions/download-artifact@v4
         with:
           name: allure-report-history
           path: allure-history
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.prev-run.outputs.run_id }}
         continue-on-error: true
 
       - name: Copy history into results
