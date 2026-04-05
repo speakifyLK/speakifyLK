@@ -41,8 +41,11 @@ test.describe("RAG API E2E Validation", () => {
     const text = await response.text();
     test.info().attach("Active RAG Response", { body: text, contentType: "text/plain" });
 
-    // Rough checks for vocabulary presence that should be in the course context
+    // Validate corpus-grounded vocabulary and minimum length.
+    // When E2E_MOCK_AI is set the mock stream includes "Ayubowan"; when running
+    // against the real RAG corpus the response should contain Sinhala colour terms.
     expect(text.length).toBeGreaterThan(10);
+    expect(text).toMatch(/Ayubowan|රතු|නිල්|කොළ|කහ|කළු|සුදු|rathu|nil|kola|kaha|kalu|sudu/i);
   });
 
   test("should respond to basic greetings", async ({ request }) => {

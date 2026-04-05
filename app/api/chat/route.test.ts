@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ── Hoisted mocks ──────────────────────────────────────────────────────
 const mockAuth = vi.hoisted(() => vi.fn());
@@ -63,6 +63,9 @@ async function readStream(response: Response): Promise<string> {
 }
 
 describe("POST /api/chat", () => {
+  const origBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
+  const origMockAI = process.env.E2E_MOCK_AI;
+
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.E2E_BYPASS_AUTH_SECRET = "test-secret";
@@ -82,6 +85,20 @@ describe("POST /api/chat", () => {
     mockGetMessages.mockResolvedValue([]);
     // Default: save response ok
     mockSaveAssistantMessage.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    // Restore env vars to prevent leakage between test files
+    if (origBypassSecret === undefined) {
+      delete process.env.E2E_BYPASS_AUTH_SECRET;
+    } else {
+      process.env.E2E_BYPASS_AUTH_SECRET = origBypassSecret;
+    }
+    if (origMockAI === undefined) {
+      delete process.env.E2E_MOCK_AI;
+    } else {
+      process.env.E2E_MOCK_AI = origMockAI;
+    }
   });
 
   // ── Auth ──

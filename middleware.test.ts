@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const mockProtect = vi.fn();
 const mockAuth = vi.fn().mockResolvedValue({ protect: mockProtect });
@@ -12,6 +12,7 @@ vi.mock("@clerk/nextjs/server", () => ({
 
 describe("middleware", () => {
   let routeMatcherCallback: (req: unknown) => boolean;
+  const origBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
 
   beforeEach(() => {
     vi.resetModules();
@@ -27,6 +28,15 @@ describe("middleware", () => {
     });
 
     mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
+  });
+
+  afterEach(() => {
+    // Restore env vars to prevent leakage between test files
+    if (origBypassSecret === undefined) {
+      delete process.env.E2E_BYPASS_AUTH_SECRET;
+    } else {
+      process.env.E2E_BYPASS_AUTH_SECRET = origBypassSecret;
+    }
   });
 
   it("exports a default middleware function", async () => {

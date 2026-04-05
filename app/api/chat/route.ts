@@ -48,6 +48,15 @@ export async function POST(req: Request) {
   let userId = clerkAuth.userId;
 
   // E2E Test Auth Bypass
+  // ─────────────────────────────────────────────────────────────────────
+  // E2E_BYPASS_AUTH_SECRET: shared secret set in CI via GitHub Actions secrets
+  //   (or locally in .env). When a request's `x-e2e-test-bypass` header matches
+  //   this value and NODE_ENV ≠ production, auth is bypassed and the request
+  //   runs as "e2e_test_user".
+  // E2E_MOCK_AI: set to "true" to return hard-coded mock streams instead of
+  //   calling Vertex RAG / Gemini SDK. Useful in CI without GCP credentials.
+  //   When unset or any other value, real AI services are called.
+  // ─────────────────────────────────────────────────────────────────────
   const e2eBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
   if (
     !userId &&
