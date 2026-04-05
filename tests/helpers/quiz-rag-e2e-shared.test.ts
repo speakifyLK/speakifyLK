@@ -162,6 +162,17 @@ describe("quiz-rag-e2e-shared", () => {
         },
       })
     ).toThrow("finite number");
+
+    expect(() =>
+      assertAiQuizSessionRagMetadataContract({
+        rag: {
+          provider: "vertex_rag_retrieveContexts",
+          chunkCount: 1,
+          chunkSources: [{ source: "ok", score: Number.POSITIVE_INFINITY }],
+          groundedGeneration: false,
+        },
+      })
+    ).toThrow("finite number");
   });
 
   it("assertAiQuizSessionRagMetadataContract rejects non-boolean groundedGeneration", () => {

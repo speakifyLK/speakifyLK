@@ -60,7 +60,7 @@ export function assertAiQuizSessionRagMetadataContract(metadata: AiQuizSessionMe
     if (typeof c?.source !== "string" || c.source.length === 0) {
       throw new Error(`chunkSources[${i}].source must be a non-empty string`);
     }
-    if (typeof c.score !== "number" || Number.isNaN(c.score)) {
+    if (!Number.isFinite(c.score)) {
       throw new Error(`chunkSources[${i}].score must be a finite number`);
     }
   }
