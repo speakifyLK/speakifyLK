@@ -59,7 +59,7 @@ describe("middleware", () => {
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
-    const request = { url: "/learn" };
+    const request = { url: "/learn", headers: new Map() };
 
     // Get the callback that was passed to clerkMiddleware
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
