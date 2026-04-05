@@ -22,7 +22,7 @@ import {
 } from "./rag-quiz-e2e-helpers";
 
 function reporters(spies: { ok: ReturnType<typeof vi.fn>; warn: ReturnType<typeof vi.fn>; fail: ReturnType<typeof vi.fn>; log: ReturnType<typeof vi.fn> }): RagE2eReporters {
-  return spies;
+  return spies as RagE2eReporters;
 }
 
 describe("rag-quiz-e2e-helpers", () => {
@@ -148,7 +148,7 @@ describe("rag-quiz-e2e-helpers", () => {
       const r = reporters({ ok: vi.fn(), warn: vi.fn(), fail: vi.fn(), log: vi.fn() });
       validateMcq(baseQ({} as unknown as McqOption[]), 1, new Set(), tally, r);
       expect(tally.errors).toBe(1);
-      expect(String(r.fail.mock.calls[0]?.[0])).toContain("none");
+      expect(String(vi.mocked(r.fail).mock.calls[0]?.[0])).toContain("none");
     });
 
     it("fails when not exactly one correct option", () => {

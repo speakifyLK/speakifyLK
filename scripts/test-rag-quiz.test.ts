@@ -30,6 +30,10 @@ vi.mock("../lib/quiz-normalise", () => ({
 
 import { runRagQuizE2eMain } from "./test-rag-quiz";
 
+function exitThrows(code?: string | number | null | undefined): never {
+  throw new Error(`exit:${code ?? 0}`);
+}
+
 function mcqRow(id: number): ApiQuestionRow {
   return {
     id,
@@ -79,9 +83,9 @@ describe("test-rag-quiz runner", () => {
     vi.stubEnv("RAG_CORPUS_ID", "corpus");
     vi.stubEnv("GOOGLE_SERVICE_ACCOUNT_KEY", "{}");
     vi.stubEnv("GEMINI_MODEL", "gemini-pro");
-    delete process.env.QUIZ_E2E_BASE_URL;
-    delete process.env.QUIZ_E2E_COOKIE;
-    delete process.env.QUIZ_E2E_NO_RAG_BASE_URL;
+    Reflect.deleteProperty(process.env, "QUIZ_E2E_BASE_URL");
+    Reflect.deleteProperty(process.env, "QUIZ_E2E_COOKIE");
+    Reflect.deleteProperty(process.env, "QUIZ_E2E_NO_RAG_BASE_URL");
     mockGetQuizContext.mockResolvedValue([]);
     mockGenerateQuizWithRAG.mockResolvedValue([]);
     mockParse.mockReturnValue([]);
@@ -93,10 +97,8 @@ describe("test-rag-quiz runner", () => {
   });
 
   it("exits with code 1 when a required env var is missing", async () => {
-    delete process.env.GCP_PROJECT_ID;
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    Reflect.deleteProperty(process.env, "GCP_PROJECT_ID");
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     expect(exitSpy).toHaveBeenCalledWith(1);
     exitSpy.mockRestore();
@@ -112,18 +114,14 @@ describe("test-rag-quiz runner", () => {
 
   it("formats RAG retrieval failures that are not Error instances", async () => {
     mockGetQuizContext.mockRejectedValueOnce("rag down");
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
 
   it("increments errors when RAG retrieval fails but still runs later stages", async () => {
     mockGetQuizContext.mockRejectedValueOnce(new Error("rag down"));
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     expect(exitSpy).toHaveBeenCalledWith(1);
     exitSpy.mockRestore();
@@ -182,9 +180,7 @@ describe("test-rag-quiz runner", () => {
         ],
       },
     ]);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await runRagQuizE2eMain();
     expect(exitSpy).not.toHaveBeenCalled();
     exitSpy.mockRestore();
@@ -206,9 +202,7 @@ describe("test-rag-quiz runner", () => {
         ],
       },
     ]);
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await runRagQuizE2eMain();
     expect(exitSpy).not.toHaveBeenCalled();
     exitSpy.mockRestore();
@@ -284,9 +278,7 @@ describe("test-rag-quiz runner", () => {
   it("handles generateQuizWithRAG rejection", async () => {
     mockGetQuizContext.mockResolvedValue([{ text: "word", source: "a.md", score: 0.5 }]);
     mockGenerateQuizWithRAG.mockRejectedValue(new Error("gen fail"));
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     expect(exitSpy).toHaveBeenCalledWith(1);
     exitSpy.mockRestore();
@@ -300,9 +292,7 @@ describe("test-rag-quiz runner", () => {
       if (calls === 1) throw "bad";
       return [];
     });
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -311,9 +301,7 @@ describe("test-rag-quiz runner", () => {
     mockParse.mockImplementation(() => {
       throw "parse fail";
     });
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     expect(exitSpy).toHaveBeenCalledWith(1);
     exitSpy.mockRestore();
@@ -337,9 +325,7 @@ describe("test-rag-quiz runner", () => {
         json: async () => ({ questions: "bad" as unknown as ApiQuestionRow[] }),
       })
     );
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -408,9 +394,7 @@ describe("test-rag-quiz runner", () => {
         json: async () => ({ err: true }),
       })
     );
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     expect(exitSpy).toHaveBeenCalledWith(1);
     exitSpy.mockRestore();
@@ -426,9 +410,7 @@ describe("test-rag-quiz runner", () => {
         json: async () => ({ questions: nineValidQuestions().slice(0, 4) }),
       })
     );
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -445,9 +427,7 @@ describe("test-rag-quiz runner", () => {
         json: async () => ({ questions: bad }),
       })
     );
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -456,9 +436,7 @@ describe("test-rag-quiz runner", () => {
     vi.stubEnv("QUIZ_E2E_BASE_URL", "http://localhost:3000");
     vi.stubEnv("QUIZ_E2E_COOKIE", "c=1");
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue("network"));
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -467,9 +445,7 @@ describe("test-rag-quiz runner", () => {
     vi.stubEnv("QUIZ_E2E_BASE_URL", "http://localhost:3000");
     vi.stubEnv("QUIZ_E2E_COOKIE", "c=1");
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network")));
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -527,9 +503,7 @@ describe("test-rag-quiz runner", () => {
         return { status: 502, json: async () => ({}) };
       })
     );
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
@@ -571,9 +545,7 @@ describe("test-rag-quiz runner", () => {
         throw "norag net";
       })
     );
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`exit:${code ?? 0}`);
-    }) as (code?: number) => never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(exitThrows);
     await expect(runRagQuizE2eMain()).rejects.toThrow("exit:1");
     exitSpy.mockRestore();
   });
