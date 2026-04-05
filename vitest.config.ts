@@ -10,6 +10,16 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.ts", "**/*.test.tsx"],
     exclude: ["node_modules", ".next", "tests/**/*.spec.ts"], // Playwright specs only; allow tests/*.e2e.test.ts
+    reporters: [
+      "default",
+      [
+        "allure-vitest/reporter",
+        {
+          resultsDir: "./allure-results",
+          labels: [{ name: "layer", value: "unit" }],
+        },
+      ],
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
