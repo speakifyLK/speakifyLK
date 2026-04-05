@@ -174,6 +174,7 @@ speakify/
     |-- error-handling.spec.ts
     |-- landing-page.spec.ts
     |-- navigation.spec.ts
+    |-- rag-chat-e2e.spec.ts
     |-- rag-import-status.spec.ts
     |-- seo-metadata.spec.ts
     |-- sign-in-page.spec.ts

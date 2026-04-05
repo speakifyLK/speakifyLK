@@ -44,7 +44,29 @@ function createStreamResponse(
 
 export async function POST(req: Request) {
   // ── 1. Authenticate ──
-  const { userId } = await auth();
+  const clerkAuth = await auth();
+  let userId = clerkAuth.userId;
+
+  // E2E Test Auth Bypass
+  // ─────────────────────────────────────────────────────────────────────
+  // E2E_BYPASS_AUTH_SECRET: shared secret set in CI via GitHub Actions secrets
+  //   (or locally in .env). When a request's `x-e2e-test-bypass` header matches
+  //   this value and NODE_ENV ≠ production, auth is bypassed and the request
+  //   runs as "e2e_test_user".
+  // E2E_MOCK_AI: set to "true" to return hard-coded mock streams instead of
+  //   calling Vertex RAG / Gemini SDK. Useful in CI without GCP credentials.
+  //   When unset or any other value, real AI services are called.
+  // ─────────────────────────────────────────────────────────────────────
+  const e2eBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
+  if (
+    !userId &&
+    process.env.NODE_ENV !== "production" &&
+    !!e2eBypassSecret &&
+    req.headers.get("x-e2e-test-bypass") === e2eBypassSecret
+  ) {
+    userId = "e2e_test_user";
+  }
+
   if (!userId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -149,16 +171,20 @@ export async function POST(req: Request) {
 
   // ── 5. Save user message to DB ──
   try {
-    await sendMessage(conversationId, message);
+    if (userId !== "e2e_test_user") {
+      await sendMessage(conversationId, message);
+    }
   } catch (err) {
     console.error(`[Chat] Failed to save user message:`, err);
     return Response.json({ error: "Failed to save message" }, { status: 500 });
   }
 
   // ── 6. Load conversation history ──
-  let history;
+  let history: { role: string; content: string }[] = [];
   try {
-    history = await getMessages(conversationId);
+    if (userId !== "e2e_test_user") {
+      history = await getMessages(conversationId);
+    }
   } catch (err) {
     console.error(`[Chat] Failed to load history:`, err);
     return Response.json({ error: "Failed to load conversation" }, { status: 500 });
@@ -179,7 +205,11 @@ export async function POST(req: Request) {
 
   const systemPrompt = SINHALA_TUTOR_PROMPT + courseContext;
 
-  const saveResponse = (text: string) => saveAssistantMessage(conversationId, text);
+  const saveResponse = async (text: string) => {
+    if (userId !== "e2e_test_user") {
+      await saveAssistantMessage(conversationId, text);
+    }
+  };
   const logStreamError = (err: unknown) =>
     console.error(
       `[Chat] Streaming error | userId: ${userId} | time: ${new Date().toISOString()}`,
@@ -188,7 +218,35 @@ export async function POST(req: Request) {
 
   // ── 8. Try RAG flow, fall back to Gemini SDK on failure ──
   try {
-    const ragStream = await generateWithRAG(chatHistory, systemPrompt);
+    const mockRagFailureRequested = req.headers.get("x-mock-rag-failure") === "true";
+    const canForceMockRagFailure =
+      process.env.NODE_ENV !== "production" &&
+      !!e2eBypassSecret &&
+      req.headers.get("x-e2e-test-bypass") === e2eBypassSecret;
+
+    if (mockRagFailureRequested && canForceMockRagFailure) {
+      throw new Error("E2E Forced RAG Failure (503)");
+    }
+
+    let ragStream: ReadableStream<Uint8Array>;
+    const useMockAI =
+      userId === "e2e_test_user" &&
+      process.env.NODE_ENV !== "production" &&
+      process.env.E2E_MOCK_AI === "true";
+
+    if (useMockAI) {
+      const encoder = new TextEncoder();
+      ragStream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode("Ayubowan! This is a mock RAG response with more than 10 characters.")
+          );
+          controller.close();
+        },
+      });
+    } else {
+      ragStream = await generateWithRAG(chatHistory, systemPrompt);
+    }
 
     // RAG succeeded — stream the response
     const stream = createStreamResponse(
@@ -227,29 +285,43 @@ export async function POST(req: Request) {
 
   // ── 9. Fallback: Non-RAG flow using Gemini SDK ──
   try {
-    const ai = getGeminiClient();
+    let responseStream: AsyncIterable<{ text?: string }>;
 
-    const response = await ai.models.generateContentStream({
-      model: getModel(),
-      contents: [
-        { role: "user", parts: [{ text: systemPrompt }] },
-        {
-          role: "model",
-          parts: [
-            { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
-          ],
+    const useMockGemini =
+      userId === "e2e_test_user" &&
+      process.env.NODE_ENV !== "production" &&
+      process.env.E2E_MOCK_AI === "true";
+
+    if (useMockGemini) {
+      responseStream = (async function* () {
+        yield { text: "This is a mock Gemini fallback response with more than 10 characters." };
+      })();
+    } else {
+      const ai = getGeminiClient();
+
+      const response = await ai.models.generateContentStream({
+        model: getModel(),
+        contents: [
+          { role: "user", parts: [{ text: systemPrompt }] },
+          {
+            role: "model",
+            parts: [
+              { text: "ආයුබෝවන්! (aayubowan!) I'm your Sinhala tutor. How can I help you today?" },
+            ],
+          },
+          ...geminiHistory,
+        ],
+        config: {
+          safetySettings,
+          ...generationConfig,
         },
-        ...geminiHistory,
-      ],
-      config: {
-        safetySettings,
-        ...generationConfig,
-      },
-    });
+      });
+      responseStream = response;
+    }
 
     const stream = createStreamResponse(
       async function* () {
-        for await (const chunk of response) {
+        for await (const chunk of responseStream) {
           yield chunk.text ?? "";
         }
       },

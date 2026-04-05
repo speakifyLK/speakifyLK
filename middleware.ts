@@ -8,7 +8,19 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) await auth.protect();
+  if (!isPublicRoute(request)) {
+    const e2eBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
+    const canBypass =
+      process.env.NODE_ENV !== "production" &&
+      !!e2eBypassSecret &&
+      request.headers?.get?.("x-e2e-test-bypass") === e2eBypassSecret &&
+      request.nextUrl?.pathname === "/api/chat";
+
+    if (canBypass) {
+      return;
+    }
+    await auth.protect();
+  }
 });
 
 export const config = {
