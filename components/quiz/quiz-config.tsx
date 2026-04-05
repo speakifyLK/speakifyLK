@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { units as unitsTable } from "@/db/schema";
 import {
   computeAdaptiveDifficultyRecommendation,
+  getBaselineDifficulty,
   type AdaptiveQuizHistorySession,
 } from "@/lib/adaptive-difficulty";
 import type { Difficulty } from "@/lib/quiz-prompt";
@@ -54,9 +55,12 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
       setAdaptiveRecommendation(null);
       return;
     }
-    const rec = computeAdaptiveDifficultyRecommendation(quizHistory, unit.title, difficulty);
+    // Use the difficulty the user last played for this topic as the baseline so the
+    // recommendation stays stable when the user manually clicks different difficulty buttons.
+    const baseline = getBaselineDifficulty(quizHistory, unit.title);
+    const rec = computeAdaptiveDifficultyRecommendation(quizHistory, unit.title, baseline);
     setAdaptiveRecommendation(rec);
-  }, [selectedTopic, difficulty, quizHistory, units, setAdaptiveRecommendation]);
+  }, [selectedTopic, quizHistory, units, setAdaptiveRecommendation]);
 
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) =>
