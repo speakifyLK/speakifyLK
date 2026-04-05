@@ -165,12 +165,31 @@ jobs:
           echo "Merged result files:"
           ls -la allure-results/merged/ | head -20
 
-      - name: Download previous report for history
+      - name: Find previous workflow run for history
         if: steps.check.outputs.result_count != '0'
+        id: prev-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the most recent completed run of this workflow (excluding current)
+          prev_run_id=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/allure-report.yml/runs?status=completed&per_page=5" \
+            --jq "[.workflow_runs[] | select(.id != ${{ github.run_id }})][0].id // empty")
+          if [ -n "$prev_run_id" ]; then
+            echo "run_id=$prev_run_id" >> "$GITHUB_OUTPUT"
+            echo "Found previous run: $prev_run_id"
+          else
+            echo "No previous run found."
+          fi
+
+      - name: Download previous report for history
+        if: steps.check.outputs.result_count != '0' && steps.prev-run.outputs.run_id != ''
         uses: actions/download-artifact@v4
         with:
           name: allure-report-history
           path: allure-history
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.prev-run.outputs.run_id }}
         continue-on-error: true
 
       - name: Copy history into results
