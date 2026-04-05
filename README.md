@@ -109,9 +109,6 @@ speakify/
     |-- outputs.tf
     |-- terraform.tfvars.example
     |-- variables.tf
-  |- jira/
-    |-- jira-rag.js
-    |-- jira.js
   |- lib/
     |-- adaptive-difficulty.test.ts
     |-- adaptive-difficulty.ts
@@ -191,11 +188,6 @@ speakify/
   |- components.json
   |- constants.test.ts
   |- constants.ts
-  |- cov_check.log
-  |- cov.json
-  |- cov.txt
-  |- cov2.log
-  |- coverage.log
   |- custom-modules.d.ts
   |- drizzle.config.ts
   |- environment.d.ts
@@ -207,17 +199,10 @@ speakify/
   |- package.json
   |- playwright.config.ts
   |- postcss.config.js
-  |- refact_cov.log
-  |- result.json
-  |- result.txt
   |- tailwind.config.ts
-  |- test_report.json
-  |- tsc.log
   |- tsconfig.json
   |- vercel.ts
-  |- vitest_cov_out.txt
   |- vitest.config.ts
-  |- vitest.log
   |- vitest.setup.ts
 ```
 <!--- FOLDER_STRUCTURE_END --->
@@ -412,8 +397,12 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.14
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.3
 - [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.0.41
+- [@vercel/speed-insights](https://www.npmjs.com/package/@vercel/speed-insights): ^2.0.0
 - [@vitejs/plugin-react](https://www.npmjs.com/package/@vitejs/plugin-react): ^6.0.1
 - [@vitest/coverage-v8](https://www.npmjs.com/package/@vitest/coverage-v8): 4.1.2
+- [allure-commandline](https://www.npmjs.com/package/allure-commandline): ^2.38.1
+- [allure-playwright](https://www.npmjs.com/package/allure-playwright): ^3.6.0
+- [allure-vitest](https://www.npmjs.com/package/allure-vitest): ^3.6.0
 - [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.4.27
 - [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
