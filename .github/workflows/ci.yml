@@ -377,12 +377,32 @@ jobs:
             # Tests passed and coverage thresholds met (Vitest enforces thresholds via config)
             echo "tests_passed=true" >> "$GITHUB_OUTPUT"
             echo "coverage_ok=true" >> "$GITHUB_OUTPUT"
-          elif grep -q "does not meet global threshold" test-output.txt 2>/dev/null; then
+            exit 0
+          fi
+
+          # Command failed — determine whether tests failed, coverage failed, or both
+          coverage_failed=false
+          tests_failed=false
+
+          if grep -q "does not meet global threshold" test-output.txt 2>/dev/null; then
+            coverage_failed=true
+          fi
+
+          # Check for Vitest test failure markers (e.g. "Tests  2 failed | 10 passed")
+          if grep -Eq '(^|[[:space:]])FAIL([[:space:]]|$)|^[[:space:]]*(Test Files|Tests)[[:space:]].*[1-9][0-9]* failed' test-output.txt 2>/dev/null; then
+            tests_failed=true
+          fi
+
+          if [ "$tests_failed" = "true" ]; then
+            # Tests themselves failed (with or without an additional coverage failure)
+            echo "tests_passed=false" >> "$GITHUB_OUTPUT"
+            echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
+          elif [ "$coverage_failed" = "true" ]; then
             # Tests passed but coverage thresholds were not met
             echo "tests_passed=true" >> "$GITHUB_OUTPUT"
             echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
           else
-            # Tests themselves failed
+            # Unknown failure (e.g. config error, missing dependencies)
             echo "tests_passed=false" >> "$GITHUB_OUTPUT"
             echo "coverage_ok=false" >> "$GITHUB_OUTPUT"
           fi
@@ -449,7 +469,9 @@ jobs:
           script: |
             const fs = require('fs');
             const marker = '<!-- ci-unit-test -->';
-            const output = fs.readFileSync('test-output.txt', 'utf8').trim();
+            let output = fs.readFileSync('test-output.txt', 'utf8').trim();
+            if (output.length > 60000) output = output.slice(-60000) + '\n... (truncated from start)';
+            output = output.replace(/```/g, '` ` `');
 
             // Extract test summary (Test Files, Tests, Start at, Duration lines)
             const testSummaryLines = output.match(/Test Files .+|Tests {2}.+|Start at .+|Duration .+/g) || [];
@@ -457,7 +479,8 @@ jobs:
 
             // Extract coverage table (from "% Coverage report" to the closing dashes line)
             const coverageMatch = output.match(/% Coverage report[\s\S]*?-{10,}\s*$/m);
-            const coverageTable = coverageMatch ? coverageMatch[0] : 'Coverage report not found';
+            let coverageTable = coverageMatch ? coverageMatch[0] : 'Coverage report not found';
+            if (coverageTable.length > 50000) coverageTable = coverageTable.slice(0, 50000) + '\n... (truncated)';
 
             // Find files that are not at 100%
             const lines = output.split('\n');
