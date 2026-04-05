@@ -13,7 +13,8 @@ export default clerkMiddleware(async (auth, request) => {
     const canBypass =
       process.env.NODE_ENV !== "production" &&
       !!e2eBypassSecret &&
-      request.headers?.get?.("x-e2e-test-bypass") === e2eBypassSecret;
+      request.headers?.get?.("x-e2e-test-bypass") === e2eBypassSecret &&
+      request.nextUrl?.pathname === "/api/chat";
 
     if (canBypass) {
       return;

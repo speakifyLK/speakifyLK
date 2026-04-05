@@ -191,12 +191,8 @@ speakify/
   |- constants.ts
   |- custom-modules.d.ts
   |- drizzle.config.ts
-  |- e2e_log_utf8.txt
-  |- e2e_output.txt
   |- environment.d.ts
   |- eslint.config.mjs
-  |- middleware-output-ansi.txt
-  |- middleware-output.txt
   |- middleware.test.ts
   |- middleware.ts
   |- next.config.ts

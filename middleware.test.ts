@@ -59,7 +59,7 @@ describe("middleware", () => {
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
-    const request = { url: "/learn", headers: new Map() };
+    const request = { url: "/learn", nextUrl: { pathname: "/learn" }, headers: new Map() };
 
     // Get the callback that was passed to clerkMiddleware
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
@@ -76,7 +76,7 @@ describe("middleware", () => {
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
-    const request = { url: "/", headers: new Map() };
+    const request = { url: "/", nextUrl: { pathname: "/" }, headers: new Map() };
 
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
     await middlewareCallback(authObj, request);
@@ -94,7 +94,7 @@ describe("middleware", () => {
     const authObj = { protect: mockProtect };
     const headers = new Map();
     headers.set("x-e2e-test-bypass", "test-secret");
-    const request = { url: "/api/chat", headers };
+    const request = { url: "/api/chat", nextUrl: { pathname: "/api/chat" }, headers };
 
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
     await middlewareCallback(authObj, request);
@@ -116,7 +116,7 @@ describe("middleware", () => {
     const authObj = { protect: mockProtect };
     const headers = new Map();
     headers.set("x-e2e-test-bypass", "test-secret");
-    const request = { url: "/api/chat", headers };
+    const request = { url: "/api/chat", nextUrl: { pathname: "/api/chat" }, headers };
 
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
     await middlewareCallback(authObj, request);

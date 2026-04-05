@@ -39,12 +39,7 @@ test.describe("RAG API E2E Validation", () => {
     expect(response.headers()["x-rag-status"]).toBe("active");
 
     const text = await response.text();
-    // Output the response text so it is printed or accessible for manual documentation
-    console.log(
-      "\n==== [ACTIVE RAG RESPONSE] ====\n",
-      text,
-      "\n============================================\n"
-    );
+    test.info().attach("Active RAG Response", { body: text, contentType: "text/plain" });
 
     // Rough checks for vocabulary presence that should be in the course context
     expect(text.length).toBeGreaterThan(10);
@@ -63,11 +58,7 @@ test.describe("RAG API E2E Validation", () => {
     expect(response.headers()["x-rag-status"]).toBe("active");
 
     const text = await response.text();
-    console.log(
-      "\n==== [ACTIVE RAG GREETINGS] ====\n",
-      text,
-      "\n============================================\n"
-    );
+    test.info().attach("Active RAG Greetings", { body: text, contentType: "text/plain" });
 
     // Avoid asserting one exact transliteration from a non-deterministic model response.
     // Validate the stable API contract instead: successful active RAG response with a non-empty body.
@@ -96,11 +87,7 @@ test.describe("RAG API E2E Validation", () => {
     expect(response.headers()["x-rag-status"]).toBe("fallback");
 
     const text = await response.text();
-    console.log(
-      "\n==== [FALLBACK RESPONSE] ====\n",
-      text,
-      "\n============================================\n"
-    );
+    test.info().attach("Fallback Response", { body: text, contentType: "text/plain" });
 
     // As a base LLM without strict local grounding, the response format might differ
     expect(text.length).toBeGreaterThan(10);

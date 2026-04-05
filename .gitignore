@@ -80,3 +80,5 @@ node_modules/
 /allure-results/
 /allure-report/
 e2e_log_utf8.txt
+e2e_output.txt
+middleware-output*.txt
