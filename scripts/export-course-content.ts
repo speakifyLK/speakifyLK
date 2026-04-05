@@ -158,7 +158,7 @@ async function exportContent() {
         },
       },
     });
-    
+
     const tasks: Promise<void>[] = [];
 
     for (const course of courseStructure) {
