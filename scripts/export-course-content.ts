@@ -216,11 +216,10 @@ async function exportContent() {
     } else {
       console.log("This was a dry run. No actions were taken.");
     }
+    process.exit(0);
   } catch (error) {
     console.error("Process Failed:", error instanceof Error ? error.message : error);
     process.exit(1);
-  } finally {
-    process.exit(0);
   }
 }
 

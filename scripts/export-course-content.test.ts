@@ -1,26 +1,15 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const mockSelect = vi.fn();
-const mockFrom = vi.fn();
-const mockWhere = vi.fn();
+const mockFindMany = vi.fn();
 
 vi.mock("@/db/drizzle", () => ({
   default: {
-    select: () => ({
-      from: (table: unknown) => {
-        mockFrom(table);
-        return {
-          where: (condition: unknown) => {
-            mockWhere(condition);
-            return {
-              then: (resolve: any, reject: any) => mockSelect().then(resolve).catch(reject),
-            };
-          },
-          then: (resolve: any, reject: any) => mockSelect().then(resolve).catch(reject),
-        };
+    query: {
+      courses: {
+        findMany: (...args: any[]) => mockFindMany(...args),
       },
-    }),
+    },
   },
 }));
 
@@ -85,7 +74,7 @@ describe("export-course-content script", () => {
       private_key: "fake-key\\nnewlines",
     });
     process.argv = [...savedArgv.slice(0, 2)];
-    mockSelect.mockReset();
+    mockFindMany.mockReset();
     mockExists.mockResolvedValue([false]);
     mockSave.mockResolvedValue(undefined);
     mockExistsSync.mockReturnValue(true);
@@ -120,10 +109,31 @@ describe("export-course-content script", () => {
   it("exports and uploads course content", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "Basic", description: "desc" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U", courseId: 1 }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "Basic",
+        description: "desc",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -133,13 +143,26 @@ describe("export-course-content script", () => {
     expect(output).toContain("Files Uploaded:");
   });
 
-  it("handles lesson with no content field", async () => {
+  it("handles lesson with no challenges", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U", courseId: 1 }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: null }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              { id: 1, title: "L", unitId: 1, order: 1, content: null, challenges: [] },
+            ],
+          },
+        ],
+      },
+    ]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -153,10 +176,19 @@ describe("export-course-content script", () => {
     mockExists.mockResolvedValue([true]);
     // Use a hash that matches to trigger the skip path
     const crypto = await import("crypto");
+    const formattedText = `
+Course: C
+Unit: U
+Lesson: L
+
+--- Lesson Content ---
+No detailed content provided.
+    `.trim();
+
     const testContent = JSON.stringify(
       {
         metadata: { courseId: 1, unitId: 1, lessonId: 1, title: "L" },
-        content: "Course: C\n    Unit: U\n    Lesson: L\n    Content: text",
+        content: formattedText,
       },
       null,
       2
@@ -165,10 +197,23 @@ describe("export-course-content script", () => {
     const md5Base64 = Buffer.from(md5Hex, "hex").toString("base64");
     mockGetMetadata.mockResolvedValue([{ md5Hash: md5Base64 }]);
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
+            ],
+          },
+        ],
+      },
+    ]);
     await import("./export-course-content");
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -180,10 +225,23 @@ describe("export-course-content script", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockExists.mockRejectedValue(new Error("GCS error"));
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
+            ],
+          },
+        ],
+      },
+    ]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -199,10 +257,23 @@ describe("export-course-content script", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockExistsSync.mockReturnValue(false);
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
+            ],
+          },
+        ],
+      },
+    ]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -218,10 +289,23 @@ describe("export-course-content script", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockWriteFileSync.mockClear();
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
+            ],
+          },
+        ],
+      },
+    ]);
 
     await import("./export-course-content");
     await flushPromises();
@@ -237,7 +321,7 @@ describe("export-course-content script", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockSelect.mockRejectedValueOnce(new Error("DB connection failed"));
+    mockFindMany.mockRejectedValueOnce(new Error("DB connection failed"));
 
     await import("./export-course-content");
     await flushPromises();
@@ -254,10 +338,23 @@ describe("export-course-content script", () => {
     // Return a different hash that won't match the local content hash
     mockGetMetadata.mockResolvedValue([{ md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" }]);
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindMany.mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
+            ],
+          },
+        ],
+      },
+    ]);
     await import("./export-course-content");
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -270,7 +367,7 @@ describe("export-course-content script", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockSelect.mockRejectedValueOnce("string error");
+    mockFindMany.mockRejectedValueOnce("string error");
 
     await import("./export-course-content");
     await flushPromises();
