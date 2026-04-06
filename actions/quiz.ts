@@ -144,20 +144,26 @@ function isAnswerCorrectLocal(
   return false;
 }
 
+/** Result from AI validation — includes an optional explanation for the student. */
+type AiValidationResult = {
+  isCorrect: boolean;
+  explanation?: string;
+} | null;
+
 /**
  * Uses AI to determine if a user's answer is a linguistically valid response.
  * Instead of comparing the student's answer to a single expected answer, this
  * evaluates whether the answer is a grammatically and semantically valid
  * completion / translation for the given question. The expected answer is
  * provided only as one example of a correct response.
- * Returns true/false, or null if the AI call fails.
+ * Returns { isCorrect, explanation? }, or null if the AI call fails.
  */
 async function isAnswerCorrectAi(
   userAnswer: string,
   correctAnswer: string,
   question: string,
   questionType: "fill_blank" | "translation"
-): Promise<boolean | null> {
+): Promise<AiValidationResult> {
   const typeLabel =
     questionType === "fill_blank" ? "fill-in-the-blank" : "translation";
   const prompt = `You are a Sinhala language expert validating a student's quiz answer.
@@ -173,19 +179,24 @@ Do NOT limit correctness to just the example answer. Evaluate whether the studen
 
 The student may answer in romanized form (e.g. "loku") instead of Sinhala script (e.g. "ලොකු"), or vice versa. Accept romanized equivalents and minor spelling variations.
 
-Respond with ONLY "CORRECT" or "INCORRECT" — nothing else.`;
+Respond in EXACTLY this format (two lines):
+CORRECT or INCORRECT
+A brief one-sentence explanation of why the student's specific answer is correct or incorrect in the context of this question.`;
 
   try {
     const response = await generateContent(prompt, {
       temperature: 0,
-      maxOutputTokens: 16,
+      maxOutputTokens: 128,
     });
-    const text = (response.text ?? "").trim().toUpperCase();
-    if (text.includes("CORRECT") && !text.includes("INCORRECT")) {
-      return true;
+    const raw = (response.text ?? "").trim();
+    const firstLine = raw.split("\n")[0].trim().toUpperCase();
+    const explanation = raw.split("\n").slice(1).join(" ").trim() || undefined;
+
+    if (firstLine.includes("CORRECT") && !firstLine.includes("INCORRECT")) {
+      return { isCorrect: true, explanation };
     }
-    if (text.includes("INCORRECT")) {
-      return false;
+    if (firstLine.includes("INCORRECT")) {
+      return { isCorrect: false, explanation };
     }
     // Unparseable response — treat as failure
     return null;
@@ -193,6 +204,12 @@ Respond with ONLY "CORRECT" or "INCORRECT" — nothing else.`;
     return null;
   }
 }
+
+/** Result from answer validation — includes an optional AI explanation. */
+type AnswerResult = {
+  isCorrect: boolean;
+  explanation?: string;
+};
 
 /**
  * Full answer validation.
@@ -207,15 +224,17 @@ async function isAnswerCorrect(
   questionType: "mcq" | "fill_blank" | "translation",
   question: string,
   options: unknown
-): Promise<boolean> {
+): Promise<AnswerResult> {
   // For MCQ, local matching is authoritative — no AI needed
   if (questionType === "mcq") {
-    return isAnswerCorrectLocal(
-      userAnswer,
-      correctAnswer,
-      questionType,
-      options
-    );
+    return {
+      isCorrect: isAnswerCorrectLocal(
+        userAnswer,
+        correctAnswer,
+        questionType,
+        options
+      ),
+    };
   }
 
   // For fill_blank and translation, use AI as the primary validator
@@ -226,11 +245,18 @@ async function isAnswerCorrect(
     questionType
   );
 
-  // If AI returned a definitive answer, use it
+  // If AI returned a definitive answer, use it (with explanation)
   if (aiResult !== null) return aiResult;
 
   // AI failed — fall back to local fuzzy matching as safety net
-  return isAnswerCorrectLocal(userAnswer, correctAnswer, questionType, options);
+  return {
+    isCorrect: isAnswerCorrectLocal(
+      userAnswer,
+      correctAnswer,
+      questionType,
+      options
+    ),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -286,7 +312,7 @@ export async function createQuizSession(
  * Submits a quiz answer and determines correctness
  * @param questionId - The ID of the question being answered
  * @param userAnswer - The user's answer text
- * @returns Object with isCorrect boolean
+ * @returns Object with isCorrect boolean and optional AI explanation
  */
 export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   const { userId } = await auth();
@@ -319,13 +345,15 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   }
 
   // Determine correctness
-  const isCorrect = await isAnswerCorrect(
+  const answerResult = await isAnswerCorrect(
     userAnswer,
     question.correctAnswer,
     question.type,
     question.question,
     question.options
   );
+
+  const { isCorrect, explanation: aiExplanation } = answerResult;
 
   // Track if this is the first time marking as correct
   const wasPreviouslyCorrect = question.isCorrect === true;
@@ -364,7 +392,7 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   revalidatePath("/learn");
   revalidatePath("/quiz");
 
-  return { isCorrect };
+  return { isCorrect, aiExplanation };
 }
 
 export type CompleteQuizSessionResult = {

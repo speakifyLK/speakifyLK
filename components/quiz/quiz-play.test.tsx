@@ -34,7 +34,11 @@ vi.mock("@/components/ui/button", () => {
 vi.mock("./quiz-progress", () => ({
   QuizProgress: (props: any) => (
     <div data-testid="quiz-progress" data-difficulty={props.difficulty}>
-      <button type="button" data-testid="time-up-trigger" onClick={() => props.onTimeUp?.()}>
+      <button
+        type="button"
+        data-testid="time-up-trigger"
+        onClick={() => props.onTimeUp?.()}
+      >
         Trigger Time Up
       </button>
       <span data-testid="timer-score">{props.score}</span>
@@ -120,7 +124,9 @@ describe("QuizPlay", () => {
   it("renders quiz timer and progress", () => {
     render(<QuizPlay session={makeSession()} />);
     expect(screen.getByTestId("quiz-progress")).toBeInTheDocument();
-    expect(screen.getByTestId("question-counter")).toHaveTextContent("Question 1 of 2");
+    expect(screen.getByTestId("question-counter")).toHaveTextContent(
+      "Question 1 of 2"
+    );
     expect(screen.getByText("Topic: Greetings")).toBeInTheDocument();
   });
 
@@ -156,7 +162,9 @@ describe("QuizPlay", () => {
   });
 
   it("navigates back when clicking Back to Quiz Config", () => {
-    render(<QuizPlay session={makeSession({ questions: [] })} backHref="/custom" />);
+    render(
+      <QuizPlay session={makeSession({ questions: [] })} backHref="/custom" />
+    );
     fireEvent.click(screen.getByText("Back to Quiz Config"));
     expect(mockPush).toHaveBeenCalledWith("/custom");
   });
@@ -213,7 +221,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(screen.getByText("Ayubowan", { exact: false })).toBeInTheDocument();
+      expect(
+        screen.getByText("Ayubowan", { exact: false })
+      ).toBeInTheDocument();
     });
   });
 
@@ -225,7 +235,55 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(screen.getByText(/Ayubowan is the Sinhala greeting/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Ayubowan is the Sinhala greeting/)
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows AI explanation instead of stored explanation when provided", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({
+      isCorrect: true,
+      aiExplanation: "'chuti' means 'small' and is a valid adjective here.",
+    });
+    render(<QuizPlay session={makeSession()} />);
+
+    fireEvent.click(screen.getByText("Ayubowan"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/'chuti' means 'small' and is a valid adjective here/)
+      ).toBeInTheDocument();
+      // Stored explanation should NOT be visible
+      expect(
+        screen.queryByText(/Ayubowan is the Sinhala greeting/)
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("hides 'Correct answer:' line when answer is correct", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
+    render(<QuizPlay session={makeSession()} />);
+
+    fireEvent.click(screen.getByText("Ayubowan"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(screen.getByText("✓ Correct!")).toBeInTheDocument();
+      expect(screen.queryByText("Correct answer:")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows 'Correct answer:' line when answer is incorrect", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: false });
+    render(<QuizPlay session={makeSession()} />);
+
+    fireEvent.click(screen.getByText("Sthuthi"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Correct answer:")).toBeInTheDocument();
     });
   });
 
@@ -284,12 +342,16 @@ describe("QuizPlay", () => {
     await waitFor(() => {
       expect(mockSubmitQuizAnswer).toHaveBeenCalled();
     });
-    const nextBtn = await screen.findByRole("button", { name: "Next Question" });
+    const nextBtn = await screen.findByRole("button", {
+      name: "Next Question",
+    });
     await waitFor(() => expect(nextBtn).not.toBeDisabled());
     fireEvent.click(nextBtn);
 
     await waitFor(() => {
-      expect(screen.getByTestId("question-counter")).toHaveTextContent("Question 2 of 2");
+      expect(screen.getByTestId("question-counter")).toHaveTextContent(
+        "Question 2 of 2"
+      );
       expect(screen.getByText("Fill in: ___")).toBeInTheDocument();
     });
   });
@@ -324,7 +386,9 @@ describe("QuizPlay", () => {
     await waitFor(() => {
       expect(mockSubmitQuizAnswer).toHaveBeenCalled();
     });
-    const completeBtn = await screen.findByRole("button", { name: "Complete Quiz" });
+    const completeBtn = await screen.findByRole("button", {
+      name: "Complete Quiz",
+    });
     await waitFor(() => expect(completeBtn).not.toBeDisabled());
     fireEvent.click(completeBtn);
 
@@ -341,7 +405,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Time's up! No answer submitted.");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Time's up! No answer submitted."
+      );
     });
   });
 
@@ -368,7 +434,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith("Time's up! Incorrect answer.");
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Time's up! Incorrect answer."
+      );
     });
   });
 
@@ -380,7 +448,9 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByTestId("time-up-trigger"));
 
     await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith("Time's up! Correct answer!");
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Time's up! Correct answer!"
+      );
     });
   });
 

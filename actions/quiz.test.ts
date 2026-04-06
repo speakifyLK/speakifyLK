@@ -185,9 +185,9 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
       expect(result).toEqual({ isCorrect: true });
     });
 
-    it("returns false for distant match when AI says INCORRECT", async () => {
+    it("returns false for distant match (AI fallback)", async () => {
       setupQuestion({ correctAnswer: "hello", type: "fill_blank" });
-      mockGenerateContent.mockResolvedValue({ text: "INCORRECT" });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "xyz"); // distance > 1
       expect(result).toEqual({ isCorrect: false });
     });
@@ -233,7 +233,8 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { acceptableAlternatives: [123, null, false] },
       });
-      // AI says INCORRECT, local matching also fails
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
+      // No string alternatives and correct answer doesn't match
       const result = await submitQuizAnswer(10, "abc");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -244,7 +245,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { acceptableAlternatives: "not-an-array" },
       });
-      // AI says INCORRECT, local matching also fails
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "dog");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -255,7 +256,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { acceptableAlternatives: ["elephant", "giraffe"] },
       });
-      // AI says INCORRECT, local matching also fails
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "dog");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -266,7 +267,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { someOtherKey: true },
       });
-      // AI says INCORRECT, local matching also fails
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "dog");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -289,9 +290,14 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         question: "මේ ___ ගෙදරක්. (mē ___ gedarak.)",
       });
-      mockGenerateContent.mockResolvedValue({ text: "CORRECT" });
+      mockGenerateContent.mockResolvedValue({
+        text: "CORRECT\n'loku' is the romanized form of 'ලොකු' meaning 'big'.",
+      });
       const result = await submitQuizAnswer(10, "loku");
-      expect(result).toEqual({ isCorrect: true });
+      expect(result).toEqual({
+        isCorrect: true,
+        aiExplanation: "'loku' is the romanized form of 'ලොකු' meaning 'big'.",
+      });
       expect(mockGenerateContent).toHaveBeenCalled();
     });
 
@@ -301,9 +307,14 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "translation",
         question: "Hello",
       });
-      mockGenerateContent.mockResolvedValue({ text: "CORRECT" });
+      mockGenerateContent.mockResolvedValue({
+        text: "CORRECT\n'ayubowan' is the standard Sinhala greeting.",
+      });
       const result = await submitQuizAnswer(10, "ayubowan");
-      expect(result).toEqual({ isCorrect: true });
+      expect(result).toEqual({
+        isCorrect: true,
+        aiExplanation: "'ayubowan' is the standard Sinhala greeting.",
+      });
       expect(mockGenerateContent).toHaveBeenCalled();
     });
 
@@ -314,13 +325,34 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         question: "mama ___ yanawaa",
       });
-      mockGenerateContent.mockResolvedValue({ text: "CORRECT" });
+      mockGenerateContent.mockResolvedValue({
+        text: "CORRECT\n'handata' (to the moon) is a valid completion.",
+      });
       const result = await submitQuizAnswer(10, "handata");
-      expect(result).toEqual({ isCorrect: true });
+      expect(result).toEqual({
+        isCorrect: true,
+        aiExplanation: "'handata' (to the moon) is a valid completion.",
+      });
       expect(mockGenerateContent).toHaveBeenCalled();
     });
 
-    it("rejects wrong answer when AI says INCORRECT", async () => {
+    it("returns AI explanation when answer is incorrect", async () => {
+      setupQuestion({
+        correctAnswer: "ලොකු",
+        type: "fill_blank",
+        question: "මේ ___ ගෙදරක්.",
+      });
+      mockGenerateContent.mockResolvedValue({
+        text: "INCORRECT\n'podi' means 'small' which does not fit this context.",
+      });
+      const result = await submitQuizAnswer(10, "podi");
+      expect(result).toEqual({
+        isCorrect: false,
+        aiExplanation: "'podi' means 'small' which does not fit this context.",
+      });
+    });
+
+    it("rejects wrong answer when AI says INCORRECT without explanation", async () => {
       setupQuestion({
         correctAnswer: "ලොකු",
         type: "fill_blank",
@@ -392,9 +424,14 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         question: "Say ___.",
       });
-      mockGenerateContent.mockResolvedValue({ text: "CORRECT" });
+      mockGenerateContent.mockResolvedValue({
+        text: "CORRECT\n'hello' is correct.",
+      });
       const result = await submitQuizAnswer(10, "hello");
-      expect(result).toEqual({ isCorrect: true });
+      expect(result).toEqual({
+        isCorrect: true,
+        aiExplanation: "'hello' is correct.",
+      });
       // AI should have been called even though "hello" === "hello" locally
       expect(mockGenerateContent).toHaveBeenCalled();
     });
@@ -418,6 +455,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
     it("returns 0 for empty string", async () => {
       // empty correct answer -> threshold 0 -> levenshtein("abc", "") = 3 > 0 -> false
       setupQuestion({ correctAnswer: "", type: "fill_blank" });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "abc");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -426,6 +464,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
       // 20 chars -> floor(20*0.25) = 5, capped to min(3,5) = 3
       const long = "abcdefghijklmnopqrst"; // 20 chars
       setupQuestion({ correctAnswer: long, type: "fill_blank" });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       // 4 edits away - should fail (threshold is 3)
       const result = await submitQuizAnswer(10, "abcdefghijklmnopXXXX");
       expect(result).toEqual({ isCorrect: false });

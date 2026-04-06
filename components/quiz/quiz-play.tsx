@@ -45,6 +45,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [aiExplanation, setAiExplanation] = useState<string | undefined>(
+    undefined
+  );
   const [score, setScore] = useState(session.correctAnswers || 0);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [showResults, setShowResults] = useState(!!session.completedAt);
@@ -63,6 +66,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     setUserAnswer("");
     setIsAnswerSubmitted(false);
     setIsCorrect(null);
+    setAiExplanation(undefined);
     setScore(session.correctAnswers ?? 0);
     setIsTimeUp(false);
     setAnswersByQuestionId(initialLocalQuestionAnswers(session.questions));
@@ -101,6 +105,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           userAnswer.trim()
         );
         setIsCorrect(result.isCorrect);
+        setAiExplanation(result.aiExplanation);
         setAnswersByQuestionId((prev) => ({
           ...prev,
           [currentQuestion.id]: {
@@ -137,6 +142,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       setUserAnswer("");
       setIsAnswerSubmitted(false);
       setIsCorrect(null);
+      setAiExplanation(undefined);
       setIsTimeUp(false);
     }
   };
@@ -308,18 +314,19 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
                     ? "✓ Correct!"
                     : "✗ Incorrect"}
             </p>
-            {isCorrect !== null && (
+            {isCorrect !== null && !isCorrect && (
               <p className="mt-2 text-sm text-neutral-700">
                 <span className="font-semibold">Correct answer:</span>{" "}
                 {currentQuestion.correctAnswer}
               </p>
             )}
-            {isCorrect !== null && currentQuestion.explanation && (
-              <p className="mt-2 text-sm text-neutral-600">
-                <span className="font-semibold">Explanation:</span>{" "}
-                {currentQuestion.explanation}
-              </p>
-            )}
+            {isCorrect !== null &&
+              (aiExplanation ?? currentQuestion.explanation) && (
+                <p className="mt-2 text-sm text-neutral-600">
+                  <span className="font-semibold">Explanation:</span>{" "}
+                  {aiExplanation ?? currentQuestion.explanation}
+                </p>
+              )}
           </div>
         )}
       </div>
