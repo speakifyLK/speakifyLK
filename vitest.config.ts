@@ -44,7 +44,7 @@ export default defineConfig({
         "**/*.json",
         "**/*.yml",
         "**/*.yaml",
-        "scripts/test-*.ts",
+        "scripts/test-rag.ts",
       ],
       thresholds: {
         statements: 100,
