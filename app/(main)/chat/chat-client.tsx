@@ -35,11 +35,7 @@ interface ChatClientProps {
   userProgress: UserProgress;
 }
 
-export const ChatClient = ({
-  initialMessages,
-  conversationId,
-  userProgress,
-}: ChatClientProps) => {
+export const ChatClient = ({ initialMessages, conversationId, userProgress }: ChatClientProps) => {
   const [messages, setMessages] = useState(initialMessages);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -61,10 +57,7 @@ export const ChatClient = ({
     setIsGenerating(true);
 
     // Add a placeholder assistant message for the stream to fill
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: "", timestamp: new Date() },
-    ]);
+    setMessages((prev) => [...prev, { role: "assistant", content: "", timestamp: new Date() }]);
 
     try {
       const response = await fetch("/api/chat", {
@@ -147,8 +140,7 @@ export const ChatClient = ({
 
     if (userProgress && userProgress.hearts === 0) {
       toast.error("You have no hearts left!", {
-        description:
-          "Visit the shop to refill your hearts and continue practicing.",
+        description: "Visit the shop to refill your hearts and continue practicing.",
       });
       return;
     }
@@ -171,9 +163,7 @@ export const ChatClient = ({
       <ChatWindow
         isEmpty={messages.length === 0}
         isTyping={isGenerating}
-        footer={
-          <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
-        }
+        footer={<ChatInput onSend={handleSendMessage} isLoading={isGenerating} />}
       >
         <div className="flex flex-col gap-y-2">
           {messages.map((msg, index) => (

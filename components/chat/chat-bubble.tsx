@@ -37,12 +37,7 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
       {/* Spacing for User messages where there is no avatar */}
       {isUser && <div className="w-8" />}
 
-      <div
-        className={cn(
-          "flex max-w-[80%] flex-col",
-          isUser ? "items-end" : "items-start"
-        )}
-      >
+      <div className={cn("flex max-w-[80%] flex-col", isUser ? "items-end" : "items-start")}>
         {/* Message Bubble */}
         <div
           className={cn(
@@ -57,9 +52,7 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
         </div>
 
         {/* Timestamp Formatted like '2:30 PM' below bubble */}
-        <span className="mt-1 px-1 text-[10px] text-muted-foreground">
-          {formattedTime}
-        </span>
+        <span className="mt-1 px-1 text-[10px] text-muted-foreground">{formattedTime}</span>
       </div>
     </div>
   );

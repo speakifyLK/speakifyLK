@@ -26,12 +26,6 @@ describe("Admin Loading", () => {
   it("has a centered container", () => {
     const { container } = render(<Loading />);
     const wrapper = container.firstElementChild;
-    expect(wrapper).toHaveClass(
-      "flex",
-      "h-full",
-      "w-full",
-      "items-center",
-      "justify-center"
-    );
+    expect(wrapper).toHaveClass("flex", "h-full", "w-full", "items-center", "justify-center");
   });
 });

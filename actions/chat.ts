@@ -8,8 +8,7 @@ import { eq, and } from "drizzle-orm";
 
 async function assertConversationOwner(conversationId: number, userId: string) {
   const conversation = await db.query.chatConversations.findFirst({
-    where: (table, { and, eq }) =>
-      and(eq(table.id, conversationId), eq(table.userId, userId)),
+    where: (table, { and, eq }) => and(eq(table.id, conversationId), eq(table.userId, userId)),
   });
 
   if (!conversation) {
@@ -66,11 +65,9 @@ export const sendMessage = async (conversationId: number, content: string) => {
   });
 
   // 3. Logic: If title is "New Chat" or null, update it with the first message
-  const shouldUpdateTitle =
-    !conversation?.title || conversation.title === "New Conversation";
+  const shouldUpdateTitle = !conversation?.title || conversation.title === "New Conversation";
 
-  const truncatedTitle =
-    content.length > 40 ? content.substring(0, 40) + "..." : content;
+  const truncatedTitle = content.length > 40 ? content.substring(0, 40) + "..." : content;
 
   await db
     .update(chatConversations)
@@ -84,10 +81,7 @@ export const sendMessage = async (conversationId: number, content: string) => {
   return message;
 };
 
-export const saveAssistantMessage = async (
-  conversationId: number,
-  content: string
-) => {
+export const saveAssistantMessage = async (conversationId: number, content: string) => {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
@@ -123,12 +117,7 @@ export const deleteConversation = async (conversationId: number) => {
 
   await db
     .delete(chatConversations)
-    .where(
-      and(
-        eq(chatConversations.id, conversationId),
-        eq(chatConversations.userId, userId)
-      )
-    );
+    .where(and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId)));
 
   revalidatePath("/chat");
 };

@@ -30,18 +30,15 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
 
   // 1. Determine which conversation to show
   // If there's an ID in the URL, use it. Otherwise, get/create the latest one.
-  const activeId = params.id
-    ? parseInt(params.id)
-    : await getOrCreateConversation();
+  const activeId = params.id ? parseInt(params.id) : await getOrCreateConversation();
 
   // 2. Fetch all data in parallel for speed
-  const [conversations, activeConversation, userProgress, userSubscription] =
-    await Promise.all([
-      getConversations(),
-      getConversationById(activeId),
-      getUserProgress(),
-      getUserSubscription(),
-    ]);
+  const [conversations, activeConversation, userProgress, userSubscription] = await Promise.all([
+    getConversations(),
+    getConversationById(activeId),
+    getUserProgress(),
+    getUserSubscription(),
+  ]);
 
   const isPro = !!userSubscription?.isActive;
 
@@ -75,11 +72,7 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
         <div className="h-[calc(100vh-100px)]">
           <ChatClient
             initialMessages={activeConversation.messages.map(
-              (msg: {
-                role: "user" | "assistant";
-                content: string;
-                timestamp: Date;
-              }) => ({
+              (msg: { role: "user" | "assistant"; content: string; timestamp: Date }) => ({
                 ...msg,
                 timestamp: new Date(msg.timestamp),
               })
