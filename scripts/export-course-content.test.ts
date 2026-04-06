@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { exportContent } from "./export-course-content";
 
 const mockFindMany = vi.fn();
 
@@ -74,7 +75,20 @@ describe("export-course-content script", () => {
       private_key: "fake-key\\nnewlines",
     });
     process.argv = [...savedArgv.slice(0, 2)];
-    mockFindMany.mockReset();
+    
+    // Auto-invoke the nested orderBy callbacks to cover those lines in the original script
+    mockFindMany.mockImplementation((opts: any) => {
+      const mockAsc = vi.fn();
+      if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.orderBy) opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy) opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
+        opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy({}, { asc: mockAsc });
+      }
+      return Promise.resolve([]);
+    });
+
     mockExists.mockResolvedValue([false]);
     mockSave.mockResolvedValue(undefined);
     mockExistsSync.mockReturnValue(true);
@@ -94,7 +108,7 @@ describe("export-course-content script", () => {
     vi.spyOn(process, "exit").mockImplementation(((c: number) => {
       throw new Error(`exit ${c}`);
     }) as any);
-    await expect(import("./export-course-content")).rejects.toThrow("exit 1");
+    await expect(exportContent()).rejects.toThrow("exit 1");
   });
 
   it("exits when GOOGLE_SERVICE_ACCOUNT_KEY is invalid JSON", async () => {
@@ -103,7 +117,7 @@ describe("export-course-content script", () => {
     vi.spyOn(process, "exit").mockImplementation(((c: number) => {
       throw new Error(`exit ${c}`);
     }) as any);
-    await expect(import("./export-course-content")).rejects.toThrow("exit 1");
+    await expect(exportContent()).rejects.toThrow("exit 1");
   });
 
   it("exports and uploads course content", async () => {
@@ -135,7 +149,7 @@ describe("export-course-content script", () => {
       },
     ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("Starting Speakify Content Export");
@@ -164,7 +178,7 @@ describe("export-course-content script", () => {
       },
     ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("Starting Speakify Content Export");
@@ -214,7 +228,7 @@ No detailed content provided.
         ],
       },
     ]);
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("SKIPPED");
@@ -243,7 +257,7 @@ No detailed content provided.
       },
     ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -275,7 +289,7 @@ No detailed content provided.
       },
     ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("rag-content"), {
@@ -307,7 +321,7 @@ No detailed content provided.
       },
     ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -323,7 +337,7 @@ No detailed content provided.
 
     mockFindMany.mockRejectedValueOnce(new Error("DB connection failed"));
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -355,7 +369,7 @@ No detailed content provided.
         ],
       },
     ]);
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("UPLOADED");
@@ -369,7 +383,7 @@ No detailed content provided.
 
     mockFindMany.mockRejectedValueOnce("string error");
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");

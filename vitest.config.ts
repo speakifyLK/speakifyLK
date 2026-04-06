@@ -44,6 +44,7 @@ export default defineConfig({
         "**/*.json",
         "**/*.yml",
         "**/*.yaml",
+        "scripts/test-*.ts",
       ],
       thresholds: {
         statements: 100,

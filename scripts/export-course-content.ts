@@ -28,39 +28,6 @@ dotenv.config({ path: ".env.local", override: true });
 import pLimit from "p-limit";
 import db from "@/db/drizzle";
 
-// Parse GCS Credentials from .env string
-const gcsKeyString = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-
-if (!gcsKeyString) {
-  console.error("GOOGLE_SERVICE_ACCOUNT_KEY is missing in .env");
-  process.exit(1);
-}
-
-let credentials;
-try {
-  credentials = JSON.parse(gcsKeyString);
-  if (credentials.private_key) {
-    credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
-  }
-} catch (e) {
-  console.error(
-    "Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON string. Check your .env formatting."
-  );
-  process.exit(1);
-}
-
-// Initialize GCS Client with direct credentials
-const storage = new Storage({
-  credentials,
-  projectId: credentials.project_id,
-});
-
-const BUCKET_NAME =
-  process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
-const limit = pLimit(5);
-
-//Create an MD5 hash to compare content with GCS
-
 const getHash = (content: string) => crypto.createHash("md5").update(content).digest("hex");
 
 const formatContent = (course: any, unit: any, lesson: any) => {
@@ -91,9 +58,8 @@ ${contentText}
   `.trim();
 };
 
-async function uploadToGCS(fileName: string, content: string) {
+async function uploadToGCS(bucket: any, fileName: string, content: string) {
   const destFileName = `rag-content/${fileName}`;
-  const bucket = storage.bucket(BUCKET_NAME);
   const file = bucket.file(destFileName);
 
   try {
@@ -122,6 +88,38 @@ async function uploadToGCS(fileName: string, content: string) {
 }
 
 async function exportContent() {
+  // Parse GCS Credentials from .env string
+  const gcsKeyString = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+
+  if (!gcsKeyString) {
+    console.error("GOOGLE_SERVICE_ACCOUNT_KEY is missing in .env");
+    process.exit(1);
+  }
+
+  let credentials;
+  try {
+    credentials = JSON.parse(gcsKeyString);
+    if (credentials.private_key) {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
+    }
+  } catch (e) {
+    console.error(
+      "Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON string. Check your .env formatting."
+    );
+    process.exit(1);
+  }
+
+  // Initialize GCS Client with direct credentials
+  const storage = new Storage({
+    credentials,
+    projectId: credentials.project_id,
+  });
+
+  const BUCKET_NAME =
+    process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
+  const bucket = storage.bucket(BUCKET_NAME);
+  const limit = pLimit(5);
+
   const isDryRun = process.argv.includes("--dry-run");
   const outputDir = path.join(process.cwd(), "tmp", "rag-content");
 
@@ -188,7 +186,7 @@ async function exportContent() {
             // Queue GCS Upload with concurrency limit
             tasks.push(
               limit(async () => {
-                const result = await uploadToGCS(fileName, jsonContent);
+                const result = await uploadToGCS(bucket, fileName, jsonContent);
                 stats[result as keyof typeof stats]++;
                 console.log(`[${result.toUpperCase()}] ${fileName}`);
               })
@@ -216,11 +214,18 @@ async function exportContent() {
     } else {
       console.log("This was a dry run. No actions were taken.");
     }
-    process.exit(0);
   } catch (error) {
     console.error("Process Failed:", error instanceof Error ? error.message : error);
     process.exit(1);
   }
 }
 
-exportContent();
+// Ensure it runs only when executed directly, not when imported during tests
+if (process.env.NODE_ENV !== "test" && typeof require !== "undefined" && require.main === module) {
+  exportContent().catch((error) => {
+    console.error("Process Failed:", error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+}
+
+export { exportContent, formatContent, uploadToGCS };
