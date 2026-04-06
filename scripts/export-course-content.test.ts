@@ -1,10 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  exportContent,
-  formatContent,
-  isExecutedAsCli,
-} from "./export-course-content";
+import { exportContent, formatContent, isExecutedAsCli } from "./export-course-content";
 
 const mockFindMany = vi.fn();
 
@@ -71,19 +67,12 @@ function mockFindManyWithData(data: any[]) {
   mockFindMany.mockImplementationOnce((opts: any) => {
     const mockAsc = vi.fn();
     if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
-    if (opts?.with?.units?.orderBy)
-      opts.with.units.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
     if (opts?.with?.units?.with?.lessons?.orderBy)
       opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
     if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
-      opts.with.units.with.lessons.with.challenges.orderBy(
-        {},
-        { asc: mockAsc }
-      );
-    if (
-      opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions
-        ?.orderBy
-    ) {
+      opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
       opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
         {},
         { asc: mockAsc }
@@ -111,19 +100,12 @@ describe("export-course-content script", () => {
     mockFindMany.mockImplementation((opts: any) => {
       const mockAsc = vi.fn();
       if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
-      if (opts?.with?.units?.orderBy)
-        opts.with.units.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
       if (opts?.with?.units?.with?.lessons?.orderBy)
         opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
       if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
-        opts.with.units.with.lessons.with.challenges.orderBy(
-          {},
-          { asc: mockAsc }
-        );
-      if (
-        opts?.with?.units?.with?.lessons?.with?.challenges?.with
-          ?.challengeOptions?.orderBy
-      ) {
+        opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
         opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
           {},
           { asc: mockAsc }
@@ -344,9 +326,7 @@ No detailed content provided.
   it("handles upload error gracefully and exits non-zero", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
     mockExists.mockRejectedValue(new Error("GCS error"));
 
     mockFindManyWithData([
@@ -418,12 +398,9 @@ No detailed content provided.
     await exportContent();
     await flushPromises();
 
-    expect(mockMkdirSync).toHaveBeenCalledWith(
-      expect.stringContaining("rag-content"),
-      {
-        recursive: true,
-      }
-    );
+    expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("rag-content"), {
+      recursive: true,
+    });
   });
 
   it("runs in dry-run mode without writing files", async () => {
@@ -469,9 +446,7 @@ No detailed content provided.
   it("handles database error in exportContent", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     mockFindMany.mockRejectedValueOnce(new Error("DB connection failed"));
 
@@ -488,9 +463,7 @@ No detailed content provided.
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockExists.mockResolvedValue([true]);
     // Return a different hash that won't match the local content hash
-    mockGetMetadata.mockResolvedValue([
-      { md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" },
-    ]);
+    mockGetMetadata.mockResolvedValue([{ md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" }]);
 
     mockFindManyWithData([
       {
@@ -526,9 +499,7 @@ No detailed content provided.
   it("handles non-Error thrown in exportContent catch block", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi
-      .spyOn(process, "exit")
-      .mockImplementation(() => undefined as never);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
     mockFindMany.mockRejectedValueOnce("string error");
 

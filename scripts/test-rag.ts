@@ -22,9 +22,7 @@ export function isExecutedAsCli(): boolean {
   const runPath = process.argv[1];
   if (!runPath) return false;
   try {
-    return (
-      path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url))
-    );
+    return path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url));
   } catch {
     /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
     return false;
