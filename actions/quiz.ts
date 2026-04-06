@@ -145,9 +145,11 @@ function isAnswerCorrectLocal(
 }
 
 /**
- * Uses AI to determine if a user's answer is semantically correct.
- * This handles cases like romanized answers ("loku") vs Sinhala script ("ලොකු"),
- * or valid alternative translations.
+ * Uses AI to determine if a user's answer is a linguistically valid response.
+ * Instead of comparing the student's answer to a single expected answer, this
+ * evaluates whether the answer is a grammatically and semantically valid
+ * completion / translation for the given question. The expected answer is
+ * provided only as one example of a correct response.
  * Returns true/false, or null if the AI call fails.
  */
 async function isAnswerCorrectAi(
@@ -158,14 +160,18 @@ async function isAnswerCorrectAi(
 ): Promise<boolean | null> {
   const typeLabel =
     questionType === "fill_blank" ? "fill-in-the-blank" : "translation";
-  const prompt = `You are a Sinhala language quiz answer validator. Determine if the student's answer is correct.
+  const prompt = `You are a Sinhala language expert validating a student's quiz answer.
 
 Question type: ${typeLabel}
 Question: ${question}
-Correct answer: ${correctAnswer}
+One example of a correct answer: ${correctAnswer}
 Student's answer: ${userAnswer}
 
-The student may answer in romanized form (e.g. "loku") instead of Sinhala script (e.g. "ලොකු"), or vice versa. Accept romanized equivalents, minor spelling variations, and semantically equivalent translations.
+IMPORTANT: There are often MANY valid answers. For fill-in-the-blank questions, any word or phrase that creates a grammatically correct and meaningful Sinhala sentence is acceptable. For translation questions, any accurate translation is acceptable.
+
+Do NOT limit correctness to just the example answer. Evaluate whether the student's answer is a linguistically valid and meaningful response to the question itself.
+
+The student may answer in romanized form (e.g. "loku") instead of Sinhala script (e.g. "ලොකු"), or vice versa. Accept romanized equivalents and minor spelling variations.
 
 Respond with ONLY "CORRECT" or "INCORRECT" — nothing else.`;
 
@@ -189,7 +195,11 @@ Respond with ONLY "CORRECT" or "INCORRECT" — nothing else.`;
 }
 
 /**
- * Full answer validation: local matching first, AI fallback for non-MCQ questions.
+ * Full answer validation.
+ * - MCQ: local string match only (authoritative).
+ * - fill_blank / translation: AI is the *primary* validator because there are
+ *   often many linguistically valid answers beyond the single expected answer.
+ *   If AI is unavailable, local fuzzy matching is used as a safety-net fallback.
  */
 async function isAnswerCorrect(
   userAnswer: string,
@@ -198,21 +208,17 @@ async function isAnswerCorrect(
   question: string,
   options: unknown
 ): Promise<boolean> {
-  // Try fast local matching first
-  const localResult = isAnswerCorrectLocal(
-    userAnswer,
-    correctAnswer,
-    questionType,
-    options
-  );
+  // For MCQ, local matching is authoritative — no AI needed
+  if (questionType === "mcq") {
+    return isAnswerCorrectLocal(
+      userAnswer,
+      correctAnswer,
+      questionType,
+      options
+    );
+  }
 
-  // If local says correct, trust it immediately
-  if (localResult) return true;
-
-  // For MCQ, local matching is authoritative — no AI fallback
-  if (questionType === "mcq") return false;
-
-  // For fill_blank and translation, consult AI when local matching fails
+  // For fill_blank and translation, use AI as the primary validator
   const aiResult = await isAnswerCorrectAi(
     userAnswer,
     correctAnswer,
@@ -220,8 +226,11 @@ async function isAnswerCorrect(
     questionType
   );
 
-  // If AI returned a definitive answer, use it; otherwise fall back to local (false)
-  return aiResult ?? false;
+  // If AI returned a definitive answer, use it
+  if (aiResult !== null) return aiResult;
+
+  // AI failed — fall back to local fuzzy matching as safety net
+  return isAnswerCorrectLocal(userAnswer, correctAnswer, questionType, options);
 }
 
 // ---------------------------------------------------------------------------

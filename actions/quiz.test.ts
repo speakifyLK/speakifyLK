@@ -165,53 +165,63 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
     });
   });
 
-  describe("fill_blank - fuzzy matching", () => {
-    it("returns true for exact match after normalization", async () => {
+  describe("fill_blank - local fallback matching (AI unavailable)", () => {
+    // These tests verify local fuzzy matching as fallback when AI is unavailable.
+    // Since AI is the primary validator for fill_blank, we mock AI to return null
+    // (failure) so local matching kicks in.
+
+    it("returns true for exact match after normalization (AI fallback)", async () => {
       setupQuestion({ correctAnswer: "  Hello World  ", type: "fill_blank" });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "hello world");
       expect(result).toEqual({ isCorrect: true });
     });
 
-    it("returns true for close Levenshtein match", async () => {
+    it("returns true for close Levenshtein match (AI fallback)", async () => {
       // "hello" has 5 chars -> threshold = max(1, min(3, floor(5*0.25))) = 1
       setupQuestion({ correctAnswer: "hello", type: "fill_blank" });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "helo"); // distance 1
       expect(result).toEqual({ isCorrect: true });
     });
 
-    it("returns false for distant match", async () => {
+    it("returns false for distant match when AI says INCORRECT", async () => {
       setupQuestion({ correctAnswer: "hello", type: "fill_blank" });
+      mockGenerateContent.mockResolvedValue({ text: "INCORRECT" });
       const result = await submitQuizAnswer(10, "xyz"); // distance > 1
       expect(result).toEqual({ isCorrect: false });
     });
 
-    it("matches against acceptable alternatives", async () => {
+    it("matches against acceptable alternatives (AI fallback)", async () => {
       setupQuestion({
         correctAnswer: "cat",
         type: "fill_blank",
         options: { acceptableAlternatives: ["kitty", "kitten"] },
       });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "kitty");
       expect(result).toEqual({ isCorrect: true });
     });
 
-    it("fuzzy-matches against acceptable alternatives", async () => {
+    it("fuzzy-matches against acceptable alternatives (AI fallback)", async () => {
       setupQuestion({
         correctAnswer: "cat",
         type: "fill_blank",
         // "kitten" = 6 chars -> threshold = max(1, min(3, floor(6*0.25))) = 1
         options: { acceptableAlternatives: ["kitten"] },
       });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "kiten"); // distance 1 from "kitten"
       expect(result).toEqual({ isCorrect: true });
     });
 
-    it("skips non-string alternatives", async () => {
+    it("skips non-string alternatives (AI fallback)", async () => {
       setupQuestion({
         correctAnswer: "xyz",
         type: "fill_blank",
         options: { acceptableAlternatives: [123, null, "cat"] },
       });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       // "cat" matches the alternative "cat", not the correct answer "xyz"
       const result = await submitQuizAnswer(10, "cat");
       expect(result).toEqual({ isCorrect: true });
@@ -223,7 +233,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { acceptableAlternatives: [123, null, false] },
       });
-      // No string alternatives and correct answer doesn't match
+      // AI says INCORRECT, local matching also fails
       const result = await submitQuizAnswer(10, "abc");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -234,6 +244,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { acceptableAlternatives: "not-an-array" },
       });
+      // AI says INCORRECT, local matching also fails
       const result = await submitQuizAnswer(10, "dog");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -244,6 +255,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { acceptableAlternatives: ["elephant", "giraffe"] },
       });
+      // AI says INCORRECT, local matching also fails
       const result = await submitQuizAnswer(10, "dog");
       expect(result).toEqual({ isCorrect: false });
     });
@@ -254,21 +266,23 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
         type: "fill_blank",
         options: { someOtherKey: true },
       });
+      // AI says INCORRECT, local matching also fails
       const result = await submitQuizAnswer(10, "dog");
       expect(result).toEqual({ isCorrect: false });
     });
   });
 
-  describe("translation - fuzzy matching", () => {
-    it("returns true for close translation match", async () => {
+  describe("translation - local fallback matching (AI unavailable)", () => {
+    it("returns true for close translation match (AI fallback)", async () => {
       // "ayubowan" = 8 chars -> threshold = max(1, min(3, floor(8*0.25))) = 2
       setupQuestion({ correctAnswer: "ayubowan", type: "translation" });
+      mockGenerateContent.mockResolvedValue({ text: null }); // AI unavailable
       const result = await submitQuizAnswer(10, "ayubovan"); // distance 1
       expect(result).toEqual({ isCorrect: true });
     });
   });
 
-  describe("AI semantic validation fallback", () => {
+  describe("AI semantic validation (primary for non-MCQ)", () => {
     it("accepts romanized answer when AI says CORRECT for fill_blank", async () => {
       setupQuestion({
         correctAnswer: "ලොකු (loku)",
@@ -293,6 +307,19 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
       expect(mockGenerateContent).toHaveBeenCalled();
     });
 
+    it("accepts valid alternative answer that AI recognizes", async () => {
+      // "mama ___ yanawaa" — "handata" is valid even though expected is "gedarata"
+      setupQuestion({
+        correctAnswer: "gedarata",
+        type: "fill_blank",
+        question: "mama ___ yanawaa",
+      });
+      mockGenerateContent.mockResolvedValue({ text: "CORRECT" });
+      const result = await submitQuizAnswer(10, "handata");
+      expect(result).toEqual({ isCorrect: true });
+      expect(mockGenerateContent).toHaveBeenCalled();
+    });
+
     it("rejects wrong answer when AI says INCORRECT", async () => {
       setupQuestion({
         correctAnswer: "ලොකු",
@@ -304,38 +331,51 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
       expect(result).toEqual({ isCorrect: false });
     });
 
-    it("falls back to false when AI call throws", async () => {
+    it("falls back to local matching when AI call throws", async () => {
+      setupQuestion({
+        correctAnswer: "hello",
+        type: "fill_blank",
+        question: "Say ___.",
+      });
+      mockGenerateContent.mockRejectedValue(new Error("API down"));
+      // "hello" matches locally — should be true via fallback
+      const result = await submitQuizAnswer(10, "hello");
+      expect(result).toEqual({ isCorrect: true });
+    });
+
+    it("falls back to false when AI fails and local matching also fails", async () => {
       setupQuestion({
         correctAnswer: "ලොකු",
         type: "fill_blank",
         question: "මේ ___ ගෙදරක්.",
       });
       mockGenerateContent.mockRejectedValue(new Error("API down"));
-      const result = await submitQuizAnswer(10, "loku");
+      const result = await submitQuizAnswer(10, "loku"); // no local match for Sinhala script
       expect(result).toEqual({ isCorrect: false });
     });
 
-    it("falls back to false when AI returns unparseable response", async () => {
+    it("falls back to local matching when AI returns unparseable response", async () => {
       setupQuestion({
-        correctAnswer: "ලොකු",
+        correctAnswer: "hello",
         type: "fill_blank",
-        question: "මේ ___ ගෙදරක්.",
+        question: "Say ___.",
       });
       mockGenerateContent.mockResolvedValue({
         text: "I'm not sure about that",
       });
-      const result = await submitQuizAnswer(10, "loku");
-      expect(result).toEqual({ isCorrect: false });
+      // "hello" matches locally — should be true via fallback
+      const result = await submitQuizAnswer(10, "hello");
+      expect(result).toEqual({ isCorrect: true });
     });
 
-    it("falls back to false when AI returns null text", async () => {
+    it("falls back to false when AI returns null text and local fails", async () => {
       setupQuestion({
         correctAnswer: "ලොකු",
         type: "fill_blank",
         question: "මේ ___ ගෙදරක්.",
       });
       mockGenerateContent.mockResolvedValue({ text: null });
-      const result = await submitQuizAnswer(10, "loku");
+      const result = await submitQuizAnswer(10, "completely wrong");
       expect(result).toEqual({ isCorrect: false });
     });
 
@@ -346,12 +386,17 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
       expect(mockGenerateContent).not.toHaveBeenCalled();
     });
 
-    it("does NOT call AI when local matching already succeeds", async () => {
-      setupQuestion({ correctAnswer: "hello", type: "fill_blank" });
-      mockGenerateContent.mockClear();
+    it("always calls AI first for non-MCQ even when local would match", async () => {
+      setupQuestion({
+        correctAnswer: "hello",
+        type: "fill_blank",
+        question: "Say ___.",
+      });
+      mockGenerateContent.mockResolvedValue({ text: "CORRECT" });
       const result = await submitQuizAnswer(10, "hello");
       expect(result).toEqual({ isCorrect: true });
-      expect(mockGenerateContent).not.toHaveBeenCalled();
+      // AI should have been called even though "hello" === "hello" locally
+      expect(mockGenerateContent).toHaveBeenCalled();
     });
   });
 
