@@ -14,7 +14,7 @@ vi.mock("@/components/loader", () => ({
 
 import Loading from "./loading";
 
-describe("AI Quiz Loading", () => {
+describe("Quiz Loading", () => {
   it("renders without errors", () => {
     const { container } = render(<Loading />);
     expect(container.firstElementChild).toBeInTheDocument();
@@ -35,7 +35,6 @@ describe("AI Quiz Loading", () => {
 
   it("renders main content skeleton", () => {
     const { container } = render(<Loading />);
-    // Should have skeleton grid items
     const gridItems = container.querySelectorAll(".rounded-xl.border-2.border-b-4");
     expect(gridItems.length).toBeGreaterThan(0);
   });
