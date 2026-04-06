@@ -132,14 +132,14 @@ jobs:
 
     steps:
       - name: Download unit test Allure results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: allure-results-unit
           path: allure-results/unit
         continue-on-error: true
 
       - name: Download E2E Allure results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: allure-results-e2e
           path: allure-results/e2e
@@ -184,7 +184,7 @@ jobs:
 
       - name: Download previous report for history
         if: steps.check.outputs.result_count != '0' && steps.prev-run.outputs.run_id != ''
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: allure-report-history
           path: allure-history
