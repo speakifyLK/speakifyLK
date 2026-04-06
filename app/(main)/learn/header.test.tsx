@@ -10,9 +10,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, _asChild, ...props }: any) => (
-    <button {...props}>{children}</button>
-  ),
+  Button: ({ children, _asChild, ...props }: any) => <button {...props}>{children}</button>,
 }));
 
 vi.mock("lucide-react", () => ({
