@@ -51,17 +51,8 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     const links = screen.getAllByRole("link");
-    const navLabels = links
-      .map((l) => l.textContent?.trim())
-      .filter((t) => t && t !== "Speakify");
-    expect(navLabels).toEqual([
-      "Learn",
-      "Quiz",
-      "Chat",
-      "Leaderboard",
-      "Quests",
-      "Shop",
-    ]);
+    const navLabels = links.map((l) => l.textContent?.trim()).filter((t) => t && t !== "Speakify");
+    expect(navLabels).toEqual(["Learn", "Quiz", "Chat", "Leaderboard", "Quests", "Shop"]);
   });
 
   it("renders UserButton when clerk is loaded", () => {

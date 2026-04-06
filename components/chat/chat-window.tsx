@@ -11,20 +11,13 @@ interface ChatWindowProps {
   isTyping: boolean;
 }
 
-export function ChatWindow({
-  children,
-  footer,
-  isEmpty,
-  isTyping,
-}: ChatWindowProps) {
+export function ChatWindow({ children, footer, isEmpty, isTyping }: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll logic
   useEffect(() => {
     if (scrollRef.current) {
-      const scrollContainer = scrollRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      );
+      const scrollContainer = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]");
       if (scrollContainer) {
         scrollContainer.scrollTo({
           top: scrollContainer.scrollHeight,
@@ -43,9 +36,7 @@ export function ChatWindow({
             <div className="rounded-full bg-green-100 p-4">
               <MessageSquareQuote className="h-8 w-8 text-green-500" />
             </div>
-            <p className="text-sm font-medium">
-              Start a conversation in Sinhala!
-            </p>
+            <p className="text-sm font-medium">Start a conversation in Sinhala!</p>
             <p className="text-xs text-muted-foreground">
               Your AI tutor is ready to help you practice
             </p>

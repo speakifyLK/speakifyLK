@@ -3,17 +3,13 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
-const {
-  mockPush,
-  mockToast,
-  mockSetAdaptiveRecommendation,
-  mockAdaptiveRecommendation,
-} = vi.hoisted(() => ({
-  mockPush: vi.fn(),
-  mockToast: { error: vi.fn(), success: vi.fn() },
-  mockSetAdaptiveRecommendation: vi.fn(),
-  mockAdaptiveRecommendation: { value: null as any },
-}));
+const { mockPush, mockToast, mockSetAdaptiveRecommendation, mockAdaptiveRecommendation } =
+  vi.hoisted(() => ({
+    mockPush: vi.fn(),
+    mockToast: { error: vi.fn(), success: vi.fn() },
+    mockSetAdaptiveRecommendation: vi.fn(),
+    mockAdaptiveRecommendation: { value: null as any },
+  }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
@@ -86,9 +82,7 @@ describe("QuizConfig", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdaptiveRecommendation.value = null;
-    (
-      computeAdaptiveDifficultyRecommendation as ReturnType<typeof vi.fn>
-    ).mockReturnValue(null);
+    (computeAdaptiveDifficultyRecommendation as ReturnType<typeof vi.fn>).mockReturnValue(null);
   });
 
   // ── Rendering ──────────────────────────────────────────────────────────
@@ -120,15 +114,9 @@ describe("QuizConfig", () => {
 
   it("renders difficulty descriptions", () => {
     render(<QuizConfig units={makeUnits()} />);
-    expect(
-      screen.getByText("Simple vocabulary and basic phrases")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Sentence construction and grammar")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Complex conversations and idioms")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Simple vocabulary and basic phrases")).toBeInTheDocument();
+    expect(screen.getByText("Sentence construction and grammar")).toBeInTheDocument();
+    expect(screen.getByText("Complex conversations and idioms")).toBeInTheDocument();
   });
 
   it("renders question count options", () => {
@@ -204,9 +192,7 @@ describe("QuizConfig", () => {
     fireEvent.click(screen.getByText("Greetings").closest("button")!);
     // Uncheck all question types
     fireEvent.click(screen.getByRole("checkbox", { name: /MCQ/i }));
-    fireEvent.click(
-      screen.getByRole("checkbox", { name: /Fill-in-the-blank/i })
-    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /Fill-in-the-blank/i }));
     fireEvent.click(screen.getByRole("checkbox", { name: /Translation/i }));
 
     const startBtn = screen.getByText("Start Quiz");
@@ -232,9 +218,7 @@ describe("QuizConfig", () => {
     });
 
     await waitFor(() => {
-      expect(mockToast.success).toHaveBeenCalledWith(
-        "Quiz generated successfully!"
-      );
+      expect(mockToast.success).toHaveBeenCalledWith("Quiz generated successfully!");
       expect(mockPush).toHaveBeenCalledWith("/quiz?sessionId=42");
     });
   });
@@ -285,9 +269,7 @@ describe("QuizConfig", () => {
   });
 
   it("shows error when fetch fails with Error instance", async () => {
-    const mockFetch = vi
-      .fn()
-      .mockRejectedValue(new Error("Connection refused"));
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Connection refused"));
     global.fetch = mockFetch;
 
     render(<QuizConfig units={makeUnits()} />);
@@ -311,9 +293,7 @@ describe("QuizConfig", () => {
     fireEvent.click(screen.getByText("Start Quiz"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith(
-        "Failed to start quiz: missing session ID"
-      );
+      expect(mockToast.error).toHaveBeenCalledWith("Failed to start quiz: missing session ID");
     });
   });
 
@@ -336,9 +316,7 @@ describe("QuizConfig", () => {
       expect(screen.getByText("Generating Quiz...")).toBeInTheDocument();
       expect(screen.getByTestId("custom-loader")).toBeInTheDocument();
       expect(screen.getByText("Generating your quiz...")).toBeInTheDocument();
-      expect(
-        screen.getByText("This may take a few seconds")
-      ).toBeInTheDocument();
+      expect(screen.getByText("This may take a few seconds")).toBeInTheDocument();
     });
 
     resolveText!(JSON.stringify({ sessionId: 1 }));
@@ -367,9 +345,7 @@ describe("QuizConfig", () => {
       render(<QuizConfig units={makeUnits()} />);
       const beginnerBtn = screen.getByText("beginner").closest("button")!;
       fireEvent.keyDown(beginnerBtn, { key: "ArrowRight" });
-      const intermediateBtn = screen
-        .getByText("intermediate")
-        .closest("button")!;
+      const intermediateBtn = screen.getByText("intermediate").closest("button")!;
       expect(intermediateBtn).toHaveAttribute("aria-pressed", "true");
     });
 
@@ -385,9 +361,7 @@ describe("QuizConfig", () => {
       render(<QuizConfig units={makeUnits()} />);
       const beginnerBtn = screen.getByText("beginner").closest("button")!;
       fireEvent.keyDown(beginnerBtn, { key: "ArrowDown" });
-      const intermediateBtn = screen
-        .getByText("intermediate")
-        .closest("button")!;
+      const intermediateBtn = screen.getByText("intermediate").closest("button")!;
       expect(intermediateBtn).toHaveAttribute("aria-pressed", "true");
     });
 
@@ -395,9 +369,7 @@ describe("QuizConfig", () => {
       render(<QuizConfig units={makeUnits()} />);
       // First go to intermediate
       fireEvent.click(screen.getByText("intermediate").closest("button")!);
-      const intermediateBtn = screen
-        .getByText("intermediate")
-        .closest("button")!;
+      const intermediateBtn = screen.getByText("intermediate").closest("button")!;
       fireEvent.keyDown(intermediateBtn, { key: "ArrowUp" });
       const beginnerBtn = screen.getByText("beginner").closest("button")!;
       expect(beginnerBtn).toHaveAttribute("aria-pressed", "true");
@@ -436,18 +408,12 @@ describe("QuizConfig", () => {
       // Default is 10, go to 15
       const tenBtn = screen.getByLabelText("10 questions");
       fireEvent.keyDown(tenBtn, { key: "ArrowRight" });
-      expect(screen.getByLabelText("15 questions")).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
+      expect(screen.getByLabelText("15 questions")).toHaveAttribute("aria-pressed", "true");
 
       // Go past end wraps to 5
       const fifteenBtn = screen.getByLabelText("15 questions");
       fireEvent.keyDown(fifteenBtn, { key: "ArrowRight" });
-      expect(screen.getByLabelText("5 questions")).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
+      expect(screen.getByLabelText("5 questions")).toHaveAttribute("aria-pressed", "true");
     });
 
     it("topic keyboard navigation when nothing is selected", () => {
@@ -615,9 +581,7 @@ describe("QuizConfig", () => {
     fireEvent.click(screen.getByText("Start Quiz"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith(
-        "Invalid response from the quiz server."
-      );
+      expect(mockToast.error).toHaveBeenCalledWith("Invalid response from the quiz server.");
     });
   });
 
@@ -665,9 +629,7 @@ describe("QuizConfig", () => {
     fireEvent.click(screen.getByText("Start Quiz"));
 
     await waitFor(() => {
-      expect(mockToast.error).toHaveBeenCalledWith(
-        "Failed to start quiz: missing session ID"
-      );
+      expect(mockToast.error).toHaveBeenCalledWith("Failed to start quiz: missing session ID");
     });
   });
 

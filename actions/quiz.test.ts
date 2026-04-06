@@ -80,20 +80,14 @@ vi.mock("@/db/schema", () => ({
 }));
 
 // ── Import the module under test ─────────────────────────────────────
-import {
-  createQuizSession,
-  submitQuizAnswer,
-  completeQuizSession,
-} from "./quiz";
+import { createQuizSession, submitQuizAnswer, completeQuizSession } from "./quiz";
 
 // Also need to access the private helpers. Since they are not exported, we
 // will import the module and test them through the public API. But for pure
 // helper tests we can re-import the raw module.
 import db from "@/db/drizzle";
 
-const dbMocks = (
-  db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> }
-)._mocks;
+const dbMocks = (db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> })._mocks;
 
 // ── Setup ────────────────────────────────────────────────────────────
 beforeEach(() => {
@@ -478,9 +472,7 @@ describe("quiz action helpers (via submitQuizAnswer)", () => {
 describe("createQuizSession", () => {
   it("throws when not authenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
-    await expect(createQuizSession("topic", "beginner", 1, 5)).rejects.toThrow(
-      "Unauthorized."
-    );
+    await expect(createQuizSession("topic", "beginner", 1, 5)).rejects.toThrow("Unauthorized.");
   });
 
   it("throws when user has no active course", async () => {
@@ -556,37 +548,27 @@ describe("submitQuizAnswer", () => {
 
   it("throws when not authenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
-    await expect(submitQuizAnswer(10, "answer")).rejects.toThrow(
-      "Unauthorized."
-    );
+    await expect(submitQuizAnswer(10, "answer")).rejects.toThrow("Unauthorized.");
   });
 
   it("throws when answer is empty", async () => {
-    await expect(submitQuizAnswer(10, "")).rejects.toThrow(
-      "Answer cannot be empty."
-    );
+    await expect(submitQuizAnswer(10, "")).rejects.toThrow("Answer cannot be empty.");
   });
 
   it("throws when answer is whitespace only", async () => {
-    await expect(submitQuizAnswer(10, "   ")).rejects.toThrow(
-      "Answer cannot be empty."
-    );
+    await expect(submitQuizAnswer(10, "   ")).rejects.toThrow("Answer cannot be empty.");
   });
 
   it("throws when question is not found", async () => {
     mockDbQuery.aiQuizQuestions.findFirst.mockResolvedValue(null);
-    await expect(submitQuizAnswer(10, "answer")).rejects.toThrow(
-      "Question not found."
-    );
+    await expect(submitQuizAnswer(10, "answer")).rejects.toThrow("Question not found.");
   });
 
   it("throws when session belongs to another user", async () => {
     setupQuestion({
       session: { userId: "other-user", completedAt: null, correctAnswers: 0 },
     });
-    await expect(submitQuizAnswer(10, "answer")).rejects.toThrow(
-      "Unauthorized."
-    );
+    await expect(submitQuizAnswer(10, "answer")).rejects.toThrow("Unauthorized.");
   });
 
   it("throws when session is already completed", async () => {
@@ -665,9 +647,7 @@ describe("completeQuizSession", () => {
 
   it("throws when session not found", async () => {
     mockDbQuery.aiQuizSessions.findFirst.mockResolvedValue(null);
-    await expect(completeQuizSession(1)).rejects.toThrow(
-      "Session not found or unauthorized."
-    );
+    await expect(completeQuizSession(1)).rejects.toThrow("Session not found or unauthorized.");
   });
 
   it("returns xpAwarded: 0 for already completed session", async () => {
@@ -706,9 +686,7 @@ describe("completeQuizSession", () => {
 
     // Mock the insert for userProgress upsert
     const onConflictFn = vi.fn();
-    const insertValuesFn = vi
-      .fn()
-      .mockReturnValue({ onConflictDoUpdate: onConflictFn });
+    const insertValuesFn = vi.fn().mockReturnValue({ onConflictDoUpdate: onConflictFn });
     mockDbInsert.mockReturnValue({ values: insertValuesFn });
 
     const result = await completeQuizSession(1);
@@ -741,9 +719,7 @@ describe("completeQuizSession", () => {
     dbMocks.setFn.mockReturnValue({ where: dbMocks.whereFn });
 
     const onConflictFn = vi.fn();
-    const insertValuesFn = vi
-      .fn()
-      .mockReturnValue({ onConflictDoUpdate: onConflictFn });
+    const insertValuesFn = vi.fn().mockReturnValue({ onConflictDoUpdate: onConflictFn });
     mockDbInsert.mockReturnValue({ values: insertValuesFn });
 
     const result = await completeQuizSession(1);
@@ -770,9 +746,7 @@ describe("completeQuizSession", () => {
     dbMocks.setFn.mockReturnValue({ where: dbMocks.whereFn });
 
     const onConflictFn = vi.fn();
-    const insertValuesFn = vi
-      .fn()
-      .mockReturnValue({ onConflictDoUpdate: onConflictFn });
+    const insertValuesFn = vi.fn().mockReturnValue({ onConflictDoUpdate: onConflictFn });
     mockDbInsert.mockReturnValue({ values: insertValuesFn });
 
     const result = await completeQuizSession(1);
@@ -803,9 +777,7 @@ describe("completeQuizSession", () => {
     dbMocks.setFn.mockReturnValue({ where: dbMocks.whereFn });
 
     const onConflictFn = vi.fn();
-    const insertValuesFn = vi
-      .fn()
-      .mockReturnValue({ onConflictDoUpdate: onConflictFn });
+    const insertValuesFn = vi.fn().mockReturnValue({ onConflictDoUpdate: onConflictFn });
     mockDbInsert.mockReturnValue({ values: insertValuesFn });
 
     const result = await completeQuizSession(1);
@@ -832,9 +804,7 @@ describe("completeQuizSession", () => {
     dbMocks.setFn.mockReturnValue({ where: dbMocks.whereFn });
 
     const onConflictFn = vi.fn();
-    const insertValuesFn = vi
-      .fn()
-      .mockReturnValue({ onConflictDoUpdate: onConflictFn });
+    const insertValuesFn = vi.fn().mockReturnValue({ onConflictDoUpdate: onConflictFn });
     mockDbInsert.mockReturnValue({ values: insertValuesFn });
 
     const result = await completeQuizSession(1);
@@ -866,9 +836,7 @@ describe("completeQuizSession", () => {
       completedAt: new Date(),
       score: 60,
     };
-    mockDbQuery.aiQuizSessions.findFirst.mockResolvedValueOnce(
-      existingCompleted
-    );
+    mockDbQuery.aiQuizSessions.findFirst.mockResolvedValueOnce(existingCompleted);
 
     const result = await completeQuizSession(1);
     expect(result).toEqual({ session: existingCompleted, xpAwarded: 0 });
@@ -895,8 +863,6 @@ describe("completeQuizSession", () => {
     // The re-fetch also returns null
     mockDbQuery.aiQuizSessions.findFirst.mockResolvedValueOnce(null);
 
-    await expect(completeQuizSession(1)).rejects.toThrow(
-      "Session not found or unauthorized."
-    );
+    await expect(completeQuizSession(1)).rejects.toThrow("Session not found or unauthorized.");
   });
 });

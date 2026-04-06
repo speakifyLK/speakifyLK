@@ -40,8 +40,7 @@ const getLetterGrade = (percentage: number): string => {
 };
 
 const getBadgeColor = (percentage: number) => {
-  if (percentage >= 80)
-    return "bg-emerald-100 text-emerald-700 border-emerald-300";
+  if (percentage >= 80) return "bg-emerald-100 text-emerald-700 border-emerald-300";
   if (percentage >= 50) return "bg-amber-100 text-amber-700 border-amber-300";
   return "bg-rose-100 text-rose-700 border-rose-300";
 };
@@ -67,12 +66,10 @@ function questionTypesForRetry(
 }
 
 function parseSessionIdFromGenerateResponse(data: unknown): number | undefined {
-  if (!data || typeof data !== "object" || !("sessionId" in data))
-    return undefined;
+  if (!data || typeof data !== "object" || !("sessionId" in data)) return undefined;
   const raw = (data as { sessionId: unknown }).sessionId;
   if (typeof raw === "number" && Number.isFinite(raw)) return raw;
-  if (typeof raw === "string" && /^\d+$/.test(raw.trim()))
-    return Number.parseInt(raw.trim(), 10);
+  if (typeof raw === "string" && /^\d+$/.test(raw.trim())) return Number.parseInt(raw.trim(), 10);
   return undefined;
 }
 
@@ -90,34 +87,23 @@ export const QuizResult = ({
   const [tryAgainLoading, setTryAgainLoading] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const totalQuestions =
-    session.totalQuestions || session.questions.length || 0;
+  const totalQuestions = session.totalQuestions || session.questions.length || 0;
   const correctAnswers = localCorrectAnswers ?? session.correctAnswers ?? 0;
 
   const scorePercentage = useMemo(
-    () =>
-      totalQuestions > 0
-        ? Math.round((correctAnswers / totalQuestions) * 100)
-        : 0,
+    () => (totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0),
     [correctAnswers, totalQuestions]
   );
 
-  const letterGrade = useMemo(
-    () => getLetterGrade(scorePercentage),
-    [scorePercentage]
-  );
+  const letterGrade = useMemo(() => getLetterGrade(scorePercentage), [scorePercentage]);
 
   // Calculate simple duration if timestamps exist
   const timeTakenLabel = useMemo(() => {
     if (!session.startedAt || !session.completedAt) return "—";
     const startedAt =
-      typeof session.startedAt === "string"
-        ? new Date(session.startedAt)
-        : session.startedAt;
+      typeof session.startedAt === "string" ? new Date(session.startedAt) : session.startedAt;
     const completedAt =
-      typeof session.completedAt === "string"
-        ? new Date(session.completedAt)
-        : session.completedAt;
+      typeof session.completedAt === "string" ? new Date(session.completedAt) : session.completedAt;
     if (
       !(startedAt instanceof Date) ||
       Number.isNaN(startedAt.getTime()) ||
@@ -156,10 +142,7 @@ export const QuizResult = ({
       } catch (error) {
         if (!isMounted) return;
         // If session is already completed, ignore; otherwise show a toast
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to finalise quiz session.";
+        const message = error instanceof Error ? error.message : "Failed to finalise quiz session.";
         if (!message.toLowerCase().includes("already completed")) {
           toast.error(message);
         }
@@ -229,9 +212,7 @@ export const QuizResult = ({
       router.push(url);
       router.refresh();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to start quiz"
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to start quiz");
     } finally {
       setTryAgainLoading(false);
     }
@@ -273,15 +254,10 @@ export const QuizResult = ({
       )}
 
       <div className="flex flex-col items-center gap-4">
-        <h2 className="text-3xl font-bold text-neutral-800">
-          Quiz Completed 🎉
-        </h2>
+        <h2 className="text-3xl font-bold text-neutral-800">Quiz Completed 🎉</h2>
         <p className="text-sm text-neutral-500">
-          Topic:{" "}
-          <span className="font-semibold text-neutral-700">
-            {session.topic}
-          </span>{" "}
-          · <span className="capitalize">{session.difficulty}</span>
+          Topic: <span className="font-semibold text-neutral-700">{session.topic}</span> ·{" "}
+          <span className="capitalize">{session.difficulty}</span>
         </p>
       </div>
 
@@ -293,11 +269,7 @@ export const QuizResult = ({
             text={`${scorePercentage}%`}
             styles={buildStyles({
               pathColor:
-                scorePercentage >= 80
-                  ? "#22c55e"
-                  : scorePercentage >= 50
-                    ? "#eab308"
-                    : "#ef4444",
+                scorePercentage >= 80 ? "#22c55e" : scorePercentage >= 50 ? "#eab308" : "#ef4444",
               trailColor: "#e5e7eb",
               textColor: "#111827",
               textSize: "18px",
@@ -319,33 +291,19 @@ export const QuizResult = ({
       {/* Stats row */}
       <div className="grid gap-3 rounded-xl border-2 border-slate-200 bg-slate-50 p-4 text-sm md:grid-cols-4">
         <div className="flex flex-col">
-          <span className="text-xs uppercase tracking-wide text-neutral-500">
-            Questions
-          </span>
-          <span className="text-lg font-semibold text-neutral-800">
-            {totalQuestions || "—"}
-          </span>
+          <span className="text-xs uppercase tracking-wide text-neutral-500">Questions</span>
+          <span className="text-lg font-semibold text-neutral-800">{totalQuestions || "—"}</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs uppercase tracking-wide text-neutral-500">
-            Correct
-          </span>
-          <span className="text-lg font-semibold text-emerald-600">
-            {correctAnswers}
-          </span>
+          <span className="text-xs uppercase tracking-wide text-neutral-500">Correct</span>
+          <span className="text-lg font-semibold text-emerald-600">{correctAnswers}</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs uppercase tracking-wide text-neutral-500">
-            Time taken
-          </span>
-          <span className="text-lg font-semibold text-neutral-800">
-            {timeTakenLabel}
-          </span>
+          <span className="text-xs uppercase tracking-wide text-neutral-500">Time taken</span>
+          <span className="text-lg font-semibold text-neutral-800">{timeTakenLabel}</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs uppercase tracking-wide text-neutral-500">
-            Difficulty
-          </span>
+          <span className="text-xs uppercase tracking-wide text-neutral-500">Difficulty</span>
           <span className="text-lg font-semibold capitalize text-neutral-800">
             {session.difficulty}
           </span>
@@ -354,20 +312,15 @@ export const QuizResult = ({
 
       {/* Question review */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-neutral-800">
-          Question review
-        </h3>
+        <h3 className="text-lg font-semibold text-neutral-800">Question review</h3>
         <div className="max-h-80 space-y-3 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
           {session.questions.length === 0 ? (
-            <p className="text-sm text-neutral-500">
-              No questions found for this session.
-            </p>
+            <p className="text-sm text-neutral-500">No questions found for this session.</p>
           ) : (
             session.questions.map((q, index) => {
               const local = localQuestionAnswers?.[q.id];
               const isCorrect = local ? local.isCorrect : q.isCorrect === true;
-              const userAnswer =
-                local?.userAnswer ?? q.userAnswer ?? "No answer";
+              const userAnswer = local?.userAnswer ?? q.userAnswer ?? "No answer";
               return (
                 <div
                   key={q.id}
@@ -379,28 +332,20 @@ export const QuizResult = ({
                     </p>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                        isCorrect
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-rose-100 text-rose-700"
+                        isCorrect ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
                       }`}
                     >
                       {isCorrect ? "Correct" : "Incorrect"}
                     </span>
                   </div>
-                  <p
-                    className={`mt-1 text-xs ${isCorrect ? "text-emerald-700" : "text-rose-700"}`}
-                  >
-                    Your answer:{" "}
-                    <span className="font-semibold">{userAnswer}</span>
+                  <p className={`mt-1 text-xs ${isCorrect ? "text-emerald-700" : "text-rose-700"}`}>
+                    Your answer: <span className="font-semibold">{userAnswer}</span>
                   </p>
                   <p className="mt-1 text-xs text-neutral-700">
-                    Correct answer:{" "}
-                    <span className="font-semibold">{q.correctAnswer}</span>
+                    Correct answer: <span className="font-semibold">{q.correctAnswer}</span>
                   </p>
                   {q.explanation && (
-                    <p className="mt-1 text-xs text-neutral-500">
-                      Explanation: {q.explanation}
-                    </p>
+                    <p className="mt-1 text-xs text-neutral-500">Explanation: {q.explanation}</p>
                   )}
                 </div>
               );
@@ -420,12 +365,7 @@ export const QuizResult = ({
         >
           {tryAgainLoading ? "Starting…" : "Try Again"}
         </Button>
-        <Button
-          variant="primary"
-          size="lg"
-          className="flex-1"
-          onClick={handleNewQuiz}
-        >
+        <Button variant="primary" size="lg" className="flex-1" onClick={handleNewQuiz}>
           New Quiz
         </Button>
         <Button
