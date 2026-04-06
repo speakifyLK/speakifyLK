@@ -75,16 +75,21 @@ describe("export-course-content script", () => {
       private_key: "fake-key\\nnewlines",
     });
     process.argv = [...savedArgv.slice(0, 2)];
-    
+
     // Auto-invoke the nested orderBy callbacks to cover those lines in the original script
     mockFindMany.mockImplementation((opts: any) => {
       const mockAsc = vi.fn();
       if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
       if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
-      if (opts?.with?.units?.with?.lessons?.orderBy) opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
-      if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy) opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.orderBy)
+        opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
+        opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
       if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
-        opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy({}, { asc: mockAsc });
+        opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
+          {},
+          { asc: mockAsc }
+        );
       }
       return Promise.resolve([]);
     });
@@ -170,9 +175,7 @@ describe("export-course-content script", () => {
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [
-              { id: 1, title: "L", unitId: 1, order: 1, content: null, challenges: [] },
-            ],
+            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: null, challenges: [] }],
           },
         ],
       },
@@ -221,9 +224,7 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [
-              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
-            ],
+            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
           },
         ],
       },
@@ -249,9 +250,7 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [
-              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
-            ],
+            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
           },
         ],
       },
@@ -281,9 +280,7 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [
-              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
-            ],
+            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
           },
         ],
       },
@@ -313,9 +310,7 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [
-              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
-            ],
+            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
           },
         ],
       },
@@ -362,9 +357,7 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [
-              { id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] },
-            ],
+            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
           },
         ],
       },
