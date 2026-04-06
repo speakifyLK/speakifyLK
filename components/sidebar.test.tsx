@@ -41,10 +41,27 @@ describe("Sidebar", () => {
 
     expect(screen.getByText("Learn")).toBeInTheDocument();
     expect(screen.getByText("Quiz")).toBeInTheDocument();
+    expect(screen.getByText("Chat")).toBeInTheDocument();
     expect(screen.getByText("Leaderboard")).toBeInTheDocument();
     expect(screen.getByText("Quests")).toBeInTheDocument();
     expect(screen.getByText("Shop")).toBeInTheDocument();
-    expect(screen.getByText("Chat")).toBeInTheDocument();
+  });
+
+  it("renders sidebar items in correct order", () => {
+    render(<Sidebar />);
+
+    const links = screen.getAllByRole("link");
+    const navLabels = links
+      .map((l) => l.textContent?.trim())
+      .filter((t) => t && t !== "Speakify");
+    expect(navLabels).toEqual([
+      "Learn",
+      "Quiz",
+      "Chat",
+      "Leaderboard",
+      "Quests",
+      "Shop",
+    ]);
   });
 
   it("renders UserButton when clerk is loaded", () => {

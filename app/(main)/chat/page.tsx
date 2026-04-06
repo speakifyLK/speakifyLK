@@ -84,7 +84,7 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
           <h1 className="text-lg font-bold">AI Sinhala Tutor</h1>
           <div aria-hidden />
         </div>
-        <div className="h-[calc(100vh-140px)]">
+        <div className="h-[calc(100vh-180px)] lg:h-[calc(100vh-140px)]">
           <ChatClient
             initialMessages={activeConversation.messages.map(
               (msg: {
