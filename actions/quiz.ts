@@ -18,8 +18,10 @@ function calculateQuizCompletionXp(
 ): number {
   const baseXp = 10;
   const correctXp = correctAnswers * 2;
-  const difficultyBonus = difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
-  const perfectBonus = totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
+  const difficultyBonus =
+    difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
+  const perfectBonus =
+    totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
   return baseXp + correctXp + difficultyBonus + perfectBonus;
 }
 
@@ -109,7 +111,11 @@ function isAnswerCorrectLocal(
   }
 
   // Check against acceptable alternatives if they exist
-  if (options && typeof options === "object" && "acceptableAlternatives" in options) {
+  if (
+    options &&
+    typeof options === "object" &&
+    "acceptableAlternatives" in options
+  ) {
     const alternatives = options.acceptableAlternatives;
     if (Array.isArray(alternatives)) {
       for (const alt of alternatives) {
@@ -158,7 +164,8 @@ async function isAnswerCorrectAi(
   question: string,
   questionType: "fill_blank" | "translation"
 ): Promise<AiValidationResult> {
-  const typeLabel = questionType === "fill_blank" ? "fill-in-the-blank" : "translation";
+  const typeLabel =
+    questionType === "fill_blank" ? "fill-in-the-blank" : "translation";
   const prompt = `You are a Sinhala language expert validating a student's quiz answer.
 
 Question type: ${typeLabel}
@@ -182,13 +189,18 @@ A brief one-sentence explanation of why the student's specific answer is correct
       maxOutputTokens: 128,
     });
     const raw = (response.text ?? "").trim();
-    const firstLine = raw.split("\n")[0].trim().toUpperCase();
-    const explanation = raw.split("\n").slice(1).join(" ").trim() || undefined;
+    const lines = raw.split("\n");
+    // Strip leading/trailing punctuation & whitespace, then compare exactly
+    const verdict = lines[0]
+      .trim()
+      .toUpperCase()
+      .replace(/^[^A-Z]+|[^A-Z]+$/g, "");
+    const explanation = lines.slice(1).join(" ").trim() || undefined;
 
-    if (firstLine.includes("CORRECT") && !firstLine.includes("INCORRECT")) {
+    if (verdict === "CORRECT") {
       return { isCorrect: true, explanation };
     }
-    if (firstLine.includes("INCORRECT")) {
+    if (verdict === "INCORRECT") {
       return { isCorrect: false, explanation };
     }
     // Unparseable response — treat as failure
@@ -221,19 +233,34 @@ async function isAnswerCorrect(
   // For MCQ, local matching is authoritative — no AI needed
   if (questionType === "mcq") {
     return {
-      isCorrect: isAnswerCorrectLocal(userAnswer, correctAnswer, questionType, options),
+      isCorrect: isAnswerCorrectLocal(
+        userAnswer,
+        correctAnswer,
+        questionType,
+        options
+      ),
     };
   }
 
   // For fill_blank and translation, use AI as the primary validator
-  const aiResult = await isAnswerCorrectAi(userAnswer, correctAnswer, question, questionType);
+  const aiResult = await isAnswerCorrectAi(
+    userAnswer,
+    correctAnswer,
+    question,
+    questionType
+  );
 
   // If AI returned a definitive answer, use it (with explanation)
   if (aiResult !== null) return aiResult;
 
   // AI failed — fall back to local fuzzy matching as safety net
   return {
-    isCorrect: isAnswerCorrectLocal(userAnswer, correctAnswer, questionType, options),
+    isCorrect: isAnswerCorrectLocal(
+      userAnswer,
+      correctAnswer,
+      questionType,
+      options
+    ),
   };
 }
 
@@ -260,7 +287,10 @@ export async function createQuizSession(
 
   // Verify course exists and user has access
   const userProgressData = await getUserProgress();
-  if (!userProgressData?.activeCourseId || userProgressData.activeCourseId !== courseId) {
+  if (
+    !userProgressData?.activeCourseId ||
+    userProgressData.activeCourseId !== courseId
+  ) {
     throw new Error("Invalid course or access denied.");
   }
 
@@ -379,13 +409,18 @@ export type CompleteQuizSessionResult = {
  * Completes a quiz session, calculates final score, and awards XP.
  * Safe to call more than once: already-completed sessions are returned without re-awarding XP.
  */
-export async function completeQuizSession(sessionId: number): Promise<CompleteQuizSessionResult> {
+export async function completeQuizSession(
+  sessionId: number
+): Promise<CompleteQuizSessionResult> {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
   // Fetch the session
   const session = await db.query.aiQuizSessions.findFirst({
-    where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+    where: and(
+      eq(aiQuizSessions.id, sessionId),
+      eq(aiQuizSessions.userId, userId)
+    ),
   });
 
   if (!session) {
@@ -416,14 +451,19 @@ export async function completeQuizSession(sessionId: number): Promise<CompleteQu
       score: scorePercentage,
       completedAt: new Date(),
     })
-    .where(and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt)))
+    .where(
+      and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt))
+    )
     .returning();
 
   let result: CompleteQuizSessionResult;
 
   if (!completedSession) {
     const existing = await db.query.aiQuizSessions.findFirst({
-      where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+      where: and(
+        eq(aiQuizSessions.id, sessionId),
+        eq(aiQuizSessions.userId, userId)
+      ),
     });
     if (!existing) {
       throw new Error("Session not found or unauthorized.");
