@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 
 // ── Hoisted mocks ────────────────────────────────────────────────────
 const mockToastError = vi.hoisted(() => vi.fn());
@@ -20,13 +26,19 @@ vi.mock("@/components/chat/chat-window", () => ({
 }));
 
 vi.mock("@/components/chat/chat-bubble", () => ({
-  ChatBubble: ({ role, content }: any) => <div data-testid={`chat-bubble-${role}`}>{content}</div>,
+  ChatBubble: ({ role, content }: any) => (
+    <div data-testid={`chat-bubble-${role}`}>{content}</div>
+  ),
 }));
 
 vi.mock("@/components/chat/chat-input", () => ({
   ChatInput: ({ onSend, isLoading }: any) => (
     <div data-testid="chat-input" data-loading={isLoading}>
-      <button data-testid="send-btn" onClick={() => onSend("Hello")} disabled={isLoading}>
+      <button
+        data-testid="send-btn"
+        onClick={() => onSend("Hello")}
+        disabled={isLoading}
+      >
         Send
       </button>
       <button data-testid="send-sinhala-btn" onClick={() => onSend("ආයුබෝවන්")}>
@@ -73,7 +85,10 @@ function createMockFetchStream(text: string, ok = true, status = 200) {
   });
 }
 
-function createMockFetchError(status: number, errorBody: Record<string, any> = {}) {
+function createMockFetchError(
+  status: number,
+  errorBody: Record<string, any> = {}
+) {
   return vi.fn().mockResolvedValue({
     ok: false,
     status,
@@ -98,11 +113,6 @@ describe("ChatClient", () => {
   });
 
   // ── Rendering ────────────────────────────────────────────────────
-  it("renders the title", () => {
-    render(<ChatClient {...baseProps} />);
-    expect(screen.getByText("AI Sinhala Tutor")).toBeInTheDocument();
-  });
-
   it("renders initial messages", () => {
     render(<ChatClient {...baseProps} />);
     expect(screen.getByText("Hi there")).toBeInTheDocument();
@@ -228,7 +238,10 @@ describe("ChatClient", () => {
   // ── Hearts guard ─────────────────────────────────────────────────
   it("shows toast and prevents sending when hearts are 0", async () => {
     render(
-      <ChatClient {...baseProps} userProgress={{ points: 100, hearts: 0, activeCourseId: 1 }} />
+      <ChatClient
+        {...baseProps}
+        userProgress={{ points: 100, hearts: 0, activeCourseId: 1 }}
+      />
     );
 
     await act(async () => {
@@ -355,7 +368,11 @@ describe("ChatClient", () => {
   // ── No conversationId guard ──────────────────────────────────────
   it("does not send when conversationId is falsy", async () => {
     render(
-      <ChatClient initialMessages={[]} conversationId={0} userProgress={baseProps.userProgress} />
+      <ChatClient
+        initialMessages={[]}
+        conversationId={0}
+        userProgress={baseProps.userProgress}
+      />
     );
 
     await act(async () => {

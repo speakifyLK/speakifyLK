@@ -42,7 +42,7 @@ describe("ChatWindow", () => {
         <div />
       </ChatWindow>
     );
-    expect(screen.getByText("Sinhala Tutor Session")).toBeInTheDocument();
+    expect(screen.getByText("Sinhala Tutor")).toBeInTheDocument();
   });
 
   it("renders a back link to /learn", () => {
@@ -61,7 +61,12 @@ describe("ChatWindow", () => {
         <div />
       </ChatWindow>
     );
-    expect(screen.getByText("Start a conversation in Sinhala!")).toBeInTheDocument();
+    expect(
+      screen.getByText("Start a conversation in Sinhala!")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Your AI tutor is ready to help you practice")
+    ).toBeInTheDocument();
   });
 
   it("does not show empty state when isEmpty is false", () => {
@@ -70,7 +75,9 @@ describe("ChatWindow", () => {
         <div />
       </ChatWindow>
     );
-    expect(screen.queryByText("Start a conversation in Sinhala!")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Start a conversation in Sinhala!")
+    ).not.toBeInTheDocument();
   });
 
   it("shows typing indicator when isTyping is true", () => {
@@ -106,7 +113,9 @@ describe("ChatWindow", () => {
         <div />
       </ChatWindow>
     );
-    expect(screen.getByText("Start a conversation in Sinhala!")).toBeInTheDocument();
+    expect(
+      screen.getByText("Start a conversation in Sinhala!")
+    ).toBeInTheDocument();
     expect(screen.getByText("Tutor is typing...")).toBeInTheDocument();
   });
 
@@ -118,7 +127,9 @@ describe("ChatWindow", () => {
     );
 
     // Verify the viewport element exists in the DOM
-    const viewport = container.querySelector("[data-radix-scroll-area-viewport]");
+    const viewport = container.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    );
     expect(viewport).not.toBeNull();
 
     // scrollTo should have been called via Element.prototype.scrollTo mock

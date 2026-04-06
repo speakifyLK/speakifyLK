@@ -9,6 +9,7 @@ const mockRedirect = vi.hoisted(() =>
 );
 const mockAuth = vi.hoisted(() => vi.fn());
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
+const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetConversations = vi.hoisted(() => vi.fn());
 const mockGetConversationById = vi.hoisted(() => vi.fn());
 const mockGetOrCreateConversation = vi.hoisted(() => vi.fn());
@@ -31,6 +32,7 @@ vi.mock("@clerk/nextjs/server", () => ({
 
 vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
+  getUserSubscription: mockGetUserSubscription,
   getConversations: mockGetConversations,
   getConversationById: mockGetConversationById,
 }));
@@ -60,6 +62,31 @@ vi.mock("@/components/chat/conversation-list", () => ({
           {c.title}
         </span>
       ))}
+    </div>
+  ),
+}));
+
+vi.mock("@/components/sticky-wrapper", () => ({
+  StickyWrapper: ({ children }: any) => (
+    <div data-testid="sticky-wrapper">{children}</div>
+  ),
+}));
+
+vi.mock("@/components/feed-wrapper", () => ({
+  FeedWrapper: ({ children }: any) => (
+    <div data-testid="feed-wrapper">{children}</div>
+  ),
+}));
+
+vi.mock("@/components/user-progress", () => ({
+  UserProgress: ({ points, hearts, hasActiveSubscription }: any) => (
+    <div
+      data-testid="user-progress"
+      data-points={points}
+      data-hearts={hearts}
+      data-pro={hasActiveSubscription}
+    >
+      UserProgress
     </div>
   ),
 }));
@@ -99,15 +126,15 @@ describe("ChatPage", () => {
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });
-    // suppress console.log from the page
-    vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   it("redirects to /sign-in when not authenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/sign-in");
   });
 
@@ -117,9 +144,12 @@ describe("ChatPage", () => {
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(null);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/courses");
   });
 
@@ -132,9 +162,12 @@ describe("ChatPage", () => {
       ...userProgress,
       activeCourse: null,
     });
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/courses");
   });
 
@@ -144,23 +177,29 @@ describe("ChatPage", () => {
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(null);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/chat");
   });
 
-  it("renders the chat page with conversation list and client", async () => {
+  it("renders the chat page with StickyWrapper and FeedWrapper", async () => {
     mockAuth.mockResolvedValue({ userId: "user_123" });
     mockGetOrCreateConversation.mockResolvedValue(42);
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
     const jsx = await Page({ searchParams: Promise.resolve({}) });
     render(jsx);
 
+    expect(screen.getByTestId("sticky-wrapper")).toBeInTheDocument();
+    expect(screen.getByTestId("feed-wrapper")).toBeInTheDocument();
     expect(screen.getByTestId("conversation-list")).toBeInTheDocument();
     expect(screen.getByTestId("chat-client")).toBeInTheDocument();
   });
@@ -171,6 +210,7 @@ describe("ChatPage", () => {
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
     const jsx = await Page({ searchParams: Promise.resolve({}) });
@@ -186,12 +226,12 @@ describe("ChatPage", () => {
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
     const jsx = await Page({ searchParams: Promise.resolve({ id: "42" }) });
     render(jsx);
 
-    // When id is in searchParams, getOrCreateConversation should NOT be called
     expect(mockGetOrCreateConversation).not.toHaveBeenCalled();
     expect(mockGetConversationById).toHaveBeenCalledWith(42);
   });
@@ -202,6 +242,7 @@ describe("ChatPage", () => {
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
     const jsx = await Page({ searchParams: Promise.resolve({}) });
@@ -216,12 +257,16 @@ describe("ChatPage", () => {
     mockGetConversations.mockResolvedValue(conversations);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
     const jsx = await Page({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    expect(screen.getByTestId("conversation-list")).toHaveAttribute("data-count", "2");
+    expect(screen.getByTestId("conversation-list")).toHaveAttribute(
+      "data-count",
+      "2"
+    );
   });
 
   it("falls back to 'New Conversation' when conversation title is null", async () => {
@@ -233,12 +278,68 @@ describe("ChatPage", () => {
     ]);
     mockGetConversationById.mockResolvedValue(activeConversation);
     mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
     const jsx = await Page({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    expect(screen.getByTestId("conv-title-42")).toHaveTextContent("New Conversation");
+    expect(screen.getByTestId("conv-title-42")).toHaveTextContent(
+      "New Conversation"
+    );
     expect(screen.getByTestId("conv-title-43")).toHaveTextContent("Convo 43");
+  });
+
+  it("renders UserProgress and ConversationList in the StickyWrapper", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_123" });
+    mockGetOrCreateConversation.mockResolvedValue(42);
+    mockGetConversations.mockResolvedValue(conversations);
+    mockGetConversationById.mockResolvedValue(activeConversation);
+    mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const stickyWrapper = screen.getByTestId("sticky-wrapper");
+    expect(stickyWrapper).toContainElement(screen.getByTestId("user-progress"));
+    expect(stickyWrapper).toContainElement(
+      screen.getByTestId("conversation-list")
+    );
+  });
+
+  it("passes correct props to UserProgress", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_123" });
+    mockGetOrCreateConversation.mockResolvedValue(42);
+    mockGetConversations.mockResolvedValue(conversations);
+    mockGetConversationById.mockResolvedValue(activeConversation);
+    mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const el = screen.getByTestId("user-progress");
+    expect(el).toHaveAttribute("data-points", "100");
+    expect(el).toHaveAttribute("data-hearts", "5");
+    expect(el).toHaveAttribute("data-pro", "false");
+  });
+
+  it("sets isPro to true when user has active subscription", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_123" });
+    mockGetOrCreateConversation.mockResolvedValue(42);
+    mockGetConversations.mockResolvedValue(conversations);
+    mockGetConversationById.mockResolvedValue(activeConversation);
+    mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue({ isActive: true });
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const el = screen.getByTestId("user-progress");
+    expect(el).toHaveAttribute("data-pro", "true");
   });
 });

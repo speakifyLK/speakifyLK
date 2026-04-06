@@ -35,7 +35,11 @@ interface ChatClientProps {
   userProgress: UserProgress;
 }
 
-export const ChatClient = ({ initialMessages, conversationId, userProgress }: ChatClientProps) => {
+export const ChatClient = ({
+  initialMessages,
+  conversationId,
+  userProgress,
+}: ChatClientProps) => {
   const [messages, setMessages] = useState(initialMessages);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -57,7 +61,10 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
     setIsGenerating(true);
 
     // Add a placeholder assistant message for the stream to fill
-    setMessages((prev) => [...prev, { role: "assistant", content: "", timestamp: new Date() }]);
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: "", timestamp: new Date() },
+    ]);
 
     try {
       const response = await fetch("/api/chat", {
@@ -140,7 +147,8 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
 
     if (userProgress && userProgress.hearts === 0) {
       toast.error("You have no hearts left!", {
-        description: "Visit the shop to refill your hearts and continue practicing.",
+        description:
+          "Visit the shop to refill your hearts and continue practicing.",
       });
       return;
     }
@@ -159,9 +167,7 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-40px)] max-w-4xl flex-col overflow-hidden px-4 pb-0 pt-4">
-      <h1 className="mb-2 text-center text-2xl font-bold">AI Sinhala Tutor</h1>
-
+    <div className="flex h-full flex-col overflow-hidden">
       <ChatWindow isEmpty={messages.length === 0} isTyping={isGenerating}>
         <div className="flex flex-col gap-y-2">
           {messages.map((msg, index) => (
@@ -175,9 +181,7 @@ export const ChatClient = ({ initialMessages, conversationId, userProgress }: Ch
         </div>
       </ChatWindow>
 
-      <div className="mt-auto">
-        <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
-      </div>
+      <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
     </div>
   );
 };
