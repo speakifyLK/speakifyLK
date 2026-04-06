@@ -23,19 +23,13 @@ vi.mock("@/db/queries", () => ({
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => (
-    <div data-testid="feed-wrapper">{children}</div>
-  ),
+  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => (
-    <div data-testid="sticky-wrapper">{children}</div>
-  ),
+  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => (
-    <div data-testid="user-progress">{JSON.stringify(props)}</div>
-  ),
+  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/quests", () => ({
   Quests: ({ points }: any) => <div data-testid="quests">Quests: {points}</div>,
@@ -106,9 +100,7 @@ describe("ShopPage", () => {
     render(jsx);
 
     expect(screen.getByText("Shop")).toBeInTheDocument();
-    expect(
-      screen.getByText("Spend your points on cool stuff.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Spend your points on cool stuff.")).toBeInTheDocument();
     expect(screen.getByAltText("Shop")).toBeInTheDocument();
     expect(screen.getByTestId("items")).toBeInTheDocument();
   });
