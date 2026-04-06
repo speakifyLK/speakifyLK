@@ -1,11 +1,15 @@
 "use client";
 
 import { MessageCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export const ChatButton = () => {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Hide the floating chat button when already on the chat page
+  if (pathname === "/chat") return null;
 
   const handleClick = () => {
     router.push("/chat");

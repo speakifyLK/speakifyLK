@@ -56,7 +56,6 @@ speakify/
     |-- (marketing)/
     |-- admin/
     |-- api/
-    |-- chat/
     |-- lesson/
     |-- apple-icon.png
     |-- favicon.ico
