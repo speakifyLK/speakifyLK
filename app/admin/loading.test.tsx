@@ -10,7 +10,7 @@ vi.mock("@/components/loader", () => ({
 
 import Loading from "./loading";
 
-describe("Quiz Loading", () => {
+describe("Admin Loading", () => {
   it("renders without errors", () => {
     const { container } = render(<Loading />);
     expect(container.firstElementChild).toBeInTheDocument();
