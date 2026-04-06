@@ -124,6 +124,6 @@ body,
 @media (prefers-reduced-motion: reduce) {
   .speakify-loader::before,
   .speakify-loader::after {
-    animation-duration: 3s;
+    animation: none;
   }
 }

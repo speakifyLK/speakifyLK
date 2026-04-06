@@ -1,9 +1,14 @@
 import type { HTMLAttributes } from "react";
 
-export const Loader = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => {
+import { cn } from "@/lib/utils";
+
+export const Loader = ({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
-      className={["speakify-loader", className].filter(Boolean).join(" ")}
+      className={cn("speakify-loader", className)}
       role="status"
       aria-label="Loading"
       {...props}

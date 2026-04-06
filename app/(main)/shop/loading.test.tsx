@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import type { ComponentPropsWithoutRef } from "react";
 
 vi.mock("@/components/loader", () => ({
-  Loader: (props: Record<string, unknown>) => (
+  Loader: (props: ComponentPropsWithoutRef<"div">) => (
     <div data-testid="custom-loader" className="speakify-loader" {...props} />
   ),
 }));
