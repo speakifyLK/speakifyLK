@@ -31,8 +31,7 @@ function loadEnv() {
   dotenv.config({ path: ".env.local", override: true });
 }
 
-const getHash = (content: string) =>
-  crypto.createHash("md5").update(content).digest("hex");
+const getHash = (content: string) => crypto.createHash("md5").update(content).digest("hex");
 
 const formatContent = (course: any, unit: any, lesson: any) => {
   let contentText = "";
@@ -40,9 +39,7 @@ const formatContent = (course: any, unit: any, lesson: any) => {
     const challengeTexts = lesson.challenges.map((c: any) => {
       let text = `Challenge: ${c.question} (Type: ${c.type})`;
       if (c.challengeOptions && c.challengeOptions.length > 0) {
-        const optionsText = c.challengeOptions
-          .map((opt: any) => `  - ${opt.text}`)
-          .join("\n");
+        const optionsText = c.challengeOptions.map((opt: any) => `  - ${opt.text}`).join("\n");
         text += `\nOptions:\n${optionsText}`;
       }
       return text;
@@ -122,9 +119,7 @@ async function exportContent() {
   });
 
   const BUCKET_NAME =
-    process.env.RAG_CONTENT_BUCKET ||
-    process.env.GCS_BUCKET_NAME ||
-    "speakifylk-rag-content";
+    process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
   const bucket = storage.bucket(BUCKET_NAME);
   const limit = pLimit(5);
 
@@ -154,9 +149,7 @@ async function exportContent() {
                   orderBy: (challenges, { asc }) => [asc(challenges.order)],
                   with: {
                     challengeOptions: {
-                      orderBy: (challengeOptions, { asc }) => [
-                        asc(challengeOptions.id),
-                      ],
+                      orderBy: (challengeOptions, { asc }) => [asc(challengeOptions.id)],
                     },
                   },
                 },
@@ -228,10 +221,7 @@ async function exportContent() {
       console.log("This was a dry run. No actions were taken.");
     }
   } catch (error) {
-    console.error(
-      "Process Failed:",
-      error instanceof Error ? error.message : error
-    );
+    console.error("Process Failed:", error instanceof Error ? error.message : error);
     process.exit(1);
   }
 }
@@ -241,9 +231,7 @@ export function isExecutedAsCli(): boolean {
   const runPath = process.argv[1];
   if (!runPath) return false;
   try {
-    return (
-      path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url))
-    );
+    return path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url));
   } catch {
     /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
     return false;
@@ -253,10 +241,7 @@ export function isExecutedAsCli(): boolean {
 /* v8 ignore start -- CLI entry point; only runs when executed directly, not importable in tests */
 if (isExecutedAsCli()) {
   exportContent().catch((error) => {
-    console.error(
-      "Process Failed:",
-      error instanceof Error ? error.message : error
-    );
+    console.error("Process Failed:", error instanceof Error ? error.message : error);
     process.exit(1);
   });
 }
