@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/loader";
 import { units as unitsTable } from "@/db/schema";
 import {
   computeAdaptiveDifficultyRecommendation,
@@ -30,7 +31,11 @@ type QuizConfigProps = {
 
 type QuestionType = "mcq" | "fill_blank" | "translation";
 
-export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProps) => {
+export const QuizConfig = ({
+  units,
+  basePath,
+  quizHistory = [],
+}: QuizConfigProps) => {
   const router = useRouter();
   const [selectedTopic, setSelectedTopic] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("beginner");
@@ -43,7 +48,9 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
   const [isLoading, setIsLoading] = useState(false);
 
   const adaptiveRecommendation = useQuizStore((s) => s.adaptiveRecommendation);
-  const setAdaptiveRecommendation = useQuizStore((s) => s.setAdaptiveRecommendation);
+  const setAdaptiveRecommendation = useQuizStore(
+    (s) => s.setAdaptiveRecommendation
+  );
 
   useEffect(() => {
     if (selectedTopic == null) {
@@ -58,7 +65,11 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
     // Use the difficulty the user last played for this topic as the baseline so the
     // recommendation stays stable when the user manually clicks different difficulty buttons.
     const baseline = getBaselineDifficulty(quizHistory, unit.title);
-    const rec = computeAdaptiveDifficultyRecommendation(quizHistory, unit.title, baseline);
+    const rec = computeAdaptiveDifficultyRecommendation(
+      quizHistory,
+      unit.title,
+      baseline
+    );
     setAdaptiveRecommendation(rec);
   }, [selectedTopic, quizHistory, units, setAdaptiveRecommendation]);
 
@@ -167,16 +178,32 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
         throw new Error("Failed to start quiz: missing session ID");
       }
       toast.success("Quiz generated successfully!");
-      router.push(`${basePath || "/quiz"}?sessionId=${encodeURIComponent(String(sessionId))}`);
+      router.push(
+        `${basePath || "/quiz"}?sessionId=${encodeURIComponent(String(sessionId))}`
+      );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to start quiz");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to start quiz"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6">
+    <div className="relative flex flex-col gap-8 p-6">
+      {/* Loading overlay while quiz is being generated */}
+      {isLoading && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-xl bg-white/80 backdrop-blur-sm">
+          <Loader />
+          <p className="text-lg font-bold text-neutral-700">
+            Generating your quiz...
+          </p>
+          <p className="text-sm text-muted-foreground">
+            This may take a few seconds
+          </p>
+        </div>
+      )}
       {/* Topic Selector Grid */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Select Topic</h2>
@@ -193,7 +220,11 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
               onKeyDown={(e) => {
                 if (selectedTopic === null && units.length > 0) {
                   // If nothing is selected, start with first item
-                  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "Home") {
+                  if (
+                    e.key === "ArrowRight" ||
+                    e.key === "ArrowDown" ||
+                    e.key === "Home"
+                  ) {
                     e.preventDefault();
                     setSelectedTopic(units[0].id);
                   } else if (e.key === "End") {
@@ -212,7 +243,10 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
                 /* v8 ignore stop */
               }}
               tabIndex={
-                selectedTopic === unit.id || (selectedTopic === null && index === 0) ? 0 : -1
+                selectedTopic === unit.id ||
+                (selectedTopic === null && index === 0)
+                  ? 0
+                  : -1
               }
               className={`flex flex-col items-start justify-between rounded-xl border-2 border-b-4 p-4 text-left transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 selectedTopic === unit.id
@@ -221,8 +255,12 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
               } active:border-b-2`}
             >
               <div className="w-full">
-                <h3 className="text-lg font-bold text-neutral-700">{unit.title}</h3>
-                <p className="mt-1 text-sm text-neutral-500">{unit.description}</p>
+                <h3 className="text-lg font-bold text-neutral-700">
+                  {unit.title}
+                </h3>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {unit.description}
+                </p>
               </div>
               <div className="mt-4 text-sm font-semibold text-neutral-600">
                 {unit.lessons.length} lesson
@@ -235,7 +273,9 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
 
       {/* Difficulty Picker */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-neutral-700">Difficulty Level</h2>
+        <h2 className="text-2xl font-bold text-neutral-700">
+          Difficulty Level
+        </h2>
         {adaptiveRecommendation &&
           selectedTopic != null &&
           units.find((u) => u.id === selectedTopic)?.title.trim() ===
@@ -247,7 +287,9 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
               <p className="text-sm font-medium leading-relaxed md:text-base">
                 Based on your performance, we recommend{" "}
                 <span className="rounded-md bg-amber-200/80 px-1.5 py-0.5 font-bold text-amber-950">
-                  {adaptiveRecommendation.recommendedDifficulty.charAt(0).toUpperCase() +
+                  {adaptiveRecommendation.recommendedDifficulty
+                    .charAt(0)
+                    .toUpperCase() +
                     adaptiveRecommendation.recommendedDifficulty.slice(1)}
                 </span>{" "}
                 difficulty for{" "}
@@ -263,55 +305,63 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
           role="group"
           aria-label="Select difficulty level"
         >
-          {(["beginner", "intermediate", "advanced"] as Difficulty[]).map((level) => (
-            <button
-              key={level}
-              onClick={() => setDifficulty(level)}
-              aria-pressed={difficulty === level}
-              onKeyDown={(e) =>
-                handleButtonGroupKeyDown(
-                  e,
-                  [
-                    { value: "beginner" as Difficulty },
-                    { value: "intermediate" as Difficulty },
-                    { value: "advanced" as Difficulty },
-                  ],
-                  difficulty,
-                  setDifficulty
-                )
-              }
-              tabIndex={difficulty === level ? 0 : -1}
-              className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                level === "beginner"
-                  ? difficulty === level
-                    ? "border-green-500 bg-green-500 text-white focus:ring-green-500"
-                    : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
-                  : level === "intermediate"
+          {(["beginner", "intermediate", "advanced"] as Difficulty[]).map(
+            (level) => (
+              <button
+                key={level}
+                onClick={() => setDifficulty(level)}
+                aria-pressed={difficulty === level}
+                onKeyDown={(e) =>
+                  handleButtonGroupKeyDown(
+                    e,
+                    [
+                      { value: "beginner" as Difficulty },
+                      { value: "intermediate" as Difficulty },
+                      { value: "advanced" as Difficulty },
+                    ],
+                    difficulty,
+                    setDifficulty
+                  )
+                }
+                tabIndex={difficulty === level ? 0 : -1}
+                className={`flex flex-col items-center justify-center rounded-xl border-2 border-b-4 p-6 text-center transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  level === "beginner"
                     ? difficulty === level
-                      ? "border-yellow-500 bg-yellow-500 text-white focus:ring-yellow-500"
-                      : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
-                    : difficulty === level
-                      ? "border-red-500 bg-red-500 text-white focus:ring-red-500"
-                      : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
-              } active:border-b-2`}
-            >
-              <span className="text-xl font-bold capitalize">{level}</span>
-              <span className="mt-2 text-sm">
-                {level === "beginner"
-                  ? "Simple vocabulary and basic phrases"
-                  : level === "intermediate"
-                    ? "Sentence construction and grammar"
-                    : "Complex conversations and idioms"}
-              </span>
-            </button>
-          ))}
+                      ? "border-green-500 bg-green-500 text-white focus:ring-green-500"
+                      : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
+                    : level === "intermediate"
+                      ? difficulty === level
+                        ? "border-yellow-500 bg-yellow-500 text-white focus:ring-yellow-500"
+                        : "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+                      : difficulty === level
+                        ? "border-red-500 bg-red-500 text-white focus:ring-red-500"
+                        : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
+                } active:border-b-2`}
+              >
+                <span className="text-xl font-bold capitalize">{level}</span>
+                <span className="mt-2 text-sm">
+                  {level === "beginner"
+                    ? "Simple vocabulary and basic phrases"
+                    : level === "intermediate"
+                      ? "Sentence construction and grammar"
+                      : "Complex conversations and idioms"}
+                </span>
+              </button>
+            )
+          )}
         </div>
       </div>
 
       {/* Question Count Selector */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-neutral-700">Number of Questions</h2>
-        <div className="flex gap-4" role="group" aria-label="Select number of questions">
+        <h2 className="text-2xl font-bold text-neutral-700">
+          Number of Questions
+        </h2>
+        <div
+          className="flex gap-4"
+          role="group"
+          aria-label="Select number of questions"
+        >
           {[5, 10, 15].map((count) => (
             <button
               key={count}
@@ -327,7 +377,7 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
                 )
               }
               tabIndex={questionCount === count ? 0 : -1}
-              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 ${
+              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 questionCount === count
                   ? "border-sky-500 bg-sky-500 text-white"
                   : "border-slate-200 bg-white text-neutral-700 hover:bg-slate-50"
@@ -359,7 +409,9 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
               onChange={() => toggleQuestionType("fill_blank")}
               className="h-5 w-5 rounded border-2 border-slate-300 text-green-500 focus:ring-2 focus:ring-green-500"
             />
-            <span className="text-lg font-semibold text-neutral-700">Fill-in-the-blank</span>
+            <span className="text-lg font-semibold text-neutral-700">
+              Fill-in-the-blank
+            </span>
           </label>
           <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-slate-200 p-4 hover:bg-slate-50">
             <input
@@ -368,7 +420,9 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
               onChange={() => toggleQuestionType("translation")}
               className="h-5 w-5 rounded border-2 border-slate-300 text-green-500 focus:ring-2 focus:ring-green-500"
             />
-            <span className="text-lg font-semibold text-neutral-700">Translation</span>
+            <span className="text-lg font-semibold text-neutral-700">
+              Translation
+            </span>
           </label>
         </div>
       </div>

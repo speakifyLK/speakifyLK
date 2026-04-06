@@ -52,7 +52,8 @@ const McqOptions = ({
     {options.map((opt, idx) => {
       const isSelected = selectedAnswer === opt.text;
 
-      let variant: "default" | "primary" | "secondary" | "danger" | "locked" = "default";
+      let variant: "default" | "primary" | "secondary" | "danger" | "locked" =
+        "default";
 
       if (isSubmitted) {
         if (opt.isCorrect)
@@ -103,7 +104,10 @@ const FillInBlankInput = ({
   const [showHint, setShowHint] = useState(false);
 
   // Replace underscores / blank placeholder with a visible gap
-  const displaySentence = sentence.replace(/_{2,}|\[blank\]|\[___\]/gi, " _______ ");
+  const displaySentence = sentence.replace(
+    /_{2,}|\[blank\]|\[___\]/gi,
+    " _______ "
+  );
 
   return (
     <div className="space-y-4">
@@ -119,7 +123,7 @@ const FillInBlankInput = ({
         onChange={(e) => !isSubmitted && onChange(e.target.value)}
         disabled={isSubmitted}
         placeholder="Type your answer here…"
-        className="w-full rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-green-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       />
 
       {/* Hint button */}
@@ -128,7 +132,7 @@ const FillInBlankInput = ({
           <button
             type="button"
             onClick={() => setShowHint((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600 transition-colors hover:text-amber-700"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-600 transition-colors hover:text-green-700"
           >
             <Lightbulb className="h-4 w-4" />
             {showHint ? "Hide hint" : "Show hint"}
@@ -168,7 +172,9 @@ const TranslationInput = ({
         <span className="mb-2 inline-block rounded-full bg-indigo-200 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-indigo-700">
           {LANGUAGE_LABELS[sourceLanguage.toLowerCase()] ?? sourceLanguage}
         </span>
-        <p className="mt-2 text-lg font-medium leading-relaxed text-neutral-800">{sourceText}</p>
+        <p className="mt-2 text-lg font-medium leading-relaxed text-neutral-800">
+          {sourceText}
+        </p>
       </div>
 
       {/* Translation textarea */}
@@ -184,7 +190,7 @@ const TranslationInput = ({
           placeholder="Type your translation here…"
           aria-label="Type your translation"
           rows={3}
-          className="w-full resize-none rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full resize-none rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-green-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         />
         <span
           className={cn(
@@ -240,7 +246,11 @@ const ExplanationPanel = ({
               <Info className="h-5 w-5" />
               <span className="text-base">AI Explanation</span>
             </span>
-            {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            {isOpen ? (
+              <ChevronUp className="h-5 w-5" />
+            ) : (
+              <ChevronDown className="h-5 w-5" />
+            )}
           </button>
 
           {isOpen && (
@@ -250,14 +260,20 @@ const ExplanationPanel = ({
             >
               <div className="mb-4 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-neutral-700">Correct Answer:</span>
+                  <span className="font-semibold text-neutral-700">
+                    Correct Answer:
+                  </span>
                   <span className="rounded bg-green-100 px-2 py-1 font-medium text-green-700">
                     {correctAnswer}
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-neutral-700">Your Answer:</span>
-                  <span className="text-rose-600 line-through">{userAnswer}</span>
+                  <span className="font-semibold text-neutral-700">
+                    Your Answer:
+                  </span>
+                  <span className="text-rose-600 line-through">
+                    {userAnswer}
+                  </span>
                 </div>
               </div>
 
@@ -328,7 +344,9 @@ export const QuizCard = ({
     question.options &&
     typeof question.options === "object" &&
     "sourceLanguage" in question.options
-      ? String((question.options as { sourceLanguage?: string }).sourceLanguage ?? "")
+      ? String(
+          (question.options as { sourceLanguage?: string }).sourceLanguage ?? ""
+        )
       : "Sinhala";
 
   const handleSubmit = () => {
@@ -350,7 +368,9 @@ export const QuizCard = ({
         }
         onAnswerSubmittedAction?.(result.isCorrect);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to submit answer.");
+        toast.error(
+          error instanceof Error ? error.message : "Failed to submit answer."
+        );
       }
     });
   };
@@ -373,7 +393,9 @@ export const QuizCard = ({
     <div className="space-y-6">
       {/* ── Question text ── */}
       {question.type !== "fill_blank" && question.type !== "translation" && (
-        <h2 className="text-2xl font-bold text-neutral-800">{question.question}</h2>
+        <h2 className="text-2xl font-bold text-neutral-800">
+          {question.question}
+        </h2>
       )}
 
       {/* ── Type-specific input ── */}
@@ -432,13 +454,11 @@ export const QuizCard = ({
         <Button
           onClick={handleNextClick}
           disabled={(!isCorrect && !explanationAcknowledged) || isNextPending}
+          variant={
+            !isCorrect && !explanationAcknowledged ? "locked" : "primary"
+          }
           size="lg"
-          className={cn(
-            "h-14 w-full text-lg font-bold transition-all",
-            !isCorrect && !explanationAcknowledged
-              ? "cursor-not-allowed bg-slate-200 text-slate-400"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-          )}
+          className="h-14 w-full text-lg font-bold"
         >
           {isLastQuestion ? "Complete Quiz" : "Next Question"}
         </Button>

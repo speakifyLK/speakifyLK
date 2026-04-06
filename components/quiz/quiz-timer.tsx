@@ -107,7 +107,12 @@ export const QuizTimer = ({
     <div className="flex items-center justify-center gap-8">
       {/* Circular Countdown Timer */}
       <div className="relative flex items-center justify-center">
-        <svg className="-rotate-90 transform" width="120" height="120" viewBox="0 0 120 120">
+        <svg
+          className="-rotate-90 transform"
+          width="120"
+          height="120"
+          viewBox="0 0 120 120"
+        >
           {/* Background circle */}
           <circle
             cx="60"
@@ -134,14 +139,16 @@ export const QuizTimer = ({
         </svg>
         {/* Time text in center */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-3xl font-bold ${getColor()}`}>{timeRemaining}</span>
+          <span className={`text-3xl font-bold ${getColor()}`}>
+            {timeRemaining}
+          </span>
         </div>
       </div>
 
       {/* Score Indicator */}
       <div className="flex flex-col items-center gap-2">
         <div className="text-sm font-medium text-neutral-600">Score</div>
-        <div className="text-4xl font-bold text-sky-600">
+        <div className="text-4xl font-bold text-green-600">
           {score}/{totalQuestions}
         </div>
       </div>
