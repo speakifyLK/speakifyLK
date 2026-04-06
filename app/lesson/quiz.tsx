@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { reduceHearts } from "@/actions/user-progress";
 import { MAX_HEARTS } from "@/constants";
 import { challengeOptions, challenges, userSubscription } from "@/db/schema";
+import { cn, shuffleArray } from "@/lib/utils";
 import { useHeartsModal } from "@/store/use-hearts-modal";
 import { usePracticeModal } from "@/store/use-practice-modal";
 
@@ -79,7 +80,9 @@ export const Quiz = ({
   const [status, setStatus] = useState<"none" | "wrong" | "correct">("none");
 
   const challenge = challenges[activeIndex];
-  const options = challenge?.challengeOptions ?? [];
+  const options = useMemo(() => {
+    return shuffleArray(challenge?.challengeOptions ?? []);
+  }, [challenge]);
 
   const onNext = () => {
     setActiveIndex((current) => current + 1);
