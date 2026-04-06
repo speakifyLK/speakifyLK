@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import type { ComponentPropsWithoutRef } from "react";
 
-vi.mock("lucide-react", () => ({
-  Loader: (props: any) => <div data-testid="loader" {...props} />,
+vi.mock("@/components/loader", () => ({
+  Loader: (props: ComponentPropsWithoutRef<"div">) => (
+    <div data-testid="custom-loader" className="speakify-loader" {...props} />
+  ),
 }));
 
 import Loading from "./loading";
@@ -13,11 +16,11 @@ describe("Learn Loading", () => {
     expect(container.firstElementChild).toBeInTheDocument();
   });
 
-  it("renders the spinner with correct classes", () => {
+  it("renders the custom loader", () => {
     render(<Loading />);
-    const loader = screen.getByTestId("loader");
+    const loader = screen.getByTestId("custom-loader");
     expect(loader).toBeInTheDocument();
-    expect(loader).toHaveClass("h-6", "w-6", "animate-spin", "text-muted-foreground");
+    expect(loader).toHaveClass("speakify-loader");
   });
 
   it("has a centered container", () => {

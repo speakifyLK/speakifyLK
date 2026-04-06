@@ -80,3 +80,50 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom loading spinner */
+.speakify-loader {
+  --loader-size: 50px;
+  --loader-dot-size: 12px;
+  --loader-inner-dot-size: 8px;
+  --loader-inner-margin: 4px;
+  --loader-color: hsl(var(--primary, 222.2 47.4% 11.2%));
+
+  width: var(--loader-size);
+  aspect-ratio: 1;
+  display: grid;
+}
+
+.speakify-loader::before,
+.speakify-loader::after {
+  content: "";
+  grid-area: 1/1;
+  --c: no-repeat radial-gradient(farthest-side, var(--loader-color) 92%, #0000);
+  background:
+    var(--c) 50% 0,
+    var(--c) 50% 100%,
+    var(--c) 100% 50%,
+    var(--c) 0 50%;
+  background-size: var(--loader-dot-size) var(--loader-dot-size);
+  animation: speakify-spin 1s infinite;
+}
+
+.speakify-loader::before {
+  margin: var(--loader-inner-margin);
+  filter: hue-rotate(45deg);
+  background-size: var(--loader-inner-dot-size) var(--loader-inner-dot-size);
+  animation-timing-function: linear;
+}
+
+@keyframes speakify-spin {
+  100% {
+    transform: rotate(0.5turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .speakify-loader::before,
+  .speakify-loader::after {
+    animation: none;
+  }
+}

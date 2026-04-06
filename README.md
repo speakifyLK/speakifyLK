@@ -72,6 +72,8 @@ speakify/
     |-- ui/
     |-- feed-wrapper.test.tsx
     |-- feed-wrapper.tsx
+    |-- loader.test.tsx
+    |-- loader.tsx
     |-- mobile-header.test.tsx
     |-- mobile-header.tsx
     |-- mobile-sidebar.test.tsx
