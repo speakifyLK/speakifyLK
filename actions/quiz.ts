@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import db from "@/db/drizzle";
 import { getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions, userProgress } from "@/db/schema";
+import { generateContent } from "@/lib/gemini";
 
 type QuizDifficulty = (typeof aiQuizSessions.$inferSelect)["difficulty"];
 
@@ -17,8 +18,10 @@ function calculateQuizCompletionXp(
 ): number {
   const baseXp = 10;
   const correctXp = correctAnswers * 2;
-  const difficultyBonus = difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
-  const perfectBonus = totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
+  const difficultyBonus =
+    difficulty === "intermediate" ? 5 : difficulty === "advanced" ? 10 : 0;
+  const perfectBonus =
+    totalQuestions > 0 && correctAnswers === totalQuestions ? 20 : 0;
   return baseXp + correctXp + difficultyBonus + perfectBonus;
 }
 
@@ -84,9 +87,10 @@ function getLevenshteinThreshold(str: string): number {
 
 /**
  * Checks if user answer matches correct answer or any acceptable alternative
- * using fuzzy matching for FILL_IN_BLANK and TRANSLATION types
+ * using fuzzy matching for FILL_IN_BLANK and TRANSLATION types.
+ * Returns { isCorrect, usedAi } so the caller knows whether AI was consulted.
  */
-function isAnswerCorrect(
+function isAnswerCorrectLocal(
   userAnswer: string,
   correctAnswer: string,
   questionType: "mcq" | "fill_blank" | "translation",
@@ -107,7 +111,11 @@ function isAnswerCorrect(
   }
 
   // Check against acceptable alternatives if they exist
-  if (options && typeof options === "object" && "acceptableAlternatives" in options) {
+  if (
+    options &&
+    typeof options === "object" &&
+    "acceptableAlternatives" in options
+  ) {
     const alternatives = options.acceptableAlternatives;
     if (Array.isArray(alternatives)) {
       for (const alt of alternatives) {
@@ -136,6 +144,86 @@ function isAnswerCorrect(
   return false;
 }
 
+/**
+ * Uses AI to determine if a user's answer is semantically correct.
+ * This handles cases like romanized answers ("loku") vs Sinhala script ("ලොකු"),
+ * or valid alternative translations.
+ * Returns true/false, or null if the AI call fails.
+ */
+async function isAnswerCorrectAi(
+  userAnswer: string,
+  correctAnswer: string,
+  question: string,
+  questionType: "fill_blank" | "translation"
+): Promise<boolean | null> {
+  const typeLabel =
+    questionType === "fill_blank" ? "fill-in-the-blank" : "translation";
+  const prompt = `You are a Sinhala language quiz answer validator. Determine if the student's answer is correct.
+
+Question type: ${typeLabel}
+Question: ${question}
+Correct answer: ${correctAnswer}
+Student's answer: ${userAnswer}
+
+The student may answer in romanized form (e.g. "loku") instead of Sinhala script (e.g. "ලොකු"), or vice versa. Accept romanized equivalents, minor spelling variations, and semantically equivalent translations.
+
+Respond with ONLY "CORRECT" or "INCORRECT" — nothing else.`;
+
+  try {
+    const response = await generateContent(prompt, {
+      temperature: 0,
+      maxOutputTokens: 16,
+    });
+    const text = (response.text ?? "").trim().toUpperCase();
+    if (text.includes("CORRECT") && !text.includes("INCORRECT")) {
+      return true;
+    }
+    if (text.includes("INCORRECT")) {
+      return false;
+    }
+    // Unparseable response — treat as failure
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Full answer validation: local matching first, AI fallback for non-MCQ questions.
+ */
+async function isAnswerCorrect(
+  userAnswer: string,
+  correctAnswer: string,
+  questionType: "mcq" | "fill_blank" | "translation",
+  question: string,
+  options: unknown
+): Promise<boolean> {
+  // Try fast local matching first
+  const localResult = isAnswerCorrectLocal(
+    userAnswer,
+    correctAnswer,
+    questionType,
+    options
+  );
+
+  // If local says correct, trust it immediately
+  if (localResult) return true;
+
+  // For MCQ, local matching is authoritative — no AI fallback
+  if (questionType === "mcq") return false;
+
+  // For fill_blank and translation, consult AI when local matching fails
+  const aiResult = await isAnswerCorrectAi(
+    userAnswer,
+    correctAnswer,
+    question,
+    questionType
+  );
+
+  // If AI returned a definitive answer, use it; otherwise fall back to local (false)
+  return aiResult ?? false;
+}
+
 // ---------------------------------------------------------------------------
 // Server Actions
 // ---------------------------------------------------------------------------
@@ -159,7 +247,10 @@ export async function createQuizSession(
 
   // Verify course exists and user has access
   const userProgressData = await getUserProgress();
-  if (!userProgressData?.activeCourseId || userProgressData.activeCourseId !== courseId) {
+  if (
+    !userProgressData?.activeCourseId ||
+    userProgressData.activeCourseId !== courseId
+  ) {
     throw new Error("Invalid course or access denied.");
   }
 
@@ -219,10 +310,11 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   }
 
   // Determine correctness
-  const isCorrect = isAnswerCorrect(
+  const isCorrect = await isAnswerCorrect(
     userAnswer,
     question.correctAnswer,
     question.type,
+    question.question,
     question.options
   );
 
@@ -275,13 +367,18 @@ export type CompleteQuizSessionResult = {
  * Completes a quiz session, calculates final score, and awards XP.
  * Safe to call more than once: already-completed sessions are returned without re-awarding XP.
  */
-export async function completeQuizSession(sessionId: number): Promise<CompleteQuizSessionResult> {
+export async function completeQuizSession(
+  sessionId: number
+): Promise<CompleteQuizSessionResult> {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
   // Fetch the session
   const session = await db.query.aiQuizSessions.findFirst({
-    where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+    where: and(
+      eq(aiQuizSessions.id, sessionId),
+      eq(aiQuizSessions.userId, userId)
+    ),
   });
 
   if (!session) {
@@ -312,14 +409,19 @@ export async function completeQuizSession(sessionId: number): Promise<CompleteQu
       score: scorePercentage,
       completedAt: new Date(),
     })
-    .where(and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt)))
+    .where(
+      and(eq(aiQuizSessions.id, sessionId), isNull(aiQuizSessions.completedAt))
+    )
     .returning();
 
   let result: CompleteQuizSessionResult;
 
   if (!completedSession) {
     const existing = await db.query.aiQuizSessions.findFirst({
-      where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+      where: and(
+        eq(aiQuizSessions.id, sessionId),
+        eq(aiQuizSessions.userId, userId)
+      ),
     });
     if (!existing) {
       throw new Error("Session not found or unauthorized.");
