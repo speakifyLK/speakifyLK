@@ -103,6 +103,10 @@ vi.mock("@/components/user-progress", () => ({
   ),
 }));
 
+vi.mock("@/components/promo", () => ({
+  Promo: () => <div data-testid="promo">Promo</div>,
+}));
+
 // ── Test data ────────────────────────────────────────────────────────
 const userProgress = {
   userId: "user_123",
@@ -220,7 +224,7 @@ describe("ChatPage", () => {
     const jsx = await Page({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    expect(screen.getByText("AI Sinhala Tutor")).toBeInTheDocument();
+    expect(screen.getByText("Chat")).toBeInTheDocument();
   });
 
   it("renders a back link to /learn in the heading", async () => {
@@ -370,5 +374,35 @@ describe("ChatPage", () => {
 
     const el = screen.getByTestId("user-progress");
     expect(el).toHaveAttribute("data-pro", "true");
+  });
+
+  it("shows Promo when user is not pro", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_123" });
+    mockGetOrCreateConversation.mockResolvedValue(42);
+    mockGetConversations.mockResolvedValue(conversations);
+    mockGetConversationById.mockResolvedValue(activeConversation);
+    mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    expect(screen.getByTestId("promo")).toBeInTheDocument();
+  });
+
+  it("does not show Promo when user is pro", async () => {
+    mockAuth.mockResolvedValue({ userId: "user_123" });
+    mockGetOrCreateConversation.mockResolvedValue(42);
+    mockGetConversations.mockResolvedValue(conversations);
+    mockGetConversationById.mockResolvedValue(activeConversation);
+    mockGetUserProgress.mockResolvedValue(userProgress);
+    mockGetUserSubscription.mockResolvedValue({ isActive: true });
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    expect(screen.queryByTestId("promo")).not.toBeInTheDocument();
   });
 });
