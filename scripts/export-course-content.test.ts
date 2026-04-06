@@ -1,26 +1,16 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { exportContent, formatContent, isExecutedAsCli } from "./export-course-content";
 
-const mockSelect = vi.fn();
-const mockFrom = vi.fn();
-const mockWhere = vi.fn();
+const mockFindMany = vi.fn();
 
 vi.mock("@/db/drizzle", () => ({
   default: {
-    select: () => ({
-      from: (table: unknown) => {
-        mockFrom(table);
-        return {
-          where: (condition: unknown) => {
-            mockWhere(condition);
-            return {
-              then: (resolve: any, reject: any) => mockSelect().then(resolve).catch(reject),
-            };
-          },
-          then: (resolve: any, reject: any) => mockSelect().then(resolve).catch(reject),
-        };
+    query: {
+      courses: {
+        findMany: (...args: any[]) => mockFindMany(...args),
       },
-    }),
+    },
   },
 }));
 
@@ -72,6 +62,26 @@ vi.mock("fs", () => ({
 
 const flushPromises = () => new Promise<void>((r) => setTimeout(r, 100));
 
+/** Helper that invokes all nested orderBy callbacks (for coverage) and resolves with the given data */
+function mockFindManyWithData(data: any[]) {
+  mockFindMany.mockImplementationOnce((opts: any) => {
+    const mockAsc = vi.fn();
+    if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.with?.lessons?.orderBy)
+      opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
+      opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
+      opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
+        {},
+        { asc: mockAsc }
+      );
+    }
+    return Promise.resolve(data);
+  });
+}
+
 describe("export-course-content script", () => {
   const savedEnv = { ...process.env };
   const savedArgv = [...process.argv];
@@ -85,7 +95,25 @@ describe("export-course-content script", () => {
       private_key: "fake-key\\nnewlines",
     });
     process.argv = [...savedArgv.slice(0, 2)];
-    mockSelect.mockReset();
+
+    // Default: invoke orderBy callbacks and return empty array
+    mockFindMany.mockImplementation((opts: any) => {
+      const mockAsc = vi.fn();
+      if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.orderBy)
+        opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
+        opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
+        opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
+          {},
+          { asc: mockAsc }
+        );
+      }
+      return Promise.resolve([]);
+    });
+
     mockExists.mockResolvedValue([false]);
     mockSave.mockResolvedValue(undefined);
     mockExistsSync.mockReturnValue(true);
@@ -105,7 +133,7 @@ describe("export-course-content script", () => {
     vi.spyOn(process, "exit").mockImplementation(((c: number) => {
       throw new Error(`exit ${c}`);
     }) as any);
-    await expect(import("./export-course-content")).rejects.toThrow("exit 1");
+    await expect(exportContent()).rejects.toThrow("exit 1");
   });
 
   it("exits when GOOGLE_SERVICE_ACCOUNT_KEY is invalid JSON", async () => {
@@ -114,18 +142,39 @@ describe("export-course-content script", () => {
     vi.spyOn(process, "exit").mockImplementation(((c: number) => {
       throw new Error(`exit ${c}`);
     }) as any);
-    await expect(import("./export-course-content")).rejects.toThrow("exit 1");
+    await expect(exportContent()).rejects.toThrow("exit 1");
   });
 
   it("exports and uploads course content", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "Basic", description: "desc" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U", courseId: 1 }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "Basic",
+        description: "desc",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("Starting Speakify Content Export");
@@ -133,18 +182,88 @@ describe("export-course-content script", () => {
     expect(output).toContain("Files Uploaded:");
   });
 
-  it("handles lesson with no content field", async () => {
+  it("handles lesson with no challenges", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U", courseId: 1 }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: null }]);
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: null,
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("Starting Speakify Content Export");
+  });
+
+  it("exports lesson with challenges and options", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "Sinhala Basics",
+        units: [
+          {
+            id: 1,
+            title: "Greetings",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "Hello",
+                unitId: 1,
+                order: 1,
+                challenges: [
+                  {
+                    question: "What is 'hello' in Sinhala?",
+                    type: "SELECT",
+                    order: 1,
+                    challengeOptions: [
+                      { text: "ආයුබෝවන්", correct: true, id: 1 },
+                      { text: "ස්තුතියි", correct: false, id: 2 },
+                    ],
+                  },
+                  {
+                    question: "Say goodbye",
+                    type: "ASSIST",
+                    order: 2,
+                    challengeOptions: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    await exportContent();
+    await flushPromises();
+    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
+    expect(output).toContain("Starting Speakify Content Export");
+    expect(output).toContain("UPLOADED");
   });
 
   it("skips upload when file hash matches remote", async () => {
@@ -153,10 +272,19 @@ describe("export-course-content script", () => {
     mockExists.mockResolvedValue([true]);
     // Use a hash that matches to trigger the skip path
     const crypto = await import("crypto");
+    const formattedText = `
+Course: C
+Unit: U
+Lesson: L
+
+--- Lesson Content ---
+No detailed content provided.
+    `.trim();
+
     const testContent = JSON.stringify(
       {
         metadata: { courseId: 1, unitId: 1, lessonId: 1, title: "L" },
-        content: "Course: C\n    Unit: U\n    Lesson: L\n    Content: text",
+        content: formattedText,
       },
       null,
       2
@@ -165,33 +293,76 @@ describe("export-course-content script", () => {
     const md5Base64 = Buffer.from(md5Hex, "hex").toString("base64");
     mockGetMetadata.mockResolvedValue([{ md5Hash: md5Base64 }]);
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
-    await import("./export-course-content");
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("SKIPPED");
   });
 
-  it("handles upload error gracefully", async () => {
+  it("handles upload error gracefully and exits non-zero", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
     mockExists.mockRejectedValue(new Error("GCS error"));
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(errOutput).toContain("Error processing");
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("FAILED");
+    // stats.failed > 0 should trigger process.exit(1) via the thrown error
+    expect(exitSpy).toHaveBeenCalledWith(1);
   });
 
   it("creates output dir when it does not exist", async () => {
@@ -199,12 +370,32 @@ describe("export-course-content script", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockExistsSync.mockReturnValue(false);
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("rag-content"), {
@@ -218,12 +409,32 @@ describe("export-course-content script", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockWriteFileSync.mockClear();
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -237,9 +448,9 @@ describe("export-course-content script", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockSelect.mockRejectedValueOnce(new Error("DB connection failed"));
+    mockFindMany.mockRejectedValueOnce(new Error("DB connection failed"));
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
@@ -254,11 +465,31 @@ describe("export-course-content script", () => {
     // Return a different hash that won't match the local content hash
     mockGetMetadata.mockResolvedValue([{ md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" }]);
 
-    mockSelect
-      .mockResolvedValueOnce([{ id: 1, title: "C" }])
-      .mockResolvedValueOnce([{ id: 1, title: "U" }])
-      .mockResolvedValueOnce([{ id: 1, title: "L", unitId: 1, content: "text" }]);
-    await import("./export-course-content");
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "C",
+        units: [
+          {
+            id: 1,
+            title: "U",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+    await exportContent();
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("UPLOADED");
@@ -270,13 +501,113 @@ describe("export-course-content script", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
-    mockSelect.mockRejectedValueOnce("string error");
+    mockFindMany.mockRejectedValueOnce("string error");
 
-    await import("./export-course-content");
+    await exportContent();
     await flushPromises();
 
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(errOutput).toContain("Process Failed");
     expect(exitSpy).toHaveBeenCalled();
+  });
+});
+
+describe("formatContent", () => {
+  it("formats lesson with challenges and options (no answer markers)", () => {
+    const course = { title: "Sinhala" };
+    const unit = { title: "Greetings" };
+    const lesson = {
+      title: "Hello",
+      challenges: [
+        {
+          question: "What is hello?",
+          type: "SELECT",
+          challengeOptions: [
+            { text: "ආයුබෝවන්", correct: true },
+            { text: "ස්තුතියි", correct: false },
+          ],
+        },
+      ],
+    };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("Challenge: What is hello? (Type: SELECT)");
+    expect(result).toContain("Options:");
+    expect(result).toContain("  - ආයුබෝවන්");
+    expect(result).toContain("  - ස්තුතියි");
+    // Ensure correct answer markers are NOT present
+    expect(result).not.toContain("(Correct Answer)");
+  });
+
+  it("formats lesson with challenges that have no options", () => {
+    const course = { title: "Sinhala" };
+    const unit = { title: "Unit 1" };
+    const lesson = {
+      title: "Lesson 1",
+      challenges: [
+        {
+          question: "Translate this",
+          type: "ASSIST",
+          challengeOptions: [],
+        },
+      ],
+    };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("Challenge: Translate this (Type: ASSIST)");
+    expect(result).not.toContain("Options:");
+  });
+
+  it("formats lesson with no challenges", () => {
+    const course = { title: "Sinhala" };
+    const unit = { title: "Unit 1" };
+    const lesson = { title: "Lesson 1", challenges: [] };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("No detailed content provided.");
+  });
+
+  it("formats lesson with multiple challenges", () => {
+    const course = { title: "Course" };
+    const unit = { title: "Unit" };
+    const lesson = {
+      title: "Lesson",
+      challenges: [
+        {
+          question: "Q1",
+          type: "SELECT",
+          challengeOptions: [{ text: "A", correct: true }],
+        },
+        {
+          question: "Q2",
+          type: "SELECT",
+          challengeOptions: [{ text: "B", correct: false }],
+        },
+      ],
+    };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("Challenge: Q1 (Type: SELECT)");
+    expect(result).toContain("Challenge: Q2 (Type: SELECT)");
+    expect(result).toContain("  - A");
+    expect(result).toContain("  - B");
+  });
+});
+
+describe("isExecutedAsCli", () => {
+  const savedArgv = [...process.argv];
+
+  afterEach(() => {
+    process.argv = savedArgv;
+  });
+
+  it("returns false when process.argv[1] is undefined", () => {
+    process.argv = [process.argv[0]];
+    expect(isExecutedAsCli()).toBe(false);
+  });
+
+  it("returns false when process.argv[1] does not match import.meta.url", () => {
+    process.argv = [process.argv[0], "/some/other/script.ts"];
+    expect(isExecutedAsCli()).toBe(false);
   });
 });

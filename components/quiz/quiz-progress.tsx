@@ -59,15 +59,16 @@ export const QuizProgress = ({
   }, [timeRemaining]);
 
   // Decrement the store timer every second while the question is unanswered
+  // and there is still time remaining
   useEffect(() => {
-    if (isAnswerSubmitted) return;
+    if (isAnswerSubmitted || timeRemaining <= 0) return;
 
     const interval = setInterval(() => {
       decrementTimer();
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isAnswerSubmitted, decrementTimer]);
+  }, [isAnswerSubmitted, timeRemaining, decrementTimer]);
 
   // Fire onTimeUp once the timer genuinely reaches 0
   useEffect(() => {

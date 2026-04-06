@@ -167,6 +167,7 @@ speakify/
     |-- test-gemini.ts
     |-- test-rag-quiz.test.ts
     |-- test-rag-quiz.ts
+    |-- test-rag.ts
   |- store/
     |-- quiz-store.test.ts
     |-- quiz-store.ts

@@ -20,61 +20,47 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { fileURLToPath } from "node:url";
+import * as dotenv from "dotenv";
 import { Storage } from "@google-cloud/storage";
 import pLimit from "p-limit";
 import db from "@/db/drizzle";
-import { courses, units, lessons } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
-// Parse GCS Credentials from .env string
-const gcsKeyString = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-
-if (!gcsKeyString) {
-  console.error("GOOGLE_SERVICE_ACCOUNT_KEY is missing in .env");
-  process.exit(1);
+function loadEnv() {
+  dotenv.config();
+  dotenv.config({ path: ".env.local", override: true });
 }
-
-let credentials;
-try {
-  credentials = JSON.parse(gcsKeyString);
-  if (credentials.private_key) {
-    credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
-  }
-} catch (e) {
-  console.error(
-    "Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON string. Check your .env formatting."
-  );
-  process.exit(1);
-}
-
-// Initialize GCS Client with direct credentials
-const storage = new Storage({
-  credentials,
-  projectId: credentials.project_id,
-});
-
-const BUCKET_NAME =
-  process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
-const limit = pLimit(5);
-
-//Create an MD5 hash to compare content with GCS
 
 const getHash = (content: string) => crypto.createHash("md5").update(content).digest("hex");
 
-//Transforms lesson data into structured text chunks.
-
 const formatContent = (course: any, unit: any, lesson: any) => {
+  let contentText = "";
+  if (lesson.challenges && lesson.challenges.length > 0) {
+    const challengeTexts = lesson.challenges.map((c: any) => {
+      let text = `Challenge: ${c.question} (Type: ${c.type})`;
+      if (c.challengeOptions && c.challengeOptions.length > 0) {
+        const optionsText = c.challengeOptions.map((opt: any) => `  - ${opt.text}`).join("\n");
+        text += `\nOptions:\n${optionsText}`;
+      }
+      return text;
+    });
+    contentText = challengeTexts.join("\n\n");
+  } else {
+    contentText = "No detailed content provided.";
+  }
+
   return `
-    Course: ${course.title}
-    Unit: ${unit.title}
-    Lesson: ${lesson.title}
-    Content: ${lesson.content || "No detailed content provided."}
+Course: ${course.title}
+Unit: ${unit.title}
+Lesson: ${lesson.title}
+
+--- Lesson Content ---
+${contentText}
   `.trim();
 };
 
-async function uploadToGCS(fileName: string, content: string) {
+async function uploadToGCS(bucket: any, fileName: string, content: string) {
   const destFileName = `rag-content/${fileName}`;
-  const bucket = storage.bucket(BUCKET_NAME);
   const file = bucket.file(destFileName);
 
   try {
@@ -103,6 +89,40 @@ async function uploadToGCS(fileName: string, content: string) {
 }
 
 async function exportContent() {
+  loadEnv();
+
+  // Parse GCS Credentials from .env string
+  const gcsKeyString = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+
+  if (!gcsKeyString) {
+    console.error("GOOGLE_SERVICE_ACCOUNT_KEY is missing in .env");
+    process.exit(1);
+  }
+
+  let credentials;
+  try {
+    credentials = JSON.parse(gcsKeyString);
+    if (credentials.private_key) {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
+    }
+  } catch (e) {
+    console.error(
+      "Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON string. Check your .env formatting."
+    );
+    process.exit(1);
+  }
+
+  // Initialize GCS Client with direct credentials
+  const storage = new Storage({
+    credentials,
+    projectId: credentials.project_id,
+  });
+
+  const BUCKET_NAME =
+    process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
+  const bucket = storage.bucket(BUCKET_NAME);
+  const limit = pLimit(5);
+
   const isDryRun = process.argv.includes("--dry-run");
   const outputDir = path.join(process.cwd(), "tmp", "rag-content");
 
@@ -116,16 +136,35 @@ async function exportContent() {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const allCourses = await db.select().from(courses);
+    const courseStructure = await db.query.courses.findMany({
+      orderBy: (courses, { asc }) => [asc(courses.id)],
+      with: {
+        units: {
+          orderBy: (units, { asc }) => [asc(units.order)],
+          with: {
+            lessons: {
+              orderBy: (lessons, { asc }) => [asc(lessons.order)],
+              with: {
+                challenges: {
+                  orderBy: (challenges, { asc }) => [asc(challenges.order)],
+                  with: {
+                    challengeOptions: {
+                      orderBy: (challengeOptions, { asc }) => [asc(challengeOptions.id)],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
     const tasks: Promise<void>[] = [];
 
-    for (const course of allCourses) {
-      const allUnits = await db.select().from(units).where(eq(units.courseId, course.id));
-
-      for (const unit of allUnits) {
-        const allLessons = await db.select().from(lessons).where(eq(lessons.unitId, unit.id));
-
-        for (const lesson of allLessons) {
+    for (const course of courseStructure) {
+      for (const unit of course.units) {
+        for (const lesson of unit.lessons) {
           const formattedText = formatContent(course, unit, lesson);
           const fileName = `course-${course.id}_unit-${unit.id}_lesson-${lesson.id}.json`;
           const filePath = path.join(outputDir, fileName);
@@ -150,7 +189,7 @@ async function exportContent() {
             // Queue GCS Upload with concurrency limit
             tasks.push(
               limit(async () => {
-                const result = await uploadToGCS(fileName, jsonContent);
+                const result = await uploadToGCS(bucket, fileName, jsonContent);
                 stats[result as keyof typeof stats]++;
                 console.log(`[${result.toUpperCase()}] ${fileName}`);
               })
@@ -175,15 +214,37 @@ async function exportContent() {
       console.log(`Files Skipped:     ${stats.skipped}`);
       console.log(`Files Failed:      ${stats.failed}`);
       console.log(`Total Local Size:  ${(totalSize / 1024).toFixed(2)} KB`);
+      if (stats.failed > 0) {
+        throw new Error(`${stats.failed} file upload(s) failed during export.`);
+      }
     } else {
       console.log("This was a dry run. No actions were taken.");
     }
   } catch (error) {
     console.error("Process Failed:", error instanceof Error ? error.message : error);
     process.exit(1);
-  } finally {
-    process.exit(0);
   }
 }
 
-exportContent();
+/** Exported for tests (CLI entry detection). */
+export function isExecutedAsCli(): boolean {
+  const runPath = process.argv[1];
+  if (!runPath) return false;
+  try {
+    return path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url));
+  } catch {
+    /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
+    return false;
+  }
+}
+
+/* v8 ignore start -- CLI entry point; only runs when executed directly, not importable in tests */
+if (isExecutedAsCli()) {
+  exportContent().catch((error) => {
+    console.error("Process Failed:", error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+}
+/* v8 ignore stop */
+
+export { exportContent, formatContent, uploadToGCS };
