@@ -8,11 +8,17 @@ import Link from "next/link";
 
 interface ChatWindowProps {
   children: React.ReactNode;
+  footer?: React.ReactNode;
   isEmpty: boolean;
   isTyping: boolean;
 }
 
-export function ChatWindow({ children, isEmpty, isTyping }: ChatWindowProps) {
+export function ChatWindow({
+  children,
+  footer,
+  isEmpty,
+  isTyping,
+}: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll logic
@@ -48,10 +54,7 @@ export function ChatWindow({ children, isEmpty, isTyping }: ChatWindowProps) {
         <h2 className="text-sm font-semibold text-white">Sinhala Tutor</h2>
       </div>
 
-      <ScrollArea
-        ref={scrollRef}
-        className="min-h-[400px] flex-1 bg-green-50/30 p-4"
-      >
+      <ScrollArea ref={scrollRef} className="flex-1 bg-green-50/30 p-4">
         {/* Empty State */}
         {isEmpty && (
           <div className="flex h-full flex-col items-center justify-center space-y-3 py-20 text-muted-foreground">
@@ -83,6 +86,9 @@ export function ChatWindow({ children, isEmpty, isTyping }: ChatWindowProps) {
           )}
         </div>
       </ScrollArea>
+
+      {/* Input area — inside the card */}
+      {footer}
     </div>
   );
 }

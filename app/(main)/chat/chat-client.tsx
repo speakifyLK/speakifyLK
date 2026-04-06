@@ -168,7 +168,13 @@ export const ChatClient = ({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <ChatWindow isEmpty={messages.length === 0} isTyping={isGenerating}>
+      <ChatWindow
+        isEmpty={messages.length === 0}
+        isTyping={isGenerating}
+        footer={
+          <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
+        }
+      >
         <div className="flex flex-col gap-y-2">
           {messages.map((msg, index) => (
             <ChatBubble
@@ -180,8 +186,6 @@ export const ChatClient = ({
           ))}
         </div>
       </ChatWindow>
-
-      <ChatInput onSend={handleSendMessage} isLoading={isGenerating} />
     </div>
   );
 };

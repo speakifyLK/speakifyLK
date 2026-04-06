@@ -170,4 +170,28 @@ describe("ChatWindow", () => {
     const dots = container.querySelectorAll("span.animate-bounce");
     expect(dots.length).toBe(3);
   });
+
+  it("renders footer content inside the card", () => {
+    render(
+      <ChatWindow
+        isEmpty={false}
+        isTyping={false}
+        footer={<div data-testid="footer-slot">Input here</div>}
+      >
+        <div />
+      </ChatWindow>
+    );
+    expect(screen.getByTestId("footer-slot")).toBeInTheDocument();
+    expect(screen.getByText("Input here")).toBeInTheDocument();
+  });
+
+  it("renders without footer when not provided", () => {
+    const { container } = render(
+      <ChatWindow isEmpty={false} isTyping={false}>
+        <p>No footer</p>
+      </ChatWindow>
+    );
+    expect(screen.getByText("No footer")).toBeInTheDocument();
+    expect(container.querySelector("[data-testid='footer-slot']")).toBeNull();
+  });
 });

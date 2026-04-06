@@ -75,7 +75,7 @@ export const ConversationList = ({
 
   return (
     <>
-      <div className="flex h-full flex-col gap-y-4 p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-y-4 p-4">
         <Button
           onClick={onNewChat}
           className="w-full gap-x-2 bg-green-500 text-white hover:bg-green-600"
