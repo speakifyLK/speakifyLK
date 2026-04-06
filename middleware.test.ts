@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const mockProtect = vi.fn();
-const mockAuth = vi.fn().mockResolvedValue({ protect: mockProtect });
 const mockCreateRouteMatcher = vi.fn();
 const mockClerkMiddleware = vi.fn();
 
@@ -10,28 +9,31 @@ vi.mock("@clerk/nextjs/server", () => ({
   createRouteMatcher: mockCreateRouteMatcher,
 }));
 
+/** First matcher: public routes (controlled per test). Second: `/api(.*)` like production. */
+const matcherState = { publicMatch: false };
+
 describe("middleware", () => {
-  let routeMatcherCallback: (req: unknown) => boolean;
   const origBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
 
   beforeEach(() => {
     vi.resetModules();
+    matcherState.publicMatch = false;
     mockProtect.mockReset();
-    mockAuth.mockReset().mockResolvedValue({ protect: mockProtect });
     mockCreateRouteMatcher.mockReset();
     mockClerkMiddleware.mockReset();
 
-    // Capture the route matcher function and the middleware callback
-    mockCreateRouteMatcher.mockImplementation(() => {
-      routeMatcherCallback = () => false;
-      return (req: unknown) => routeMatcherCallback(req);
+    mockCreateRouteMatcher.mockImplementation((patterns: string[]) => {
+      if (patterns[0] === "/api(.*)") {
+        return (req: { nextUrl: { pathname: string } }) =>
+          String(req?.nextUrl?.pathname ?? "").startsWith("/api");
+      }
+      return () => matcherState.publicMatch;
     });
 
     mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
   });
 
   afterEach(() => {
-    // Restore env vars to prevent leakage between test files
     if (origBypassSecret === undefined) {
       delete process.env.E2E_BYPASS_AUTH_SECRET;
     } else {
@@ -51,27 +53,24 @@ describe("middleware", () => {
     expect(mod.config.matcher).toHaveLength(2);
   });
 
-  it("creates route matcher with correct public routes", async () => {
+  it("creates route matcher for public routes and for /api(.*)", async () => {
     await import("./middleware");
-    expect(mockCreateRouteMatcher).toHaveBeenCalledWith([
+    expect(mockCreateRouteMatcher).toHaveBeenCalledTimes(2);
+    expect(mockCreateRouteMatcher).toHaveBeenNthCalledWith(1, [
       "/",
       "/sign-in(.*)",
       "/sign-up(.*)",
       "/api/webhooks/stripe",
     ]);
+    expect(mockCreateRouteMatcher).toHaveBeenNthCalledWith(2, ["/api(.*)"]);
   });
 
-  it("calls auth.protect() for non-public routes", async () => {
-    // Make isPublicRoute return false
-    mockCreateRouteMatcher.mockImplementation(() => () => false);
-    mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
-
+  it("calls auth.protect() for non-public, non-API routes", async () => {
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
     const request = { url: "/learn", nextUrl: { pathname: "/learn" }, headers: new Map() };
 
-    // Get the callback that was passed to clerkMiddleware
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
     await middlewareCallback(authObj, request);
 
@@ -79,10 +78,7 @@ describe("middleware", () => {
   });
 
   it("does NOT call auth.protect() for public routes", async () => {
-    // Make isPublicRoute return true
-    mockCreateRouteMatcher.mockImplementation(() => () => true);
-    mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
-
+    matcherState.publicMatch = true;
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
@@ -94,15 +90,47 @@ describe("middleware", () => {
     expect(mockProtect).not.toHaveBeenCalled();
   });
 
-  it("does NOT call auth.protect() if x-e2e-test-bypass header matches secret and not production", async () => {
-    mockCreateRouteMatcher.mockImplementation(() => () => false);
-    mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
+  it("does NOT call auth.protect() for /api/* (handlers use auth())", async () => {
+    await import("./middleware");
 
+    const authObj = { protect: mockProtect };
+    const request = {
+      url: "/api/quiz/generate",
+      nextUrl: { pathname: "/api/quiz/generate" },
+      headers: new Map(),
+    };
+
+    const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
+    await middlewareCallback(authObj, request);
+
+    expect(mockProtect).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call auth.protect() for Next.js Server Action POSTs (next-action header)", async () => {
+    await import("./middleware");
+
+    const authObj = { protect: mockProtect };
+    const headers = new Map<string, string>();
+    headers.set("next-action", "deadbeef");
+    const request = {
+      method: "POST",
+      url: "/learn",
+      nextUrl: { pathname: "/learn" },
+      headers,
+    };
+
+    const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
+    await middlewareCallback(authObj, request);
+
+    expect(mockProtect).not.toHaveBeenCalled();
+  });
+
+  it("does NOT call auth.protect() if x-e2e-test-bypass header matches secret and not production", async () => {
     process.env.E2E_BYPASS_AUTH_SECRET = "test-secret";
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
-    const headers = new Map();
+    const headers = new Map<string, string>();
     headers.set("x-e2e-test-bypass", "test-secret");
     const request = { url: "/api/chat", nextUrl: { pathname: "/api/chat" }, headers };
 
@@ -112,10 +140,7 @@ describe("middleware", () => {
     expect(mockProtect).not.toHaveBeenCalled();
   });
 
-  it("CALLS auth.protect() if x-e2e-test-bypass matches but environment is production", async () => {
-    mockCreateRouteMatcher.mockImplementation(() => () => false);
-    mockClerkMiddleware.mockImplementation((cb: unknown) => cb);
-
+  it("does NOT call auth.protect() for /api/chat in production (API routes skip protect)", async () => {
     const origEnv = process.env.NODE_ENV;
     // @ts-expect-error -- overriding for test
     process.env.NODE_ENV = "production";
@@ -124,9 +149,31 @@ describe("middleware", () => {
     await import("./middleware");
 
     const authObj = { protect: mockProtect };
-    const headers = new Map();
+    const headers = new Map<string, string>();
     headers.set("x-e2e-test-bypass", "test-secret");
     const request = { url: "/api/chat", nextUrl: { pathname: "/api/chat" }, headers };
+
+    const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
+    await middlewareCallback(authObj, request);
+
+    expect(mockProtect).not.toHaveBeenCalled();
+
+    // @ts-expect-error -- resetting
+    process.env.NODE_ENV = origEnv;
+  });
+
+  it("still calls auth.protect() in production for non-API routes even with bypass header", async () => {
+    const origEnv = process.env.NODE_ENV;
+    // @ts-expect-error -- overriding for test
+    process.env.NODE_ENV = "production";
+    process.env.E2E_BYPASS_AUTH_SECRET = "test-secret";
+
+    await import("./middleware");
+
+    const authObj = { protect: mockProtect };
+    const headers = new Map<string, string>();
+    headers.set("x-e2e-test-bypass", "test-secret");
+    const request = { url: "/learn", nextUrl: { pathname: "/learn" }, headers };
 
     const middlewareCallback = mockClerkMiddleware.mock.calls[0][0];
     await middlewareCallback(authObj, request);

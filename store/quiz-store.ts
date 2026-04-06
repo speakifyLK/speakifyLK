@@ -26,6 +26,7 @@ type QuizState = {
   adaptiveRecommendation: AdaptiveDifficultyRecommendation | null;
 
   setAdaptiveRecommendation: (recommendation: AdaptiveDifficultyRecommendation | null) => void;
+  resetTimer: (seconds: number) => void;
   startQuiz: (
     sessionId: number,
     questions: QuizQuestion[],
@@ -53,6 +54,8 @@ export const useQuizStore = create<QuizState>((set) => ({
   adaptiveRecommendation: null,
 
   setAdaptiveRecommendation: (recommendation) => set({ adaptiveRecommendation: recommendation }),
+
+  resetTimer: (seconds) => set({ timeRemaining: seconds, isQuizActive: true }),
 
   startQuiz: (sessionId, questions, difficulty = "easy", initialTimeSeconds = 0) => {
     const hasPositiveTime = initialTimeSeconds > 0;

@@ -30,14 +30,17 @@ vi.mock("@/components/ui/button", () => {
   };
 });
 
-// Mock the child components we don't need to deeply test here
-vi.mock("./quiz-timer", () => ({
-  QuizTimer: (props: any) => (
-    <div data-testid="quiz-timer" data-difficulty={props.difficulty}>
-      <button data-testid="time-up-trigger" onClick={props.onTimeUp}>
+// Mock progress/timer UI — QuizPlay uses QuizProgress (not QuizTimer)
+vi.mock("./quiz-progress", () => ({
+  QuizProgress: (props: any) => (
+    <div data-testid="quiz-progress" data-difficulty={props.difficulty}>
+      <button type="button" data-testid="time-up-trigger" onClick={() => props.onTimeUp?.()}>
         Trigger Time Up
       </button>
       <span data-testid="timer-score">{props.score}</span>
+      <span data-testid="question-counter">
+        Question {props.currentQuestionIndex + 1} of {props.totalQuestions}
+      </span>
     </div>
   ),
 }));
@@ -116,8 +119,8 @@ describe("QuizPlay", () => {
 
   it("renders quiz timer and progress", () => {
     render(<QuizPlay session={makeSession()} />);
-    expect(screen.getByTestId("quiz-timer")).toBeInTheDocument();
-    expect(screen.getByText("Question 1 of 2")).toBeInTheDocument();
+    expect(screen.getByTestId("quiz-progress")).toBeInTheDocument();
+    expect(screen.getByTestId("question-counter")).toHaveTextContent("Question 1 of 2");
     expect(screen.getByText("Topic: Greetings")).toBeInTheDocument();
   });
 
@@ -279,13 +282,14 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Submit Answer"));
 
     await waitFor(() => {
-      expect(screen.getByText("Next Question")).toBeInTheDocument();
+      expect(mockSubmitQuizAnswer).toHaveBeenCalled();
     });
-
-    fireEvent.click(screen.getByText("Next Question"));
+    const nextBtn = await screen.findByRole("button", { name: "Next Question" });
+    await waitFor(() => expect(nextBtn).not.toBeDisabled());
+    fireEvent.click(nextBtn);
 
     await waitFor(() => {
-      expect(screen.getByText("Question 2 of 2")).toBeInTheDocument();
+      expect(screen.getByTestId("question-counter")).toHaveTextContent("Question 2 of 2");
       expect(screen.getByText("Fill in: ___")).toBeInTheDocument();
     });
   });
@@ -317,8 +321,11 @@ describe("QuizPlay", () => {
     fireEvent.click(screen.getByText("Ayubowan"));
     fireEvent.click(screen.getByText("Submit Answer"));
 
-    // Wait for the transition to complete and "Complete Quiz" to appear
-    const completeBtn = await screen.findByText("Complete Quiz");
+    await waitFor(() => {
+      expect(mockSubmitQuizAnswer).toHaveBeenCalled();
+    });
+    const completeBtn = await screen.findByRole("button", { name: "Complete Quiz" });
+    await waitFor(() => expect(completeBtn).not.toBeDisabled());
     fireEvent.click(completeBtn);
 
     await waitFor(() => {
@@ -466,7 +473,7 @@ describe("QuizPlay", () => {
     });
     render(<QuizPlay session={session} />);
     // Component should render (answers are pre-populated internally)
-    expect(screen.getByTestId("quiz-timer")).toBeInTheDocument();
+    expect(screen.getByTestId("quiz-progress")).toBeInTheDocument();
   });
 
   it("initializes answers from session with empty userAnswer but isCorrect set", () => {
@@ -475,7 +482,7 @@ describe("QuizPlay", () => {
       totalQuestions: 1,
     });
     render(<QuizPlay session={session} />);
-    expect(screen.getByTestId("quiz-timer")).toBeInTheDocument();
+    expect(screen.getByTestId("quiz-progress")).toBeInTheDocument();
   });
 
   // ── Session re-mounting on session.id change ───────────────────────────

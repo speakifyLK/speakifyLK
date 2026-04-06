@@ -261,6 +261,8 @@ export async function submitQuizAnswer(questionId: number, userAnswer: string) {
   }
 
   revalidatePath("/learn");
+  revalidatePath("/quiz");
+
   return { isCorrect };
 }
 

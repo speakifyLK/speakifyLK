@@ -7,6 +7,19 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks/stripe",
 ]);
 
+/** App Router API handlers use `auth()` / `getIsAdmin()` and return JSON errors. */
+const isApiRoute = createRouteMatcher(["/api(.*)"]);
+
+/**
+ * Next.js Server Actions POST to the current page URL with a `next-action` header.
+ * Clerk (e.g. keyless / `detectKeylessEnvDriftAction`) uses this from `ClerkProvider`.
+ * Calling `auth.protect()` on those requests treats them as non-document fetches and
+ * returns 404 — so we skip protect and let the action + `auth()` run on the server.
+ */
+function isNextjsServerActionPost(request: { method?: string; headers?: Headers }): boolean {
+  return request.method === "POST" && Boolean(request.headers?.get("next-action"));
+}
+
 export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
     const e2eBypassSecret = process.env.E2E_BYPASS_AUTH_SECRET;
@@ -19,7 +32,11 @@ export default clerkMiddleware(async (auth, request) => {
     if (canBypass) {
       return;
     }
-    await auth.protect();
+    // Avoid auth.protect() on /api/* — it rewrites to Clerk dev HTML (404) so fetch().json() breaks.
+    // Avoid auth.protect() on Server Action POSTs — Clerk + Next would otherwise 404 on /learn, etc.
+    if (!isApiRoute(request) && !isNextjsServerActionPost(request)) {
+      await auth.protect();
+    }
   }
 });
 

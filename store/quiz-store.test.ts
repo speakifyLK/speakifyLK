@@ -69,6 +69,15 @@ describe("quiz-store", () => {
     expect(useQuizStore.getState().adaptiveRecommendation).toBeNull();
   });
 
+  // ── resetTimer ───────────────────────────────────────────────────────
+  it("sets time remaining and marks the quiz active", () => {
+    useQuizStore.getState().resetQuiz();
+    useQuizStore.getState().resetTimer(42);
+    const state = useQuizStore.getState();
+    expect(state.timeRemaining).toBe(42);
+    expect(state.isQuizActive).toBe(true);
+  });
+
   // ── startQuiz ────────────────────────────────────────────────────────
   it("starts quiz with positive time (isQuizActive = true)", () => {
     useQuizStore.getState().startQuiz(42, sampleQuestions, "hard", 120);

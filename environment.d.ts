@@ -34,6 +34,16 @@ declare global {
       // RAG corpus (future)
       RAG_CORPUS_ID?: string;
 
+      /** Set to "1" to skip Vertex retrieval (quiz API / scripts use non-RAG fallback). */
+      QUIZ_DISABLE_RAG?: string;
+
+      /** Optional: E2E quiz script — base URL (e.g. http://localhost:3000) for POST /api/quiz/generate */
+      QUIZ_E2E_BASE_URL?: string;
+      /** Browser Cookie header while logged in (must include Clerk session). */
+      QUIZ_E2E_COOKIE?: string;
+      /** Optional: second dev server with QUIZ_DISABLE_RAG=1 for HTTP timing comparison */
+      QUIZ_E2E_NO_RAG_BASE_URL?: string;
+
       // vertex ai toggle
       GOOGLE_GENAI_USE_VERTEXAI?: string;
     }

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { units as unitsTable } from "@/db/schema";
 import {
   computeAdaptiveDifficultyRecommendation,
+  getBaselineDifficulty,
   type AdaptiveQuizHistorySession,
 } from "@/lib/adaptive-difficulty";
 import type { Difficulty } from "@/lib/quiz-prompt";
@@ -54,9 +55,12 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
       setAdaptiveRecommendation(null);
       return;
     }
-    const rec = computeAdaptiveDifficultyRecommendation(quizHistory, unit.title, difficulty);
+    // Use the difficulty the user last played for this topic as the baseline so the
+    // recommendation stays stable when the user manually clicks different difficulty buttons.
+    const baseline = getBaselineDifficulty(quizHistory, unit.title);
+    const rec = computeAdaptiveDifficultyRecommendation(quizHistory, unit.title, baseline);
     setAdaptiveRecommendation(rec);
-  }, [selectedTopic, difficulty, quizHistory, units, setAdaptiveRecommendation]);
+  }, [selectedTopic, quizHistory, units, setAdaptiveRecommendation]);
 
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) =>
@@ -119,6 +123,7 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           topic: selectedUnit.title,
           difficulty,
@@ -127,18 +132,42 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
         }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to generate quiz");
+      const raw = await response.text();
+      let data: unknown;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        throw new Error(
+          !response.ok
+            ? `Could not start quiz (HTTP ${response.status}). Try refreshing or signing in again.`
+            : "Invalid response from the quiz server."
+        );
       }
 
-      const data = await response.json();
-      const sessionId = data?.sessionId;
-      if (!sessionId) {
+      if (!response.ok) {
+        const msg =
+          data &&
+          typeof data === "object" &&
+          "error" in data &&
+          typeof (data as { error: unknown }).error === "string"
+            ? (data as { error: string }).error
+            : "Failed to generate quiz";
+        throw new Error(msg);
+      }
+      const sessionId =
+        data &&
+        typeof data === "object" &&
+        data !== null &&
+        "sessionId" in data &&
+        (typeof (data as { sessionId: unknown }).sessionId === "number" ||
+          typeof (data as { sessionId: unknown }).sessionId === "string")
+          ? (data as { sessionId: number | string }).sessionId
+          : undefined;
+      if (sessionId === undefined || sessionId === null) {
         throw new Error("Failed to start quiz: missing session ID");
       }
       toast.success("Quiz generated successfully!");
-      router.push(`${basePath || "/quiz"}?sessionId=${encodeURIComponent(sessionId)}`);
+      router.push(`${basePath || "/quiz"}?sessionId=${encodeURIComponent(String(sessionId))}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to start quiz");
     } finally {

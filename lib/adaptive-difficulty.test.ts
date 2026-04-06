@@ -3,6 +3,7 @@ import {
   selectLastSessionsForTopic,
   averageScores,
   computeAdaptiveDifficultyRecommendation,
+  getBaselineDifficulty,
   type AdaptiveQuizHistorySession,
 } from "./adaptive-difficulty";
 
@@ -11,11 +12,13 @@ import {
 function makeSessions(
   scores: number[],
   topic = "greetings",
-  completed = true
+  completed = true,
+  difficulty?: string
 ): AdaptiveQuizHistorySession[] {
   return scores.map((score, i) => ({
     topic,
     score,
+    ...(difficulty !== undefined ? { difficulty } : {}),
     startedAt: new Date(2026, 0, i + 1),
     completedAt: completed ? new Date(2026, 0, i + 1, 1) : null,
   }));
@@ -109,6 +112,45 @@ describe("averageScores", () => {
   it("returns decimal average when not evenly divisible", () => {
     const avg = averageScores(makeSessions([90, 80, 70]));
     expect(avg).toBe(80);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// getBaselineDifficulty
+// ═══════════════════════════════════════════════════════════════════════
+
+describe("getBaselineDifficulty", () => {
+  it("returns fallback when there is no completed history for the topic", () => {
+    expect(getBaselineDifficulty([], "greetings", "intermediate")).toBe("intermediate");
+    expect(getBaselineDifficulty(makeSessions([90], "verbs"), "greetings")).toBe("beginner");
+  });
+
+  it("returns fallback when the latest session has no difficulty field", () => {
+    const sessions = makeSessions([80], "greetings", true);
+    expect(getBaselineDifficulty(sessions, "greetings", "advanced")).toBe("advanced");
+  });
+
+  it("returns the stored difficulty when it is a valid level", () => {
+    const sessions = makeSessions([70], "greetings", true, "intermediate");
+    expect(getBaselineDifficulty(sessions, "greetings")).toBe("intermediate");
+  });
+
+  it("returns fallback when difficulty string is not a known level", () => {
+    const sessions: AdaptiveQuizHistorySession[] = [
+      {
+        topic: "greetings",
+        score: 50,
+        difficulty: "expert",
+        startedAt: new Date(),
+        completedAt: new Date(),
+      },
+    ];
+    expect(getBaselineDifficulty(sessions, "greetings", "beginner")).toBe("beginner");
+  });
+
+  it("trims topic title when selecting recent session", () => {
+    const sessions = makeSessions([60], "greetings", true, "advanced");
+    expect(getBaselineDifficulty(sessions, "  greetings  ")).toBe("advanced");
   });
 });
 

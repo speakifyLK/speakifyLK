@@ -148,6 +148,20 @@ describe("quiz-rag module", () => {
       expect(q).toContain("greetings");
       expect(q).toContain("beginner");
     });
+
+    it("skips retrieval when QUIZ_DISABLE_RAG=1", async () => {
+      mockRetrieveContext.mockClear();
+      const prev = process.env.QUIZ_DISABLE_RAG;
+      process.env.QUIZ_DISABLE_RAG = "1";
+      try {
+        const out = await getQuizContext("greetings", "beginner");
+        expect(out).toEqual([]);
+        expect(mockRetrieveContext).not.toHaveBeenCalled();
+      } finally {
+        if (prev === undefined) delete process.env.QUIZ_DISABLE_RAG;
+        else process.env.QUIZ_DISABLE_RAG = prev;
+      }
+    });
   });
 
   describe("generateQuizWithRAG", () => {
