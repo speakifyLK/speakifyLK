@@ -2,14 +2,6 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ChatWindow } from "./chat-window";
 
-vi.mock("next/link", () => ({
-  default: ({ children, href, ...props }: any) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
-}));
-
 const { mockIncludeViewport, mockForwardRef } = vi.hoisted(() => ({
   mockIncludeViewport: { value: true },
   mockForwardRef: { value: true },
@@ -36,33 +28,18 @@ beforeAll(() => {
 });
 
 describe("ChatWindow", () => {
-  it("renders the header with title", () => {
-    render(
-      <ChatWindow isEmpty={false} isTyping={false}>
-        <div />
-      </ChatWindow>
-    );
-    expect(screen.getByText("Sinhala Tutor")).toBeInTheDocument();
-  });
-
-  it("renders a back link to /learn", () => {
-    render(
-      <ChatWindow isEmpty={false} isTyping={false}>
-        <div />
-      </ChatWindow>
-    );
-    const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/learn");
-  });
-
   it("shows empty state when isEmpty is true", () => {
     render(
       <ChatWindow isEmpty={true} isTyping={false}>
         <div />
       </ChatWindow>
     );
-    expect(screen.getByText("Start a conversation in Sinhala!")).toBeInTheDocument();
-    expect(screen.getByText("Your AI tutor is ready to help you practice")).toBeInTheDocument();
+    expect(
+      screen.getByText("Start a conversation in Sinhala!")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Your AI tutor is ready to help you practice")
+    ).toBeInTheDocument();
   });
 
   it("does not show empty state when isEmpty is false", () => {
@@ -71,7 +48,9 @@ describe("ChatWindow", () => {
         <div />
       </ChatWindow>
     );
-    expect(screen.queryByText("Start a conversation in Sinhala!")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Start a conversation in Sinhala!")
+    ).not.toBeInTheDocument();
   });
 
   it("shows typing indicator when isTyping is true", () => {
@@ -107,7 +86,9 @@ describe("ChatWindow", () => {
         <div />
       </ChatWindow>
     );
-    expect(screen.getByText("Start a conversation in Sinhala!")).toBeInTheDocument();
+    expect(
+      screen.getByText("Start a conversation in Sinhala!")
+    ).toBeInTheDocument();
     expect(screen.getByText("Tutor is typing...")).toBeInTheDocument();
   });
 
@@ -119,7 +100,9 @@ describe("ChatWindow", () => {
     );
 
     // Verify the viewport element exists in the DOM
-    const viewport = container.querySelector("[data-radix-scroll-area-viewport]");
+    const viewport = container.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    );
     expect(viewport).not.toBeNull();
 
     // scrollTo should have been called via Element.prototype.scrollTo mock
