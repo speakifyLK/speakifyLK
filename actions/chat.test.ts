@@ -8,7 +8,7 @@ const mockDbInsert = vi.hoisted(() => vi.fn());
 const mockDbUpdate = vi.hoisted(() => vi.fn());
 const mockDbDelete = vi.hoisted(() => vi.fn());
 const mockDbQuery = vi.hoisted(() => ({
-  chatConversations: { findFirst: vi.fn() },
+  chatConversations: { findFirst: vi.fn(), findMany: vi.fn() },
   chatMessages: { findMany: vi.fn() },
 }));
 
@@ -42,22 +42,32 @@ vi.mock("@/db/drizzle", () => {
     desc: (col: unknown) => ({ _type: "desc", col }),
     asc: (col: unknown) => ({ _type: "asc", col }),
   };
-  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
+  const fakeTable = new Proxy(
+    {},
+    { get: (_t, prop) => `table.${String(prop)}` }
+  );
 
   // Wrap findFirst/findMany to invoke the where/orderBy callbacks if provided
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.where && typeof opts.where === "function") {
-        (opts.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.where as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       return mockFn(opts);
     };
   };
 
   const chatConvFindFirst = wrapQuery(mockDbQuery.chatConversations.findFirst);
+  const chatConvFindMany = wrapQuery(mockDbQuery.chatConversations.findMany);
   const chatMsgFindMany = wrapQuery(mockDbQuery.chatMessages.findMany);
 
   const db = {
@@ -65,7 +75,10 @@ vi.mock("@/db/drizzle", () => {
     update: mockDbUpdate.mockReturnValue({ set: setFn }),
     delete: mockDbDelete.mockReturnValue({ where: whereFn }),
     query: {
-      chatConversations: { findFirst: chatConvFindFirst },
+      chatConversations: {
+        findFirst: chatConvFindFirst,
+        findMany: chatConvFindMany,
+      },
       chatMessages: { findMany: chatMsgFindMany },
     },
     _mocks: { returningFn, whereFn, valuesFn, setFn },
@@ -88,7 +101,9 @@ import {
 } from "./chat";
 import db from "@/db/drizzle";
 
-const dbMocks = (db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> })._mocks;
+const dbMocks = (
+  db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> }
+)._mocks;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -208,12 +223,16 @@ describe("sendMessage", () => {
 describe("saveAssistantMessage", () => {
   it("throws when not authenticated", async () => {
     mockAuth.mockResolvedValue({ userId: null });
-    await expect(saveAssistantMessage(1, "response")).rejects.toThrow("Unauthorized.");
+    await expect(saveAssistantMessage(1, "response")).rejects.toThrow(
+      "Unauthorized."
+    );
   });
 
   it("throws when not conversation owner", async () => {
     mockDbQuery.chatConversations.findFirst.mockResolvedValue(null);
-    await expect(saveAssistantMessage(1, "response")).rejects.toThrow("Unauthorized.");
+    await expect(saveAssistantMessage(1, "response")).rejects.toThrow(
+      "Unauthorized."
+    );
   });
 
   it("saves assistant message and updates conversation", async () => {
@@ -239,7 +258,21 @@ describe("deleteConversation", () => {
     await expect(deleteConversation(1)).rejects.toThrow("Unauthorized.");
   });
 
-  it("deletes the conversation", async () => {
+  it("throws when trying to delete the only conversation", async () => {
+    mockDbQuery.chatConversations.findMany.mockResolvedValue([{ id: 1 }]);
+
+    await expect(deleteConversation(1)).rejects.toThrow(
+      "Cannot delete your only conversation."
+    );
+    expect(mockDbDelete).not.toHaveBeenCalled();
+  });
+
+  it("deletes the conversation when more than one exists", async () => {
+    mockDbQuery.chatConversations.findMany.mockResolvedValue([
+      { id: 1 },
+      { id: 2 },
+    ]);
+
     await deleteConversation(1);
 
     expect(mockDbDelete).toHaveBeenCalled();
@@ -263,15 +296,17 @@ describe("getOrCreateConversation", () => {
     expect(result).toBe(99);
   });
 
-  it("creates new conversation when none exists", async () => {
+  it("creates new conversation without revalidating when none exists", async () => {
     // First call for getOrCreateConversation -> null (no existing)
     mockDbQuery.chatConversations.findFirst.mockResolvedValueOnce(null);
-    // createConversation calls auth again, so it returns user-1
-    // createConversation inserts and returns
+    // insertConversation inserts and returns
     dbMocks.returningFn.mockResolvedValueOnce([{ id: 77 }]);
 
     const result = await getOrCreateConversation();
     expect(result).toBe(77);
+    expect(mockDbInsert).toHaveBeenCalled();
+    // insertConversation does NOT call revalidatePath (avoids double-render)
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
 });
 

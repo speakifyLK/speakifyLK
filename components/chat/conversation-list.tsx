@@ -71,6 +71,8 @@ export const ConversationList = ({
     }
   };
 
+  const canDelete = conversations.length > 1;
+
   return (
     <>
       <div className="flex h-full flex-col gap-y-4 p-4">
@@ -103,14 +105,16 @@ export const ConversationList = ({
                 <span className="truncate pr-6 text-sm font-medium">
                   {conv.title || "New Conversation"}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100"
-                  onClick={(e) => onDeleteClick(conv, e)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                {canDelete && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100"
+                    onClick={(e) => onDeleteClick(conv, e)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(conv.updatedAt), {

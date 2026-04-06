@@ -8,7 +8,8 @@ import { eq, and } from "drizzle-orm";
 
 async function assertConversationOwner(conversationId: number, userId: string) {
   const conversation = await db.query.chatConversations.findFirst({
-    where: (table, { and, eq }) => and(eq(table.id, conversationId), eq(table.userId, userId)),
+    where: (table, { and, eq }) =>
+      and(eq(table.id, conversationId), eq(table.userId, userId)),
   });
 
   if (!conversation) {
@@ -18,10 +19,11 @@ async function assertConversationOwner(conversationId: number, userId: string) {
   return conversation;
 }
 
-export const createConversation = async () => {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized.");
-
+/**
+ * Internal helper that inserts a conversation row without revalidating.
+ * Used by both createConversation (client action) and getOrCreateConversation.
+ */
+async function insertConversation(userId: string): Promise<number> {
   const [conversation] = await db
     .insert(chatConversations)
     .values({
@@ -30,8 +32,16 @@ export const createConversation = async () => {
     })
     .returning();
 
-  revalidatePath("/chat");
   return conversation.id;
+}
+
+export const createConversation = async () => {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized.");
+
+  const id = await insertConversation(userId);
+  revalidatePath("/chat");
+  return id;
 };
 
 export const sendMessage = async (conversationId: number, content: string) => {
@@ -56,9 +66,11 @@ export const sendMessage = async (conversationId: number, content: string) => {
   });
 
   // 3. Logic: If title is "New Chat" or null, update it with the first message
-  const shouldUpdateTitle = !conversation?.title || conversation.title === "New Conversation";
+  const shouldUpdateTitle =
+    !conversation?.title || conversation.title === "New Conversation";
 
-  const truncatedTitle = content.length > 40 ? content.substring(0, 40) + "..." : content;
+  const truncatedTitle =
+    content.length > 40 ? content.substring(0, 40) + "..." : content;
 
   await db
     .update(chatConversations)
@@ -72,7 +84,10 @@ export const sendMessage = async (conversationId: number, content: string) => {
   return message;
 };
 
-export const saveAssistantMessage = async (conversationId: number, content: string) => {
+export const saveAssistantMessage = async (
+  conversationId: number,
+  content: string
+) => {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized.");
 
@@ -96,9 +111,24 @@ export const deleteConversation = async (conversationId: number) => {
   if (!userId) throw new Error("Unauthorized.");
 
   await assertConversationOwner(conversationId, userId);
+
+  // Prevent deleting the last conversation — user must always have at least one
+  const allConversations = await db.query.chatConversations.findMany({
+    where: (table, { eq }) => eq(table.userId, userId),
+  });
+
+  if (allConversations.length <= 1) {
+    throw new Error("Cannot delete your only conversation.");
+  }
+
   await db
     .delete(chatConversations)
-    .where(and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId)));
+    .where(
+      and(
+        eq(chatConversations.id, conversationId),
+        eq(chatConversations.userId, userId)
+      )
+    );
 
   revalidatePath("/chat");
 };
@@ -113,11 +143,12 @@ export const getOrCreateConversation = async () => {
   });
 
   if (existingConversation) {
-    //revalidatePath("/chat");
     return existingConversation.id;
   }
 
-  return await createConversation();
+  // No revalidation here — the page is loading for the first time and will
+  // render with the freshly-created conversation in the same request.
+  return await insertConversation(userId);
 };
 
 /**

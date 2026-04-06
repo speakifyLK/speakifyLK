@@ -26,8 +26,14 @@ vi.mock("@/components/ui/dialog", () => ({
     open ? (
       <div data-testid="dialog">
         {children}
-        <button data-testid="dialog-onOpenChange-true" onClick={() => onOpenChange?.(true)} />
-        <button data-testid="dialog-onOpenChange-false" onClick={() => onOpenChange?.(false)} />
+        <button
+          data-testid="dialog-onOpenChange-true"
+          onClick={() => onOpenChange?.(true)}
+        />
+        <button
+          data-testid="dialog-onOpenChange-false"
+          onClick={() => onOpenChange?.(false)}
+        />
       </div>
     ) : null,
   DialogContent: ({ children }: any) => <div>{children}</div>,
@@ -97,7 +103,9 @@ describe("ConversationList", () => {
 
   it("highlights active conversation", () => {
     getMock.mockReturnValue("2");
-    const { container } = render(<ConversationList conversations={mockConversations} />);
+    const { container } = render(
+      <ConversationList conversations={mockConversations} />
+    );
     // The active one should have border-green-500
     const activeItem = container.querySelector(".border-green-500");
     expect(activeItem).toBeInTheDocument();
@@ -129,25 +137,47 @@ describe("ConversationList", () => {
   });
 
   describe("delete conversation", () => {
+    it("hides delete buttons when only one conversation exists", () => {
+      const singleConversation = [
+        {
+          id: 1,
+          title: "Only Chat",
+          updatedAt: new Date("2025-01-10T10:00:00"),
+        },
+      ];
+      render(<ConversationList conversations={singleConversation} />);
+
+      // Only the "New Chat" button should exist — no trash buttons
+      const allButtons = screen.getAllByRole("button");
+      expect(allButtons).toHaveLength(1);
+      expect(allButtons[0]).toHaveTextContent("New Chat");
+    });
+
     it("opens delete dialog when trash icon is clicked", () => {
       render(<ConversationList conversations={mockConversations} />);
       // Each conversation has a delete button; they are ghost buttons with Trash2 icon
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
 
       // Click the first delete button (for "First Chat")
       fireEvent.click(deleteButtons[0]);
 
       expect(screen.getByText("Delete conversation?")).toBeInTheDocument();
-      expect(screen.getByText(/This will permanently delete "First Chat"/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/This will permanently delete "First Chat"/)
+      ).toBeInTheDocument();
     });
 
     it("shows 'New Conversation' in dialog for untitled conversations", () => {
       render(<ConversationList conversations={mockConversations} />);
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
 
       // Click delete for the 3rd conversation (empty title)
       fireEvent.click(deleteButtons[2]);
@@ -163,7 +193,9 @@ describe("ConversationList", () => {
 
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       // Click "Delete" in the dialog
@@ -183,7 +215,9 @@ describe("ConversationList", () => {
 
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       fireEvent.click(screen.getByRole("button", { name: "Delete" }));
@@ -200,7 +234,9 @@ describe("ConversationList", () => {
 
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       fireEvent.click(screen.getByRole("button", { name: "Delete" }));
@@ -216,7 +252,9 @@ describe("ConversationList", () => {
 
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       fireEvent.click(screen.getByRole("button", { name: "Delete" }));
@@ -230,7 +268,9 @@ describe("ConversationList", () => {
       render(<ConversationList conversations={mockConversations} />);
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       expect(screen.getByText("Delete conversation?")).toBeInTheDocument();
@@ -238,14 +278,18 @@ describe("ConversationList", () => {
       fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
       // Dialog should close
-      expect(screen.queryByText("Delete conversation?")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Delete conversation?")
+      ).not.toBeInTheDocument();
     });
 
     it("does not close dialog when onOpenChange is called with true", () => {
       render(<ConversationList conversations={mockConversations} />);
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       expect(screen.getByText("Delete conversation?")).toBeInTheDocument();
@@ -261,7 +305,9 @@ describe("ConversationList", () => {
       render(<ConversationList conversations={mockConversations} />);
       const deleteButtons = screen
         .getAllByRole("button")
-        .filter((btn) => btn !== screen.getByText("New Chat").closest("button"));
+        .filter(
+          (btn) => btn !== screen.getByText("New Chat").closest("button")
+        );
       fireEvent.click(deleteButtons[0]);
 
       expect(screen.getByText("Delete conversation?")).toBeInTheDocument();
@@ -270,7 +316,9 @@ describe("ConversationList", () => {
       fireEvent.click(screen.getByTestId("dialog-onOpenChange-false"));
 
       // Dialog should close (setDeletingConv(null) was called)
-      expect(screen.queryByText("Delete conversation?")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Delete conversation?")
+      ).not.toBeInTheDocument();
     });
   });
 });
