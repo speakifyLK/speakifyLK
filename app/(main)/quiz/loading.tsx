@@ -12,7 +12,7 @@ const Loading = () => {
           <div className="h-6 w-16 animate-pulse rounded-md bg-neutral-200" />
         </div>
 
-        {/* Quests / History Skeleton */}
+        {/* Promo / Quests Skeleton */}
         <div className="mt-4 rounded-xl border-2 border-slate-200 p-4">
           <div className="h-6 w-32 animate-pulse rounded-md bg-neutral-200" />
           <div className="mt-4 space-y-3">
@@ -35,7 +35,7 @@ const Loading = () => {
           <div className="h-6 w-6 opacity-0" />
         </div>
 
-        {/* Config content skeleton */}
+        {/* Quiz config skeleton */}
         <div className="w-full space-y-8 p-6">
           <div className="space-y-4">
             <div className="h-8 w-40 animate-pulse rounded-md bg-neutral-200" />

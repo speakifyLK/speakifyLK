@@ -1,5 +1,15 @@
-const Loader = () => {
-  return <div className="loader" data-testid="custom-loader" />;
-};
+import type { HTMLAttributes } from "react";
 
-export default Loader;
+export const Loader = ({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div
+      className={["speakify-loader", className].filter(Boolean).join(" ")}
+      role="status"
+      aria-label="Loading"
+      {...props}
+    />
+  );
+};
