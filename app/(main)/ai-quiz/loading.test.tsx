@@ -35,9 +35,7 @@ describe("AI Quiz Loading", () => {
   it("renders main content skeleton", () => {
     const { container } = render(<Loading />);
     // Should have skeleton grid items
-    const gridItems = container.querySelectorAll(
-      ".rounded-xl.border-2.border-b-4"
-    );
+    const gridItems = container.querySelectorAll(".rounded-xl.border-2.border-b-4");
     expect(gridItems.length).toBeGreaterThan(0);
   });
 });
