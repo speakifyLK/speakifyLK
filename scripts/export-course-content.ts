@@ -20,6 +20,7 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { fileURLToPath } from "node:url";
 import * as dotenv from "dotenv";
 import { Storage } from "@google-cloud/storage";
 
@@ -28,7 +29,8 @@ dotenv.config({ path: ".env.local", override: true });
 import pLimit from "p-limit";
 import db from "@/db/drizzle";
 
-const getHash = (content: string) => crypto.createHash("md5").update(content).digest("hex");
+const getHash = (content: string) =>
+  crypto.createHash("md5").update(content).digest("hex");
 
 const formatContent = (course: any, unit: any, lesson: any) => {
   let contentText = "";
@@ -37,7 +39,7 @@ const formatContent = (course: any, unit: any, lesson: any) => {
       let text = `Challenge: ${c.question} (Type: ${c.type})`;
       if (c.challengeOptions && c.challengeOptions.length > 0) {
         const optionsText = c.challengeOptions
-          .map((opt: any) => `  - ${opt.text} ${opt.correct ? "(Correct Answer)" : ""}`)
+          .map((opt: any) => `  - ${opt.text}`)
           .join("\n");
         text += `\nOptions:\n${optionsText}`;
       }
@@ -116,7 +118,9 @@ async function exportContent() {
   });
 
   const BUCKET_NAME =
-    process.env.RAG_CONTENT_BUCKET || process.env.GCS_BUCKET_NAME || "speakifylk-rag-content";
+    process.env.RAG_CONTENT_BUCKET ||
+    process.env.GCS_BUCKET_NAME ||
+    "speakifylk-rag-content";
   const bucket = storage.bucket(BUCKET_NAME);
   const limit = pLimit(5);
 
@@ -146,7 +150,9 @@ async function exportContent() {
                   orderBy: (challenges, { asc }) => [asc(challenges.order)],
                   with: {
                     challengeOptions: {
-                      orderBy: (challengeOptions, { asc }) => [asc(challengeOptions.id)],
+                      orderBy: (challengeOptions, { asc }) => [
+                        asc(challengeOptions.id),
+                      ],
                     },
                   },
                 },
@@ -211,21 +217,45 @@ async function exportContent() {
       console.log(`Files Skipped:     ${stats.skipped}`);
       console.log(`Files Failed:      ${stats.failed}`);
       console.log(`Total Local Size:  ${(totalSize / 1024).toFixed(2)} KB`);
+      if (stats.failed > 0) {
+        throw new Error(`${stats.failed} file upload(s) failed during export.`);
+      }
     } else {
       console.log("This was a dry run. No actions were taken.");
     }
   } catch (error) {
-    console.error("Process Failed:", error instanceof Error ? error.message : error);
+    console.error(
+      "Process Failed:",
+      error instanceof Error ? error.message : error
+    );
     process.exit(1);
   }
 }
 
-// Ensure it runs only when executed directly, not when imported during tests
-if (process.env.NODE_ENV !== "test" && typeof require !== "undefined" && require.main === module) {
+/** Exported for tests (CLI entry detection). */
+export function isExecutedAsCli(): boolean {
+  const runPath = process.argv[1];
+  if (!runPath) return false;
+  try {
+    return (
+      path.resolve(runPath) === path.resolve(fileURLToPath(import.meta.url))
+    );
+  } catch {
+    /* v8 ignore next -- only reachable if import.meta.url is not a file:// URL */
+    return false;
+  }
+}
+
+/* v8 ignore start -- CLI entry point; only runs when executed directly, not importable in tests */
+if (isExecutedAsCli()) {
   exportContent().catch((error) => {
-    console.error("Process Failed:", error instanceof Error ? error.message : error);
+    console.error(
+      "Process Failed:",
+      error instanceof Error ? error.message : error
+    );
     process.exit(1);
   });
 }
+/* v8 ignore stop */
 
 export { exportContent, formatContent, uploadToGCS };

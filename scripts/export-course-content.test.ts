@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { exportContent } from "./export-course-content";
+import {
+  exportContent,
+  formatContent,
+  isExecutedAsCli,
+} from "./export-course-content";
 
 const mockFindMany = vi.fn();
 
@@ -62,6 +66,33 @@ vi.mock("fs", () => ({
 
 const flushPromises = () => new Promise<void>((r) => setTimeout(r, 100));
 
+/** Helper that invokes all nested orderBy callbacks (for coverage) and resolves with the given data */
+function mockFindManyWithData(data: any[]) {
+  mockFindMany.mockImplementationOnce((opts: any) => {
+    const mockAsc = vi.fn();
+    if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.orderBy)
+      opts.with.units.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.with?.lessons?.orderBy)
+      opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
+    if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
+      opts.with.units.with.lessons.with.challenges.orderBy(
+        {},
+        { asc: mockAsc }
+      );
+    if (
+      opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions
+        ?.orderBy
+    ) {
+      opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
+        {},
+        { asc: mockAsc }
+      );
+    }
+    return Promise.resolve(data);
+  });
+}
+
 describe("export-course-content script", () => {
   const savedEnv = { ...process.env };
   const savedArgv = [...process.argv];
@@ -76,16 +107,23 @@ describe("export-course-content script", () => {
     });
     process.argv = [...savedArgv.slice(0, 2)];
 
-    // Auto-invoke the nested orderBy callbacks to cover those lines in the original script
+    // Default: invoke orderBy callbacks and return empty array
     mockFindMany.mockImplementation((opts: any) => {
       const mockAsc = vi.fn();
       if (opts?.orderBy) opts.orderBy({}, { asc: mockAsc });
-      if (opts?.with?.units?.orderBy) opts.with.units.orderBy({}, { asc: mockAsc });
+      if (opts?.with?.units?.orderBy)
+        opts.with.units.orderBy({}, { asc: mockAsc });
       if (opts?.with?.units?.with?.lessons?.orderBy)
         opts.with.units.with.lessons.orderBy({}, { asc: mockAsc });
       if (opts?.with?.units?.with?.lessons?.with?.challenges?.orderBy)
-        opts.with.units.with.lessons.with.challenges.orderBy({}, { asc: mockAsc });
-      if (opts?.with?.units?.with?.lessons?.with?.challenges?.with?.challengeOptions?.orderBy) {
+        opts.with.units.with.lessons.with.challenges.orderBy(
+          {},
+          { asc: mockAsc }
+        );
+      if (
+        opts?.with?.units?.with?.lessons?.with?.challenges?.with
+          ?.challengeOptions?.orderBy
+      ) {
         opts.with.units.with.lessons.with.challenges.with.challengeOptions.orderBy(
           {},
           { asc: mockAsc }
@@ -128,7 +166,7 @@ describe("export-course-content script", () => {
   it("exports and uploads course content", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "Basic",
@@ -165,7 +203,7 @@ describe("export-course-content script", () => {
   it("handles lesson with no challenges", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "C",
@@ -175,7 +213,16 @@ describe("export-course-content script", () => {
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: null, challenges: [] }],
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: null,
+                challenges: [],
+              },
+            ],
           },
         ],
       },
@@ -185,6 +232,56 @@ describe("export-course-content script", () => {
     await flushPromises();
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("Starting Speakify Content Export");
+  });
+
+  it("exports lesson with challenges and options", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockFindManyWithData([
+      {
+        id: 1,
+        title: "Sinhala Basics",
+        units: [
+          {
+            id: 1,
+            title: "Greetings",
+            courseId: 1,
+            order: 1,
+            lessons: [
+              {
+                id: 1,
+                title: "Hello",
+                unitId: 1,
+                order: 1,
+                challenges: [
+                  {
+                    question: "What is 'hello' in Sinhala?",
+                    type: "SELECT",
+                    order: 1,
+                    challengeOptions: [
+                      { text: "ආයුබෝවන්", correct: true, id: 1 },
+                      { text: "ස්තුතියි", correct: false, id: 2 },
+                    ],
+                  },
+                  {
+                    question: "Say goodbye",
+                    type: "ASSIST",
+                    order: 2,
+                    challengeOptions: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    await exportContent();
+    await flushPromises();
+    const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
+    expect(output).toContain("Starting Speakify Content Export");
+    expect(output).toContain("UPLOADED");
   });
 
   it("skips upload when file hash matches remote", async () => {
@@ -214,7 +311,7 @@ No detailed content provided.
     const md5Base64 = Buffer.from(md5Hex, "hex").toString("base64");
     mockGetMetadata.mockResolvedValue([{ md5Hash: md5Base64 }]);
 
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "C",
@@ -224,7 +321,16 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
           },
         ],
       },
@@ -235,12 +341,15 @@ No detailed content provided.
     expect(output).toContain("SKIPPED");
   });
 
-  it("handles upload error gracefully", async () => {
+  it("handles upload error gracefully and exits non-zero", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
     mockExists.mockRejectedValue(new Error("GCS error"));
 
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "C",
@@ -250,7 +359,16 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
           },
         ],
       },
@@ -263,6 +381,8 @@ No detailed content provided.
     expect(errOutput).toContain("Error processing");
     const output = logSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(output).toContain("FAILED");
+    // stats.failed > 0 should trigger process.exit(1) via the thrown error
+    expect(exitSpy).toHaveBeenCalledWith(1);
   });
 
   it("creates output dir when it does not exist", async () => {
@@ -270,7 +390,7 @@ No detailed content provided.
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockExistsSync.mockReturnValue(false);
 
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "C",
@@ -280,7 +400,16 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
           },
         ],
       },
@@ -289,9 +418,12 @@ No detailed content provided.
     await exportContent();
     await flushPromises();
 
-    expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("rag-content"), {
-      recursive: true,
-    });
+    expect(mockMkdirSync).toHaveBeenCalledWith(
+      expect.stringContaining("rag-content"),
+      {
+        recursive: true,
+      }
+    );
   });
 
   it("runs in dry-run mode without writing files", async () => {
@@ -300,7 +432,7 @@ No detailed content provided.
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockWriteFileSync.mockClear();
 
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "C",
@@ -310,7 +442,16 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
           },
         ],
       },
@@ -328,7 +469,9 @@ No detailed content provided.
   it("handles database error in exportContent", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     mockFindMany.mockRejectedValueOnce(new Error("DB connection failed"));
 
@@ -345,9 +488,11 @@ No detailed content provided.
     vi.spyOn(console, "error").mockImplementation(() => {});
     mockExists.mockResolvedValue([true]);
     // Return a different hash that won't match the local content hash
-    mockGetMetadata.mockResolvedValue([{ md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" }]);
+    mockGetMetadata.mockResolvedValue([
+      { md5Hash: "AAAAAAAAAAAAAAAAAAAAAA==" },
+    ]);
 
-    mockFindMany.mockResolvedValueOnce([
+    mockFindManyWithData([
       {
         id: 1,
         title: "C",
@@ -357,7 +502,16 @@ No detailed content provided.
             title: "U",
             courseId: 1,
             order: 1,
-            lessons: [{ id: 1, title: "L", unitId: 1, order: 1, content: "text", challenges: [] }],
+            lessons: [
+              {
+                id: 1,
+                title: "L",
+                unitId: 1,
+                order: 1,
+                content: "text",
+                challenges: [],
+              },
+            ],
           },
         ],
       },
@@ -372,7 +526,9 @@ No detailed content provided.
   it("handles non-Error thrown in exportContent catch block", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined as never);
 
     mockFindMany.mockRejectedValueOnce("string error");
 
@@ -382,5 +538,105 @@ No detailed content provided.
     const errOutput = errSpy.mock.calls.map((c) => c.join(" ")).join("\n");
     expect(errOutput).toContain("Process Failed");
     expect(exitSpy).toHaveBeenCalled();
+  });
+});
+
+describe("formatContent", () => {
+  it("formats lesson with challenges and options (no answer markers)", () => {
+    const course = { title: "Sinhala" };
+    const unit = { title: "Greetings" };
+    const lesson = {
+      title: "Hello",
+      challenges: [
+        {
+          question: "What is hello?",
+          type: "SELECT",
+          challengeOptions: [
+            { text: "ආයුබෝවන්", correct: true },
+            { text: "ස්තුතියි", correct: false },
+          ],
+        },
+      ],
+    };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("Challenge: What is hello? (Type: SELECT)");
+    expect(result).toContain("Options:");
+    expect(result).toContain("  - ආයුබෝවන්");
+    expect(result).toContain("  - ස්තුතියි");
+    // Ensure correct answer markers are NOT present
+    expect(result).not.toContain("(Correct Answer)");
+  });
+
+  it("formats lesson with challenges that have no options", () => {
+    const course = { title: "Sinhala" };
+    const unit = { title: "Unit 1" };
+    const lesson = {
+      title: "Lesson 1",
+      challenges: [
+        {
+          question: "Translate this",
+          type: "ASSIST",
+          challengeOptions: [],
+        },
+      ],
+    };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("Challenge: Translate this (Type: ASSIST)");
+    expect(result).not.toContain("Options:");
+  });
+
+  it("formats lesson with no challenges", () => {
+    const course = { title: "Sinhala" };
+    const unit = { title: "Unit 1" };
+    const lesson = { title: "Lesson 1", challenges: [] };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("No detailed content provided.");
+  });
+
+  it("formats lesson with multiple challenges", () => {
+    const course = { title: "Course" };
+    const unit = { title: "Unit" };
+    const lesson = {
+      title: "Lesson",
+      challenges: [
+        {
+          question: "Q1",
+          type: "SELECT",
+          challengeOptions: [{ text: "A", correct: true }],
+        },
+        {
+          question: "Q2",
+          type: "SELECT",
+          challengeOptions: [{ text: "B", correct: false }],
+        },
+      ],
+    };
+
+    const result = formatContent(course, unit, lesson);
+    expect(result).toContain("Challenge: Q1 (Type: SELECT)");
+    expect(result).toContain("Challenge: Q2 (Type: SELECT)");
+    expect(result).toContain("  - A");
+    expect(result).toContain("  - B");
+  });
+});
+
+describe("isExecutedAsCli", () => {
+  const savedArgv = [...process.argv];
+
+  afterEach(() => {
+    process.argv = savedArgv;
+  });
+
+  it("returns false when process.argv[1] is undefined", () => {
+    process.argv = [process.argv[0]];
+    expect(isExecutedAsCli()).toBe(false);
+  });
+
+  it("returns false when process.argv[1] does not match import.meta.url", () => {
+    process.argv = [process.argv[0], "/some/other/script.ts"];
+    expect(isExecutedAsCli()).toBe(false);
   });
 });
