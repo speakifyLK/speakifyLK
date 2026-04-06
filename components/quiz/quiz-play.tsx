@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { submitQuizAnswer } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
-import { QuizTimer } from "./quiz-timer";
+import { QuizProgress } from "./quiz-progress";
 import { QuizResult, type LocalQuestionAnswerSnapshot } from "./quiz-result";
 
 type Session = typeof aiQuizSessions.$inferSelect & {
@@ -49,7 +49,10 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     initialLocalQuestionAnswers(session.questions)
   );
 
-  // Try Again / new ?sessionId= navigates here without remounting; reset so we don’t stay on results
+  // Try Again / new ?sessionId= navigates here without remounting; reset so we don’t stay on results.
+  // Depend only on session.id — after every submitQuizAnswer call Next.js does a router.refresh()
+  // which passes a new session prop (new questions array reference). Including session.questions,
+  // session.correctAnswers, etc. in the deps would fire this reset after every answer submission.
   useEffect(() => {
     setShowResults(!!session.completedAt);
     setCurrentQuestionIndex(0);
@@ -59,7 +62,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     setScore(session.correctAnswers ?? 0);
     setIsTimeUp(false);
     setAnswersByQuestionId(initialLocalQuestionAnswers(session.questions));
-  }, [session.id, session.completedAt, session.correctAnswers, session.questions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.id]);
 
   const currentQuestion = session.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === session.questions.length - 1;
@@ -82,14 +86,14 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     /* v8 ignore next */
     if (isAnswerSubmitted || isSubmitting) return;
 
-    // Lock submission immediately to avoid races with the timer/onTimeUp
+    // Stop the timer and show the Next button immediately — result arrives async
+    setIsAnswerSubmitted(true);
     setIsSubmitting(true);
 
     startTransition(async () => {
       try {
         const result = await submitQuizAnswer(currentQuestion.id, userAnswer.trim());
         setIsCorrect(result.isCorrect);
-        setIsAnswerSubmitted(true);
         setAnswersByQuestionId((prev) => ({
           ...prev,
           [currentQuestion.id]: {
@@ -106,6 +110,8 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           toast.error("Incorrect answer.");
         }
       } catch (error) {
+        // Roll back so the user can try again
+        setIsAnswerSubmitted(false);
         toast.error(error instanceof Error ? error.message : "Failed to submit answer");
       } finally {
         setIsSubmitting(false);
@@ -200,32 +206,19 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
   return (
     <div className="flex flex-col gap-8 p-6">
-      {/* Quiz Timer Component */}
-      <QuizTimer
+      {/* Quiz Progress (timer + question progress bar + score) */}
+      <QuizProgress
         difficulty={session.difficulty}
-        score={score}
+        currentQuestionIndex={currentQuestionIndex}
         totalQuestions={session.totalQuestions}
+        score={score}
         isAnswerSubmitted={isAnswerSubmitted}
         onTimeUp={handleTimeUp}
-        resetKey={currentQuestionIndex}
       />
 
-      {/* Progress indicator */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm text-neutral-600">
-          <span>
-            Question {currentQuestionIndex + 1} of {session.questions.length}
-          </span>
-          <span>Topic: {session.topic}</span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-neutral-200">
-          <div
-            className="h-2 rounded-full bg-green-500 transition-all"
-            style={{
-              width: `${((currentQuestionIndex + 1) / session.questions.length) * 100}%`,
-            }}
-          />
-        </div>
+      {/* Topic indicator */}
+      <div className="flex justify-end text-sm text-neutral-600">
+        <span>Topic: {session.topic}</span>
       </div>
 
       {/* Question */}
@@ -270,24 +263,35 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           </div>
         )}
 
-        {/* Show explanation after answer is submitted or time is up */}
+        {/* Show feedback after answer is submitted or time is up */}
         {(isAnswerSubmitted || isTimeUp) && (
           <div
             className={`rounded-lg border-2 p-4 ${
-              isTimeUp
-                ? "border-orange-500 bg-orange-50"
-                : isCorrect
-                  ? "border-green-500 bg-green-50"
-                  : "border-red-500 bg-red-50"
+              isCorrect === null
+                ? "border-neutral-300 bg-neutral-50"
+                : isTimeUp
+                  ? "border-orange-500 bg-orange-50"
+                  : isCorrect
+                    ? "border-green-500 bg-green-50"
+                    : "border-red-500 bg-red-50"
             }`}
           >
             <p className="font-semibold">
-              {isTimeUp ? "⏰ Time's up!" : isCorrect ? "✓ Correct!" : "✗ Incorrect"}
+              {isCorrect === null
+                ? "⏳ Checking..."
+                : isTimeUp
+                  ? "⏰ Time's up!"
+                  : isCorrect
+                    ? "✓ Correct!"
+                    : "✗ Incorrect"}
             </p>
-            <p className="mt-2 text-sm text-neutral-700">
-              <span className="font-semibold">Correct answer:</span> {currentQuestion.correctAnswer}
-            </p>
-            {currentQuestion.explanation && (
+            {isCorrect !== null && (
+              <p className="mt-2 text-sm text-neutral-700">
+                <span className="font-semibold">Correct answer:</span>{" "}
+                {currentQuestion.correctAnswer}
+              </p>
+            )}
+            {isCorrect !== null && currentQuestion.explanation && (
               <p className="mt-2 text-sm text-neutral-600">
                 <span className="font-semibold">Explanation:</span> {currentQuestion.explanation}
               </p>

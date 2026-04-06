@@ -3,6 +3,7 @@ import type { Difficulty } from "@/lib/quiz-prompt";
 /** Shape compatible with rows returned from `getQuizHistory()` (dates may be ISO strings from RSC → client). */
 export type AdaptiveQuizHistorySession = {
   topic: string;
+  difficulty?: string;
   score: number;
   startedAt: Date | string;
   completedAt: Date | string | null;
@@ -47,6 +48,23 @@ export function averageScores(sessions: AdaptiveQuizHistorySession[]): number | 
   if (sessions.length === 0) return null;
   const sum = sessions.reduce((acc, s) => acc + s.score, 0);
   return sum / sessions.length;
+}
+
+/**
+ * Returns the difficulty level the user most recently played for the given topic.
+ * Falls back to `fallback` (default "beginner") when there is no history.
+ * Use this instead of the user's currently-selected UI value so the recommendation
+ * stays stable when the user clicks different difficulty buttons.
+ */
+export function getBaselineDifficulty(
+  sessions: AdaptiveQuizHistorySession[],
+  topicTitle: string,
+  fallback: Difficulty = "beginner"
+): Difficulty {
+  const recent = selectLastSessionsForTopic(sessions, topicTitle, 1);
+  if (recent.length === 0 || !recent[0].difficulty) return fallback;
+  const d = recent[0].difficulty as Difficulty;
+  return ORDER.includes(d) ? d : fallback;
 }
 
 /**

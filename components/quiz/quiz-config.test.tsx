@@ -40,6 +40,7 @@ vi.mock("@/store/quiz-store", () => ({
 
 vi.mock("@/lib/adaptive-difficulty", () => ({
   computeAdaptiveDifficultyRecommendation: vi.fn(() => null),
+  getBaselineDifficulty: vi.fn(() => "beginner" as const),
 }));
 
 import { QuizConfig } from "./quiz-config";
@@ -197,7 +198,7 @@ describe("QuizConfig", () => {
   it("successfully starts quiz and navigates", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ sessionId: 42 }),
+      text: () => Promise.resolve(JSON.stringify({ sessionId: 42 })),
     });
     global.fetch = mockFetch;
 
@@ -206,7 +207,10 @@ describe("QuizConfig", () => {
     fireEvent.click(screen.getByText("Start Quiz"));
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith("/api/quiz/generate", expect.any(Object));
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/quiz/generate",
+        expect.objectContaining({ method: "POST", credentials: "include" })
+      );
     });
 
     await waitFor(() => {
@@ -218,7 +222,7 @@ describe("QuizConfig", () => {
   it("uses custom basePath when provided", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ sessionId: 99 }),
+      text: () => Promise.resolve(JSON.stringify({ sessionId: 99 })),
     });
     global.fetch = mockFetch;
 
@@ -234,7 +238,7 @@ describe("QuizConfig", () => {
   it("shows error when fetch fails", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
-      json: () => Promise.resolve({ error: "Server error" }),
+      text: () => Promise.resolve(JSON.stringify({ error: "Server error" })),
     });
     global.fetch = mockFetch;
 
@@ -276,7 +280,7 @@ describe("QuizConfig", () => {
   it("shows error when missing sessionId in response", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(JSON.stringify({})),
     });
     global.fetch = mockFetch;
 
@@ -290,12 +294,12 @@ describe("QuizConfig", () => {
   });
 
   it("shows loading state while generating quiz", async () => {
-    let resolveJson: any;
+    let resolveText: (v: string) => void;
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () =>
-        new Promise((resolve) => {
-          resolveJson = resolve;
+      text: () =>
+        new Promise<string>((resolve) => {
+          resolveText = resolve;
         }),
     });
     global.fetch = mockFetch;
@@ -308,7 +312,7 @@ describe("QuizConfig", () => {
       expect(screen.getByText("Generating Quiz...")).toBeInTheDocument();
     });
 
-    resolveJson({ sessionId: 1 });
+    resolveText!(JSON.stringify({ sessionId: 1 }));
 
     await waitFor(() => {
       expect(screen.getByText("Start Quiz")).toBeInTheDocument();
@@ -525,7 +529,7 @@ describe("QuizConfig", () => {
   it("uses default error message when response has no error field", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
-      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(JSON.stringify({})),
     });
     global.fetch = mockFetch;
 
@@ -535,6 +539,90 @@ describe("QuizConfig", () => {
 
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith("Failed to generate quiz");
+    });
+  });
+
+  it("shows HTTP hint when error response body is not JSON", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      text: () => Promise.resolve("<!DOCTYPE html><html></html>"),
+    });
+    global.fetch = mockFetch;
+
+    render(<QuizConfig units={makeUnits()} />);
+    fireEvent.click(screen.getByText("Greetings").closest("button")!);
+    fireEvent.click(screen.getByText("Start Quiz"));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Could not start quiz (HTTP 404). Try refreshing or signing in again."
+      );
+    });
+  });
+
+  it("shows invalid server message when success body is not JSON", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve("not-json"),
+    });
+    global.fetch = mockFetch;
+
+    render(<QuizConfig units={makeUnits()} />);
+    fireEvent.click(screen.getByText("Greetings").closest("button")!);
+    fireEvent.click(screen.getByText("Start Quiz"));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith("Invalid response from the quiz server.");
+    });
+  });
+
+  it("accepts string sessionId from API", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(JSON.stringify({ sessionId: "99" })),
+    });
+    global.fetch = mockFetch;
+
+    render(<QuizConfig units={makeUnits()} />);
+    fireEvent.click(screen.getByText("Greetings").closest("button")!);
+    fireEvent.click(screen.getByText("Start Quiz"));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/quiz?sessionId=99");
+    });
+  });
+
+  it("uses default error when error field is not a string", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      text: () => Promise.resolve(JSON.stringify({ error: 503 })),
+    });
+    global.fetch = mockFetch;
+
+    render(<QuizConfig units={makeUnits()} />);
+    fireEvent.click(screen.getByText("Greetings").closest("button")!);
+    fireEvent.click(screen.getByText("Start Quiz"));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith("Failed to generate quiz");
+    });
+  });
+
+  it("treats empty response body as missing session when ok", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(""),
+    });
+    global.fetch = mockFetch;
+
+    render(<QuizConfig units={makeUnits()} />);
+    fireEvent.click(screen.getByText("Greetings").closest("button")!);
+    fireEvent.click(screen.getByText("Start Quiz"));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith("Failed to start quiz: missing session ID");
     });
   });
 

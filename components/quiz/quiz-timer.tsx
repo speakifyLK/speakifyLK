@@ -47,6 +47,13 @@ export const QuizTimer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey, timeLimit]);
 
+  // Fire onTimeUp after timeRemaining reaches 0 (outside the setter to avoid update-during-render)
+  useEffect(() => {
+    if (timeRemaining === 0 && !isAnswerSubmitted) {
+      onTimeUpRef.current?.();
+    }
+  }, [timeRemaining, isAnswerSubmitted]);
+
   // Countdown logic with cleanup
   useEffect(() => {
     if (isAnswerSubmitted) {
@@ -57,7 +64,6 @@ export const QuizTimer = ({
     intervalRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          onTimeUpRef.current?.();
           return 0;
         }
         return prev - 1;
