@@ -23,11 +23,7 @@ interface Conversation {
   updatedAt: Date;
 }
 
-export const ConversationList = ({
-  conversations,
-}: {
-  conversations: Conversation[];
-}) => {
+export const ConversationList = ({ conversations }: { conversations: Conversation[] }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeId = searchParams.get("id");
@@ -86,9 +82,7 @@ export const ConversationList = ({
 
         <div className="flex-1 space-y-2 overflow-y-auto">
           {conversations.length === 0 && (
-            <p className="mt-10 text-center text-sm text-muted-foreground">
-              No conversations yet
-            </p>
+            <p className="mt-10 text-center text-sm text-muted-foreground">No conversations yet</p>
           )}
 
           {conversations.map((conv) => (
@@ -97,8 +91,7 @@ export const ConversationList = ({
               onClick={() => router.push(`/chat?id=${conv.id}`)}
               className={cn(
                 "group relative flex cursor-pointer flex-col rounded-lg p-3 transition hover:bg-slate-100",
-                activeId === conv.id.toString() &&
-                  "border-l-4 border-green-500 bg-slate-100"
+                activeId === conv.id.toString() && "border-l-4 border-green-500 bg-slate-100"
               )}
             >
               <div className="flex items-center justify-between">
@@ -138,8 +131,8 @@ export const ConversationList = ({
             <DialogTitle>Delete conversation?</DialogTitle>
             <DialogDescription>
               This will permanently delete &quot;
-              {deletingConv?.title || "New Conversation"}&quot; and all its
-              messages. This action cannot be undone.
+              {deletingConv?.title || "New Conversation"}&quot; and all its messages. This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
