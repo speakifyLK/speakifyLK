@@ -82,7 +82,7 @@ export const Quiz = ({
   const challenge = challenges[activeIndex];
   const options = useMemo(() => {
     return shuffleArray(challenge?.challengeOptions ?? []);
-  }, [challenge]);
+  }, [challenge?.id]);
 
   const onNext = () => {
     setActiveIndex((current) => current + 1);

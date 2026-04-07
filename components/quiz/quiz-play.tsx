@@ -81,7 +81,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       (opt) => opt.text
     );
     return shuffleArray(rawOptions);
-  }, [currentQuestion]);
+  }, [currentQuestion?.id]);
 
   const handleSubmitAnswer = () => {
     /* v8 ignore next 4 -- defensive guard behind disabled button */
