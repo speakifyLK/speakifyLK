@@ -63,9 +63,7 @@ export const GET = async (req: NextRequest) => {
   return NextResponse.json(allData, {
     headers: {
       "Content-Range":
-        total > 0
-          ? `challengeOptions 0-${total - 1}/${total}`
-          : "challengeOptions */0",
+        total > 0 ? `challengeOptions 0-${total - 1}/${total}` : "challengeOptions */0",
     },
   });
 };

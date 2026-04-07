@@ -66,9 +66,7 @@ describe("GET /api/challengeOptions", () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(mockData);
-    expect(response.headers.get("Content-Range")).toBe(
-      "challengeOptions 0-1/2"
-    );
+    expect(response.headers.get("Content-Range")).toBe("challengeOptions 0-1/2");
   });
 
   it("filters by IDs when filter.id is provided (getMany)", async () => {
@@ -76,15 +74,11 @@ describe("GET /api/challengeOptions", () => {
     const filtered = [{ id: 2, text: "Option 2" }];
     mockDbQuery.challengeOptions.findMany.mockResolvedValue(filtered);
 
-    const response = await GET(
-      buildRequest({ filter: JSON.stringify({ id: [2] }) })
-    );
+    const response = await GET(buildRequest({ filter: JSON.stringify({ id: [2] }) }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(filtered);
-    expect(response.headers.get("Content-Range")).toBe(
-      "challengeOptions 0-0/1"
-    );
+    expect(response.headers.get("Content-Range")).toBe("challengeOptions 0-0/1");
   });
 
   it("returns 400 when filter param is invalid JSON", async () => {
@@ -124,9 +118,7 @@ describe("GET /api/challengeOptions", () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual([allData[0], allData[1]]);
-    expect(response.headers.get("Content-Range")).toBe(
-      "challengeOptions 0-1/3"
-    );
+    expect(response.headers.get("Content-Range")).toBe("challengeOptions 0-1/3");
   });
 });
 

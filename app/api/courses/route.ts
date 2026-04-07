@@ -26,9 +26,7 @@ export const GET = async (req: NextRequest) => {
       where: inArray(courses.id, filter.id as number[]),
     });
     const contentRange =
-      data.length > 0
-        ? `courses 0-${data.length - 1}/${data.length}`
-        : "courses */0";
+      data.length > 0 ? `courses 0-${data.length - 1}/${data.length}` : "courses */0";
     return NextResponse.json(data, {
       headers: {
         "Content-Range": contentRange,
@@ -62,8 +60,7 @@ export const GET = async (req: NextRequest) => {
 
   return NextResponse.json(allData, {
     headers: {
-      "Content-Range":
-        total > 0 ? `courses 0-${total - 1}/${total}` : "courses */0",
+      "Content-Range": total > 0 ? `courses 0-${total - 1}/${total}` : "courses */0",
     },
   });
 };
