@@ -42,6 +42,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [aiExplanation, setAiExplanation] = useState<string | undefined>(undefined);
   const [score, setScore] = useState(session.correctAnswers || 0);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [showResults, setShowResults] = useState(!!session.completedAt);
@@ -59,6 +60,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
     setUserAnswer("");
     setIsAnswerSubmitted(false);
     setIsCorrect(null);
+    setAiExplanation(undefined);
     setScore(session.correctAnswers ?? 0);
     setIsTimeUp(false);
     setAnswersByQuestionId(initialLocalQuestionAnswers(session.questions));
@@ -94,6 +96,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       try {
         const result = await submitQuizAnswer(currentQuestion.id, userAnswer.trim());
         setIsCorrect(result.isCorrect);
+        setAiExplanation(result.aiExplanation);
         setAnswersByQuestionId((prev) => ({
           ...prev,
           [currentQuestion.id]: {
@@ -128,6 +131,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       setUserAnswer("");
       setIsAnswerSubmitted(false);
       setIsCorrect(null);
+      setAiExplanation(undefined);
       setIsTimeUp(false);
     }
   };
@@ -239,7 +243,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
                       ? "border-green-500 bg-green-50"
                       : isCorrect === false
                         ? "border-red-500 bg-red-50"
-                        : "border-sky-500 bg-sky-50"
+                        : "border-green-500 bg-green-50"
                     : "border-neutral-200 bg-white hover:bg-neutral-50"
                 } ${isAnswerSubmitted || isTimeUp ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
               >
@@ -258,7 +262,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
               onChange={(e) => !isAnswerSubmitted && !isTimeUp && setUserAnswer(e.target.value)}
               disabled={isAnswerSubmitted || isTimeUp}
               placeholder="Type your answer here..."
-              className="w-full rounded-lg border-2 border-neutral-200 p-4 text-lg focus:border-sky-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
+              className="w-full rounded-lg border-2 border-neutral-200 p-4 text-lg focus:border-green-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
             />
           </div>
         )}
@@ -285,15 +289,16 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
                     ? "✓ Correct!"
                     : "✗ Incorrect"}
             </p>
-            {isCorrect !== null && (
+            {isCorrect !== null && !isCorrect && (
               <p className="mt-2 text-sm text-neutral-700">
                 <span className="font-semibold">Correct answer:</span>{" "}
                 {currentQuestion.correctAnswer}
               </p>
             )}
-            {isCorrect !== null && currentQuestion.explanation && (
+            {isCorrect !== null && (aiExplanation ?? currentQuestion.explanation) && (
               <p className="mt-2 text-sm text-neutral-600">
-                <span className="font-semibold">Explanation:</span> {currentQuestion.explanation}
+                <span className="font-semibold">Explanation:</span>{" "}
+                {aiExplanation ?? currentQuestion.explanation}
               </p>
             )}
           </div>
@@ -306,13 +311,20 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
           <Button
             onClick={handleSubmitAnswer}
             disabled={pending || !userAnswer.trim()}
+            variant="secondary"
             size="lg"
             className="flex-1"
           >
             Submit Answer
           </Button>
         ) : (
-          <Button onClick={handleNext} disabled={pending} size="lg" className="flex-1">
+          <Button
+            onClick={handleNext}
+            disabled={pending}
+            variant="primary"
+            size="lg"
+            className="flex-1"
+          >
             {isLastQuestion ? "Complete Quiz" : "Next Question"}
           </Button>
         )}

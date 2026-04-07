@@ -1,18 +1,18 @@
-import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
-import { MessageCircle } from "lucide-react";
+import { SidebarUserButton } from "./sidebar-user-button";
 
 type SidebarProps = {
   className?: string;
+  isAdmin?: boolean;
 };
 
-export const Sidebar = ({ className }: SidebarProps) => {
+export const Sidebar = ({ className, isAdmin }: SidebarProps) => {
   return (
     <div
       className={cn(
@@ -31,29 +31,18 @@ export const Sidebar = ({ className }: SidebarProps) => {
       <div className="flex flex-1 flex-col gap-y-2">
         <SidebarItem label="Learn" href="/learn" iconSrc="/learn.svg" />
         <SidebarItem label="Quiz" href="/quiz" iconSrc="/quiz.svg" />
-        <SidebarItem label="Leaderboard" href="/leaderboard" iconSrc="/leaderboard.svg" />
-        <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
-        <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
         <SidebarItem
           label="Chat"
           href="/chat"
           icon={<MessageCircle className="h-8 w-8 text-slate-500" />}
         />
+        <SidebarItem label="Leaderboard" href="/leaderboard" iconSrc="/leaderboard.svg" />
+        <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
+        <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
       </div>
 
       <div className="p-4">
-        <ClerkLoading>
-          <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClerkLoading>
-
-        <ClerkLoaded>
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: { userButtonPopoverCard: { pointerEvents: "initial" } },
-            }}
-          />
-        </ClerkLoaded>
+        <SidebarUserButton isAdmin={isAdmin} />
       </div>
     </div>
   );

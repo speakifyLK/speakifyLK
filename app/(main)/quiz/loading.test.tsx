@@ -3,12 +3,8 @@ import { render, screen } from "@testing-library/react";
 import type { ComponentPropsWithoutRef } from "react";
 
 vi.mock("@/components/loader", () => ({
-  Loader: ({ className, ...props }: ComponentPropsWithoutRef<"div">) => (
-    <div
-      data-testid="custom-loader"
-      className={["speakify-loader", className].filter(Boolean).join(" ")}
-      {...props}
-    />
+  Loader: (props: ComponentPropsWithoutRef<"div">) => (
+    <div data-testid="custom-loader" className="speakify-loader" {...props} />
   ),
 }));
 
@@ -27,15 +23,9 @@ describe("Quiz Loading", () => {
     expect(loader).toHaveClass("speakify-loader");
   });
 
-  it("renders sidebar skeleton placeholders", () => {
+  it("has a centered container", () => {
     const { container } = render(<Loading />);
-    const pulseElements = container.querySelectorAll(".animate-pulse");
-    expect(pulseElements.length).toBeGreaterThan(0);
-  });
-
-  it("renders main content skeleton", () => {
-    const { container } = render(<Loading />);
-    const gridItems = container.querySelectorAll(".rounded-xl.border-2.border-b-4");
-    expect(gridItems.length).toBeGreaterThan(0);
+    const wrapper = container.firstElementChild;
+    expect(wrapper).toHaveClass("flex", "h-full", "w-full", "items-center", "justify-center");
   });
 });
