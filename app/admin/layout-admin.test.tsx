@@ -16,6 +16,10 @@ vi.mock("@clerk/nextjs", () => ({
   ),
 }));
 
+vi.mock("next/link", () => ({
+  default: ({ children, ...props }: any) => <a {...props}>{children}</a>,
+}));
+
 vi.mock("react-admin", () => ({
   Layout: ({ children, menu: MenuComponent }: any) => (
     <div data-testid="ra-layout">
@@ -59,5 +63,13 @@ describe("AdminLayout", () => {
     const userButton = screen.getByTestId("user-button");
     expect(userButton).toBeInTheDocument();
     expect(userButton).toHaveAttribute("data-after-sign-out-url", "/");
+  });
+
+  it("renders Back to App link pointing to /learn", () => {
+    render(<AdminLayout>content</AdminLayout>);
+    const backLink = screen.getByTestId("back-to-app");
+    expect(backLink).toBeInTheDocument();
+    expect(backLink).toHaveAttribute("href", "/learn");
+    expect(screen.getByText("Back to App")).toBeInTheDocument();
   });
 });

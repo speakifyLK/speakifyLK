@@ -51,8 +51,17 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     const links = screen.getAllByRole("link");
-    const navLabels = links.map((l) => l.textContent?.trim()).filter((t) => t && t !== "Speakify");
-    expect(navLabels).toEqual(["Learn", "Quiz", "Chat", "Leaderboard", "Quests", "Shop"]);
+    const navLabels = links
+      .map((l) => l.textContent?.trim())
+      .filter((t) => t && t !== "Speakify");
+    expect(navLabels).toEqual([
+      "Learn",
+      "Quiz",
+      "Chat",
+      "Leaderboard",
+      "Quests",
+      "Shop",
+    ]);
   });
 
   it("renders UserButton when clerk is loaded", () => {
@@ -74,5 +83,25 @@ describe("Sidebar", () => {
     const links = screen.getAllByRole("link");
     const learnLink = links.find((l) => l.getAttribute("href") === "/learn");
     expect(learnLink).toBeDefined();
+  });
+
+  it("does not render Admin link when isAdmin is false", () => {
+    render(<Sidebar isAdmin={false} />);
+
+    expect(screen.queryByText("Admin")).not.toBeInTheDocument();
+  });
+
+  it("does not render Admin link when isAdmin is undefined", () => {
+    render(<Sidebar />);
+
+    expect(screen.queryByText("Admin")).not.toBeInTheDocument();
+  });
+
+  it("renders Admin link when isAdmin is true", () => {
+    render(<Sidebar isAdmin={true} />);
+
+    const adminLink = screen.getByText("Admin");
+    expect(adminLink).toBeInTheDocument();
+    expect(adminLink.closest("a")).toHaveAttribute("href", "/admin");
   });
 });

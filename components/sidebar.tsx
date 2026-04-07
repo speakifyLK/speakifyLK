@@ -1,18 +1,18 @@
 import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
+import { Loader, MessageCircle, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
-import { MessageCircle } from "lucide-react";
 
 type SidebarProps = {
   className?: string;
+  isAdmin?: boolean;
 };
 
-export const Sidebar = ({ className }: SidebarProps) => {
+export const Sidebar = ({ className, isAdmin }: SidebarProps) => {
   return (
     <div
       className={cn(
@@ -24,7 +24,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
         <div className="flex items-center gap-x-3 pb-7 pl-4 pt-8">
           <Image src="/mascot.svg" alt="Mascot" height={40} width={40} />
 
-          <h1 className="text-2xl font-extrabold tracking-wide text-green-600">Speakify</h1>
+          <h1 className="text-2xl font-extrabold tracking-wide text-green-600">
+            Speakify
+          </h1>
         </div>
       </Link>
 
@@ -36,12 +38,16 @@ export const Sidebar = ({ className }: SidebarProps) => {
           href="/chat"
           icon={<MessageCircle className="h-8 w-8 text-slate-500" />}
         />
-        <SidebarItem label="Leaderboard" href="/leaderboard" iconSrc="/leaderboard.svg" />
+        <SidebarItem
+          label="Leaderboard"
+          href="/leaderboard"
+          iconSrc="/leaderboard.svg"
+        />
         <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
         <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
       </div>
 
-      <div className="p-4">
+      <div className="flex items-center gap-x-3 p-4">
         <ClerkLoading>
           <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
         </ClerkLoading>
@@ -54,6 +60,16 @@ export const Sidebar = ({ className }: SidebarProps) => {
             }}
           />
         </ClerkLoaded>
+
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-x-2 rounded-lg border-2 border-b-4 border-slate-200 px-3 py-2 text-sm font-bold text-slate-500 transition hover:bg-slate-100 active:border-b-2"
+          >
+            <Shield className="h-4 w-4" />
+            Admin
+          </Link>
+        )}
       </div>
     </div>
   );
