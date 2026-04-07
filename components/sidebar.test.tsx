@@ -13,10 +13,10 @@ vi.mock("next/navigation", () => ({
   usePathname: vi.fn(() => "/learn"),
 }));
 
-vi.mock("@clerk/nextjs", () => ({
-  ClerkLoading: ({ children: _children }: any) => null,
-  ClerkLoaded: ({ children }: any) => <>{children}</>,
-  UserButton: (_props: any) => <div data-testid="user-button" />,
+vi.mock("./sidebar-user-button", () => ({
+  SidebarUserButton: ({ isAdmin }: { isAdmin?: boolean }) => (
+    <div data-testid="sidebar-user-button" data-is-admin={String(!!isAdmin)} />
+  ),
 }));
 
 import { Sidebar } from "./sidebar";
@@ -64,10 +64,37 @@ describe("Sidebar", () => {
     ]);
   });
 
-  it("renders UserButton when clerk is loaded", () => {
+  it("renders SidebarUserButton", () => {
     render(<Sidebar />);
 
-    expect(screen.getByTestId("user-button")).toBeInTheDocument();
+    expect(screen.getByTestId("sidebar-user-button")).toBeInTheDocument();
+  });
+
+  it("passes isAdmin=false to SidebarUserButton when isAdmin is false", () => {
+    render(<Sidebar isAdmin={false} />);
+
+    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute(
+      "data-is-admin",
+      "false"
+    );
+  });
+
+  it("passes isAdmin=false to SidebarUserButton when isAdmin is undefined", () => {
+    render(<Sidebar />);
+
+    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute(
+      "data-is-admin",
+      "false"
+    );
+  });
+
+  it("passes isAdmin=true to SidebarUserButton when isAdmin is true", () => {
+    render(<Sidebar isAdmin={true} />);
+
+    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute(
+      "data-is-admin",
+      "true"
+    );
   });
 
   it("accepts and applies className prop", () => {
@@ -83,25 +110,5 @@ describe("Sidebar", () => {
     const links = screen.getAllByRole("link");
     const learnLink = links.find((l) => l.getAttribute("href") === "/learn");
     expect(learnLink).toBeDefined();
-  });
-
-  it("does not render Admin link when isAdmin is false", () => {
-    render(<Sidebar isAdmin={false} />);
-
-    expect(screen.queryByText("Admin")).not.toBeInTheDocument();
-  });
-
-  it("does not render Admin link when isAdmin is undefined", () => {
-    render(<Sidebar />);
-
-    expect(screen.queryByText("Admin")).not.toBeInTheDocument();
-  });
-
-  it("renders Admin link when isAdmin is true", () => {
-    render(<Sidebar isAdmin={true} />);
-
-    const adminLink = screen.getByText("Admin");
-    expect(adminLink).toBeInTheDocument();
-    expect(adminLink.closest("a")).toHaveAttribute("href", "/admin");
   });
 });

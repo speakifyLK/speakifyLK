@@ -1,11 +1,11 @@
-import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/nextjs";
-import { Loader, MessageCircle, Shield } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
+import { SidebarUserButton } from "./sidebar-user-button";
 
 type SidebarProps = {
   className?: string;
@@ -47,29 +47,8 @@ export const Sidebar = ({ className, isAdmin }: SidebarProps) => {
         <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
       </div>
 
-      <div className="flex items-center gap-x-3 p-4">
-        <ClerkLoading>
-          <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClerkLoading>
-
-        <ClerkLoaded>
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: { userButtonPopoverCard: { pointerEvents: "initial" } },
-            }}
-          />
-        </ClerkLoaded>
-
-        {isAdmin && (
-          <Link
-            href="/admin"
-            className="flex items-center gap-x-2 rounded-lg border-2 border-b-4 border-slate-200 px-3 py-2 text-sm font-bold text-slate-500 transition hover:bg-slate-100 active:border-b-2"
-          >
-            <Shield className="h-4 w-4" />
-            Admin
-          </Link>
-        )}
+      <div className="p-4">
+        <SidebarUserButton isAdmin={isAdmin} />
       </div>
     </div>
   );

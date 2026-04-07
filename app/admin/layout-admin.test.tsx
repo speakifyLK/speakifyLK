@@ -1,24 +1,35 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("@clerk/nextjs", () => ({
-  ClerkLoading: ({ children }: any) => (
-    <div data-testid="clerk-loading">{children}</div>
-  ),
-  ClerkLoaded: ({ children }: any) => (
-    <div data-testid="clerk-loaded">{children}</div>
-  ),
-  UserButton: (props: any) => (
-    <div
-      data-testid="user-button"
-      data-after-sign-out-url={props.afterSignOutUrl}
-    />
-  ),
-}));
+vi.mock("@clerk/nextjs", () => {
+  const MockUserButton = Object.assign(
+    ({ children, ..._props }: any) => (
+      <div data-testid="user-button">{children}</div>
+    ),
+    {
+      MenuItems: ({ children }: any) => (
+        <div data-testid="user-button-menu-items">{children}</div>
+      ),
+      Link: (props: any) => (
+        <a
+          data-testid="user-button-link"
+          href={props.href}
+          data-label={props.label}
+        />
+      ),
+    }
+  );
 
-vi.mock("next/link", () => ({
-  default: ({ children, ...props }: any) => <a {...props}>{children}</a>,
-}));
+  return {
+    ClerkLoading: ({ children }: any) => (
+      <div data-testid="clerk-loading">{children}</div>
+    ),
+    ClerkLoaded: ({ children }: any) => (
+      <div data-testid="clerk-loaded">{children}</div>
+    ),
+    UserButton: MockUserButton,
+  };
+});
 
 vi.mock("react-admin", () => ({
   Layout: ({ children, menu: MenuComponent }: any) => (
@@ -60,16 +71,14 @@ describe("AdminLayout", () => {
   it("renders ClerkLoaded with UserButton", () => {
     render(<AdminLayout>content</AdminLayout>);
     expect(screen.getByTestId("clerk-loaded")).toBeInTheDocument();
-    const userButton = screen.getByTestId("user-button");
-    expect(userButton).toBeInTheDocument();
-    expect(userButton).toHaveAttribute("data-after-sign-out-url", "/");
+    expect(screen.getByTestId("user-button")).toBeInTheDocument();
   });
 
-  it("renders Back to App link pointing to /learn", () => {
+  it("renders Back to App link inside UserButton menu", () => {
     render(<AdminLayout>content</AdminLayout>);
-    const backLink = screen.getByTestId("back-to-app");
-    expect(backLink).toBeInTheDocument();
-    expect(backLink).toHaveAttribute("href", "/learn");
-    expect(screen.getByText("Back to App")).toBeInTheDocument();
+    expect(screen.getByTestId("user-button-menu-items")).toBeInTheDocument();
+    const link = screen.getByTestId("user-button-link");
+    expect(link).toHaveAttribute("href", "/learn");
+    expect(link).toHaveAttribute("data-label", "Back to App");
   });
 });

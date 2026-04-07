@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 vi.mock("next/image", () => ({
-  default: ({ fill: _fill, priority: _priority, ...props }: any) => <img {...props} />,
+  default: ({ fill: _fill, priority: _priority, ...props }: any) => (
+    <img {...props} />
+  ),
 }));
 
 vi.mock("react-use", () => ({
@@ -78,26 +80,32 @@ describe("Card", () => {
     expect(screen.getByTestId("audio-element")).toBeInTheDocument();
   });
 
-  it("does not render audio element when audioSrc is null", () => {
+  it("always renders audio element even when audioSrc is null (silent fallback)", () => {
     render(<Card {...baseProps} audioSrc={null} />);
-    expect(screen.queryByTestId("audio-element")).not.toBeInTheDocument();
+    expect(screen.getByTestId("audio-element")).toBeInTheDocument();
   });
 
   it("applies sky styles when selected and status is none", () => {
-    const { container } = render(<Card {...baseProps} selected={true} status="none" />);
+    const { container } = render(
+      <Card {...baseProps} selected={true} status="none" />
+    );
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).toContain("border-sky-300");
     expect(outer.className).toContain("bg-sky-100");
   });
 
   it("applies green styles when selected and status is correct", () => {
-    const { container } = render(<Card {...baseProps} selected={true} status="correct" />);
+    const { container } = render(
+      <Card {...baseProps} selected={true} status="correct" />
+    );
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).toContain("border-green-300");
   });
 
   it("applies rose styles when selected and status is wrong", () => {
-    const { container } = render(<Card {...baseProps} selected={true} status="wrong" />);
+    const { container } = render(
+      <Card {...baseProps} selected={true} status="wrong" />
+    );
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).toContain("border-rose-300");
   });

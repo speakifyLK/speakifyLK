@@ -30,8 +30,11 @@ export const Card = ({
   disabled,
   type,
 }: CardProps) => {
-   
-  const [audio, _, controls] = useAudio({ src: audioSrc || "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" });
+  const [audio, _, controls] = useAudio({
+    src:
+      audioSrc ||
+      "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",
+  });
 
   const handleClick = useCallback(() => {
     if (disabled) return;
@@ -58,7 +61,7 @@ export const Card = ({
         type === "ASSIST" && "w-full lg:p-3"
       )}
     >
-      {audioSrc && audio}
+      {audio}
       {imageSrc && (
         <div className="relative mb-4 aspect-square max-h-[80px] w-full lg:max-h-[150px]">
           <Image src={imageSrc} fill alt={text} />
