@@ -102,9 +102,7 @@ describe("GET /api/courses", () => {
     mockGetIsAdmin.mockResolvedValue(true);
     mockDbQuery.courses.findMany.mockResolvedValue([]);
 
-    const response = await GET(
-      buildRequest({ filter: JSON.stringify({ id: [999] }) })
-    );
+    const response = await GET(buildRequest({ filter: JSON.stringify({ id: [999] }) }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual([]);
