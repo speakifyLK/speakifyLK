@@ -34,6 +34,9 @@ vi.mock("@/components/user-progress", () => ({
 vi.mock("@/components/quests", () => ({
   Quests: ({ points }: any) => <div data-testid="quests">Quests: {points}</div>,
 }));
+vi.mock("@/components/promo", () => ({
+  Promo: () => <div data-testid="promo">Promo</div>,
+}));
 vi.mock("./items", () => ({
   Items: ({ hearts, points, hasActiveSubscription }: any) => (
     <div
@@ -150,5 +153,27 @@ describe("ShopPage", () => {
 
     const img = screen.getByAltText("Shop");
     expect(img).toHaveAttribute("src", "/shop.svg");
+  });
+
+  it("shows Promo when user is not pro", async () => {
+    mockGetUserProgress.mockResolvedValue(baseUserProgress);
+    mockGetUserSubscription.mockResolvedValue(null);
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page();
+    render(jsx);
+
+    expect(screen.getByTestId("promo")).toBeInTheDocument();
+  });
+
+  it("does not show Promo when user is pro", async () => {
+    mockGetUserProgress.mockResolvedValue(baseUserProgress);
+    mockGetUserSubscription.mockResolvedValue({ isActive: true });
+
+    const Page = (await import("./page")).default;
+    const jsx = await Page();
+    render(jsx);
+
+    expect(screen.queryByTestId("promo")).not.toBeInTheDocument();
   });
 });

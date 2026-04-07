@@ -78,9 +78,9 @@ describe("Card", () => {
     expect(screen.getByTestId("audio-element")).toBeInTheDocument();
   });
 
-  it("does not render audio element when audioSrc is null", () => {
+  it("always renders audio element even when audioSrc is null (silent fallback)", () => {
     render(<Card {...baseProps} audioSrc={null} />);
-    expect(screen.queryByTestId("audio-element")).not.toBeInTheDocument();
+    expect(screen.getByTestId("audio-element")).toBeInTheDocument();
   });
 
   it("applies sky styles when selected and status is none", () => {

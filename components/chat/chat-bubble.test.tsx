@@ -62,11 +62,11 @@ describe("ChatBubble", () => {
       expect(avatar).toBeTruthy();
     });
 
-    it("applies gray bubble styling", () => {
+    it("applies white bubble styling with green border", () => {
       render(<ChatBubble role="assistant" content="Test" timestamp={validDate} />);
       const bubble = screen.getByText("Test");
-      expect(bubble.className).toContain("bg-gray-100");
-      expect(bubble.className).toContain("text-zinc-900");
+      expect(bubble.className).toContain("bg-white");
+      expect(bubble.className).toContain("text-zinc-800");
     });
   });
 

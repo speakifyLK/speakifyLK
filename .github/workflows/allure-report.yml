@@ -231,7 +231,7 @@ jobs:
 
       - name: Setup GitHub Pages
         if: steps.check.outputs.result_count != '0'
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload report to Pages
         if: steps.check.outputs.result_count != '0'
