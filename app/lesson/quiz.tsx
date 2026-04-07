@@ -82,6 +82,7 @@ export const Quiz = ({
   const challenge = challenges[activeIndex];
   const options = useMemo(() => {
     return shuffleArray(challenge?.challengeOptions ?? []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [challenge?.id]);
 
   const onNext = () => {

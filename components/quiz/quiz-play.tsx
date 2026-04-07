@@ -81,6 +81,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       (opt) => opt.text
     );
     return shuffleArray(rawOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestion?.id]);
 
   const handleSubmitAnswer = () => {
