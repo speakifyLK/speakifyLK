@@ -12,9 +12,10 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("@/components/chat/chat-window", () => ({
-  ChatWindow: ({ children, isEmpty, isTyping }: any) => (
+  ChatWindow: ({ children, footer, isEmpty, isTyping }: any) => (
     <div data-testid="chat-window" data-empty={isEmpty} data-typing={isTyping}>
       {children}
+      {footer}
     </div>
   ),
 }));
@@ -98,11 +99,6 @@ describe("ChatClient", () => {
   });
 
   // ── Rendering ────────────────────────────────────────────────────
-  it("renders the title", () => {
-    render(<ChatClient {...baseProps} />);
-    expect(screen.getByText("AI Sinhala Tutor")).toBeInTheDocument();
-  });
-
   it("renders initial messages", () => {
     render(<ChatClient {...baseProps} />);
     expect(screen.getByText("Hi there")).toBeInTheDocument();

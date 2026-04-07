@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/loader";
 import { units as unitsTable } from "@/db/schema";
 import {
   computeAdaptiveDifficultyRecommendation,
@@ -176,7 +177,15 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6">
+    <div className="relative flex flex-col gap-8 p-6">
+      {/* Loading overlay while quiz is being generated */}
+      {isLoading && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-xl bg-white/80 backdrop-blur-sm">
+          <Loader />
+          <p className="text-lg font-bold text-neutral-700">Generating your quiz...</p>
+          <p className="text-sm text-muted-foreground">This may take a few seconds</p>
+        </div>
+      )}
       {/* Topic Selector Grid */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-neutral-700">Select Topic</h2>
@@ -327,7 +336,7 @@ export const QuizConfig = ({ units, basePath, quizHistory = [] }: QuizConfigProp
                 )
               }
               tabIndex={questionCount === count ? 0 : -1}
-              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 ${
+              className={`flex-1 rounded-xl border-2 border-b-4 px-6 py-4 text-center font-bold transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 questionCount === count
                   ? "border-sky-500 bg-sky-500 text-white"
                   : "border-slate-200 bg-white text-neutral-700 hover:bg-slate-50"

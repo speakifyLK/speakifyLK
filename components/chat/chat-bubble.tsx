@@ -24,12 +24,12 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
         isUser ? "flex-row-reverse" : "flex-row"
       )}
     >
-      {/* Assistant Avatar Include a small bot avatar icon */}
+      {/* Assistant Avatar — green themed */}
       {!isUser && (
-        <Avatar className="h-8 w-8 shrink-0 border">
+        <Avatar className="h-8 w-8 shrink-0 border border-green-200 bg-green-50">
           <AvatarImage src="/bot.svg" />
-          <AvatarFallback className="bg-slate-200">
-            <Bot className="h-5 w-5 text-slate-600" />
+          <AvatarFallback className="bg-green-100">
+            <Bot className="h-5 w-5 text-green-600" />
           </AvatarFallback>
         </Avatar>
       )}
@@ -45,7 +45,7 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
             "font-['Noto_Sans_Sinhala',_sans-serif]",
             isUser
               ? "rounded-2xl rounded-br-sm bg-green-500 text-white"
-              : "rounded-2xl rounded-bl-sm bg-gray-100 text-zinc-900"
+              : "rounded-2xl rounded-bl-sm border border-green-100 bg-white text-zinc-800"
           )}
         >
           {content}
