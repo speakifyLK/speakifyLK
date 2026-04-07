@@ -13,6 +13,7 @@ import { ChallengeOptionsList } from "./challengeOption/list";
 import { CourseCreate } from "./course/create";
 import { CourseEdit } from "./course/edit";
 import { CourseList } from "./course/list";
+import { AdminLayout } from "./layout-admin";
 import { LessonCreate } from "./lesson/create";
 import { LessonEdit } from "./lesson/edit";
 import { LessonList } from "./lesson/list";
@@ -38,6 +39,7 @@ const AppContent = () => {
       dataProvider={dataProvider}
       queryClient={queryClient}
       theme={speakifyTheme}
+      layout={AdminLayout}
     >
       <Resource
         name="courses"
