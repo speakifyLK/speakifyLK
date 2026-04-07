@@ -72,11 +72,32 @@ describe("GET /api/units", () => {
     const filtered = [{ id: 2, title: "Unit 2" }];
     mockDbQuery.units.findMany.mockResolvedValue(filtered);
 
-    const response = await GET(buildRequest({ filter: JSON.stringify({ id: [2] }) }));
+    const response = await GET(
+      buildRequest({ filter: JSON.stringify({ id: [2] }) })
+    );
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(filtered);
-    expect(response.headers.get("Content-Range")).toBe("units 0-1/1");
+    expect(response.headers.get("Content-Range")).toBe("units 0-0/1");
+  });
+
+  it("returns 400 when filter param is invalid JSON", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+
+    const response = await GET(buildRequest({ filter: "not-valid-json" }));
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toBe("Invalid filter parameter.");
+  });
+
+  it("returns 400 when range param is invalid JSON", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+    mockDbQuery.units.findMany.mockResolvedValue([]);
+
+    const response = await GET(buildRequest({ range: "not-valid-json" }));
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toBe("Invalid range parameter.");
   });
 
   it("paginates when range is provided (getList)", async () => {

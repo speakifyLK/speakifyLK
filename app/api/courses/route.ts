@@ -13,16 +13,25 @@ export const GET = async (req: NextRequest) => {
   const filterParam = searchParams.get("filter");
   const rangeParam = searchParams.get("range");
 
-  const filter = filterParam ? JSON.parse(filterParam) : {};
+  let filter: Record<string, unknown> = {};
+  try {
+    filter = filterParam ? JSON.parse(filterParam) : {};
+  } catch {
+    return new NextResponse("Invalid filter parameter.", { status: 400 });
+  }
 
   // Handle getMany requests (filter by IDs)
   if (filter.id && Array.isArray(filter.id)) {
     const data = await db.query.courses.findMany({
-      where: inArray(courses.id, filter.id),
+      where: inArray(courses.id, filter.id as number[]),
     });
+    const contentRange =
+      data.length > 0
+        ? `courses 0-${data.length - 1}/${data.length}`
+        : "courses */0";
     return NextResponse.json(data, {
       headers: {
-        "Content-Range": `courses 0-${data.length}/${data.length}`,
+        "Content-Range": contentRange,
       },
     });
   }
@@ -32,18 +41,29 @@ export const GET = async (req: NextRequest) => {
 
   // Handle getList requests (with pagination)
   if (rangeParam) {
-    const [start, end] = JSON.parse(rangeParam) as [number, number];
+    let start: number;
+    let end: number;
+    try {
+      [start, end] = JSON.parse(rangeParam) as [number, number];
+    } catch {
+      return new NextResponse("Invalid range parameter.", { status: 400 });
+    }
     const paginatedData = allData.slice(start, end + 1);
+    const contentRange =
+      paginatedData.length > 0
+        ? `courses ${start}-${start + paginatedData.length - 1}/${total}`
+        : `courses */${total}`;
     return NextResponse.json(paginatedData, {
       headers: {
-        "Content-Range": `courses ${start}-${start + paginatedData.length - 1}/${total}`,
+        "Content-Range": contentRange,
       },
     });
   }
 
   return NextResponse.json(allData, {
     headers: {
-      "Content-Range": `courses 0-${total - 1}/${total}`,
+      "Content-Range":
+        total > 0 ? `courses 0-${total - 1}/${total}` : "courses */0",
     },
   });
 };
