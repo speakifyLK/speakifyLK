@@ -37,7 +37,12 @@ vi.mock("react-admin", () => ({
       data-choices={JSON.stringify(props.choices)}
     />
   ),
-  ReferenceInput: (props: { source: string; reference: string; perPage?: number; children?: React.ReactNode }) => (
+  ReferenceInput: (props: {
+    source: string;
+    reference: string;
+    perPage?: number;
+    children?: React.ReactNode;
+  }) => (
     <div
       data-testid={`ra-reference-input-${props.source}`}
       data-source={props.source}
@@ -48,10 +53,7 @@ vi.mock("react-admin", () => ({
     </div>
   ),
   AutocompleteInput: (props: { label?: string }) => (
-    <input
-      data-testid="ra-autocomplete-input"
-      data-label={props.label}
-    />
+    <input data-testid="ra-autocomplete-input" data-label={props.label} />
   ),
   required: () => "required-validator",
 }));
@@ -97,7 +99,7 @@ describe("ChallengeEdit", () => {
     expect(input).toHaveAttribute("data-per-page", "1000");
   });
 
-  it('renders an AutocompleteInput inside the ReferenceInput', () => {
+  it("renders an AutocompleteInput inside the ReferenceInput", () => {
     render(<ChallengeEdit />);
     const autocomplete = screen.getByTestId("ra-autocomplete-input");
     expect(autocomplete).toHaveAttribute("data-label", "Lesson");

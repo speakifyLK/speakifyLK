@@ -167,9 +167,7 @@ describe("GET /api/lessons", () => {
     ];
     mockDbQuery.lessons.findMany.mockResolvedValue(allData);
 
-    const response = await GET(
-      buildRequest({ filter: JSON.stringify({ q: "basic" }) })
-    );
+    const response = await GET(buildRequest({ filter: JSON.stringify({ q: "basic" }) }));
 
     expect(response.status).toBe(200);
     const data = await response.json();
@@ -185,9 +183,7 @@ describe("GET /api/lessons", () => {
     ];
     mockDbQuery.lessons.findMany.mockResolvedValue(allData);
 
-    const response = await GET(
-      buildRequest({ filter: JSON.stringify({ q: "" }) })
-    );
+    const response = await GET(buildRequest({ filter: JSON.stringify({ q: "" }) }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(allData);
