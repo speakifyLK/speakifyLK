@@ -2,14 +2,6 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ChatWindow } from "./chat-window";
 
-vi.mock("next/link", () => ({
-  default: ({ children, href, ...props }: any) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
-}));
-
 const { mockIncludeViewport, mockForwardRef } = vi.hoisted(() => ({
   mockIncludeViewport: { value: true },
   mockForwardRef: { value: true },
@@ -36,25 +28,6 @@ beforeAll(() => {
 });
 
 describe("ChatWindow", () => {
-  it("renders the header with title", () => {
-    render(
-      <ChatWindow isEmpty={false} isTyping={false}>
-        <div />
-      </ChatWindow>
-    );
-    expect(screen.getByText("Sinhala Tutor Session")).toBeInTheDocument();
-  });
-
-  it("renders a back link to /learn", () => {
-    render(
-      <ChatWindow isEmpty={false} isTyping={false}>
-        <div />
-      </ChatWindow>
-    );
-    const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/learn");
-  });
-
   it("shows empty state when isEmpty is true", () => {
     render(
       <ChatWindow isEmpty={true} isTyping={false}>
@@ -62,6 +35,7 @@ describe("ChatWindow", () => {
       </ChatWindow>
     );
     expect(screen.getByText("Start a conversation in Sinhala!")).toBeInTheDocument();
+    expect(screen.getByText("Your AI tutor is ready to help you practice")).toBeInTheDocument();
   });
 
   it("does not show empty state when isEmpty is false", () => {
@@ -158,5 +132,29 @@ describe("ChatWindow", () => {
     );
     const dots = container.querySelectorAll("span.animate-bounce");
     expect(dots.length).toBe(3);
+  });
+
+  it("renders footer content inside the card", () => {
+    render(
+      <ChatWindow
+        isEmpty={false}
+        isTyping={false}
+        footer={<div data-testid="footer-slot">Input here</div>}
+      >
+        <div />
+      </ChatWindow>
+    );
+    expect(screen.getByTestId("footer-slot")).toBeInTheDocument();
+    expect(screen.getByText("Input here")).toBeInTheDocument();
+  });
+
+  it("renders without footer when not provided", () => {
+    const { container } = render(
+      <ChatWindow isEmpty={false} isTyping={false}>
+        <p>No footer</p>
+      </ChatWindow>
+    );
+    expect(screen.getByText("No footer")).toBeInTheDocument();
+    expect(container.querySelector("[data-testid='footer-slot']")).toBeNull();
   });
 });

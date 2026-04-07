@@ -129,6 +129,22 @@ describe("ConversationList", () => {
   });
 
   describe("delete conversation", () => {
+    it("hides delete buttons when only one conversation exists", () => {
+      const singleConversation = [
+        {
+          id: 1,
+          title: "Only Chat",
+          updatedAt: new Date("2025-01-10T10:00:00"),
+        },
+      ];
+      render(<ConversationList conversations={singleConversation} />);
+
+      // Only the "New Chat" button should exist — no trash buttons
+      const allButtons = screen.getAllByRole("button");
+      expect(allButtons).toHaveLength(1);
+      expect(allButtons[0]).toHaveTextContent("New Chat");
+    });
+
     it("opens delete dialog when trash icon is clicked", () => {
       render(<ConversationList conversations={mockConversations} />);
       // Each conversation has a delete button; they are ghost buttons with Trash2 icon

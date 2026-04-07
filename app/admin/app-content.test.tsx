@@ -7,15 +7,18 @@ vi.mock("react-admin", () => ({
     children,
     dataProvider,
     queryClient,
+    layout,
   }: {
     children: React.ReactNode;
     dataProvider: unknown;
     queryClient: unknown;
+    layout: unknown;
   }) => (
     <div
       data-testid="ra-admin"
       data-has-data-provider={dataProvider ? "true" : "false"}
       data-has-query-client={queryClient ? "true" : "false"}
+      data-has-layout={layout ? "true" : "false"}
     >
       {children}
     </div>
@@ -77,16 +80,20 @@ vi.mock("./challengeOption/create", () => ({
 vi.mock("./challengeOption/edit", () => ({
   ChallengeOptionEdit: () => <div />,
 }));
+vi.mock("./layout-admin", () => ({
+  AdminLayout: () => <div data-testid="admin-layout" />,
+}));
 
 import AppContent from "./app-content";
 
 describe("AppContent", () => {
-  it("renders an Admin component with dataProvider and queryClient", () => {
+  it("renders an Admin component with dataProvider, queryClient, and layout", () => {
     render(<AppContent />);
     const admin = screen.getByTestId("ra-admin");
     expect(admin).toBeInTheDocument();
     expect(admin).toHaveAttribute("data-has-data-provider", "true");
     expect(admin).toHaveAttribute("data-has-query-client", "true");
+    expect(admin).toHaveAttribute("data-has-layout", "true");
   });
 
   it('renders a "courses" Resource with correct props', () => {

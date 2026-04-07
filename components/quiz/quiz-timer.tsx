@@ -141,7 +141,7 @@ export const QuizTimer = ({
       {/* Score Indicator */}
       <div className="flex flex-col items-center gap-2">
         <div className="text-sm font-medium text-neutral-600">Score</div>
-        <div className="text-4xl font-bold text-sky-600">
+        <div className="text-4xl font-bold text-green-600">
           {score}/{totalQuestions}
         </div>
       </div>

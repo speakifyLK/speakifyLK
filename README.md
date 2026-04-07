@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -56,7 +55,6 @@ speakify/
     |-- (marketing)/
     |-- admin/
     |-- api/
-    |-- chat/
     |-- lesson/
     |-- apple-icon.png
     |-- favicon.ico
@@ -84,6 +82,8 @@ speakify/
     |-- quests.tsx
     |-- sidebar-item.test.tsx
     |-- sidebar-item.tsx
+    |-- sidebar-user-button.test.tsx
+    |-- sidebar-user-button.tsx
     |-- sidebar.test.tsx
     |-- sidebar.tsx
     |-- sticky-wrapper.test.tsx
@@ -218,7 +218,6 @@ speakify/
   |- vitest.config.ts
   |- vitest.setup.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -391,7 +390,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0

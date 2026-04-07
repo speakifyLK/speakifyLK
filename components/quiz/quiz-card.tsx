@@ -119,7 +119,7 @@ const FillInBlankInput = ({
         onChange={(e) => !isSubmitted && onChange(e.target.value)}
         disabled={isSubmitted}
         placeholder="Type your answer here…"
-        className="w-full rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-green-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       />
 
       {/* Hint button */}
@@ -128,7 +128,7 @@ const FillInBlankInput = ({
           <button
             type="button"
             onClick={() => setShowHint((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600 transition-colors hover:text-amber-700"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-600 transition-colors hover:text-green-700"
           >
             <Lightbulb className="h-4 w-4" />
             {showHint ? "Hide hint" : "Show hint"}
@@ -184,7 +184,7 @@ const TranslationInput = ({
           placeholder="Type your translation here…"
           aria-label="Type your translation"
           rows={3}
-          className="w-full resize-none rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-sky-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full resize-none rounded-xl border-2 border-b-4 border-slate-200 p-4 text-lg transition-colors focus:border-green-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         />
         <span
           className={cn(
@@ -432,13 +432,9 @@ export const QuizCard = ({
         <Button
           onClick={handleNextClick}
           disabled={(!isCorrect && !explanationAcknowledged) || isNextPending}
+          variant={!isCorrect && !explanationAcknowledged ? "locked" : "primary"}
           size="lg"
-          className={cn(
-            "h-14 w-full text-lg font-bold transition-all",
-            !isCorrect && !explanationAcknowledged
-              ? "cursor-not-allowed bg-slate-200 text-slate-400"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-          )}
+          className="h-14 w-full text-lg font-bold"
         >
           {isLastQuestion ? "Complete Quiz" : "Next Question"}
         </Button>
