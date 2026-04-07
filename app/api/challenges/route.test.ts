@@ -98,6 +98,47 @@ describe("GET /api/challenges", () => {
     expect(await response.text()).toBe("Invalid range parameter.");
   });
 
+  it("returns empty Content-Range when filter.id returns no results (getMany)", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+    mockDbQuery.challenges.findMany.mockResolvedValue([]);
+
+    const response = await GET(
+      buildRequest({ filter: JSON.stringify({ id: [999] }) })
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+    expect(response.headers.get("Content-Range")).toBe("challenges */0");
+  });
+
+  it("returns empty Content-Range when no data exists (no params)", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+    mockDbQuery.challenges.findMany.mockResolvedValue([]);
+
+    const response = await GET(buildRequest());
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+    expect(response.headers.get("Content-Range")).toBe("challenges */0");
+  });
+
+  it("returns empty Content-Range when range exceeds data (getList)", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+    const allData = [{ id: 1, question: "Challenge 1" }];
+    mockDbQuery.challenges.findMany.mockResolvedValue(allData);
+
+    const response = await GET(
+      buildRequest({
+        filter: JSON.stringify({}),
+        range: JSON.stringify([5, 10]),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+    expect(response.headers.get("Content-Range")).toBe("challenges */1");
+  });
+
   it("paginates when range is provided (getList)", async () => {
     mockGetIsAdmin.mockResolvedValue(true);
     const allData = [
