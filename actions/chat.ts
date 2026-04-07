@@ -18,10 +18,11 @@ async function assertConversationOwner(conversationId: number, userId: string) {
   return conversation;
 }
 
-export const createConversation = async () => {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized.");
-
+/**
+ * Internal helper that inserts a conversation row without revalidating.
+ * Used by both createConversation (client action) and getOrCreateConversation.
+ */
+async function insertConversation(userId: string): Promise<number> {
   const [conversation] = await db
     .insert(chatConversations)
     .values({
@@ -30,8 +31,16 @@ export const createConversation = async () => {
     })
     .returning();
 
-  revalidatePath("/chat");
   return conversation.id;
+}
+
+export const createConversation = async () => {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized.");
+
+  const id = await insertConversation(userId);
+  revalidatePath("/chat");
+  return id;
 };
 
 export const sendMessage = async (conversationId: number, content: string) => {
@@ -96,6 +105,19 @@ export const deleteConversation = async (conversationId: number) => {
   if (!userId) throw new Error("Unauthorized.");
 
   await assertConversationOwner(conversationId, userId);
+
+  // Prevent deleting the last conversation — user must always have at least one.
+  // Only fetch enough rows to determine whether more than one conversation exists.
+  const conversations = await db.query.chatConversations.findMany({
+    where: (table, { eq }) => eq(table.userId, userId),
+    columns: { id: true },
+    limit: 2,
+  });
+
+  if (conversations.length < 2) {
+    throw new Error("Cannot delete your only conversation.");
+  }
+
   await db
     .delete(chatConversations)
     .where(and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId)));
@@ -113,11 +135,12 @@ export const getOrCreateConversation = async () => {
   });
 
   if (existingConversation) {
-    //revalidatePath("/chat");
     return existingConversation.id;
   }
 
-  return await createConversation();
+  // No revalidation here — the page is loading for the first time and will
+  // render with the freshly-created conversation in the same request.
+  return await insertConversation(userId);
 };
 
 /**

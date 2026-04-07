@@ -229,6 +229,50 @@ describe("QuizPlay", () => {
     });
   });
 
+  it("shows AI explanation instead of stored explanation when provided", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({
+      isCorrect: true,
+      aiExplanation: "'chuti' means 'small' and is a valid adjective here.",
+    });
+    render(<QuizPlay session={makeSession()} />);
+
+    fireEvent.click(screen.getByText("Ayubowan"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/'chuti' means 'small' and is a valid adjective here/)
+      ).toBeInTheDocument();
+      // Stored explanation should NOT be visible
+      expect(screen.queryByText(/Ayubowan is the Sinhala greeting/)).not.toBeInTheDocument();
+    });
+  });
+
+  it("hides 'Correct answer:' line when answer is correct", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: true });
+    render(<QuizPlay session={makeSession()} />);
+
+    fireEvent.click(screen.getByText("Ayubowan"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(screen.getByText("✓ Correct!")).toBeInTheDocument();
+      expect(screen.queryByText("Correct answer:")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows 'Correct answer:' line when answer is incorrect", async () => {
+    mockSubmitQuizAnswer.mockResolvedValue({ isCorrect: false });
+    render(<QuizPlay session={makeSession()} />);
+
+    fireEvent.click(screen.getByText("Sthuthi"));
+    fireEvent.click(screen.getByText("Submit Answer"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Correct answer:")).toBeInTheDocument();
+    });
+  });
+
   it("shows toast error when submit fails", async () => {
     mockSubmitQuizAnswer.mockRejectedValue(new Error("Server error"));
     render(<QuizPlay session={makeSession()} />);
@@ -284,7 +328,9 @@ describe("QuizPlay", () => {
     await waitFor(() => {
       expect(mockSubmitQuizAnswer).toHaveBeenCalled();
     });
-    const nextBtn = await screen.findByRole("button", { name: "Next Question" });
+    const nextBtn = await screen.findByRole("button", {
+      name: "Next Question",
+    });
     await waitFor(() => expect(nextBtn).not.toBeDisabled());
     fireEvent.click(nextBtn);
 
@@ -324,7 +370,9 @@ describe("QuizPlay", () => {
     await waitFor(() => {
       expect(mockSubmitQuizAnswer).toHaveBeenCalled();
     });
-    const completeBtn = await screen.findByRole("button", { name: "Complete Quiz" });
+    const completeBtn = await screen.findByRole("button", {
+      name: "Complete Quiz",
+    });
     await waitFor(() => expect(completeBtn).not.toBeDisabled());
     fireEvent.click(completeBtn);
 

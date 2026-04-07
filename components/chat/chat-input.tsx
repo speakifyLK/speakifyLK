@@ -31,7 +31,7 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
   };
 
   return (
-    <div className="sticky bottom-0 w-full border-t bg-white p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+    <div className="w-full border-t border-green-100 bg-white p-3">
       <div className="relative mx-auto flex max-w-3xl items-end gap-x-2">
         <Textarea
           disabled={isLoading}
@@ -40,9 +40,9 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
           onKeyDown={onKeyDown}
           placeholder="Type your message in Sinhala or English..."
           className={cn(
-            "max-h-[150px] min-h-[44px] resize-none py-3 pr-12",
+            "max-h-[150px] min-h-[44px] resize-none rounded-xl py-3 pr-12",
             //noto_sinhala.className, // Requirement: Support Sinhala characters
-            "border-zinc-200 text-sm focus-visible:ring-green-500 lg:text-base"
+            "border-green-200 text-sm focus-visible:ring-green-500 lg:text-base"
           )}
         />
         <Button
@@ -50,14 +50,14 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
           disabled={isLoading || !content.trim()}
           size="icon"
           className={cn(
-            "absolute bottom-2 right-2 h-8 w-8 transition-all",
+            "absolute bottom-2 right-2 h-8 w-8 rounded-lg bg-green-500 transition-all hover:bg-green-600",
             isLoading && "animate-pulse"
           )}
         >
           {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin text-white" />
           ) : (
-            <SendHorizontal className="h-5 w-5" />
+            <SendHorizontal className="h-5 w-5 text-white" />
           )}
         </Button>
       </div>

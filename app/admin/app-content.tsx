@@ -13,12 +13,14 @@ import { ChallengeOptionsList } from "./challengeOption/list";
 import { CourseCreate } from "./course/create";
 import { CourseEdit } from "./course/edit";
 import { CourseList } from "./course/list";
+import { AdminLayout } from "./layout-admin";
 import { LessonCreate } from "./lesson/create";
 import { LessonEdit } from "./lesson/edit";
 import { LessonList } from "./lesson/list";
 import { UnitCreate } from "./unit/create";
 import { UnitEdit } from "./unit/edit";
 import { UnitList } from "./unit/list";
+import { speakifyTheme } from "./theme";
 
 const dataProvider = simpleRestProvider("/api");
 
@@ -33,7 +35,12 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   return (
-    <Admin dataProvider={dataProvider} queryClient={queryClient}>
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      theme={speakifyTheme}
+      layout={AdminLayout}
+    >
       <Resource
         name="courses"
         recordRepresentation="title"

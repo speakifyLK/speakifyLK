@@ -28,6 +28,10 @@ vi.mock("@/components/ui/button", () => {
   };
 });
 
+vi.mock("@/components/loader", () => ({
+  Loader: () => <div data-testid="custom-loader" />,
+}));
+
 vi.mock("@/store/quiz-store", () => ({
   useQuizStore: (selector: any) => {
     const state = {
@@ -310,6 +314,9 @@ describe("QuizConfig", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Generating Quiz...")).toBeInTheDocument();
+      expect(screen.getByTestId("custom-loader")).toBeInTheDocument();
+      expect(screen.getByText("Generating your quiz...")).toBeInTheDocument();
+      expect(screen.getByText("This may take a few seconds")).toBeInTheDocument();
     });
 
     resolveText!(JSON.stringify({ sessionId: 1 }));

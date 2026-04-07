@@ -357,7 +357,7 @@ export const QuizResult = ({
       {/* Actions */}
       <div className="flex flex-col gap-3 pt-2 sm:flex-row">
         <Button
-          variant="default"
+          variant="secondary"
           size="lg"
           className="flex-1"
           onClick={() => void handleTryAgain()}
@@ -365,7 +365,7 @@ export const QuizResult = ({
         >
           {tryAgainLoading ? "Starting…" : "Try Again"}
         </Button>
-        <Button variant="secondary" size="lg" className="flex-1" onClick={handleNewQuiz}>
+        <Button variant="primary" size="lg" className="flex-1" onClick={handleNewQuiz}>
           New Quiz
         </Button>
         <Button
