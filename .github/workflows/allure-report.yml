@@ -235,14 +235,14 @@ jobs:
 
       - name: Upload report to Pages
         if: steps.check.outputs.result_count != '0'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: allure-report/
 
       - name: Deploy to GitHub Pages
         if: steps.check.outputs.result_count != '0'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Print report URL
         if: steps.check.outputs.result_count != '0'
