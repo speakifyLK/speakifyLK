@@ -72,9 +72,7 @@ describe("GET /api/lessons", () => {
     const filtered = [{ id: 2, title: "Lesson 2" }];
     mockDbQuery.lessons.findMany.mockResolvedValue(filtered);
 
-    const response = await GET(
-      buildRequest({ filter: JSON.stringify({ id: [2] }) })
-    );
+    const response = await GET(buildRequest({ filter: JSON.stringify({ id: [2] }) }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(filtered);

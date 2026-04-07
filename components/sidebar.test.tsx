@@ -51,17 +51,8 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     const links = screen.getAllByRole("link");
-    const navLabels = links
-      .map((l) => l.textContent?.trim())
-      .filter((t) => t && t !== "Speakify");
-    expect(navLabels).toEqual([
-      "Learn",
-      "Quiz",
-      "Chat",
-      "Leaderboard",
-      "Quests",
-      "Shop",
-    ]);
+    const navLabels = links.map((l) => l.textContent?.trim()).filter((t) => t && t !== "Speakify");
+    expect(navLabels).toEqual(["Learn", "Quiz", "Chat", "Leaderboard", "Quests", "Shop"]);
   });
 
   it("renders SidebarUserButton", () => {
@@ -73,28 +64,19 @@ describe("Sidebar", () => {
   it("passes isAdmin=false to SidebarUserButton when isAdmin is false", () => {
     render(<Sidebar isAdmin={false} />);
 
-    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute(
-      "data-is-admin",
-      "false"
-    );
+    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute("data-is-admin", "false");
   });
 
   it("passes isAdmin=false to SidebarUserButton when isAdmin is undefined", () => {
     render(<Sidebar />);
 
-    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute(
-      "data-is-admin",
-      "false"
-    );
+    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute("data-is-admin", "false");
   });
 
   it("passes isAdmin=true to SidebarUserButton when isAdmin is true", () => {
     render(<Sidebar isAdmin={true} />);
 
-    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute(
-      "data-is-admin",
-      "true"
-    );
+    expect(screen.getByTestId("sidebar-user-button")).toHaveAttribute("data-is-admin", "true");
   });
 
   it("accepts and applies className prop", () => {

@@ -3,19 +3,11 @@ import { render, screen } from "@testing-library/react";
 
 vi.mock("@clerk/nextjs", () => {
   const MockUserButton = Object.assign(
-    ({ children, ..._props }: any) => (
-      <div data-testid="user-button">{children}</div>
-    ),
+    ({ children, ..._props }: any) => <div data-testid="user-button">{children}</div>,
     {
-      MenuItems: ({ children }: any) => (
-        <div data-testid="user-button-menu-items">{children}</div>
-      ),
+      MenuItems: ({ children }: any) => <div data-testid="user-button-menu-items">{children}</div>,
       Link: (props: any) => (
-        <a
-          data-testid="user-button-link"
-          href={props.href}
-          data-label={props.label}
-        />
+        <a data-testid="user-button-link" href={props.href} data-label={props.label} />
       ),
     }
   );
@@ -39,17 +31,13 @@ describe("SidebarUserButton", () => {
   it("does not render Admin menu item when isAdmin is false", () => {
     render(<SidebarUserButton isAdmin={false} />);
 
-    expect(
-      screen.queryByTestId("user-button-menu-items")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("user-button-menu-items")).not.toBeInTheDocument();
   });
 
   it("does not render Admin menu item when isAdmin is undefined", () => {
     render(<SidebarUserButton />);
 
-    expect(
-      screen.queryByTestId("user-button-menu-items")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("user-button-menu-items")).not.toBeInTheDocument();
   });
 
   it("renders Admin menu item inside UserButton when isAdmin is true", () => {

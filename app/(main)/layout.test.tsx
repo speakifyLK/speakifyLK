@@ -13,11 +13,7 @@ vi.mock("@/components/mobile-header", () => ({
 
 vi.mock("@/components/sidebar", () => ({
   Sidebar: ({ className, isAdmin }: any) => (
-    <div
-      data-testid="sidebar"
-      className={className}
-      data-is-admin={isAdmin ? "true" : "false"}
-    >
+    <div data-testid="sidebar" className={className} data-is-admin={isAdmin ? "true" : "false"}>
       Sidebar
     </div>
   ),

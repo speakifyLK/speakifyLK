@@ -3,30 +3,18 @@ import { describe, it, expect, vi } from "vitest";
 
 vi.mock("@clerk/nextjs", () => {
   const MockUserButton = Object.assign(
-    ({ children, ..._props }: any) => (
-      <div data-testid="user-button">{children}</div>
-    ),
+    ({ children, ..._props }: any) => <div data-testid="user-button">{children}</div>,
     {
-      MenuItems: ({ children }: any) => (
-        <div data-testid="user-button-menu-items">{children}</div>
-      ),
+      MenuItems: ({ children }: any) => <div data-testid="user-button-menu-items">{children}</div>,
       Link: (props: any) => (
-        <a
-          data-testid="user-button-link"
-          href={props.href}
-          data-label={props.label}
-        />
+        <a data-testid="user-button-link" href={props.href} data-label={props.label} />
       ),
     }
   );
 
   return {
-    ClerkLoading: ({ children }: any) => (
-      <div data-testid="clerk-loading">{children}</div>
-    ),
-    ClerkLoaded: ({ children }: any) => (
-      <div data-testid="clerk-loaded">{children}</div>
-    ),
+    ClerkLoading: ({ children }: any) => <div data-testid="clerk-loading">{children}</div>,
+    ClerkLoaded: ({ children }: any) => <div data-testid="clerk-loaded">{children}</div>,
     UserButton: MockUserButton,
   };
 });
@@ -38,9 +26,7 @@ vi.mock("react-admin", () => ({
       {children}
     </div>
   ),
-  Menu: ({ className }: any) => (
-    <div data-testid="ra-menu" className={className} />
-  ),
+  Menu: ({ className }: any) => <div data-testid="ra-menu" className={className} />,
 }));
 
 import { AdminLayout } from "./layout-admin";

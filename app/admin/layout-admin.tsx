@@ -17,10 +17,7 @@ const AdminMenu = () => (
     </div>
     <div className="p-4">
       <ClerkLoading>
-        <Loader
-          className="h-5 w-5 animate-spin text-muted-foreground"
-          data-testid="clerk-loader"
-        />
+        <Loader className="h-5 w-5 animate-spin text-muted-foreground" data-testid="clerk-loader" />
       </ClerkLoading>
       <ClerkLoaded>
         <UserButton
@@ -42,6 +39,4 @@ const AdminMenu = () => (
   </div>
 );
 
-export const AdminLayout = (props: LayoutProps) => (
-  <Layout {...props} menu={AdminMenu} />
-);
+export const AdminLayout = (props: LayoutProps) => <Layout {...props} menu={AdminMenu} />;
