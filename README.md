@@ -82,6 +82,8 @@ speakify/
     |-- quests.tsx
     |-- sidebar-item.test.tsx
     |-- sidebar-item.tsx
+    |-- sidebar-user-button.test.tsx
+    |-- sidebar-user-button.tsx
     |-- sidebar.test.tsx
     |-- sidebar.tsx
     |-- sticky-wrapper.test.tsx
