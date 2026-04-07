@@ -157,6 +157,42 @@ describe("GET /api/challenges", () => {
     expect(await response.json()).toEqual([allData[0], allData[1]]);
     expect(response.headers.get("Content-Range")).toBe("challenges 0-1/3");
   });
+
+  it("filters by q search term (case-insensitive)", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+    const allData = [
+      { id: 1, question: "Which one means good?" },
+      { id: 2, question: "Which one means bad?" },
+      { id: 3, question: "Select the correct answer" },
+    ];
+    mockDbQuery.challenges.findMany.mockResolvedValue(allData);
+
+    const response = await GET(
+      buildRequest({ filter: JSON.stringify({ q: "means" }) })
+    );
+
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data).toEqual([allData[0], allData[1]]);
+    expect(response.headers.get("Content-Range")).toBe("challenges 0-1/2");
+  });
+
+  it("returns all data when q filter is empty string", async () => {
+    mockGetIsAdmin.mockResolvedValue(true);
+    const allData = [
+      { id: 1, question: "Challenge 1" },
+      { id: 2, question: "Challenge 2" },
+    ];
+    mockDbQuery.challenges.findMany.mockResolvedValue(allData);
+
+    const response = await GET(
+      buildRequest({ filter: JSON.stringify({ q: "" }) })
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(allData);
+    expect(response.headers.get("Content-Range")).toBe("challenges 0-1/2");
+  });
 });
 
 describe("POST /api/challenges", () => {

@@ -1,4 +1,5 @@
 import {
+  AutocompleteInput,
   Edit,
   NumberInput,
   ReferenceInput,
@@ -18,7 +19,9 @@ export const UnitEdit = () => {
           validate={[required()]}
           label="Description"
         />
-        <ReferenceInput source="courseId" reference="courses" />
+        <ReferenceInput source="courseId" reference="courses" perPage={1000}>
+          <AutocompleteInput label="Course" />
+        </ReferenceInput>
         <NumberInput source="order" validate={required()} label="Order" />
       </SimpleForm>
     </Edit>

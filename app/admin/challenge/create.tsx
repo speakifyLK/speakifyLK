@@ -1,4 +1,5 @@
 import {
+  AutocompleteInput,
   Create,
   NumberInput,
   ReferenceInput,
@@ -27,7 +28,9 @@ export const ChallengeCreate = () => {
             },
           ]}
         />
-        <ReferenceInput source="lessonId" reference="lessons" />
+        <ReferenceInput source="lessonId" reference="lessons" perPage={1000}>
+          <AutocompleteInput label="Lesson" />
+        </ReferenceInput>
         <NumberInput source="order" validate={required()} label="Order" />
       </SimpleForm>
     </Create>

@@ -1,4 +1,5 @@
 import {
+  AutocompleteInput,
   BooleanInput,
   Create,
   ReferenceInput,
@@ -13,7 +14,9 @@ export const ChallengeOptionCreate = () => {
       <SimpleForm>
         <TextInput source="text" validate={[required()]} label="Text" />
         <BooleanInput source="correct" label="Correct option" />
-        <ReferenceInput source="challengeId" reference="challenges" />
+        <ReferenceInput source="challengeId" reference="challenges" perPage={1000}>
+          <AutocompleteInput label="Challenge" />
+        </ReferenceInput>
         <TextInput source="imageSrc" label="Image URL" />
         <TextInput source="audioSrc" label="Audio URL" />
       </SimpleForm>

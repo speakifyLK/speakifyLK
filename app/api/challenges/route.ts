@@ -35,7 +35,15 @@ export const GET = async (req: NextRequest) => {
   }
 
   const allData = await db.query.challenges.findMany();
-  const total = allData.length;
+
+  // Handle search filter from AutocompleteInput (filter by question text)
+  const filteredData =
+    typeof filter.q === "string" && filter.q.trim() !== ""
+      ? allData.filter((item) =>
+          item.question.toLowerCase().includes((filter.q as string).toLowerCase())
+        )
+      : allData;
+  const total = filteredData.length;
 
   // Handle getList requests (with pagination)
   if (rangeParam) {
@@ -46,7 +54,7 @@ export const GET = async (req: NextRequest) => {
     } catch {
       return new NextResponse("Invalid range parameter.", { status: 400 });
     }
-    const paginatedData = allData.slice(start, end + 1);
+    const paginatedData = filteredData.slice(start, end + 1);
     const contentRange =
       paginatedData.length > 0
         ? `challenges ${start}-${start + paginatedData.length - 1}/${total}`
@@ -58,7 +66,7 @@ export const GET = async (req: NextRequest) => {
     });
   }
 
-  return NextResponse.json(allData, {
+  return NextResponse.json(filteredData, {
     headers: {
       "Content-Range": total > 0 ? `challenges 0-${total - 1}/${total}` : "challenges */0",
     },

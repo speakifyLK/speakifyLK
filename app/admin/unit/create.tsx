@@ -1,4 +1,5 @@
 import {
+  AutocompleteInput,
   Create,
   NumberInput,
   ReferenceInput,
@@ -17,7 +18,9 @@ export const UnitCreate = () => {
           validate={[required()]}
           label="Description"
         />
-        <ReferenceInput source="courseId" reference="courses" />
+        <ReferenceInput source="courseId" reference="courses" perPage={1000}>
+          <AutocompleteInput label="Course" />
+        </ReferenceInput>
         <NumberInput source="order" validate={required()} label="Order" />
       </SimpleForm>
     </Create>
