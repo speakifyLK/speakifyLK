@@ -35,7 +35,7 @@ Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
 ```bash
-speakify/
+speakifyLK/
   |- actions/
     |-- ai-quiz.test.ts
     |-- ai-quiz.ts
