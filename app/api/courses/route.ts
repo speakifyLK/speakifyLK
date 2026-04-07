@@ -37,11 +37,10 @@ export const GET = async (req: NextRequest) => {
   const allData = await db.query.courses.findMany();
 
   // Handle search filter from AutocompleteInput (filter by title text)
+  const normalizedQuery = typeof filter.q === "string" ? filter.q.trim().toLowerCase() : "";
   const filteredData =
-    typeof filter.q === "string" && filter.q.trim() !== ""
-      ? allData.filter((item) =>
-          item.title.toLowerCase().includes((filter.q as string).toLowerCase())
-        )
+    normalizedQuery !== ""
+      ? allData.filter((item) => item.title.toLowerCase().includes(normalizedQuery))
       : allData;
   const total = filteredData.length;
 
