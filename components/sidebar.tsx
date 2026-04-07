@@ -1,18 +1,18 @@
-import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
-import { MessageCircle } from "lucide-react";
+import { SidebarUserButton } from "./sidebar-user-button";
 
 type SidebarProps = {
   className?: string;
+  isAdmin?: boolean;
 };
 
-export const Sidebar = ({ className }: SidebarProps) => {
+export const Sidebar = ({ className, isAdmin }: SidebarProps) => {
   return (
     <div
       className={cn(
@@ -42,18 +42,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </div>
 
       <div className="p-4">
-        <ClerkLoading>
-          <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClerkLoading>
-
-        <ClerkLoaded>
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: { userButtonPopoverCard: { pointerEvents: "initial" } },
-            }}
-          />
-        </ClerkLoaded>
+        <SidebarUserButton isAdmin={isAdmin} />
       </div>
     </div>
   );

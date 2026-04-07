@@ -18,8 +18,8 @@ const nextConfig: NextConfig = {
           value: "Content-Type, Authorization",
         },
         {
-          key: "Content-Range",
-          value: "bytes : 0-9/*",
+          key: "Access-Control-Expose-Headers",
+          value: "Content-Range",
         },
       ],
     },
