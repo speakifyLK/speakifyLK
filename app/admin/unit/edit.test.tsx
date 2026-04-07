@@ -25,12 +25,23 @@ vi.mock("react-admin", () => ({
       type="number"
     />
   ),
-  ReferenceInput: (props: { source: string; reference: string }) => (
-    <select
+  ReferenceInput: (props: {
+    source: string;
+    reference: string;
+    perPage?: number;
+    children?: React.ReactNode;
+  }) => (
+    <div
       data-testid={`ra-reference-input-${props.source}`}
       data-source={props.source}
       data-reference={props.reference}
-    />
+      data-per-page={props.perPage?.toString()}
+    >
+      {props.children}
+    </div>
+  ),
+  AutocompleteInput: (props: { label?: string }) => (
+    <input data-testid="ra-autocomplete-input" data-label={props.label} />
   ),
   required: () => "required-validator",
 }));
@@ -72,11 +83,18 @@ describe("UnitEdit", () => {
     expect(input).toHaveAttribute("data-has-validate", "true");
   });
 
-  it('renders a ReferenceInput for "courseId" referencing "courses"', () => {
+  it('renders a ReferenceInput for "courseId" referencing "courses" with perPage=1000', () => {
     render(<UnitEdit />);
     const input = screen.getByTestId("ra-reference-input-courseId");
     expect(input).toHaveAttribute("data-source", "courseId");
     expect(input).toHaveAttribute("data-reference", "courses");
+    expect(input).toHaveAttribute("data-per-page", "1000");
+  });
+
+  it("renders an AutocompleteInput inside the ReferenceInput", () => {
+    render(<UnitEdit />);
+    const autocomplete = screen.getByTestId("ra-autocomplete-input");
+    expect(autocomplete).toHaveAttribute("data-label", "Course");
   });
 
   it('renders a NumberInput for "order" with required validation', () => {
