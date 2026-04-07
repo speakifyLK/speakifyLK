@@ -109,7 +109,7 @@ export const QuizProgress = ({
         {/* Score indicator */}
         <div className="flex flex-col items-center gap-1">
           <span className="text-sm font-medium text-neutral-600">Score</span>
-          <span className="text-4xl font-bold text-sky-600">
+          <span className="text-4xl font-bold text-green-600">
             {score}/{totalQuestions}
           </span>
         </div>
