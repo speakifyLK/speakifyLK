@@ -242,7 +242,7 @@ jobs:
       - name: Deploy to GitHub Pages
         if: steps.check.outputs.result_count != '0'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Print report URL
         if: steps.check.outputs.result_count != '0'
