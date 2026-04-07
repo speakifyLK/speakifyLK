@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useTransition } from "react";
+import { useState, useCallback, useEffect, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { submitQuizAnswer } from "@/actions/quiz";
 import { aiQuizSessions, aiQuizQuestions } from "@/db/schema";
+import { submitQuizAnswer } from "@/actions/quiz";
+import { shuffleArray } from "@/lib/utils";
 import { QuizProgress } from "./quiz-progress";
 import { QuizResult, type LocalQuestionAnswerSnapshot } from "./quiz-result";
 
@@ -72,12 +73,16 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
   // Parse options if they exist (for MCQ questions)
   // Options are stored as an array of { text: string, isCorrect: boolean }
-  const options =
-    currentQuestion?.options && Array.isArray(currentQuestion.options)
-      ? (currentQuestion.options as Array<{ text: string; isCorrect: boolean }>).map(
-          (opt) => opt.text
-        )
-      : null;
+  const options = useMemo(() => {
+    if (!currentQuestion?.options || !Array.isArray(currentQuestion.options)) {
+      return null;
+    }
+    const rawOptions = (currentQuestion.options as Array<{ text: string; isCorrect: boolean }>).map(
+      (opt) => opt.text
+    );
+    return shuffleArray(rawOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestion?.id]);
 
   const handleSubmitAnswer = () => {
     /* v8 ignore next 4 -- defensive guard behind disabled button */
