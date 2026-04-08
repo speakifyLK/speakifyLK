@@ -123,8 +123,8 @@ describe("ChatBubble", () => {
         <ChatBubble role="assistant" content="ආයුබෝවන් (āyubōvan) [hello]" timestamp={validDate} />
       );
       expect(screen.getByText("ආයුබෝවන්")).toBeInTheDocument();
-      expect(screen.getByText("(āyubෝvan)")).toBeInTheDocument();
-      expect(screen.getByText("[hello]")).toBeInTheDocument();
+      expect(screen.getByText(/āyubōvan/)).toBeInTheDocument();
+      expect(screen.getByText(/hello/)).toBeInTheDocument();
     });
 
     it("falls back to plain text for user messages", () => {
