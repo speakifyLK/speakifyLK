@@ -13,7 +13,20 @@ type ActivityHeatmapProps = {
   activityData: ActivityDay[];
 };
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 const DAYS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
@@ -44,13 +57,15 @@ export const ActivityHeatmap = ({ activityData }: ActivityHeatmapProps) => {
 
     // Build 52 weeks of data ending today
     const today = new Date();
+    // Normalize to UTC midnight to avoid local-timezone date shifts
+    today.setUTCHours(0, 0, 0, 0);
     const totalDays = 52 * 7;
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - totalDays + 1);
+    startDate.setUTCDate(startDate.getUTCDate() - totalDays + 1);
 
-    // Align to the start of the week (Sunday)
-    const dayOfWeek = startDate.getDay();
-    startDate.setDate(startDate.getDate() - dayOfWeek);
+    // Align to the start of the week (Sunday) using UTC day
+    const dayOfWeek = startDate.getUTCDay();
+    startDate.setUTCDate(startDate.getUTCDate() - dayOfWeek);
 
     const weeksArr: Array<
       Array<{ date: string; count: number; level: number; isInRange: boolean }>
@@ -61,7 +76,7 @@ export const ActivityHeatmap = ({ activityData }: ActivityHeatmapProps) => {
     let currentMonth = -1;
 
     const realStartDate = new Date(today);
-    realStartDate.setDate(realStartDate.getDate() - totalDays + 1);
+    realStartDate.setUTCDate(realStartDate.getUTCDate() - totalDays + 1);
 
     let weekIndex = 0;
 
@@ -85,14 +100,14 @@ export const ActivityHeatmap = ({ activityData }: ActivityHeatmapProps) => {
           isInRange,
         });
 
-        // Track month labels
-        const month = currentDate.getMonth();
+        // Track month labels (use UTC month)
+        const month = currentDate.getUTCMonth();
         if (month !== currentMonth && dayIdx === 0) {
           currentMonth = month;
           labels.push({ label: MONTHS[month], col: weekIndex });
         }
 
-        currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
       }
 
       weeksArr.push(week);
@@ -143,7 +158,9 @@ export const ActivityHeatmap = ({ activityData }: ActivityHeatmapProps) => {
                   <div
                     key={`${weekIdx}-${dayIdx}`}
                     className={`h-[11px] w-[11px] rounded-[2px] sm:h-[13px] sm:w-[13px] ${
-                      !day.isInRange ? "bg-transparent" : INTENSITY_COLORS[day.level]
+                      !day.isInRange
+                        ? "bg-transparent"
+                        : INTENSITY_COLORS[day.level]
                     }`}
                     title={
                       day.isInRange

@@ -13,7 +13,12 @@ const db = drizzle(sql, { schema });
 // ============================================================
 
 // Helper to create challenge options compactly
-const opt = (text: string, correct: boolean, imageSrc?: string, audioSrc?: string) => ({
+const opt = (
+  text: string,
+  correct: boolean,
+  imageSrc?: string,
+  audioSrc?: string
+) => ({
   text,
   correct,
   imageSrc,
@@ -61,7 +66,11 @@ const unit1Lessons = [
         type: "ASSIST" as const,
         question: '"the man"',
         order: 4,
-        options: [opt("මිනිහා", true), opt("කාන්තාව", false), opt("කොල්ලා", false)],
+        options: [
+          opt("මිනිහා", true),
+          opt("කාන්තාව", false),
+          opt("කොල්ලා", false),
+        ],
       },
       {
         type: "SELECT" as const,
@@ -97,7 +106,11 @@ const unit1Lessons = [
         type: "ASSIST" as const,
         question: '"the girl"',
         order: 8,
-        options: [opt("කෙල්ල", true), opt("කොල්ලා", false), opt("කාන්තාව", false)],
+        options: [
+          opt("කෙල්ල", true),
+          opt("කොල්ලා", false),
+          opt("කාන්තාව", false),
+        ],
       },
     ],
   },
@@ -139,7 +152,11 @@ const unit1Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "to say"?',
         order: 6,
-        options: [opt("කියනවා", true), opt("බලනවා", false), opt("බොනවා", false)],
+        options: [
+          opt("කියනවා", true),
+          opt("බලනවා", false),
+          opt("බොනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
@@ -217,49 +234,81 @@ const unit1Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "hello"?',
         order: 1,
-        options: [opt("ආයුබෝවන්", true), opt("ස්තූතියි", false), opt("සමාවෙන්න", false)],
+        options: [
+          opt("ආයුබෝවන්", true),
+          opt("ස්තූතියි", false),
+          opt("සමාවෙන්න", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "thank you"?',
         order: 2,
-        options: [opt("ස්තූතියි", true), opt("ආයුබෝවන්", false), opt("කරුණාකරල", false)],
+        options: [
+          opt("ස්තූතියි", true),
+          opt("ආයුබෝවන්", false),
+          opt("කරුණාකරල", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "sorry"?',
         order: 3,
-        options: [opt("සමාවෙන්න", true), opt("ස්තූතියි", false), opt("ආයුබෝවන්", false)],
+        options: [
+          opt("සමාවෙන්න", true),
+          opt("ස්තූතියි", false),
+          opt("ආයුබෝවන්", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"please"',
         order: 4,
-        options: [opt("කරුණාකරල", true), opt("සමාවෙන්න", false), opt("ස්තූතියි", false)],
+        options: [
+          opt("කරුණාකරල", true),
+          opt("සමාවෙන්න", false),
+          opt("ස්තූතියි", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "good morning"?',
         order: 5,
-        options: [opt("සුභ උදෑසනක්", true), opt("සුභ රාත්‍රියක්", false), opt("ආයුබෝවන්", false)],
+        options: [
+          opt("සුභ උදෑසනක්", true),
+          opt("සුභ රාත්‍රියක්", false),
+          opt("ආයුබෝවන්", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "good night"?',
         order: 6,
-        options: [opt("සුභ රාත්‍රියක්", true), opt("සුභ උදෑසනක්", false), opt("ස්තූතියි", false)],
+        options: [
+          opt("සුභ රාත්‍රියක්", true),
+          opt("සුභ උදෑසනක්", false),
+          opt("ස්තූතියි", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "hello"?',
         order: 7,
-        options: [opt("ආයුබෝවන්", true), opt("කරුණාකරල", false), opt("සුභ උදෑසනක්", false)],
+        options: [
+          opt("ආයුබෝවන්", true),
+          opt("කරුණාකරල", false),
+          opt("සුභ උදෑසනක්", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"thank you"',
         order: 8,
-        options: [opt("ස්තූතියි", true), opt("ආයුබෝවන්", false), opt("කරුණාකරල", false)],
+        options: [
+          opt("ස්තූතියි", true),
+          opt("ආයුබෝවන්", false),
+          opt("කරුණාකරල", false),
+        ],
       },
     ],
   },
@@ -271,49 +320,81 @@ const unit1Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "I am going"?',
         order: 1,
-        options: [opt("මම යනවා", true), opt("ඔහු කනවා", false), opt("ඇය එනවා", false)],
+        options: [
+          opt("මම යනවා", true),
+          opt("ඔහු කනවා", false),
+          opt("ඇය එනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "He is eating"?',
         order: 2,
-        options: [opt("ඔහු කනවා", true), opt("මම යනවා", false), opt("ඇය එනවා", false)],
+        options: [
+          opt("ඔහු කනවා", true),
+          opt("මම යනවා", false),
+          opt("ඇය එනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "She is coming"?',
         order: 3,
-        options: [opt("ඇය එනවා", true), opt("ඔහු කනවා", false), opt("අපි බොනවා", false)],
+        options: [
+          opt("ඇය එනවා", true),
+          opt("ඔහු කනවා", false),
+          opt("අපි බොනවා", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"We are drinking"',
         order: 4,
-        options: [opt("අපි බොනවා", true), opt("මම යනවා", false), opt("ඔහු කනවා", false)],
+        options: [
+          opt("අපි බොනවා", true),
+          opt("මම යනවා", false),
+          opt("ඔහු කනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "I am eating"?',
         order: 5,
-        options: [opt("මම කනවා", true), opt("ඔහු යනවා", false), opt("ඇය බොනවා", false)],
+        options: [
+          opt("මම කනවා", true),
+          opt("ඔහු යනවා", false),
+          opt("ඇය බොනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "He is going"?',
         order: 6,
-        options: [opt("ඔහු යනවා", true), opt("මම කනවා", false), opt("ඇය එනවා", false)],
+        options: [
+          opt("ඔහු යනවා", true),
+          opt("මම කනවා", false),
+          opt("ඇය එනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "She is eating"?',
         order: 7,
-        options: [opt("ඇය කනවා", true), opt("මම එනවා", false), opt("ඔහු බොනවා", false)],
+        options: [
+          opt("ඇය කනවා", true),
+          opt("මම එනවා", false),
+          opt("ඔහු බොනවා", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"I am coming"',
         order: 8,
-        options: [opt("මම එනවා", true), opt("ඔහු කනවා", false), opt("ඇය යනවා", false)],
+        options: [
+          opt("මම එනවා", true),
+          opt("ඔහු කනවා", false),
+          opt("ඇය යනවා", false),
+        ],
       },
     ],
   },
@@ -384,49 +465,81 @@ const unit2Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "to write"?',
         order: 1,
-        options: [opt("ලියනවා", true), opt("කියවනවා", false), opt("දුවනවා", false)],
+        options: [
+          opt("ලියනවා", true),
+          opt("කියවනවා", false),
+          opt("දුවනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to read"?',
         order: 2,
-        options: [opt("කියවනවා", true), opt("ලියනවා", false), opt("නිදනවා", false)],
+        options: [
+          opt("කියවනවා", true),
+          opt("ලියනවා", false),
+          opt("නිදනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to run"?',
         order: 3,
-        options: [opt("දුවනවා", true), opt("නිදනවා", false), opt("ලියනවා", false)],
+        options: [
+          opt("දුවනවා", true),
+          opt("නිදනවා", false),
+          opt("ලියනවා", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"to sleep"',
         order: 4,
-        options: [opt("නිදනවා", true), opt("දුවනවා", false), opt("කියවනවා", false)],
+        options: [
+          opt("නිදනවා", true),
+          opt("දුවනවා", false),
+          opt("කියවනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to play"?',
         order: 5,
-        options: [opt("සෙල්ලම් කරනවා", true), opt("ඉගෙන ගන්නවා", false), opt("වැඩ කරනවා", false)],
+        options: [
+          opt("සෙල්ලම් කරනවා", true),
+          opt("ඉගෙන ගන්නවා", false),
+          opt("වැඩ කරනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to learn"?',
         order: 6,
-        options: [opt("ඉගෙන ගන්නවා", true), opt("සෙල්ලම් කරනවා", false), opt("ලියනවා", false)],
+        options: [
+          opt("ඉගෙන ගන්නවා", true),
+          opt("සෙල්ලම් කරනවා", false),
+          opt("ලියනවා", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to work"?',
         order: 7,
-        options: [opt("වැඩ කරනවා", true), opt("ඉගෙන ගන්නවා", false), opt("දුවනවා", false)],
+        options: [
+          opt("වැඩ කරනවා", true),
+          opt("ඉගෙන ගන්නවා", false),
+          opt("දුවනවා", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"to write"',
         order: 8,
-        options: [opt("ලියනවා", true), opt("නිදනවා", false), opt("සෙල්ලම් කරනවා", false)],
+        options: [
+          opt("ලියනවා", true),
+          opt("නිදනවා", false),
+          opt("සෙල්ලම් කරනවා", false),
+        ],
       },
     ],
   },
@@ -492,43 +605,71 @@ const unit2Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "How are you?"?',
         order: 1,
-        options: [opt("ඔබට කොහොමද?", true), opt("මට හොඳින්", false), opt("ඔබේ නම මොකද්ද?", false)],
+        options: [
+          opt("ඔබට කොහොමද?", true),
+          opt("මට හොඳින්", false),
+          opt("ඔබේ නම මොකද්ද?", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "I am fine"?',
         order: 2,
-        options: [opt("මට හොඳින්", true), opt("ඔබට කොහොමද?", false), opt("මගේ නම...", false)],
+        options: [
+          opt("මට හොඳින්", true),
+          opt("ඔබට කොහොමද?", false),
+          opt("මගේ නම...", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "What is your name?"?',
         order: 3,
-        options: [opt("ඔබේ නම මොකද්ද?", true), opt("මට හොඳින්", false), opt("ඔබට කොහොමද?", false)],
+        options: [
+          opt("ඔබේ නම මොකද්ද?", true),
+          opt("මට හොඳින්", false),
+          opt("ඔබට කොහොමද?", false),
+        ],
       },
       {
         type: "ASSIST" as const,
         question: '"My name is..."',
         order: 4,
-        options: [opt("මගේ නම...", true), opt("ඔබේ නම මොකද්ද?", false), opt("මට හොඳින්", false)],
+        options: [
+          opt("මගේ නම...", true),
+          opt("ඔබේ නම මොකද්ද?", false),
+          opt("මට හොඳින්", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "How much is this?"?',
         order: 5,
-        options: [opt("මේක කීයද?", true), opt("මට තේරුණේ නැහැ", false), opt("ඔබට කොහොමද?", false)],
+        options: [
+          opt("මේක කීයද?", true),
+          opt("මට තේරුණේ නැහැ", false),
+          opt("ඔබට කොහොමද?", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "I don\'t understand"?',
         order: 6,
-        options: [opt("මට තේරුණේ නැහැ", true), opt("මේක කීයද?", false), opt("මට හොඳින්", false)],
+        options: [
+          opt("මට තේරුණේ නැහැ", true),
+          opt("මේක කීයද?", false),
+          opt("මට හොඳින්", false),
+        ],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "How are you?"?',
         order: 7,
-        options: [opt("ඔබට කොහොමද?", true), opt("මගේ නම...", false), opt("මේක කීයද?", false)],
+        options: [
+          opt("ඔබට කොහොමද?", true),
+          opt("මගේ නම...", false),
+          opt("මේක කීයද?", false),
+        ],
       },
       {
         type: "ASSIST" as const,
@@ -646,6 +787,7 @@ const main = async () => {
     await db.delete(schema.units);
     await db.delete(schema.courses);
     await db.delete(schema.userSubscription);
+    await db.delete(schema.userActivity);
 
     // Insert courses
     const [sinhalaCourse] = await db

@@ -8,6 +8,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 import { MAX_HEARTS } from "@/constants";
@@ -99,12 +100,15 @@ export const challengeOptions = pgTable("challenge_options", {
   audioSrc: text("audio_src"),
 });
 
-export const challengeOptionsRelations = relations(challengeOptions, ({ one }) => ({
-  challenge: one(challenges, {
-    fields: [challengeOptions.challengeId],
-    references: [challenges.id],
-  }),
-}));
+export const challengeOptionsRelations = relations(
+  challengeOptions,
+  ({ one }) => ({
+    challenge: one(challenges, {
+      fields: [challengeOptions.challengeId],
+      references: [challenges.id],
+    }),
+  })
+);
 
 export const challengeProgress = pgTable("challenge_progress", {
   id: serial("id").primaryKey(),
@@ -117,12 +121,15 @@ export const challengeProgress = pgTable("challenge_progress", {
   completed: boolean("completed").notNull().default(false),
 });
 
-export const challengeProgressRelations = relations(challengeProgress, ({ one }) => ({
-  challenge: one(challenges, {
-    fields: [challengeProgress.challengeId],
-    references: [challenges.id],
-  }),
-}));
+export const challengeProgressRelations = relations(
+  challengeProgress,
+  ({ one }) => ({
+    challenge: one(challenges, {
+      fields: [challengeProgress.challengeId],
+      references: [challenges.id],
+    }),
+  })
+);
 
 export const userProgress = pgTable("user_progress", {
   userId: text("user_id").primaryKey(),
@@ -167,9 +174,12 @@ export const chatConversations = pgTable("chat_conversations", {
     .notNull(),
 });
 
-export const chatConversationsRelations = relations(chatConversations, ({ many }) => ({
-  messages: many(chatMessages),
-}));
+export const chatConversationsRelations = relations(
+  chatConversations,
+  ({ many }) => ({
+    messages: many(chatMessages),
+  })
+);
 
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
@@ -230,13 +240,16 @@ export const aiQuizSessions = pgTable("ai_quiz_sessions", {
   metadata: json("metadata").$type<AiQuizSessionMetadata | null>(),
 });
 
-export const aiQuizSessionsRelations = relations(aiQuizSessions, ({ one, many }) => ({
-  course: one(courses, {
-    fields: [aiQuizSessions.courseId],
-    references: [courses.id],
-  }),
-  questions: many(aiQuizQuestions),
-}));
+export const aiQuizSessionsRelations = relations(
+  aiQuizSessions,
+  ({ one, many }) => ({
+    course: one(courses, {
+      fields: [aiQuizSessions.courseId],
+      references: [courses.id],
+    }),
+    questions: many(aiQuizQuestions),
+  })
+);
 
 export const aiQuizQuestions = pgTable("ai_quiz_questions", {
   id: serial("id").primaryKey(),
@@ -253,31 +266,40 @@ export const aiQuizQuestions = pgTable("ai_quiz_questions", {
   order: integer("order").notNull(),
 });
 
-export const aiQuizQuestionsRelations = relations(aiQuizQuestions, ({ one }) => ({
-  session: one(aiQuizSessions, {
-    fields: [aiQuizQuestions.sessionId],
-    references: [aiQuizSessions.id],
-  }),
-}));
+export const aiQuizQuestionsRelations = relations(
+  aiQuizQuestions,
+  ({ one }) => ({
+    session: one(aiQuizSessions, {
+      fields: [aiQuizQuestions.sessionId],
+      references: [aiQuizSessions.id],
+    }),
+  })
+);
 
 // ── User Activity (streak tracking) ─────────────────────────────────
 
-export const userActivity = pgTable("user_activity", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  /** UTC calendar date string (YYYY-MM-DD) – one row per user per day */
-  date: text("date").notNull(),
-  /** Number of lessons / challenges completed that day */
-  lessonsCompleted: integer("lessons_completed").notNull().default(0),
-  /** Number of AI quizzes completed that day */
-  quizzesCompleted: integer("quizzes_completed").notNull().default(0),
-  /** Total XP earned that day */
-  xpEarned: integer("xp_earned").notNull().default(0),
-  /** Timestamp of the first activity that day */
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  /** Timestamp of the latest activity that day */
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const userActivity = pgTable(
+  "user_activity",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    /** UTC calendar date string (YYYY-MM-DD) – one row per user per day */
+    date: text("date").notNull(),
+    /** Number of lessons / challenges completed that day */
+    lessonsCompleted: integer("lessons_completed").notNull().default(0),
+    /** Number of AI quizzes completed that day */
+    quizzesCompleted: integer("quizzes_completed").notNull().default(0),
+    /** Total XP earned that day */
+    xpEarned: integer("xp_earned").notNull().default(0),
+    /** Timestamp of the first activity that day */
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    /** Timestamp of the latest activity that day */
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("user_activity_user_id_date_idx").on(table.userId, table.date),
+  ]
+);

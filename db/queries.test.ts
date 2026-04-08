@@ -15,6 +15,13 @@ const mockDbQuery = vi.hoisted(() => ({
   challengeProgress: {},
   userActivity: { findMany: vi.fn() },
 }));
+const mockSelectWhere = vi.hoisted(() => vi.fn());
+const mockSelectFrom = vi.hoisted(() =>
+  vi.fn().mockReturnValue({ where: mockSelectWhere })
+);
+const mockDbSelect = vi.hoisted(() =>
+  vi.fn().mockReturnValue({ from: mockSelectFrom })
+);
 
 vi.mock("@clerk/nextjs/server", () => ({
   auth: mockAuth,
@@ -29,6 +36,13 @@ vi.mock("drizzle-orm", () => ({
   eq: (col: unknown, val: unknown) => ({ _type: "eq", col, val }),
   and: (...args: unknown[]) => ({ _type: "and", args }),
   isNotNull: (col: unknown) => ({ _type: "isNotNull", col }),
+  gte: (col: unknown, val: unknown) => ({ _type: "gte", col, val }),
+  sum: (col: unknown) => ({ _type: "sum", col }),
+  sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
+    _type: "sql",
+    strings: [...strings],
+    values,
+  }),
 }));
 
 vi.mock("./drizzle", () => {
@@ -38,15 +52,24 @@ vi.mock("./drizzle", () => {
     desc: (col: unknown) => ({ _type: "desc", col }),
     asc: (col: unknown) => ({ _type: "asc", col }),
   };
-  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
+  const fakeTable = new Proxy(
+    {},
+    { get: (_t, prop) => `table.${String(prop)}` }
+  );
 
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.where && typeof opts.where === "function") {
-        (opts.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.where as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       // Handle nested `with` for orderBy/where callbacks
       if (opts?.with && typeof opts.with === "object") {
@@ -55,10 +78,16 @@ vi.mock("./drizzle", () => {
             if (val && typeof val === "object") {
               const nested = val as Record<string, unknown>;
               if (typeof nested.where === "function") {
-                (nested.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+                (nested.where as (t: unknown, h: unknown) => unknown)(
+                  fakeTable,
+                  fakeHelpers
+                );
               }
               if (typeof nested.orderBy === "function") {
-                (nested.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+                (nested.orderBy as (t: unknown, h: unknown) => unknown)(
+                  fakeTable,
+                  fakeHelpers
+                );
               }
               if (nested.with && typeof nested.with === "object") {
                 walkWith(nested.with as Record<string, unknown>);
@@ -106,6 +135,7 @@ vi.mock("./drizzle", () => {
           findMany: wrapQuery(mockDbQuery.userActivity.findMany),
         },
       },
+      select: mockDbSelect,
     },
   };
 });
@@ -144,6 +174,9 @@ vi.mock("./schema", () => {
     userActivity: {
       userId: fakeCol("userActivity.userId"),
       date: fakeCol("userActivity.date"),
+      lessonsCompleted: fakeCol("userActivity.lessonsCompleted"),
+      quizzesCompleted: fakeCol("userActivity.quizzesCompleted"),
+      xpEarned: fakeCol("userActivity.xpEarned"),
     },
   };
 });
@@ -248,7 +281,9 @@ describe("db/queries", () => {
             {
               id: 11,
               title: "Lesson 2",
-              challenges: [{ id: 102, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 102, challengeProgress: [{ completed: false }] },
+              ],
             },
           ],
         },
@@ -811,11 +846,15 @@ describe("db/queries", () => {
 
       // Recent quiz sessions
       mockDbQuery.aiQuizSessions.findMany
-        .mockResolvedValueOnce([{ topic: "Greetings", score: 80, difficulty: "beginner" }])
+        .mockResolvedValueOnce([
+          { topic: "Greetings", score: 80, difficulty: "beginner" },
+        ])
         .mockResolvedValueOnce([{ id: 1 }]);
 
       // Wrong answers for missed words
-      mockDbQuery.aiQuizQuestions.findMany.mockResolvedValue([{ correctAnswer: "ayubowan" }]);
+      mockDbQuery.aiQuizQuestions.findMany.mockResolvedValue([
+        { correctAnswer: "ayubowan" },
+      ]);
 
       const result = await getUserLearningProfile();
       expect(result).not.toBeNull();
@@ -839,22 +878,30 @@ describe("db/queries", () => {
             {
               id: 10,
               title: "L1",
-              challenges: [{ id: 100, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 100, challengeProgress: [{ completed: false }] },
+              ],
             },
             {
               id: 11,
               title: "L2",
-              challenges: [{ id: 101, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 101, challengeProgress: [{ completed: false }] },
+              ],
             },
             {
               id: 12,
               title: "L3",
-              challenges: [{ id: 102, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 102, challengeProgress: [{ completed: false }] },
+              ],
             },
             {
               id: 13,
               title: "L4",
-              challenges: [{ id: 103, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 103, challengeProgress: [{ completed: false }] },
+              ],
             },
           ],
         },
@@ -880,17 +927,23 @@ describe("db/queries", () => {
             {
               id: 10,
               title: "L1",
-              challenges: [{ id: 100, challengeProgress: [{ completed: true }] }],
+              challenges: [
+                { id: 100, challengeProgress: [{ completed: true }] },
+              ],
             },
             {
               id: 11,
               title: "L2",
-              challenges: [{ id: 101, challengeProgress: [{ completed: true }] }],
+              challenges: [
+                { id: 101, challengeProgress: [{ completed: true }] },
+              ],
             },
             {
               id: 12,
               title: "L3",
-              challenges: [{ id: 102, challengeProgress: [{ completed: true }] }],
+              challenges: [
+                { id: 102, challengeProgress: [{ completed: true }] },
+              ],
             },
           ],
         },
@@ -932,7 +985,9 @@ describe("db/queries", () => {
         userId: "user1",
         activeCourseId: 1,
       });
-      mockDbQuery.units.findMany.mockResolvedValue([{ id: 1, title: "Empty Unit", lessons: [] }]);
+      mockDbQuery.units.findMany.mockResolvedValue([
+        { id: 1, title: "Empty Unit", lessons: [] },
+      ]);
       mockDbQuery.aiQuizSessions.findMany.mockResolvedValue([]);
 
       const result = await getUserLearningProfile();
@@ -1431,7 +1486,7 @@ describe("db/queries", () => {
       expect(result).toEqual(rows);
     });
 
-    it("passes custom days parameter as limit", async () => {
+    it("passes custom days parameter to filter by date range", async () => {
       mockAuth.mockResolvedValue({ userId: "user1" });
       mockDbQuery.userActivity.findMany.mockResolvedValue([]);
       await getUserActivityHeatmap(30);
@@ -1584,29 +1639,19 @@ describe("db/queries", () => {
         points: 500,
       });
       // getStreakData → userActivity.findMany for streak
-      // getUserActivityHeatmap → userActivity.findMany for heatmap
-      // Both are called via getStreakData and getUserActivityHeatmap
       const todayKey = new Date().toISOString().slice(0, 10);
-      mockDbQuery.userActivity.findMany
-        .mockResolvedValueOnce([
-          // getStreakData
-          { date: todayKey },
-        ])
-        .mockResolvedValueOnce([
-          // getUserActivityHeatmap
-          {
-            date: "2025-06-10",
-            lessonsCompleted: 3,
-            quizzesCompleted: 1,
-            xpEarned: 40,
-          },
-          {
-            date: "2025-06-11",
-            lessonsCompleted: 2,
-            quizzesCompleted: 2,
-            xpEarned: 50,
-          },
-        ]);
+      mockDbQuery.userActivity.findMany.mockResolvedValueOnce([
+        // getStreakData
+        { date: todayKey },
+      ]);
+      // db.select().from().where() for aggregate query
+      mockSelectWhere.mockResolvedValueOnce([
+        {
+          totalLessonsCompleted: "5",
+          totalQuizzesCompleted: "3",
+          memberSince: "2025-06-10",
+        },
+      ]);
 
       const result = await getProfileStats();
       expect(result.totalXp).toBe(500);
@@ -1619,6 +1664,14 @@ describe("db/queries", () => {
       mockAuth.mockResolvedValue({ userId: "user1" });
       mockDbQuery.userProgress.findFirst.mockResolvedValue(null);
       mockDbQuery.userActivity.findMany.mockResolvedValue([]);
+      // db.select().from().where() returns row with nulls
+      mockSelectWhere.mockResolvedValueOnce([
+        {
+          totalLessonsCompleted: null,
+          totalQuizzesCompleted: null,
+          memberSince: null,
+        },
+      ]);
 
       const result = await getProfileStats();
       expect(result.totalXp).toBe(0);
@@ -1631,29 +1684,15 @@ describe("db/queries", () => {
         userId: "user1",
         points: 100,
       });
-      mockDbQuery.userActivity.findMany
-        .mockResolvedValueOnce([]) // getStreakData
-        .mockResolvedValueOnce([
-          // getUserActivityHeatmap
-          {
-            date: "2025-06-11",
-            lessonsCompleted: 1,
-            quizzesCompleted: 0,
-            xpEarned: 10,
-          },
-          {
-            date: "2025-01-05",
-            lessonsCompleted: 0,
-            quizzesCompleted: 1,
-            xpEarned: 5,
-          },
-          {
-            date: "2025-06-10",
-            lessonsCompleted: 2,
-            quizzesCompleted: 1,
-            xpEarned: 30,
-          },
-        ]);
+      mockDbQuery.userActivity.findMany.mockResolvedValueOnce([]); // getStreakData
+      // db.select().from().where() returns aggregated row
+      mockSelectWhere.mockResolvedValueOnce([
+        {
+          totalLessonsCompleted: "3",
+          totalQuizzesCompleted: "2",
+          memberSince: "2025-01-05",
+        },
+      ]);
 
       const result = await getProfileStats();
       expect(result.memberSince).toBe("2025-01-05");
