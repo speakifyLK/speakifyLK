@@ -207,7 +207,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
   if (!currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-6">
-        <p className="text-lg text-neutral-600">No questions available</p>
+        <p className="text-lg text-neutral-600 dark:text-neutral-400">No questions available</p>
         <Button onClick={() => router.push(backHref || "/quiz")}>Back to Quiz Config</Button>
       </div>
     );
@@ -226,13 +226,13 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
       />
 
       {/* Topic indicator */}
-      <div className="flex justify-end text-sm text-neutral-600">
+      <div className="flex justify-end text-sm text-neutral-600 dark:text-neutral-400">
         <span>Topic: {session.topic}</span>
       </div>
 
       {/* Question */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-neutral-700">{currentQuestion.question}</h2>
+        <h2 className="text-2xl font-bold text-neutral-700 dark:text-foreground">{currentQuestion.question}</h2>
 
         {/* MCQ Options */}
         {currentQuestion.type === "mcq" && options && (
@@ -249,7 +249,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
                       : isCorrect === false
                         ? "border-red-500 bg-red-50"
                         : "border-green-500 bg-green-50"
-                    : "border-neutral-200 bg-white hover:bg-neutral-50"
+                    : "border-neutral-200 bg-white hover:bg-neutral-50 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
                 } ${isAnswerSubmitted || isTimeUp ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
               >
                 {option}
@@ -267,7 +267,7 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
               onChange={(e) => !isAnswerSubmitted && !isTimeUp && setUserAnswer(e.target.value)}
               disabled={isAnswerSubmitted || isTimeUp}
               placeholder="Type your answer here..."
-              className="w-full rounded-lg border-2 border-neutral-200 p-4 text-lg focus:border-green-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
+              className="w-full rounded-lg border-2 border-neutral-200 p-4 text-lg focus:border-green-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 dark:border-slate-600 dark:bg-slate-800 dark:text-foreground dark:placeholder-slate-400"
             />
           </div>
         )}
@@ -295,13 +295,13 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
                     : "✗ Incorrect"}
             </p>
             {isCorrect !== null && !isCorrect && (
-              <p className="mt-2 text-sm text-neutral-700">
+              <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
                 <span className="font-semibold">Correct answer:</span>{" "}
                 {currentQuestion.correctAnswer}
               </p>
             )}
             {isCorrect !== null && (aiExplanation ?? currentQuestion.explanation) && (
-              <p className="mt-2 text-sm text-neutral-600">
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                 <span className="font-semibold">Explanation:</span>{" "}
                 {aiExplanation ?? currentQuestion.explanation}
               </p>

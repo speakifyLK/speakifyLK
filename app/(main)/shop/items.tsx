@@ -45,7 +45,7 @@ export const Items = ({ hearts, points, hasActiveSubscription }: ItemsProps) => 
         <Image src="/heart.svg" alt="Heart" height={60} width={60} />
 
         <div className="flex-1">
-          <p className="text-base font-bold text-neutral-700 lg:text-xl">Refill hearts</p>
+          <p className="text-base font-bold text-neutral-700 lg:text-xl dark:text-foreground">Refill hearts</p>
         </div>
 
         <Button
@@ -69,7 +69,7 @@ export const Items = ({ hearts, points, hasActiveSubscription }: ItemsProps) => 
         <Image src="/unlimited.svg" alt="Unlimited" height={60} width={60} />
 
         <div className="flex-1">
-          <p className="text-base font-bold text-neutral-700 lg:text-xl">Unlimited hearts</p>
+          <p className="text-base font-bold text-neutral-700 lg:text-xl dark:text-foreground">Unlimited hearts</p>
         </div>
 
         <Button onClick={onUpgrade} disabled={pending} aria-disabled={pending}>

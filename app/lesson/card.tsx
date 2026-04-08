@@ -53,7 +53,7 @@ export const Card = ({
         selected && "border-sky-300 bg-sky-100 hover:bg-sky-100",
         selected && status === "correct" && "border-green-300 bg-green-100 hover:bg-green-100",
         selected && status === "wrong" && "border-rose-300 bg-rose-100 hover:bg-rose-100",
-        disabled && "pointer-events-none hover:bg-white",
+        disabled && "pointer-events-none hover:bg-white dark:hover:bg-background",
         type === "ASSIST" && "w-full lg:p-3"
       )}
     >
@@ -70,7 +70,7 @@ export const Card = ({
         {type === "ASSIST" && <div aria-hidden />}
         <p
           className={cn(
-            "text-sm text-neutral-600 lg:text-base",
+            "text-sm text-neutral-600 lg:text-base dark:text-neutral-300",
             selected && "text-sky-500",
             selected && status === "correct" && "text-green-500",
             selected && status === "wrong" && "text-rose-500"
