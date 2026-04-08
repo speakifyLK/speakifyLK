@@ -5,6 +5,7 @@ const mockAuth = vi.hoisted(() => vi.fn());
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
 const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockRevalidatePath = vi.hoisted(() => vi.fn());
+const mockRecordDailyActivity = vi.hoisted(() => vi.fn());
 
 const mockDbInsert = vi.hoisted(() => vi.fn());
 const mockDbUpdate = vi.hoisted(() => vi.fn());
@@ -24,6 +25,10 @@ vi.mock("next/cache", () => ({
 vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
   getUserSubscription: mockGetUserSubscription,
+}));
+
+vi.mock("./user-activity", () => ({
+  recordDailyActivity: mockRecordDailyActivity,
 }));
 
 vi.mock("drizzle-orm", () => ({

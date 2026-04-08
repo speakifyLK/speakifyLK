@@ -13,6 +13,7 @@ import {
   getUserSubscription,
   getConversations,
   getConversationById,
+  getStreakData,
 } from "@/db/queries";
 
 import { getOrCreateConversation } from "@/actions/chat";
@@ -45,12 +46,14 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
   }
 
   // 2. Fetch all data in parallel for speed
-  const [conversations, activeConversation, userProgress, userSubscription] = await Promise.all([
-    getConversations(),
-    getConversationById(activeId),
-    getUserProgress(),
-    getUserSubscription(),
-  ]);
+  const [conversations, activeConversation, userProgress, userSubscription, streakData] =
+    await Promise.all([
+      getConversations(),
+      getConversationById(activeId),
+      getUserProgress(),
+      getUserSubscription(),
+      getStreakData(),
+    ]);
 
   const isPro = !!userSubscription?.isActive;
 
@@ -71,6 +74,7 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
         <ConversationList

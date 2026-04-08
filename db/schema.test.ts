@@ -21,6 +21,7 @@ describe("db/schema", () => {
     expect(schema.chatMessages).toBeDefined();
     expect(schema.aiQuizSessions).toBeDefined();
     expect(schema.aiQuizQuestions).toBeDefined();
+    expect(schema.userActivity).toBeDefined();
   });
 
   it("exports all enum definitions", async () => {
@@ -274,5 +275,29 @@ describe("db/schema", () => {
     expect(fks.length).toBeGreaterThan(0);
     const ref = fks[0].reference();
     expect(ref).toBeDefined();
+  });
+
+  it("userActivity updatedAt $onUpdate returns a Date", async () => {
+    const schema = await import("./schema");
+    const updatedAtCol = (
+      schema.userActivity as unknown as Record<string, Record<string, unknown>>
+    )["updatedAt"];
+    if (updatedAtCol && typeof updatedAtCol === "object") {
+      const config = (updatedAtCol as Record<string, unknown>)["config"] as
+        | Record<string, unknown>
+        | undefined;
+      if (config && typeof config["onUpdateFn"] === "function") {
+        const result = (config["onUpdateFn"] as () => unknown)();
+        expect(result).toBeInstanceOf(Date);
+      }
+    }
+  });
+
+  it("userActivity table has a unique index on (userId, date)", async () => {
+    const { getTableConfig } = await import("drizzle-orm/pg-core");
+    const schema = await import("./schema");
+    const cfg = getTableConfig(schema.userActivity);
+    expect(cfg.indexes.length).toBe(1);
+    expect(cfg.indexes[0].config.name).toBe("user_activity_user_id_date_idx");
   });
 });

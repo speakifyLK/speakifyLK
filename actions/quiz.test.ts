@@ -5,6 +5,7 @@ const mockAuth = vi.hoisted(() => vi.fn());
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
 const mockRevalidatePath = vi.hoisted(() => vi.fn());
 const mockGenerateContent = vi.hoisted(() => vi.fn());
+const mockRecordDailyActivity = vi.hoisted(() => vi.fn());
 
 const mockDbInsert = vi.hoisted(() => vi.fn());
 const mockDbUpdate = vi.hoisted(() => vi.fn());
@@ -27,6 +28,10 @@ vi.mock("@/db/queries", () => ({
 
 vi.mock("@/lib/gemini", () => ({
   generateContent: mockGenerateContent,
+}));
+
+vi.mock("./user-activity", () => ({
+  recordDailyActivity: mockRecordDailyActivity,
 }));
 
 vi.mock("drizzle-orm", () => ({

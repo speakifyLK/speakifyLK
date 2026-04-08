@@ -8,6 +8,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 import { MAX_HEARTS } from "@/constants";
@@ -259,3 +260,29 @@ export const aiQuizQuestionsRelations = relations(aiQuizQuestions, ({ one }) => 
     references: [aiQuizSessions.id],
   }),
 }));
+
+// ── User Activity (streak tracking) ─────────────────────────────────
+
+export const userActivity = pgTable(
+  "user_activity",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    /** UTC calendar date string (YYYY-MM-DD) – one row per user per day */
+    date: text("date").notNull(),
+    /** Number of lessons / challenges completed that day */
+    lessonsCompleted: integer("lessons_completed").notNull().default(0),
+    /** Number of AI quizzes completed that day */
+    quizzesCompleted: integer("quizzes_completed").notNull().default(0),
+    /** Total XP earned that day */
+    xpEarned: integer("xp_earned").notNull().default(0),
+    /** Timestamp of the first activity that day */
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    /** Timestamp of the latest activity that day */
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [uniqueIndex("user_activity_user_id_date_idx").on(table.userId, table.date)]
+);
