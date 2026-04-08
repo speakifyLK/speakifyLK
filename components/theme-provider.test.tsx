@@ -43,7 +43,7 @@ describe("ThemeProvider", () => {
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
 
-  it("defaults to dark theme when system prefers dark", () => {
+  it("defaults to light theme even when system prefers dark", () => {
     Object.defineProperty(window, "matchMedia", {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
@@ -58,8 +58,8 @@ describe("ThemeProvider", () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByTestId("theme-value")).toHaveTextContent("dark");
-    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(screen.getByTestId("theme-value")).toHaveTextContent("light");
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
 
   it("restores theme from localStorage", () => {
