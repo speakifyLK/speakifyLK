@@ -13,6 +13,7 @@ import {
   courses,
   lessons,
   units,
+  userActivity,
   userProgress,
   userSubscription,
 } from "./schema";
@@ -68,7 +69,8 @@ export const getUnits = cache(async () => {
 
   const normalizedData = data.map((unit) => {
     const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
-      if (lesson.challenges.length === 0) return { ...lesson, completed: false };
+      if (lesson.challenges.length === 0)
+        return { ...lesson, completed: false };
 
       const allCompletedChallenges = lesson.challenges.every((challenge) => {
         return (
@@ -244,9 +246,13 @@ export const getLessonPercentage = cache(async () => {
 
   if (!lesson) return 0;
 
-  const completedChallenges = lesson.challenges.filter((challenge) => challenge.completed);
+  const completedChallenges = lesson.challenges.filter(
+    (challenge) => challenge.completed
+  );
 
-  const percentage = Math.round((completedChallenges.length / lesson.challenges.length) * 100);
+  const percentage = Math.round(
+    (completedChallenges.length / lesson.challenges.length) * 100
+  );
 
   return percentage;
 });
@@ -263,7 +269,8 @@ export const getUserSubscription = cache(async () => {
   if (!data) return null;
 
   const isActive =
-    data.stripePriceId && data.stripeCurrentPeriodEnd?.getTime() + DAY_IN_MS > Date.now();
+    data.stripePriceId &&
+    data.stripeCurrentPeriodEnd?.getTime() + DAY_IN_MS > Date.now();
 
   return {
     ...data,
@@ -299,7 +306,9 @@ export const getConversations = cache(async () => {
 
   const data = await db.query.chatConversations.findMany({
     where: eq(chatConversations.userId, userId),
-    orderBy: (chatConversations, { desc }) => [desc(chatConversations.updatedAt)],
+    orderBy: (chatConversations, { desc }) => [
+      desc(chatConversations.updatedAt),
+    ],
   });
 
   return data;
@@ -330,7 +339,10 @@ export const getConversationById = async (conversationId: number) => {
   if (!userId) return null;
 
   const data = await db.query.chatConversations.findFirst({
-    where: and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId)),
+    where: and(
+      eq(chatConversations.id, conversationId),
+      eq(chatConversations.userId, userId)
+    ),
     with: {
       messages: {
         orderBy: (messages, { asc }) => [asc(messages.timestamp)],
@@ -351,7 +363,10 @@ export const getMessagesByConversation = cache(
 
     // Verify conversation ownership at DB level
     const conversation = await db.query.chatConversations.findFirst({
-      where: and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId)),
+      where: and(
+        eq(chatConversations.id, conversationId),
+        eq(chatConversations.userId, userId)
+      ),
     });
 
     if (!conversation) return [];
@@ -408,144 +423,150 @@ export interface UserLearningProfile {
  * missed vocabulary. This is consumed by the AI quiz prompt builder
  * so Gemini can generate questions tailored to the learner.
  */
-export const getUserLearningProfile = cache(async (): Promise<UserLearningProfile | null> => {
-  const { userId } = await auth();
-  if (!userId) return null;
+export const getUserLearningProfile = cache(
+  async (): Promise<UserLearningProfile | null> => {
+    const { userId } = await auth();
+    if (!userId) return null;
 
-  const progress = await getUserProgress();
-  if (!progress?.activeCourseId) return null;
+    const progress = await getUserProgress();
+    if (!progress?.activeCourseId) return null;
 
-  // ── 1. Fetch ALL units, lessons & per-user challenge progress ──
-  const allUnits = await db.query.units.findMany({
-    where: eq(units.courseId, progress.activeCourseId),
-    orderBy: (units, { asc }) => [asc(units.order)],
-    with: {
-      lessons: {
-        orderBy: (lessons, { asc }) => [asc(lessons.order)],
-        with: {
-          challenges: {
-            orderBy: (challenges, { asc }) => [asc(challenges.order)],
-            with: {
-              challengeProgress: {
-                where: eq(challengeProgress.userId, userId),
+    // ── 1. Fetch ALL units, lessons & per-user challenge progress ──
+    const allUnits = await db.query.units.findMany({
+      where: eq(units.courseId, progress.activeCourseId),
+      orderBy: (units, { asc }) => [asc(units.order)],
+      with: {
+        lessons: {
+          orderBy: (lessons, { asc }) => [asc(lessons.order)],
+          with: {
+            challenges: {
+              orderBy: (challenges, { asc }) => [asc(challenges.order)],
+              with: {
+                challengeProgress: {
+                  where: eq(challengeProgress.userId, userId),
+                },
               },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  // ── 2. Classify lessons & units ──
-  const completedLessons: string[] = [];
-  const weakTopics: string[] = [];
-  const strongTopics: string[] = [];
-  const completedUnits: string[] = [];
-  let currentUnit: string | null = null;
-  let totalLessons = 0;
+    // ── 2. Classify lessons & units ──
+    const completedLessons: string[] = [];
+    const weakTopics: string[] = [];
+    const strongTopics: string[] = [];
+    const completedUnits: string[] = [];
+    let currentUnit: string | null = null;
+    let totalLessons = 0;
 
-  for (const unit of allUnits) {
-    let unitFullyCompleted = true;
+    for (const unit of allUnits) {
+      let unitFullyCompleted = true;
 
-    for (const lesson of unit.lessons) {
-      totalLessons++;
-      const total = lesson.challenges.length;
-      if (total === 0) continue;
+      for (const lesson of unit.lessons) {
+        totalLessons++;
+        const total = lesson.challenges.length;
+        if (total === 0) continue;
 
-      const completed = lesson.challenges.filter((c) => {
-        return (
-          c.challengeProgress &&
-          c.challengeProgress.length > 0 &&
-          c.challengeProgress.every((p) => p.completed)
-        );
-      }).length;
+        const completed = lesson.challenges.filter((c) => {
+          return (
+            c.challengeProgress &&
+            c.challengeProgress.length > 0 &&
+            c.challengeProgress.every((p) => p.completed)
+          );
+        }).length;
 
-      const accuracy = completed / total;
+        const accuracy = completed / total;
 
-      if (accuracy === 1) {
-        completedLessons.push(lesson.title);
-      } else {
-        unitFullyCompleted = false;
+        if (accuracy === 1) {
+          completedLessons.push(lesson.title);
+        } else {
+          unitFullyCompleted = false;
+        }
+
+        if (accuracy < 0.5 && total > 0) {
+          weakTopics.push(lesson.title);
+        } else if (accuracy >= 0.8) {
+          strongTopics.push(lesson.title);
+        }
       }
 
-      if (accuracy < 0.5 && total > 0) {
-        weakTopics.push(lesson.title);
-      } else if (accuracy >= 0.8) {
-        strongTopics.push(lesson.title);
+      if (unitFullyCompleted && unit.lessons.length > 0) {
+        completedUnits.push(unit.title);
+      }
+
+      if (!unitFullyCompleted && !currentUnit) {
+        currentUnit = unit.title;
       }
     }
 
-    if (unitFullyCompleted && unit.lessons.length > 0) {
-      completedUnits.push(unit.title);
+    // ── 3. Fetch recent AI-quiz session scores (last 10) ──
+    const recentSessions = await db.query.aiQuizSessions.findMany({
+      where: eq(aiQuizSessions.userId, userId),
+      orderBy: (s, { desc }) => [desc(s.startedAt)],
+      limit: 10,
+      columns: {
+        topic: true,
+        score: true,
+        difficulty: true,
+      },
+    });
+
+    const recentQuizScores = recentSessions.map((s) => ({
+      topic: s.topic,
+      score: s.score,
+      difficulty: s.difficulty,
+    }));
+
+    // ── 4. Gather frequently-missed words from AI-quiz answers ──
+    // First get this user's most recent session IDs (bounded),
+    // then query wrong answers scoped to those sessions.
+    const userSessions = await db.query.aiQuizSessions.findMany({
+      where: eq(aiQuizSessions.userId, userId),
+      orderBy: (s, { desc }) => [desc(s.startedAt)],
+      columns: { id: true },
+      limit: 20,
+    });
+    const userSessionIds = userSessions.map((s) => s.id);
+
+    let frequentlyMissedWords: string[] = [];
+
+    if (userSessionIds.length > 0) {
+      // Fetch wrong answers only for this user's sessions
+      const allWrong: string[] = [];
+      for (const sid of userSessionIds) {
+        const wrong = await db.query.aiQuizQuestions.findMany({
+          where: and(
+            eq(aiQuizQuestions.sessionId, sid),
+            eq(aiQuizQuestions.isCorrect, false)
+          ),
+          columns: { correctAnswer: true },
+          limit: 50,
+        });
+        allWrong.push(...wrong.map((w) => w.correctAnswer));
+      }
+      frequentlyMissedWords = [...new Set(allWrong)].slice(0, 20);
     }
 
-    if (!unitFullyCompleted && !currentUnit) {
-      currentUnit = unit.title;
-    }
+    // ── 5. Derive overall level ──
+    const completionRatio =
+      totalLessons > 0 ? completedLessons.length / totalLessons : 0;
+    let overallLevel: "beginner" | "intermediate" | "advanced" = "beginner";
+    if (completionRatio >= 0.7) overallLevel = "advanced";
+    else if (completionRatio >= 0.35) overallLevel = "intermediate";
+
+    return {
+      completedLessons,
+      completedUnits,
+      currentUnit,
+      weakTopics,
+      strongTopics,
+      recentQuizScores,
+      frequentlyMissedWords,
+      overallLevel,
+    };
   }
-
-  // ── 3. Fetch recent AI-quiz session scores (last 10) ──
-  const recentSessions = await db.query.aiQuizSessions.findMany({
-    where: eq(aiQuizSessions.userId, userId),
-    orderBy: (s, { desc }) => [desc(s.startedAt)],
-    limit: 10,
-    columns: {
-      topic: true,
-      score: true,
-      difficulty: true,
-    },
-  });
-
-  const recentQuizScores = recentSessions.map((s) => ({
-    topic: s.topic,
-    score: s.score,
-    difficulty: s.difficulty,
-  }));
-
-  // ── 4. Gather frequently-missed words from AI-quiz answers ──
-  // First get this user's most recent session IDs (bounded),
-  // then query wrong answers scoped to those sessions.
-  const userSessions = await db.query.aiQuizSessions.findMany({
-    where: eq(aiQuizSessions.userId, userId),
-    orderBy: (s, { desc }) => [desc(s.startedAt)],
-    columns: { id: true },
-    limit: 20,
-  });
-  const userSessionIds = userSessions.map((s) => s.id);
-
-  let frequentlyMissedWords: string[] = [];
-
-  if (userSessionIds.length > 0) {
-    // Fetch wrong answers only for this user's sessions
-    const allWrong: string[] = [];
-    for (const sid of userSessionIds) {
-      const wrong = await db.query.aiQuizQuestions.findMany({
-        where: and(eq(aiQuizQuestions.sessionId, sid), eq(aiQuizQuestions.isCorrect, false)),
-        columns: { correctAnswer: true },
-        limit: 50,
-      });
-      allWrong.push(...wrong.map((w) => w.correctAnswer));
-    }
-    frequentlyMissedWords = [...new Set(allWrong)].slice(0, 20);
-  }
-
-  // ── 5. Derive overall level ──
-  const completionRatio = totalLessons > 0 ? completedLessons.length / totalLessons : 0;
-  let overallLevel: "beginner" | "intermediate" | "advanced" = "beginner";
-  if (completionRatio >= 0.7) overallLevel = "advanced";
-  else if (completionRatio >= 0.35) overallLevel = "intermediate";
-
-  return {
-    completedLessons,
-    completedUnits,
-    currentUnit,
-    weakTopics,
-    strongTopics,
-    recentQuizScores,
-    frequentlyMissedWords,
-    overallLevel,
-  };
-});
+);
 
 // ---------------------------------------------------------------------------
 // Quiz Queries
@@ -585,7 +606,10 @@ export const getQuizSessionWithQuestions = cache(async (sessionId: number) => {
   if (!userId) return null;
 
   const session = await db.query.aiQuizSessions.findFirst({
-    where: and(eq(aiQuizSessions.id, sessionId), eq(aiQuizSessions.userId, userId)),
+    where: and(
+      eq(aiQuizSessions.id, sessionId),
+      eq(aiQuizSessions.userId, userId)
+    ),
     with: {
       questions: {
         orderBy: (questions, { asc }) => [asc(questions.order)],
@@ -607,7 +631,9 @@ function computeQuizDayStreak(completionDates: Date[]): number {
   const daySet = new Set(completionDates.map((d) => utcCalendarDayKey(d)));
 
   const now = new Date();
-  let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  let cursor = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
   const todayKey = utcCalendarDayKey(cursor);
   const yesterday = new Date(cursor);
   yesterday.setUTCDate(yesterday.getUTCDate() - 1);
@@ -649,7 +675,10 @@ export const getQuizStats = cache(async () => {
   // Get completed sessions for the user (filtered at SQL level)
   // Limit to last 100 sessions for performance - enough for accurate stats and trend analysis
   const completedSessions = await db.query.aiQuizSessions.findMany({
-    where: and(eq(aiQuizSessions.userId, userId), isNotNull(aiQuizSessions.completedAt)),
+    where: and(
+      eq(aiQuizSessions.userId, userId),
+      isNotNull(aiQuizSessions.completedAt)
+    ),
     columns: {
       id: true,
       topic: true,
@@ -702,8 +731,10 @@ export const getQuizStats = cache(async () => {
     const firstHalf = sortedSessions.slice(0, midpoint);
     const secondHalf = sortedSessions.slice(midpoint);
 
-    const firstHalfAvg = firstHalf.reduce((sum, s) => sum + s.score, 0) / firstHalf.length;
-    const secondHalfAvg = secondHalf.reduce((sum, s) => sum + s.score, 0) / secondHalf.length;
+    const firstHalfAvg =
+      firstHalf.reduce((sum, s) => sum + s.score, 0) / firstHalf.length;
+    const secondHalfAvg =
+      secondHalf.reduce((sum, s) => sum + s.score, 0) / secondHalf.length;
 
     const difference = secondHalfAvg - firstHalfAvg;
 
@@ -727,5 +758,144 @@ export const getQuizStats = cache(async () => {
     favouriteTopic,
     improvementTrend,
     quizStreak,
+  };
+});
+
+// ---------------------------------------------------------------------------
+// User Activity & Streak Queries
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the user's activity rows for the past N days (default 365)
+ * used for the GitHub-style contribution heatmap.
+ */
+export const getUserActivityHeatmap = cache(async (days = 365) => {
+  const { userId } = await auth();
+  if (!userId) return [];
+
+  const rows = await db.query.userActivity.findMany({
+    where: eq(userActivity.userId, userId),
+    orderBy: (ua, { asc }) => [asc(ua.date)],
+    limit: days,
+  });
+
+  return rows;
+});
+
+/**
+ * Computes the current streak and longest streak from user_activity rows.
+ * A streak is consecutive UTC calendar days with at least one activity row.
+ * The streak is still alive if the user was active today or yesterday.
+ */
+export const getStreakData = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) {
+    return { currentStreak: 0, longestStreak: 0, totalActiveDays: 0 };
+  }
+
+  const rows = await db.query.userActivity.findMany({
+    where: eq(userActivity.userId, userId),
+    orderBy: (ua, { asc }) => [asc(ua.date)],
+    columns: { date: true },
+  });
+
+  if (rows.length === 0) {
+    return { currentStreak: 0, longestStreak: 0, totalActiveDays: 0 };
+  }
+
+  const daySet = new Set(rows.map((r) => r.date));
+  const totalActiveDays = daySet.size;
+
+  // Sort unique dates
+  const sortedDays = [...daySet].sort();
+
+  // Calculate longest streak
+  let longestStreak = 1;
+  let tempStreak = 1;
+
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prev = new Date(sortedDays[i - 1] + "T00:00:00Z");
+    const curr = new Date(sortedDays[i] + "T00:00:00Z");
+    const diffDays = (curr.getTime() - prev.getTime()) / 86_400_000;
+
+    if (diffDays === 1) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      tempStreak = 1;
+    }
+  }
+
+  // Calculate current streak (walk backwards from today/yesterday)
+  const now = new Date();
+  const todayKey = now.toISOString().slice(0, 10);
+  const yesterday = new Date(now);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayKey = yesterday.toISOString().slice(0, 10);
+
+  let currentStreak = 0;
+
+  if (!daySet.has(todayKey) && !daySet.has(yesterdayKey)) {
+    currentStreak = 0;
+  } else {
+    const cursor = new Date(
+      daySet.has(todayKey)
+        ? todayKey + "T00:00:00Z"
+        : yesterdayKey + "T00:00:00Z"
+    );
+
+    while (daySet.has(cursor.toISOString().slice(0, 10))) {
+      currentStreak++;
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+  }
+
+  return { currentStreak, longestStreak, totalActiveDays };
+});
+
+/**
+ * Returns aggregate profile statistics for the profile page.
+ */
+export const getProfileStats = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) {
+    return {
+      totalXp: 0,
+      totalLessonsCompleted: 0,
+      totalQuizzesCompleted: 0,
+      totalActiveDays: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      memberSince: null as string | null,
+    };
+  }
+
+  const [progress, streakData, activityRows] = await Promise.all([
+    getUserProgress(),
+    getStreakData(),
+    getUserActivityHeatmap(365),
+  ]);
+
+  // Sum up totals from activity rows
+  let totalLessonsCompleted = 0;
+  let totalQuizzesCompleted = 0;
+  let memberSince: string | null = null;
+
+  for (const row of activityRows) {
+    totalLessonsCompleted += row.lessonsCompleted;
+    totalQuizzesCompleted += row.quizzesCompleted;
+    if (!memberSince || row.date < memberSince) {
+      memberSince = row.date;
+    }
+  }
+
+  return {
+    totalXp: progress?.points ?? 0,
+    totalLessonsCompleted,
+    totalQuizzesCompleted,
+    totalActiveDays: streakData.totalActiveDays,
+    currentStreak: streakData.currentStreak,
+    longestStreak: streakData.longestStreak,
+    memberSince,
   };
 });

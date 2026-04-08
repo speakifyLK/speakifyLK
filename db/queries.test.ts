@@ -13,6 +13,7 @@ const mockDbQuery = vi.hoisted(() => ({
   aiQuizSessions: { findMany: vi.fn(), findFirst: vi.fn() },
   aiQuizQuestions: { findMany: vi.fn() },
   challengeProgress: {},
+  userActivity: { findMany: vi.fn() },
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
@@ -37,15 +38,24 @@ vi.mock("./drizzle", () => {
     desc: (col: unknown) => ({ _type: "desc", col }),
     asc: (col: unknown) => ({ _type: "asc", col }),
   };
-  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
+  const fakeTable = new Proxy(
+    {},
+    { get: (_t, prop) => `table.${String(prop)}` }
+  );
 
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.where && typeof opts.where === "function") {
-        (opts.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.where as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
+          fakeTable,
+          fakeHelpers
+        );
       }
       // Handle nested `with` for orderBy/where callbacks
       if (opts?.with && typeof opts.with === "object") {
@@ -54,10 +64,16 @@ vi.mock("./drizzle", () => {
             if (val && typeof val === "object") {
               const nested = val as Record<string, unknown>;
               if (typeof nested.where === "function") {
-                (nested.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+                (nested.where as (t: unknown, h: unknown) => unknown)(
+                  fakeTable,
+                  fakeHelpers
+                );
               }
               if (typeof nested.orderBy === "function") {
-                (nested.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
+                (nested.orderBy as (t: unknown, h: unknown) => unknown)(
+                  fakeTable,
+                  fakeHelpers
+                );
               }
               if (nested.with && typeof nested.with === "object") {
                 walkWith(nested.with as Record<string, unknown>);
@@ -101,6 +117,9 @@ vi.mock("./drizzle", () => {
         aiQuizQuestions: {
           findMany: wrapQuery(mockDbQuery.aiQuizQuestions.findMany),
         },
+        userActivity: {
+          findMany: wrapQuery(mockDbQuery.userActivity.findMany),
+        },
       },
     },
   };
@@ -137,6 +156,10 @@ vi.mock("./schema", () => {
       sessionId: fakeCol("aiQuizQuestions.sessionId"),
       isCorrect: fakeCol("aiQuizQuestions.isCorrect"),
     },
+    userActivity: {
+      userId: fakeCol("userActivity.userId"),
+      date: fakeCol("userActivity.date"),
+    },
   };
 });
 
@@ -158,6 +181,9 @@ import {
   getQuizHistory,
   getQuizSessionWithQuestions,
   getQuizStats,
+  getUserActivityHeatmap,
+  getStreakData,
+  getProfileStats,
 } from "./queries";
 
 describe("db/queries", () => {
@@ -237,7 +263,9 @@ describe("db/queries", () => {
             {
               id: 11,
               title: "Lesson 2",
-              challenges: [{ id: 102, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 102, challengeProgress: [{ completed: false }] },
+              ],
             },
           ],
         },
@@ -800,11 +828,15 @@ describe("db/queries", () => {
 
       // Recent quiz sessions
       mockDbQuery.aiQuizSessions.findMany
-        .mockResolvedValueOnce([{ topic: "Greetings", score: 80, difficulty: "beginner" }])
+        .mockResolvedValueOnce([
+          { topic: "Greetings", score: 80, difficulty: "beginner" },
+        ])
         .mockResolvedValueOnce([{ id: 1 }]);
 
       // Wrong answers for missed words
-      mockDbQuery.aiQuizQuestions.findMany.mockResolvedValue([{ correctAnswer: "ayubowan" }]);
+      mockDbQuery.aiQuizQuestions.findMany.mockResolvedValue([
+        { correctAnswer: "ayubowan" },
+      ]);
 
       const result = await getUserLearningProfile();
       expect(result).not.toBeNull();
@@ -828,22 +860,30 @@ describe("db/queries", () => {
             {
               id: 10,
               title: "L1",
-              challenges: [{ id: 100, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 100, challengeProgress: [{ completed: false }] },
+              ],
             },
             {
               id: 11,
               title: "L2",
-              challenges: [{ id: 101, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 101, challengeProgress: [{ completed: false }] },
+              ],
             },
             {
               id: 12,
               title: "L3",
-              challenges: [{ id: 102, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 102, challengeProgress: [{ completed: false }] },
+              ],
             },
             {
               id: 13,
               title: "L4",
-              challenges: [{ id: 103, challengeProgress: [{ completed: false }] }],
+              challenges: [
+                { id: 103, challengeProgress: [{ completed: false }] },
+              ],
             },
           ],
         },
@@ -869,17 +909,23 @@ describe("db/queries", () => {
             {
               id: 10,
               title: "L1",
-              challenges: [{ id: 100, challengeProgress: [{ completed: true }] }],
+              challenges: [
+                { id: 100, challengeProgress: [{ completed: true }] },
+              ],
             },
             {
               id: 11,
               title: "L2",
-              challenges: [{ id: 101, challengeProgress: [{ completed: true }] }],
+              challenges: [
+                { id: 101, challengeProgress: [{ completed: true }] },
+              ],
             },
             {
               id: 12,
               title: "L3",
-              challenges: [{ id: 102, challengeProgress: [{ completed: true }] }],
+              challenges: [
+                { id: 102, challengeProgress: [{ completed: true }] },
+              ],
             },
           ],
         },
@@ -921,7 +967,9 @@ describe("db/queries", () => {
         userId: "user1",
         activeCourseId: 1,
       });
-      mockDbQuery.units.findMany.mockResolvedValue([{ id: 1, title: "Empty Unit", lessons: [] }]);
+      mockDbQuery.units.findMany.mockResolvedValue([
+        { id: 1, title: "Empty Unit", lessons: [] },
+      ]);
       mockDbQuery.aiQuizSessions.findMany.mockResolvedValue([]);
 
       const result = await getUserLearningProfile();
@@ -1388,6 +1436,264 @@ describe("db/queries", () => {
       const result = await getQuizStats();
       expect(result.totalQuizzes).toBe(4);
       expect(result.improvementTrend).toBe("improving"); // scores [50,60,70,80], first half avg 55, second half 75
+    });
+  });
+
+  // ── getUserActivityHeatmap ─────────────────────────────────────────
+  describe("getUserActivityHeatmap", () => {
+    it("returns [] when not authenticated", async () => {
+      mockAuth.mockResolvedValue({ userId: null });
+      const result = await getUserActivityHeatmap();
+      expect(result).toEqual([]);
+    });
+
+    it("returns activity rows for the user", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      const rows = [
+        {
+          date: "2025-06-10",
+          lessonsCompleted: 2,
+          quizzesCompleted: 1,
+          xpEarned: 30,
+        },
+        {
+          date: "2025-06-11",
+          lessonsCompleted: 1,
+          quizzesCompleted: 0,
+          xpEarned: 10,
+        },
+      ];
+      mockDbQuery.userActivity.findMany.mockResolvedValue(rows);
+      const result = await getUserActivityHeatmap();
+      expect(result).toEqual(rows);
+    });
+
+    it("passes custom days parameter as limit", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      mockDbQuery.userActivity.findMany.mockResolvedValue([]);
+      await getUserActivityHeatmap(30);
+      expect(mockDbQuery.userActivity.findMany).toHaveBeenCalled();
+    });
+  });
+
+  // ── getStreakData ──────────────────────────────────────────────────
+  describe("getStreakData", () => {
+    it("returns zeros when not authenticated", async () => {
+      mockAuth.mockResolvedValue({ userId: null });
+      const result = await getStreakData();
+      expect(result).toEqual({
+        currentStreak: 0,
+        longestStreak: 0,
+        totalActiveDays: 0,
+      });
+    });
+
+    it("returns zeros when no activity rows", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      mockDbQuery.userActivity.findMany.mockResolvedValue([]);
+      const result = await getStreakData();
+      expect(result).toEqual({
+        currentStreak: 0,
+        longestStreak: 0,
+        totalActiveDays: 0,
+      });
+    });
+
+    it("computes streak for consecutive days including today", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      const now = new Date();
+      const todayKey = now.toISOString().slice(0, 10);
+      const yesterday = new Date(now);
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      const yesterdayKey = yesterday.toISOString().slice(0, 10);
+      const twoDaysAgo = new Date(now);
+      twoDaysAgo.setUTCDate(twoDaysAgo.getUTCDate() - 2);
+      const twoDaysAgoKey = twoDaysAgo.toISOString().slice(0, 10);
+
+      mockDbQuery.userActivity.findMany.mockResolvedValue([
+        { date: twoDaysAgoKey },
+        { date: yesterdayKey },
+        { date: todayKey },
+      ]);
+
+      const result = await getStreakData();
+      expect(result.currentStreak).toBe(3);
+      expect(result.longestStreak).toBe(3);
+      expect(result.totalActiveDays).toBe(3);
+    });
+
+    it("computes streak starting from yesterday (not today)", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      const now = new Date();
+      const yesterday = new Date(now);
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      const yesterdayKey = yesterday.toISOString().slice(0, 10);
+      const twoDaysAgo = new Date(now);
+      twoDaysAgo.setUTCDate(twoDaysAgo.getUTCDate() - 2);
+      const twoDaysAgoKey = twoDaysAgo.toISOString().slice(0, 10);
+
+      mockDbQuery.userActivity.findMany.mockResolvedValue([
+        { date: twoDaysAgoKey },
+        { date: yesterdayKey },
+      ]);
+
+      const result = await getStreakData();
+      expect(result.currentStreak).toBe(2);
+      expect(result.longestStreak).toBe(2);
+    });
+
+    it("returns 0 streak when last activity was more than 1 day ago", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      const now = new Date();
+      const oldDate = new Date(now);
+      oldDate.setUTCDate(oldDate.getUTCDate() - 5);
+      const oldKey = oldDate.toISOString().slice(0, 10);
+
+      mockDbQuery.userActivity.findMany.mockResolvedValue([{ date: oldKey }]);
+
+      const result = await getStreakData();
+      expect(result.currentStreak).toBe(0);
+      expect(result.longestStreak).toBe(1);
+      expect(result.totalActiveDays).toBe(1);
+    });
+
+    it("computes longest streak across non-consecutive periods", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      const now = new Date();
+      const todayKey = now.toISOString().slice(0, 10);
+
+      // Build a gap in the middle: 3 consecutive days, gap, then today only
+      const d1 = new Date(now);
+      d1.setUTCDate(d1.getUTCDate() - 10);
+      const d2 = new Date(now);
+      d2.setUTCDate(d2.getUTCDate() - 9);
+      const d3 = new Date(now);
+      d3.setUTCDate(d3.getUTCDate() - 8);
+
+      mockDbQuery.userActivity.findMany.mockResolvedValue([
+        { date: d1.toISOString().slice(0, 10) },
+        { date: d2.toISOString().slice(0, 10) },
+        { date: d3.toISOString().slice(0, 10) },
+        { date: todayKey },
+      ]);
+
+      const result = await getStreakData();
+      expect(result.longestStreak).toBe(3); // the older 3-day streak is longest
+      expect(result.currentStreak).toBe(1); // only today
+      expect(result.totalActiveDays).toBe(4);
+    });
+
+    it("handles single day (today only)", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      const todayKey = new Date().toISOString().slice(0, 10);
+
+      mockDbQuery.userActivity.findMany.mockResolvedValue([{ date: todayKey }]);
+
+      const result = await getStreakData();
+      expect(result.currentStreak).toBe(1);
+      expect(result.longestStreak).toBe(1);
+      expect(result.totalActiveDays).toBe(1);
+    });
+  });
+
+  // ── getProfileStats ────────────────────────────────────────────────
+  describe("getProfileStats", () => {
+    it("returns zero stats when not authenticated", async () => {
+      mockAuth.mockResolvedValue({ userId: null });
+      const result = await getProfileStats();
+      expect(result).toEqual({
+        totalXp: 0,
+        totalLessonsCompleted: 0,
+        totalQuizzesCompleted: 0,
+        totalActiveDays: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        memberSince: null,
+      });
+    });
+
+    it("returns aggregated profile stats", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      // getUserProgress mock
+      mockDbQuery.userProgress.findFirst.mockResolvedValue({
+        userId: "user1",
+        activeCourseId: 1,
+        points: 500,
+      });
+      // getStreakData → userActivity.findMany for streak
+      // getUserActivityHeatmap → userActivity.findMany for heatmap
+      // Both are called via getStreakData and getUserActivityHeatmap
+      const todayKey = new Date().toISOString().slice(0, 10);
+      mockDbQuery.userActivity.findMany
+        .mockResolvedValueOnce([
+          // getStreakData
+          { date: todayKey },
+        ])
+        .mockResolvedValueOnce([
+          // getUserActivityHeatmap
+          {
+            date: "2025-06-10",
+            lessonsCompleted: 3,
+            quizzesCompleted: 1,
+            xpEarned: 40,
+          },
+          {
+            date: "2025-06-11",
+            lessonsCompleted: 2,
+            quizzesCompleted: 2,
+            xpEarned: 50,
+          },
+        ]);
+
+      const result = await getProfileStats();
+      expect(result.totalXp).toBe(500);
+      expect(result.totalLessonsCompleted).toBe(5);
+      expect(result.totalQuizzesCompleted).toBe(3);
+      expect(result.memberSince).toBe("2025-06-10");
+    });
+
+    it("returns 0 XP when no progress", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      mockDbQuery.userProgress.findFirst.mockResolvedValue(null);
+      mockDbQuery.userActivity.findMany.mockResolvedValue([]);
+
+      const result = await getProfileStats();
+      expect(result.totalXp).toBe(0);
+      expect(result.memberSince).toBeNull();
+    });
+
+    it("finds earliest date as memberSince", async () => {
+      mockAuth.mockResolvedValue({ userId: "user1" });
+      mockDbQuery.userProgress.findFirst.mockResolvedValue({
+        userId: "user1",
+        points: 100,
+      });
+      mockDbQuery.userActivity.findMany
+        .mockResolvedValueOnce([]) // getStreakData
+        .mockResolvedValueOnce([
+          // getUserActivityHeatmap
+          {
+            date: "2025-06-11",
+            lessonsCompleted: 1,
+            quizzesCompleted: 0,
+            xpEarned: 10,
+          },
+          {
+            date: "2025-01-05",
+            lessonsCompleted: 0,
+            quizzesCompleted: 1,
+            xpEarned: 5,
+          },
+          {
+            date: "2025-06-10",
+            lessonsCompleted: 2,
+            quizzesCompleted: 1,
+            xpEarned: 30,
+          },
+        ]);
+
+      const result = await getProfileStats();
+      expect(result.memberSince).toBe("2025-01-05");
     });
   });
 });

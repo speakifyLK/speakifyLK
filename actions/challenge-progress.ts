@@ -9,6 +9,8 @@ import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 
+import { recordDailyActivity } from "./user-activity";
+
 export const upsertChallengeProgress = async (challengeId: number) => {
   const { userId } = await auth();
 
@@ -59,6 +61,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       })
       .where(eq(userProgress.userId, userId));
 
+    // Record daily activity for streak tracking
+    await recordDailyActivity({ lessonsCompleted: 1, xpEarned: 10 });
+
     revalidatePath("/learn");
     revalidatePath("/lesson");
     revalidatePath("/quests");
@@ -79,6 +84,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       points: currentUserProgress.points + 10,
     })
     .where(eq(userProgress.userId, userId));
+
+  // Record daily activity for streak tracking
+  await recordDailyActivity({ lessonsCompleted: 1, xpEarned: 10 });
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

@@ -5,6 +5,7 @@ const mockAuth = vi.hoisted(() => vi.fn());
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
 const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockRevalidatePath = vi.hoisted(() => vi.fn());
+const mockRecordDailyActivity = vi.hoisted(() => vi.fn());
 
 const mockDbInsert = vi.hoisted(() => vi.fn());
 const mockDbUpdate = vi.hoisted(() => vi.fn());
@@ -24,6 +25,10 @@ vi.mock("next/cache", () => ({
 vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
   getUserSubscription: mockGetUserSubscription,
+}));
+
+vi.mock("./user-activity", () => ({
+  recordDailyActivity: mockRecordDailyActivity,
 }));
 
 vi.mock("drizzle-orm", () => ({
@@ -67,7 +72,9 @@ vi.mock("@/db/schema", () => ({
 import { upsertChallengeProgress } from "./challenge-progress";
 import db from "@/db/drizzle";
 
-const dbMocks = (db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> })._mocks;
+const dbMocks = (
+  db as unknown as { _mocks: Record<string, ReturnType<typeof vi.fn>> }
+)._mocks;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -89,12 +96,16 @@ describe("upsertChallengeProgress", () => {
 
   it("throws when user progress not found", async () => {
     mockGetUserProgress.mockResolvedValue(null);
-    await expect(upsertChallengeProgress(1)).rejects.toThrow("User progress not found.");
+    await expect(upsertChallengeProgress(1)).rejects.toThrow(
+      "User progress not found."
+    );
   });
 
   it("throws when challenge not found", async () => {
     mockDbQuery.challenges.findFirst.mockResolvedValue(null);
-    await expect(upsertChallengeProgress(1)).rejects.toThrow("Challenge not found.");
+    await expect(upsertChallengeProgress(1)).rejects.toThrow(
+      "Challenge not found."
+    );
   });
 
   it("returns error: hearts when hearts is 0 and not practice and no subscription", async () => {

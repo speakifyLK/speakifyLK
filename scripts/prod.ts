@@ -122,51 +122,31 @@ const unit1Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "to eat"?',
         order: 1,
-        options: [
-          opt("කනවා", true),
-          opt("බොනවා", false),
-          opt("යනවා", false),
-        ],
+        options: [opt("කනවා", true), opt("බොනවා", false), opt("යනවා", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to drink"?',
         order: 2,
-        options: [
-          opt("බොනවා", true),
-          opt("කනවා", false),
-          opt("එනවා", false),
-        ],
+        options: [opt("බොනවා", true), opt("කනවා", false), opt("එනවා", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to go"?',
         order: 3,
-        options: [
-          opt("යනවා", true),
-          opt("එනවා", false),
-          opt("කනවා", false),
-        ],
+        options: [opt("යනවා", true), opt("එනවා", false), opt("කනවා", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"to come"',
         order: 4,
-        options: [
-          opt("එනවා", true),
-          opt("යනවා", false),
-          opt("බොනවා", false),
-        ],
+        options: [opt("එනවා", true), opt("යනවා", false), opt("බොනවා", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "to see"?',
         order: 5,
-        options: [
-          opt("බලනවා", true),
-          opt("කියනවා", false),
-          opt("කනවා", false),
-        ],
+        options: [opt("බලනවා", true), opt("කියනවා", false), opt("කනවා", false)],
       },
       {
         type: "SELECT" as const,
@@ -182,21 +162,13 @@ const unit1Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "to come"?',
         order: 7,
-        options: [
-          opt("එනවා", true),
-          opt("කනවා", false),
-          opt("බලනවා", false),
-        ],
+        options: [opt("එනවා", true), opt("කනවා", false), opt("බලනවා", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"to see"',
         order: 8,
-        options: [
-          opt("බලනවා", true),
-          opt("යනවා", false),
-          opt("කියනවා", false),
-        ],
+        options: [opt("බලනවා", true), opt("යනවා", false), opt("කියනවා", false)],
       },
     ],
   },
@@ -208,81 +180,49 @@ const unit1Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "big"?',
         order: 1,
-        options: [
-          opt("ලොකු", true),
-          opt("පොඩි", false),
-          opt("හොඳ", false),
-        ],
+        options: [opt("ලොකු", true), opt("පොඩි", false), opt("හොඳ", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "small"?',
         order: 2,
-        options: [
-          opt("පොඩි", true),
-          opt("ලොකු", false),
-          opt("නරක", false),
-        ],
+        options: [opt("පොඩි", true), opt("ලොකු", false), opt("නරක", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "good"?',
         order: 3,
-        options: [
-          opt("හොඳ", true),
-          opt("නරක", false),
-          opt("ලොකු", false),
-        ],
+        options: [opt("හොඳ", true), opt("නරක", false), opt("ලොකු", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"bad"',
         order: 4,
-        options: [
-          opt("නරක", true),
-          opt("හොඳ", false),
-          opt("පොඩි", false),
-        ],
+        options: [opt("නරක", true), opt("හොඳ", false), opt("පොඩි", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "beautiful"?',
         order: 5,
-        options: [
-          opt("ලස්සන", true),
-          opt("උස", false),
-          opt("ලොකු", false),
-        ],
+        options: [opt("ලස්සන", true), opt("උස", false), opt("ලොකු", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "tall"?',
         order: 6,
-        options: [
-          opt("උස", true),
-          opt("ලස්සන", false),
-          opt("පොඩි", false),
-        ],
+        options: [opt("උස", true), opt("ලස්සන", false), opt("පොඩි", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "small"?',
         order: 7,
-        options: [
-          opt("පොඩි", true),
-          opt("හොඳ", false),
-          opt("උස", false),
-        ],
+        options: [opt("පොඩි", true), opt("හොඳ", false), opt("උස", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"beautiful"',
         order: 8,
-        options: [
-          opt("ලස්සන", true),
-          opt("ලොකු", false),
-          opt("නරක", false),
-        ],
+        options: [opt("ලස්සන", true), opt("ලොකු", false), opt("නරක", false)],
       },
     ],
   },
@@ -471,81 +411,49 @@ const unit2Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "house"?',
         order: 1,
-        options: [
-          opt("ගෙදර", true),
-          opt("පාසල", false),
-          opt("වතුර", false),
-        ],
+        options: [opt("ගෙදර", true), opt("පාසල", false), opt("වතුර", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "school"?',
         order: 2,
-        options: [
-          opt("පාසල", true),
-          opt("ගෙදර", false),
-          opt("බත", false),
-        ],
+        options: [opt("පාසල", true), opt("ගෙදර", false), opt("බත", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "water"?',
         order: 3,
-        options: [
-          opt("වතුර", true),
-          opt("බත", false),
-          opt("ගෙදර", false),
-        ],
+        options: [opt("වතුර", true), opt("බත", false), opt("ගෙදර", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"rice"',
         order: 4,
-        options: [
-          opt("බත", true),
-          opt("වතුර", false),
-          opt("පාසල", false),
-        ],
+        options: [opt("බත", true), opt("වතුර", false), opt("පාසල", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "tree"?',
         order: 5,
-        options: [
-          opt("ගස", true),
-          opt("මල", false),
-          opt("පොත", false),
-        ],
+        options: [opt("ගස", true), opt("මල", false), opt("පොත", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "flower"?',
         order: 6,
-        options: [
-          opt("මල", true),
-          opt("ගස", false),
-          opt("කෑම", false),
-        ],
+        options: [opt("මල", true), opt("ගස", false), opt("කෑම", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "book"?',
         order: 7,
-        options: [
-          opt("පොත", true),
-          opt("කෑම", false),
-          opt("ගස", false),
-        ],
+        options: [opt("පොත", true), opt("කෑම", false), opt("ගස", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"food"',
         order: 8,
-        options: [
-          opt("කෑම", true),
-          opt("පොත", false),
-          opt("මල", false),
-        ],
+        options: [opt("කෑම", true), opt("පොත", false), opt("මල", false)],
       },
     ],
   },
@@ -643,81 +551,49 @@ const unit2Lessons = [
         type: "SELECT" as const,
         question: 'Which one means "red"?',
         order: 1,
-        options: [
-          opt("රතු", true),
-          opt("නිල්", false),
-          opt("කහ", false),
-        ],
+        options: [opt("රතු", true), opt("නිල්", false), opt("කහ", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "blue"?',
         order: 2,
-        options: [
-          opt("නිල්", true),
-          opt("රතු", false),
-          opt("සුදු", false),
-        ],
+        options: [opt("නිල්", true), opt("රතු", false), opt("සුදු", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "yellow"?',
         order: 3,
-        options: [
-          opt("කහ", true),
-          opt("කළු", false),
-          opt("රතු", false),
-        ],
+        options: [opt("කහ", true), opt("කළු", false), opt("රතු", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"white"',
         order: 4,
-        options: [
-          opt("සුදු", true),
-          opt("කළු", false),
-          opt("නිල්", false),
-        ],
+        options: [opt("සුදු", true), opt("කළු", false), opt("නිල්", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "black"?',
         order: 5,
-        options: [
-          opt("කළු", true),
-          opt("සුදු", false),
-          opt("කොළ", false),
-        ],
+        options: [opt("කළු", true), opt("සුදු", false), opt("කොළ", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "green"?',
         order: 6,
-        options: [
-          opt("කොළ", true),
-          opt("කහ", false),
-          opt("නිල්", false),
-        ],
+        options: [opt("කොළ", true), opt("කහ", false), opt("නිල්", false)],
       },
       {
         type: "SELECT" as const,
         question: 'Which one means "red"?',
         order: 7,
-        options: [
-          opt("රතු", true),
-          opt("කොළ", false),
-          opt("සුදු", false),
-        ],
+        options: [opt("රතු", true), opt("කොළ", false), opt("සුදු", false)],
       },
       {
         type: "ASSIST" as const,
         question: '"blue"',
         order: 8,
-        options: [
-          opt("නිල්", true),
-          opt("කහ", false),
-          opt("කළු", false),
-        ],
+        options: [opt("නිල්", true), opt("කහ", false), opt("කළු", false)],
       },
     ],
   },
@@ -903,33 +779,29 @@ const main = async () => {
   try {
     console.log("Seeding database");
 
-    // Delete all existing data
-    await Promise.all([
-      db.delete(schema.userProgress),
-      db.delete(schema.challenges),
-      db.delete(schema.units),
-      db.delete(schema.lessons),
-      db.delete(schema.courses),
-      db.delete(schema.challengeOptions),
-      db.delete(schema.userSubscription),
-    ]);
+    // Delete all existing data (sequential to avoid deadlocks from FK constraints)
+    await db.delete(schema.challengeOptions);
+    await db.delete(schema.userProgress);
+    await db.delete(schema.challenges);
+    await db.delete(schema.lessons);
+    await db.delete(schema.units);
+    await db.delete(schema.courses);
+    await db.delete(schema.userSubscription);
 
     // Insert courses
     const [sinhalaCourse] = await db
       .insert(schema.courses)
-      .values([
-        { title: "Sinhala", imageSrc: "/lk.jpg" },
-      ])
+      .values([{ title: "Sinhala", imageSrc: "/lk.jpg" }])
       .returning();
 
     const [tamilCourse] = await db
       .insert(schema.courses)
-      .values([
-        { title: "Tamil", imageSrc: "/lk.jpg" },
-      ])
+      .values([{ title: "Tamil", imageSrc: "/lk.jpg" }])
       .returning();
 
-    console.log(`Created courses: Sinhala (id: ${sinhalaCourse.id}), Tamil (id: ${tamilCourse.id})`);
+    console.log(
+      `Created courses: Sinhala (id: ${sinhalaCourse.id}), Tamil (id: ${tamilCourse.id})`
+    );
 
     // ---- Seed Sinhala course content ----
 
