@@ -73,9 +73,7 @@ describe("ChatBubble", () => {
     });
 
     it("renders empty string for an invalid date", () => {
-      const { container } = render(
-        <ChatBubble role="user" content="msg" timestamp="not-a-date" />
-      );
+      const { container } = render(<ChatBubble role="user" content="msg" timestamp="not-a-date" />);
       const spans = Array.from(container.querySelectorAll("span"));
       const timeSpan = spans.find((s) => s.className.includes("mt-1"));
       expect(timeSpan).toBeTruthy();
@@ -122,11 +120,7 @@ describe("ChatBubble", () => {
 
     it("renders Sinhala spoken format: Script (translit) [meaning]", () => {
       render(
-        <ChatBubble
-          role="assistant"
-          content="ආයුබෝවන් (āyubōvan) [hello]"
-          timestamp={validDate}
-        />
+        <ChatBubble role="assistant" content="ආයුබෝවන් (āyubōvan) [hello]" timestamp={validDate} />
       );
       expect(screen.getByText("ආයුබෝවන්")).toBeInTheDocument();
       expect(screen.getByText("(āyubෝvan)")).toBeInTheDocument();
