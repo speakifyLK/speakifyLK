@@ -144,20 +144,20 @@ export async function POST(req: Request) {
         .map((lesson) => lesson.title);
 
       const parts: string[] = [];
-      parts.push(`The student is currently studying ${progress.activeCourse.title}`);
+      parts.push(`The student is currently studying the "${progress.activeCourse.title}" course.`);
+      parts.push(`Total points earned: ${progress.points}.`);
 
       if (currentUnit) {
-        parts[0] += `, in ${currentUnit.title}`;
+        parts.push(`Current Unit: "${currentUnit.title}" - ${currentUnit.description}`);
       }
-      parts[0] += ".";
 
       if (completedLessons.length > 0) {
         parts.push(
-          `The latest completed lessons in the course sequence are: ${completedLessons.join(", ")}.`
+          `Recently completed lessons: ${completedLessons.join(", ")}.`
         );
       }
 
-      courseContext = "\n\nCOURSE CONTEXT:\n" + parts.join(" ");
+      courseContext = "\n\nUSER LEARNING CONTEXT:\n" + parts.join("\n");
     }
   } catch (err) {
     // Non-critical — continue without course context
