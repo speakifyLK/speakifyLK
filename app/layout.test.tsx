@@ -69,11 +69,11 @@ describe("RootLayout", () => {
     expect(screen.getByText("Hello")).toBeInTheDocument();
   });
 
-  it("renders Toaster with system theme", () => {
+  it("renders Toaster", () => {
     renderLayout(<div>content</div>);
     const toaster = screen.getByTestId("toaster");
     expect(toaster).toBeInTheDocument();
-    expect(toaster).toHaveAttribute("data-theme", "system");
+    expect(toaster).not.toHaveAttribute("data-theme");
   });
 
   it("renders ThemeProvider", () => {
