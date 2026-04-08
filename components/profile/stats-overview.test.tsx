@@ -71,27 +71,21 @@ describe("StatsOverview", () => {
 
   it("renders improving trend with green background", () => {
     render(<StatsOverview {...baseProps} improvementTrend="improving" />);
-    const trendCard = screen
-      .getByText("Performance")
-      .closest("div.rounded-xl")!;
+    const trendCard = screen.getByText("Performance").closest("div.rounded-xl")!;
     const greenBg = trendCard.querySelector(".bg-green-100");
     expect(greenBg).toBeInTheDocument();
   });
 
   it("renders declining trend with rose background", () => {
     render(<StatsOverview {...baseProps} improvementTrend="declining" />);
-    const trendCard = screen
-      .getByText("Performance")
-      .closest("div.rounded-xl")!;
+    const trendCard = screen.getByText("Performance").closest("div.rounded-xl")!;
     const roseBg = trendCard.querySelector(".bg-rose-100");
     expect(roseBg).toBeInTheDocument();
   });
 
   it("renders stable trend with slate background", () => {
     render(<StatsOverview {...baseProps} improvementTrend="stable" />);
-    const trendCard = screen
-      .getByText("Performance")
-      .closest("div.rounded-xl")!;
+    const trendCard = screen.getByText("Performance").closest("div.rounded-xl")!;
     const slateBg = trendCard.querySelector(".bg-slate-100");
     expect(slateBg).toBeInTheDocument();
   });

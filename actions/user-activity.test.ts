@@ -2,15 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ── Hoist mocks ──────────────────────────────────────────────────────
 const mockAuth = vi.hoisted(() => vi.fn());
-const mockOnConflictDoUpdate = vi.hoisted(() =>
-  vi.fn().mockResolvedValue(undefined)
-);
+const mockOnConflictDoUpdate = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockValues = vi.hoisted(() =>
   vi.fn().mockReturnValue({ onConflictDoUpdate: mockOnConflictDoUpdate })
 );
-const mockDbInsert = vi.hoisted(() =>
-  vi.fn().mockReturnValue({ values: mockValues })
-);
+const mockDbInsert = vi.hoisted(() => vi.fn().mockReturnValue({ values: mockValues }));
 
 vi.mock("@clerk/nextjs/server", () => ({
   auth: mockAuth,
@@ -83,10 +79,7 @@ describe("actions/user-activity", () => {
     );
     expect(mockOnConflictDoUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.arrayContaining([
-          "col_userActivity.userId",
-          "col_userActivity.date",
-        ]),
+        target: expect.arrayContaining(["col_userActivity.userId", "col_userActivity.date"]),
         set: expect.objectContaining({
           lessonsCompleted: expect.anything(),
           quizzesCompleted: expect.anything(),
@@ -120,8 +113,6 @@ describe("actions/user-activity", () => {
 
     await recordDailyActivity({ lessonsCompleted: 1 });
 
-    expect(mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ date: "2025-06-15" })
-    );
+    expect(mockValues).toHaveBeenCalledWith(expect.objectContaining({ date: "2025-06-15" }));
   });
 });
