@@ -25,6 +25,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setTheme(getInitialTheme());
     setMounted(true);
   }, []);
