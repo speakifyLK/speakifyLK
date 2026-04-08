@@ -47,9 +47,6 @@ vi.mock("@/components/quiz/quiz-config", () => ({
 vi.mock("@/components/quiz/quiz-play", () => ({
   QuizPlay: (props: any) => <div data-testid="quiz-play">{JSON.stringify(props)}</div>,
 }));
-vi.mock("../learn/header", () => ({
-  Header: ({ title }: any) => <div data-testid="header">{title}</div>,
-}));
 
 const activeCourse = { id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" };
 
@@ -71,7 +68,8 @@ describe("QuizPage", () => {
       longestStreak: 7,
       totalActiveDays: 20,
     });
-    mockRedirect.mockImplementation(() => {
+    mockRedirect.mockImplementation((_path: string) => {
+      // Track the call before throwing
       throw new Error("NEXT_REDIRECT");
     });
   });
@@ -88,11 +86,11 @@ describe("QuizPage", () => {
     const jsx = await Page({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    expect(screen.getByTestId("header")).toHaveTextContent("Quiz");
+    expect(screen.getByText("Quiz")).toBeInTheDocument();
     expect(screen.getByTestId("quiz-config")).toBeInTheDocument();
   });
 
-  it("redirects to /courses when no user progress (no sessionId)", async () => {
+  it("redirects to /learn when no user progress (no sessionId)", async () => {
     mockGetUserProgress.mockResolvedValue(null);
     mockGetUserSubscription.mockResolvedValue(null);
     mockGetUnitsForQuiz.mockResolvedValue([]);
@@ -100,7 +98,7 @@ describe("QuizPage", () => {
 
     const Page = (await import("./page")).default;
     await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/courses");
+    expect(mockRedirect).toHaveBeenCalledWith("/learn");
   });
 
   it("shows Promo when user is not pro (no sessionId)", async () => {
@@ -144,10 +142,10 @@ describe("QuizPage", () => {
     render(jsx);
 
     expect(screen.getByTestId("quiz-play")).toBeInTheDocument();
-    expect(screen.getByTestId("header")).toHaveTextContent("Quiz");
+    expect(screen.getByText("Quiz")).toBeInTheDocument();
   });
 
-  it("redirects to /courses when no user progress (with sessionId)", async () => {
+  it("redirects to /learn when no user progress (with sessionId)", async () => {
     mockGetUserProgress.mockResolvedValue(null);
     mockGetUserSubscription.mockResolvedValue(null);
     mockGetQuizSessionWithQuestions.mockResolvedValue({ id: 1 });
@@ -156,7 +154,7 @@ describe("QuizPage", () => {
     await expect(Page({ searchParams: Promise.resolve({ sessionId: "1" }) })).rejects.toThrow(
       "NEXT_REDIRECT"
     );
-    expect(mockRedirect).toHaveBeenCalledWith("/courses");
+    expect(mockRedirect).toHaveBeenCalledWith("/learn");
   });
 
   it("redirects to /quiz when session not found", async () => {
