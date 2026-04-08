@@ -224,6 +224,7 @@ speakify/
   |- playwright.config.ts
   |- postcss.config.js
   |- tailwind.config.ts
+  |- test_cov.txt
   |- test_output.txt
   |- test-coverage-full.txt
   |- tsconfig.json
