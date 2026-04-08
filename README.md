@@ -216,6 +216,7 @@ speakify/
   |- drizzle.config.ts
   |- environment.d.ts
   |- eslint.config.mjs
+  |- lint.txt
   |- middleware.test.ts
   |- middleware.ts
   |- next.config.ts
