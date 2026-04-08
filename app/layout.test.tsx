@@ -25,6 +25,10 @@ vi.mock("@/components/modals/practice-modal", () => ({
   PracticeModal: () => <div data-testid="practice-modal" />,
 }));
 
+vi.mock("@/components/theme-provider", () => ({
+  ThemeProvider: ({ children }: any) => <div data-testid="theme-provider">{children}</div>,
+}));
+
 vi.mock("@/config", () => ({
   siteConfig: { title: "Speakify", description: "Test description" },
 }));
@@ -65,11 +69,16 @@ describe("RootLayout", () => {
     expect(screen.getByText("Hello")).toBeInTheDocument();
   });
 
-  it("renders Toaster with light theme", () => {
+  it("renders Toaster with system theme", () => {
     renderLayout(<div>content</div>);
     const toaster = screen.getByTestId("toaster");
     expect(toaster).toBeInTheDocument();
-    expect(toaster).toHaveAttribute("data-theme", "light");
+    expect(toaster).toHaveAttribute("data-theme", "system");
+  });
+
+  it("renders ThemeProvider", () => {
+    renderLayout(<div>content</div>);
+    expect(screen.getByTestId("theme-provider")).toBeInTheDocument();
   });
 
   it("renders ExitModal", () => {

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
 import { SidebarUserButton } from "./sidebar-user-button";
+import { ThemeToggle } from "./theme-toggle";
 
 type SidebarProps = {
   className?: string;
@@ -41,8 +42,9 @@ export const Sidebar = ({ className, isAdmin }: SidebarProps) => {
         <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
       </div>
 
-      <div className="p-4">
+      <div className="flex items-center justify-between p-4">
         <SidebarUserButton isAdmin={isAdmin} />
+        <ThemeToggle />
       </div>
     </div>
   );

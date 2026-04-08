@@ -19,6 +19,10 @@ vi.mock("./sidebar-user-button", () => ({
   ),
 }));
 
+vi.mock("./theme-toggle", () => ({
+  ThemeToggle: () => <button data-testid="theme-toggle">Toggle</button>,
+}));
+
 import { Sidebar } from "./sidebar";
 
 describe("Sidebar", () => {
@@ -59,6 +63,12 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     expect(screen.getByTestId("sidebar-user-button")).toBeInTheDocument();
+  });
+
+  it("renders ThemeToggle", () => {
+    render(<Sidebar />);
+
+    expect(screen.getByTestId("theme-toggle")).toBeInTheDocument();
   });
 
   it("passes isAdmin=false to SidebarUserButton when isAdmin is false", () => {
