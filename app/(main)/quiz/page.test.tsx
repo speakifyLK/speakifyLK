@@ -68,7 +68,8 @@ describe("QuizPage", () => {
       longestStreak: 7,
       totalActiveDays: 20,
     });
-    mockRedirect.mockImplementation(() => {
+    mockRedirect.mockImplementation((path: string) => {
+      // Track the call before throwing
       throw new Error("NEXT_REDIRECT");
     });
   });

@@ -82,7 +82,7 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
     getStreakData(),
   ]);
 
-  if (!userProgress || !userProgress.activeCourse) redirect("/courses");
+  if (!userProgress || !userProgress.activeCourse) redirect("/learn");
 
   const isPro = !!userSubscription?.isActive;
 
