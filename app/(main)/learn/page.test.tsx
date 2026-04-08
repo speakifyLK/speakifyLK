@@ -11,6 +11,7 @@ const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetCourseProgress = vi.hoisted(() => vi.fn());
 const mockGetLessonPercentage = vi.hoisted(() => vi.fn());
 const mockGetUnits = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -22,6 +23,7 @@ vi.mock("@/db/queries", () => ({
   getCourseProgress: mockGetCourseProgress,
   getLessonPercentage: mockGetLessonPercentage,
   getUnits: mockGetUnits,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
@@ -75,6 +77,11 @@ const activeLesson = {
 describe("LearnPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });

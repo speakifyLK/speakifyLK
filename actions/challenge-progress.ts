@@ -9,6 +9,8 @@ import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 
+import { recordDailyActivity } from "./user-activity";
+
 export const upsertChallengeProgress = async (challengeId: number) => {
   const { userId } = await auth();
 
@@ -36,11 +38,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
   const isPractice = !!existingChallengeProgress;
 
-  if (
-    currentUserProgress.hearts === 0 &&
-    !isPractice &&
-    !userSubscription?.isActive
-  )
+  if (currentUserProgress.hearts === 0 && !isPractice && !userSubscription?.isActive)
     return { error: "hearts" };
 
   if (isPractice) {
@@ -58,6 +56,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
         points: currentUserProgress.points + 10,
       })
       .where(eq(userProgress.userId, userId));
+
+    // Record daily activity for streak tracking
+    await recordDailyActivity({ lessonsCompleted: 1, xpEarned: 10 });
 
     revalidatePath("/learn");
     revalidatePath("/lesson");
@@ -79,6 +80,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       points: currentUserProgress.points + 10,
     })
     .where(eq(userProgress.userId, userId));
+
+  // Record daily activity for streak tracking
+  await recordDailyActivity({ lessonsCompleted: 1, xpEarned: 10 });
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

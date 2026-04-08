@@ -9,6 +9,8 @@ import { getUserProgress } from "@/db/queries";
 import { aiQuizQuestions, aiQuizSessions, userProgress } from "@/db/schema";
 import { generateContent } from "@/lib/gemini";
 
+import { recordDailyActivity } from "./user-activity";
+
 type QuizDifficulty = (typeof aiQuizSessions.$inferSelect)["difficulty"];
 
 function calculateQuizCompletionXp(
@@ -449,6 +451,9 @@ export async function completeQuizSession(sessionId: number): Promise<CompleteQu
           points: sql`${userProgress.points} + ${xpAwarded}`,
         },
       });
+
+    // Record daily activity for streak tracking
+    await recordDailyActivity({ quizzesCompleted: 1, xpEarned: xpAwarded });
 
     result = { session: completedSession, xpAwarded };
   }

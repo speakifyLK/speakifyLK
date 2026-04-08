@@ -1,7 +1,7 @@
 import { cache } from "react";
 
 import { auth } from "@clerk/nextjs/server";
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, gte, isNotNull, sql, sum } from "drizzle-orm";
 
 import db from "./drizzle";
 import {
@@ -13,6 +13,7 @@ import {
   courses,
   lessons,
   units,
+  userActivity,
   userProgress,
   userSubscription,
 } from "./schema";
@@ -727,5 +728,142 @@ export const getQuizStats = cache(async () => {
     favouriteTopic,
     improvementTrend,
     quizStreak,
+  };
+});
+
+// ---------------------------------------------------------------------------
+// User Activity & Streak Queries
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the user's activity rows for the past N days (default 365)
+ * used for the GitHub-style contribution heatmap.
+ */
+export const getUserActivityHeatmap = cache(async (days = 365) => {
+  const { userId } = await auth();
+  if (!userId) return [];
+
+  const now = new Date();
+  const startDate = new Date(now);
+  startDate.setUTCDate(startDate.getUTCDate() - days + 1);
+  const startDateStr = startDate.toISOString().slice(0, 10);
+
+  const rows = await db.query.userActivity.findMany({
+    where: and(eq(userActivity.userId, userId), gte(userActivity.date, startDateStr)),
+    orderBy: (ua, { asc }) => [asc(ua.date)],
+  });
+
+  return rows;
+});
+
+/**
+ * Computes the current streak and longest streak from user_activity rows.
+ * A streak is consecutive UTC calendar days with at least one activity row.
+ * The streak is still alive if the user was active today or yesterday.
+ */
+export const getStreakData = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) {
+    return { currentStreak: 0, longestStreak: 0, totalActiveDays: 0 };
+  }
+
+  const rows = await db.query.userActivity.findMany({
+    where: eq(userActivity.userId, userId),
+    orderBy: (ua, { asc }) => [asc(ua.date)],
+    columns: { date: true },
+  });
+
+  if (rows.length === 0) {
+    return { currentStreak: 0, longestStreak: 0, totalActiveDays: 0 };
+  }
+
+  const daySet = new Set(rows.map((r) => r.date));
+  const totalActiveDays = daySet.size;
+
+  // Sort unique dates
+  const sortedDays = [...daySet].sort();
+
+  // Calculate longest streak
+  let longestStreak = 1;
+  let tempStreak = 1;
+
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prev = new Date(sortedDays[i - 1] + "T00:00:00Z");
+    const curr = new Date(sortedDays[i] + "T00:00:00Z");
+    const diffDays = (curr.getTime() - prev.getTime()) / 86_400_000;
+
+    if (diffDays === 1) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      tempStreak = 1;
+    }
+  }
+
+  // Calculate current streak (walk backwards from today/yesterday)
+  const now = new Date();
+  const todayKey = now.toISOString().slice(0, 10);
+  const yesterday = new Date(now);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayKey = yesterday.toISOString().slice(0, 10);
+
+  let currentStreak = 0;
+
+  if (!daySet.has(todayKey) && !daySet.has(yesterdayKey)) {
+    currentStreak = 0;
+  } else {
+    const cursor = new Date(
+      daySet.has(todayKey) ? todayKey + "T00:00:00Z" : yesterdayKey + "T00:00:00Z"
+    );
+
+    while (daySet.has(cursor.toISOString().slice(0, 10))) {
+      currentStreak++;
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+  }
+
+  return { currentStreak, longestStreak, totalActiveDays };
+});
+
+/**
+ * Returns aggregate profile statistics for the profile page.
+ */
+export const getProfileStats = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) {
+    return {
+      totalXp: 0,
+      totalLessonsCompleted: 0,
+      totalQuizzesCompleted: 0,
+      totalActiveDays: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      memberSince: null as string | null,
+    };
+  }
+
+  const [progress, streakData, aggregates] = await Promise.all([
+    getUserProgress(),
+    getStreakData(),
+    db
+      .select({
+        totalLessonsCompleted: sum(userActivity.lessonsCompleted),
+        totalQuizzesCompleted: sum(userActivity.quizzesCompleted),
+        memberSince: sql<string | null>`min(${userActivity.date})`,
+      })
+      .from(userActivity)
+      .where(eq(userActivity.userId, userId)),
+  ]);
+
+  const row = aggregates[0];
+
+  return {
+    totalXp: progress?.points ?? 0,
+    totalLessonsCompleted: Number(row?.totalLessonsCompleted ?? 0),
+    totalQuizzesCompleted: Number(row?.totalQuizzesCompleted ?? 0),
+    totalActiveDays: streakData.totalActiveDays,
+    currentStreak: streakData.currentStreak,
+    longestStreak: streakData.longestStreak,
+    memberSince: row?.memberSince ?? null,
   };
 });

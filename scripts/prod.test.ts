@@ -30,6 +30,7 @@ vi.mock("@/db/schema", () => ({
   courses: "courses",
   challengeOptions: "challengeOptions",
   userSubscription: "userSubscription",
+  userActivity: "userActivity",
 }));
 
 const flushPromises = () => new Promise<void>((r) => setTimeout(r, 200));
@@ -85,8 +86,8 @@ describe("prod script", () => {
     await import("./prod");
     await flushPromises();
 
-    // 7 delete calls (one per table)
-    expect(deleteMock).toHaveBeenCalledTimes(7);
+    // 8 delete calls (one per table)
+    expect(deleteMock).toHaveBeenCalledTimes(8);
 
     // Courses: 2 insert().values().returning() calls (Sinhala and Tamil)
     // Units: 2 units

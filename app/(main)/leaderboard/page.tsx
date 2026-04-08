@@ -8,11 +8,7 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { UserProgress } from "@/components/user-progress";
-import {
-  getTopTenUsers,
-  getUserProgress,
-  getUserSubscription,
-} from "@/db/queries";
+import { getStreakData, getTopTenUsers, getUserProgress, getUserSubscription } from "@/db/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +16,13 @@ const LeaderboardPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
   const leaderboardData = getTopTenUsers();
+  const streakDataPromise = getStreakData();
 
-  const [userProgress, userSubscription, leaderboard] = await Promise.all([
+  const [userProgress, userSubscription, leaderboard, streakData] = await Promise.all([
     userProgressData,
     userSubscriptionData,
     leaderboardData,
+    streakDataPromise,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
@@ -39,6 +37,7 @@ const LeaderboardPage = async () => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />
@@ -46,16 +45,9 @@ const LeaderboardPage = async () => {
 
       <FeedWrapper>
         <div className="flex w-full flex-col items-center">
-          <Image
-            src="/leaderboard.svg"
-            alt="Leaderboard"
-            height={90}
-            width={90}
-          />
+          <Image src="/leaderboard.svg" alt="Leaderboard" height={90} width={90} />
 
-          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
-            Leaderboard
-          </h1>
+          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">Leaderboard</h1>
           <p className="mb-6 text-center text-lg text-muted-foreground">
             See where you stand among other learners in the community.
           </p>
@@ -69,15 +61,10 @@ const LeaderboardPage = async () => {
               <p className="mr-4 font-bold text-lime-700">{i + 1}</p>
 
               <Avatar className="ml-3 mr-6 h-12 w-12 border bg-green-500">
-                <AvatarImage
-                  src={userProgress.userImageSrc}
-                  className="object-cover"
-                />
+                <AvatarImage src={userProgress.userImageSrc} className="object-cover" />
               </Avatar>
 
-              <p className="flex-1 font-bold text-neutral-800">
-                {userProgress.userName}
-              </p>
+              <p className="flex-1 font-bold text-neutral-800">{userProgress.userName}</p>
               <p className="text-muted-foreground">{userProgress.points} XP</p>
             </div>
           ))}

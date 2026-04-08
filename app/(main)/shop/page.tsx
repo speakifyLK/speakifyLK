@@ -6,7 +6,7 @@ import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
-import { getUserProgress, getUserSubscription } from "@/db/queries";
+import { getUserProgress, getUserSubscription, getStreakData } from "@/db/queries";
 
 import { Items } from "./items";
 
@@ -15,10 +15,12 @@ export const dynamic = "force-dynamic";
 const ShopPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
+  const streakDataPromise = getStreakData();
 
-  const [userProgress, userSubscription] = await Promise.all([
+  const [userProgress, userSubscription, streakData] = await Promise.all([
     userProgressData,
     userSubscriptionData,
+    streakDataPromise,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
@@ -33,6 +35,7 @@ const ShopPage = async () => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />

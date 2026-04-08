@@ -13,6 +13,7 @@ const mockGetQuizSessionWithQuestions = vi.hoisted(() => vi.fn());
 const mockGetUnitsForQuiz = vi.hoisted(() => vi.fn());
 const mockGetQuizHistory = vi.hoisted(() => vi.fn());
 const mockGetQuizStats = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -29,6 +30,7 @@ vi.mock("@/db/queries", () => ({
   getUnitsForQuiz: mockGetUnitsForQuiz,
   getQuizHistory: mockGetQuizHistory,
   getQuizStats: mockGetQuizStats,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
@@ -75,6 +77,11 @@ describe("AIQuizPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue({ userId: "user_123" });
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockGetUserProgress.mockResolvedValue(baseUserProgress);
     mockGetUserSubscription.mockResolvedValue(null);
     mockGetUnitsForQuiz.mockResolvedValue([{ id: 1, title: "Unit 1" }]);

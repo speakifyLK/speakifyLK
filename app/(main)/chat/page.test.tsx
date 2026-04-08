@@ -13,6 +13,7 @@ const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetConversations = vi.hoisted(() => vi.fn());
 const mockGetConversationById = vi.hoisted(() => vi.fn());
 const mockGetOrCreateConversation = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -51,6 +52,7 @@ vi.mock("@/db/queries", () => ({
   getUserSubscription: mockGetUserSubscription,
   getConversations: mockGetConversations,
   getConversationById: mockGetConversationById,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/actions/chat", () => ({
@@ -139,6 +141,11 @@ const conversations = [
 describe("ChatPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });

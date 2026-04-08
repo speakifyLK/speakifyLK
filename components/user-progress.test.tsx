@@ -76,7 +76,7 @@ describe("UserProgress", () => {
     expect(svg).toBeInTheDocument();
   });
 
-  it("renders links to /courses and /shop", () => {
+  it("renders links to /courses, /shop, and /profile", () => {
     render(
       <UserProgress
         activeCourse={mockCourse}
@@ -90,6 +90,7 @@ describe("UserProgress", () => {
     const hrefs = links.map((l) => l.getAttribute("href"));
     expect(hrefs).toContain("/courses");
     expect(hrefs).toContain("/shop");
+    expect(hrefs).toContain("/profile");
   });
 
   it("renders Points and Hearts images", () => {
@@ -104,5 +105,35 @@ describe("UserProgress", () => {
 
     expect(screen.getByAltText("Points")).toBeInTheDocument();
     expect(screen.getByAltText("Hearts")).toBeInTheDocument();
+  });
+
+  it("renders streak with fire icon", () => {
+    const { container } = render(
+      <UserProgress
+        activeCourse={mockCourse}
+        hearts={5}
+        points={100}
+        hasActiveSubscription={false}
+        streak={7}
+      />
+    );
+
+    expect(screen.getByText("7")).toBeInTheDocument();
+    // Flame icon from lucide-react renders an SVG with fill-orange-500
+    const flameSvg = container.querySelector("svg.fill-orange-500");
+    expect(flameSvg).toBeInTheDocument();
+  });
+
+  it("renders streak as 0 by default when not provided", () => {
+    render(
+      <UserProgress
+        activeCourse={mockCourse}
+        hearts={5}
+        points={100}
+        hasActiveSubscription={false}
+      />
+    );
+
+    expect(screen.getByText("0")).toBeInTheDocument();
   });
 });
