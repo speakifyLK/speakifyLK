@@ -22,22 +22,28 @@ describe("ChatButton", () => {
 
   it("renders a button", () => {
     render(<ChatButton />);
-    const button = screen.getByRole("button");
-    expect(button).toBeInTheDocument();
+    const buttons = screen.getAllByRole("button");
+    expect(buttons.length).toBeGreaterThan(0);
   });
 
   it("navigates to /chat on click", () => {
     render(<ChatButton />);
-    const button = screen.getByRole("button");
-    fireEvent.click(button);
+    const buttons = screen.getAllByRole("button");
+    const chatButton = buttons.find(
+      (btn) => btn.textContent.includes("message") || btn.className.includes("bg-green-600")
+    );
+    fireEvent.click(chatButton!);
     expect(pushMock).toHaveBeenCalledWith("/chat");
   });
 
   it("calls push exactly once per click", () => {
     render(<ChatButton />);
-    const button = screen.getByRole("button");
-    fireEvent.click(button);
-    fireEvent.click(button);
+    const buttons = screen.getAllByRole("button");
+    const chatButton = buttons.find(
+      (btn) => btn.textContent.includes("message") || btn.className.includes("bg-green-600")
+    );
+    fireEvent.click(chatButton!);
+    fireEvent.click(chatButton!);
     expect(pushMock).toHaveBeenCalledTimes(2);
   });
 
@@ -50,7 +56,8 @@ describe("ChatButton", () => {
   it("renders when on a different page", () => {
     mockUsePathname.mockReturnValue("/quiz");
     render(<ChatButton />);
-    expect(screen.getByRole("button")).toBeInTheDocument();
+    const buttons = screen.getAllByRole("button");
+    expect(buttons.length).toBeGreaterThan(0);
   });
 
   describe("chat bubble", () => {
@@ -70,7 +77,6 @@ describe("ChatButton", () => {
 
     it("still allows navigation when bubble is visible", () => {
       render(<ChatButton />);
-      // Click the button, not the bubble
       const buttons = screen.getAllByRole("button");
       const chatButton = buttons.find(
         (btn) => btn.textContent.includes("message") || btn.className.includes("bg-green-600")
