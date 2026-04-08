@@ -52,4 +52,31 @@ describe("ChatButton", () => {
     render(<ChatButton />);
     expect(screen.getByRole("button")).toBeInTheDocument();
   });
+
+  describe("chat bubble", () => {
+    it("displays the chat bubble by default", () => {
+      render(<ChatButton />);
+      expect(screen.getByText("Hi there!")).toBeInTheDocument();
+      expect(screen.getByText("Chat and Learn!")).toBeInTheDocument();
+    });
+
+    it("closes the chat bubble when close button is clicked", () => {
+      render(<ChatButton />);
+      const closeButton = screen.getByLabelText("Close chat bubble");
+      fireEvent.click(closeButton);
+      expect(screen.queryByText("Hi there!")).not.toBeInTheDocument();
+      expect(screen.queryByText("Chat and Learn!")).not.toBeInTheDocument();
+    });
+
+    it("still allows navigation when bubble is visible", () => {
+      render(<ChatButton />);
+      // Click the button, not the bubble
+      const buttons = screen.getAllByRole("button");
+      const chatButton = buttons.find(
+        (btn) => btn.textContent.includes("message") || btn.className.includes("bg-green-600")
+      );
+      fireEvent.click(chatButton!);
+      expect(pushMock).toHaveBeenCalledWith("/chat");
+    });
+  });
 });
