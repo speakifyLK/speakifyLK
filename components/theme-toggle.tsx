@@ -9,9 +9,11 @@ export const ThemeToggle = () => {
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground transition-all duration-300 hover:bg-accent hover:text-accent-foreground"
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-pressed={theme === "dark"}
       title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
     >
       {theme === "dark" ? (
