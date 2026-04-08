@@ -108,6 +108,9 @@ speakify/
     |-- queries.ts
     |-- schema.test.ts
     |-- schema.ts
+  |- drizzle/
+    |-- meta/
+    |-- 0000_right_true_believers.sql
   |- infrastructure/
     |-- modules/
     |-- .terraform.lock.hcl
