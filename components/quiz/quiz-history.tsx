@@ -78,13 +78,17 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
 
   return (
     <div className="mt-8 space-y-4">
-      <h2 className="text-2xl font-bold text-neutral-800 dark:text-foreground">Your quiz performance</h2>
+      <h2 className="text-2xl font-bold text-neutral-800 dark:text-foreground">
+        Your quiz performance
+      </h2>
 
       {/* Stats summary card */}
       <div className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-800/50 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="text-xs uppercase tracking-wide text-neutral-500">Total quizzes</p>
-          <p className="text-2xl font-semibold text-neutral-900 dark:text-foreground">{stats.totalQuizzes}</p>
+          <p className="text-2xl font-semibold text-neutral-900 dark:text-foreground">
+            {stats.totalQuizzes}
+          </p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide text-neutral-500">Average score</p>
@@ -118,7 +122,9 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
       {/* History list */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-neutral-800 dark:text-foreground">Recent quizzes</h3>
+          <h3 className="text-lg font-semibold text-neutral-800 dark:text-foreground">
+            Recent quizzes
+          </h3>
           <span className="text-xs text-neutral-500">
             Showing last {history.length || 0} sessions
           </span>
@@ -235,7 +241,10 @@ export const QuizHistory = ({ history, stats }: QuizHistoryProps) => {
                   const isCorrect = q.isCorrect === true;
                   const userAnswer = q.userAnswer ?? "No answer";
                   return (
-                    <div key={q.id} className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+                    <div
+                      key={q.id}
+                      className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800"
+                    >
                       <div className="mb-1 flex items-start justify-between gap-2">
                         <p className="font-semibold text-neutral-900">
                           {index + 1}. {q.question}
