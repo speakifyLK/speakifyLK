@@ -98,7 +98,7 @@ const FormattedMessagePart = ({ text, isUser }: { text: string; isUser: boolean 
   }
 
   // Fallback for plain text
-  return <span className={isUser ? "text-white" : "text-zinc-700"}>{text}</span>;
+  return <span className={isUser ? "text-white" : "text-zinc-800"}>{text}</span>;
 };
 
 export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
@@ -123,7 +123,7 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
         </Avatar>
       )}
 
-      {isUser && <div className="w-9" />}
+      {isUser && <div className="w-8 shrink-0" />}
 
       <div className={cn("flex max-w-[85%] flex-col", isUser ? "items-end" : "items-start")}>
         <div
@@ -141,8 +141,8 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
           ))}
         </div>
 
-        <span className="mt-1.5 px-2 text-[10px] font-medium uppercase tracking-tight text-zinc-400">
-          {formattedTime}
+        <span className="mt-1 px-2 text-[10px] font-medium uppercase tracking-tight text-zinc-400">
+          {formattedTime || ""}
         </span>
       </div>
     </div>

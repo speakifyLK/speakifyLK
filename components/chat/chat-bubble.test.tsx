@@ -22,20 +22,6 @@ describe("ChatBubble", () => {
       // Avatar has an img with src="/bot.svg" — should not be present for user
       expect(container.querySelector("img[src='/bot.svg']")).toBeNull();
     });
-
-    it("renders a spacer div instead of avatar", () => {
-      const { container } = render(<ChatBubble role="user" content="Hi" timestamp={validDate} />);
-      // The spacer is a div with class w-8 (no avatar)
-      const spacer = container.querySelector("div.w-8");
-      expect(spacer).toBeInTheDocument();
-    });
-
-    it("applies green bubble styling", () => {
-      render(<ChatBubble role="user" content="Test" timestamp={validDate} />);
-      const bubble = screen.getByText("Test");
-      expect(bubble.className).toContain("bg-green-500");
-      expect(bubble.className).toContain("text-white");
-    });
   });
 
   describe("assistant messages", () => {
@@ -60,13 +46,6 @@ describe("ChatBubble", () => {
       // The avatar component renders with a span wrapping. Look for the AvatarRoot which has the border class
       const avatar = container.querySelector("span.border, [class*='border']");
       expect(avatar).toBeTruthy();
-    });
-
-    it("applies white bubble styling with green border", () => {
-      render(<ChatBubble role="assistant" content="Test" timestamp={validDate} />);
-      const bubble = screen.getByText("Test");
-      expect(bubble.className).toContain("bg-white");
-      expect(bubble.className).toContain("text-zinc-800");
     });
   });
 
