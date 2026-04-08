@@ -91,6 +91,10 @@ speakify/
     |-- sidebar.tsx
     |-- sticky-wrapper.test.tsx
     |-- sticky-wrapper.tsx
+    |-- theme-provider.test.tsx
+    |-- theme-provider.tsx
+    |-- theme-toggle.test.tsx
+    |-- theme-toggle.tsx
     |-- user-progress.test.tsx
     |-- user-progress.tsx
   |- config/
