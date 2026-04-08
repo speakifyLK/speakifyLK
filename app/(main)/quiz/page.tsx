@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
-
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { QuizConfig } from "@/components/quiz/quiz-config";
 import { QuizPlay } from "@/components/quiz/quiz-play";
@@ -15,8 +17,6 @@ import {
   getUserProgress,
   getUserSubscription,
 } from "@/db/queries";
-
-import { Header } from "../learn/header";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,7 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
       getStreakData(),
     ]);
 
-    if (!userProgress || !userProgress.activeCourse) redirect("/courses");
+    if (!userProgress || !userProgress.activeCourse) redirect("/learn");
 
     const isPro = !!userSubscription?.isActive;
 
@@ -59,7 +59,15 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
           <Quests points={userProgress.points} />
         </StickyWrapper>
         <FeedWrapper>
-          <Header title="Quiz" />
+          <div className="sticky top-0 mb-5 flex items-center justify-between border-b-2 bg-white pb-3 text-neutral-400 lg:z-50 lg:mt-[-28px] lg:pt-[28px]">
+            <Button asChild size="sm" variant="ghost">
+              <Link href="/learn">
+                <ArrowLeft className="h-5 w-5 stroke-2 text-neutral-400" />
+              </Link>
+            </Button>
+            <h1 className="text-lg font-bold">Quiz</h1>
+            <div aria-hidden />
+          </div>
           <QuizPlay session={session} />
         </FeedWrapper>
       </div>
@@ -93,7 +101,15 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
         <Quests points={userProgress.points} />
       </StickyWrapper>
       <FeedWrapper>
-        <Header title="Quiz" />
+        <div className="sticky top-0 mb-5 flex items-center justify-between border-b-2 bg-white pb-3 text-neutral-400 lg:z-50 lg:mt-[-28px] lg:pt-[28px]">
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/learn">
+              <ArrowLeft className="h-5 w-5 stroke-2 text-neutral-400" />
+            </Link>
+          </Button>
+          <h1 className="text-lg font-bold">Quiz</h1>
+          <div aria-hidden />
+        </div>
         <QuizConfig units={units} quizHistory={quizHistory} />
       </FeedWrapper>
     </div>
