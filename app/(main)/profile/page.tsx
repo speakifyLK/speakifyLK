@@ -44,7 +44,7 @@ const ProfilePage = async () => {
   const isPro = !!userSubscription?.isActive;
 
   return (
-    <div className="flex flex-row-reverse gap-[48px] px-6">
+    <div className="flex flex-col-reverse gap-[48px] px-6 lg:flex-row-reverse lg:gap-[48px]">
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}
