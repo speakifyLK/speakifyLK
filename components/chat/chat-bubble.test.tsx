@@ -73,7 +73,9 @@ describe("ChatBubble", () => {
     });
 
     it("renders empty string for an invalid date", () => {
-      const { container } = render(<ChatBubble role="user" content="msg" timestamp="not-a-date" />);
+      const { container } = render(
+        <ChatBubble role="user" content="msg" timestamp="not-a-date" />
+      );
       const spans = Array.from(container.querySelectorAll("span"));
       const timeSpan = spans.find((s) => s.className.includes("mt-1"));
       expect(timeSpan).toBeTruthy();
@@ -88,6 +90,59 @@ describe("ChatBubble", () => {
       const timeSpan = spans.find((s) => s.className.includes("mt-1"));
       expect(timeSpan).toBeTruthy();
       expect(timeSpan!.textContent).toBe("");
+    });
+  });
+
+  describe("FormattedMessagePart formatting", () => {
+    it("renders a correction block when content contains ✏️", () => {
+      render(
+        <ChatBubble
+          role="assistant"
+          content="✏️ Let's refine that: ayubowan → āyubōvan"
+          timestamp={validDate}
+        />
+      );
+      expect(screen.getByText("LET'S REFINE THAT")).toBeInTheDocument();
+      expect(screen.getByText("ayubowan")).toBeInTheDocument();
+      expect(screen.getByText("āyubōvan")).toBeInTheDocument();
+    });
+
+    it("renders a vocabulary block when content contains 📖 New word:", () => {
+      render(
+        <ChatBubble
+          role="assistant"
+          content="📖 New word: ආයුබෝවන් (āyubōvan) — hello"
+          timestamp={validDate}
+        />
+      );
+      expect(screen.getByText("LEARNING POINT")).toBeInTheDocument();
+      expect(screen.getByText("ආයුබෝවන්")).toBeInTheDocument();
+      expect(screen.getByText("hello")).toBeInTheDocument();
+    });
+
+    it("renders Sinhala spoken format: Script (translit) [meaning]", () => {
+      render(
+        <ChatBubble
+          role="assistant"
+          content="ආයුබෝවන් (āyubōvan) [hello]"
+          timestamp={validDate}
+        />
+      );
+      expect(screen.getByText("ආයුබෝවන්")).toBeInTheDocument();
+      expect(screen.getByText("(āyubෝvan)")).toBeInTheDocument();
+      expect(screen.getByText("[hello]")).toBeInTheDocument();
+    });
+
+    it("falls back to plain text for user messages", () => {
+      render(<ChatBubble role="user" content="plain text" timestamp={validDate} />);
+      const span = screen.getByText("plain text");
+      expect(span.className).toContain("text-white");
+    });
+
+    it("falls back to plain text for assistant messages", () => {
+      render(<ChatBubble role="assistant" content="plain text" timestamp={validDate} />);
+      const span = screen.getByText("plain text");
+      expect(span.className).toContain("text-zinc-800");
     });
   });
 });
