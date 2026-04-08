@@ -47,7 +47,9 @@ const LeaderboardPage = async () => {
         <div className="flex w-full flex-col items-center">
           <Image src="/leaderboard.svg" alt="Leaderboard" height={90} width={90} />
 
-          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800 dark:text-foreground">Leaderboard</h1>
+          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800 dark:text-foreground">
+            Leaderboard
+          </h1>
           <p className="mb-6 text-center text-lg text-muted-foreground">
             See where you stand among other learners in the community.
           </p>
@@ -64,7 +66,9 @@ const LeaderboardPage = async () => {
                 <AvatarImage src={userProgress.userImageSrc} className="object-cover" />
               </Avatar>
 
-              <p className="flex-1 font-bold text-neutral-800 dark:text-foreground">{userProgress.userName}</p>
+              <p className="flex-1 font-bold text-neutral-800 dark:text-foreground">
+                {userProgress.userName}
+              </p>
               <p className="text-muted-foreground">{userProgress.points} XP</p>
             </div>
           ))}

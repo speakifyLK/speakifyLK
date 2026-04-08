@@ -8,10 +8,7 @@ const CoursesPage = async () => {
   const coursesData = getCourses();
   const userProgressData = getUserProgress();
 
-  const [courses, userProgress] = await Promise.all([
-    coursesData,
-    userProgressData,
-  ]);
+  const [courses, userProgress] = await Promise.all([coursesData, userProgressData]);
 
   return (
     <div className="mx-auto h-full max-w-[912px] px-3">

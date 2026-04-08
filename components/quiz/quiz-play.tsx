@@ -232,7 +232,9 @@ export const QuizPlay = ({ session, backHref }: QuizPlayProps) => {
 
       {/* Question */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-neutral-700 dark:text-foreground">{currentQuestion.question}</h2>
+        <h2 className="text-2xl font-bold text-neutral-700 dark:text-foreground">
+          {currentQuestion.question}
+        </h2>
 
         {/* MCQ Options */}
         {currentQuestion.type === "mcq" && options && (
