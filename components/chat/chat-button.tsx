@@ -33,18 +33,18 @@ export const ChatButton = () => {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-green-400/20 to-green-500/20 blur-3xl"></div>
 
             {/* Main bubble */}
-            <div className="relative flex min-w-max items-center justify-between gap-3 rounded-3xl bg-green-50 px-5 py-3 shadow-lg ring-1 ring-green-100">
+            <div className="relative flex min-w-max items-center justify-between gap-3 rounded-3xl bg-green-600 px-5 py-3 shadow-lg ring-1 ring-green-500">
               <div className="flex-1 pr-2">
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-sm font-medium text-white">
                   Hi there! <span className="inline-block animate-bounce">👋</span>
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-gray-600">Chat and Learn!</p>
+                <p className="mt-1 text-xs leading-relaxed text-green-100">Chat and Learn!</p>
               </div>
 
               {/* Close button */}
               <button
                 onClick={handleBubbleClose}
-                className="flex-shrink-0 text-gray-400 transition-colors hover:text-gray-600"
+                className="flex-shrink-0 text-green-200 transition-colors hover:text-white"
                 aria-label="Close chat bubble"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@ export const ChatButton = () => {
             </div>
 
             {/* Bubble tail pointing to button */}
-            <div className="absolute bottom-0 right-1/2 h-3 w-3 translate-x-1/2 translate-y-full rotate-45 transform bg-green-50 ring-1 ring-green-100"></div>
+            <div className="absolute bottom-0 right-1/2 h-3 w-3 translate-x-1/2 translate-y-full rotate-45 transform bg-green-600 ring-1 ring-green-500"></div>
           </div>
         </div>
       )}
