@@ -31,23 +31,13 @@ export const ResultCard = ({ value, variant }: ResultCardProps) => {
 
       <div
         className={cn(
-          "flex items-center justify-center rounded-2xl bg-white p-6 text-lg font-bold",
+          "flex items-center justify-center rounded-2xl bg-white p-6 text-lg font-bold dark:bg-slate-800",
           variant === "points" && "text-orange-400",
           variant === "hearts" && "text-rose-500"
         )}
       >
-        <Image
-          src={imageSrc}
-          alt={variant}
-          height={30}
-          width={30}
-          className="mr-1.5"
-        />
-        {value === Infinity ? (
-          <InfinityIcon className="h-6 w-6 stroke-[3]" />
-        ) : (
-          value
-        )}
+        <Image src={imageSrc} alt={variant} height={30} width={30} className="mr-1.5" />
+        {value === Infinity ? <InfinityIcon className="h-6 w-6 stroke-[3]" /> : value}
       </div>
     </div>
   );

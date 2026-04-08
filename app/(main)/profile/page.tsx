@@ -65,7 +65,9 @@ const ProfilePage = async () => {
             </Avatar>
 
             <div className="flex flex-col items-center sm:items-start">
-              <h1 className="text-2xl font-extrabold text-neutral-800">{userProgress.userName}</h1>
+              <h1 className="text-2xl font-extrabold text-neutral-800 dark:text-foreground">
+                {userProgress.userName}
+              </h1>
               <div className="mt-1 flex items-center gap-2">
                 <Image
                   src={userProgress.activeCourse.imageSrc}
@@ -99,7 +101,7 @@ const ProfilePage = async () => {
 
           {/* Streak cards */}
           <div className="w-full">
-            <h2 className="mb-4 text-lg font-bold text-neutral-800">Streak</h2>
+            <h2 className="mb-4 text-lg font-bold text-neutral-800 dark:text-foreground">Streak</h2>
             <StreakCard
               currentStreak={profileStats.currentStreak}
               longestStreak={profileStats.longestStreak}
@@ -111,8 +113,10 @@ const ProfilePage = async () => {
 
           {/* Activity heatmap */}
           <div className="w-full">
-            <h2 className="mb-4 text-lg font-bold text-neutral-800">Activity</h2>
-            <div className="rounded-xl border-2 bg-white p-4 shadow-sm">
+            <h2 className="mb-4 text-lg font-bold text-neutral-800 dark:text-foreground">
+              Activity
+            </h2>
+            <div className="rounded-xl border-2 bg-white p-4 shadow-sm dark:bg-slate-800/50">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                   {profileStats.totalActiveDays} active days in the past year

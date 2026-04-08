@@ -254,10 +254,15 @@ export const QuizResult = ({
       )}
 
       <div className="flex flex-col items-center gap-4">
-        <h2 className="text-3xl font-bold text-neutral-800">Quiz Completed 🎉</h2>
+        <h2 className="text-3xl font-bold text-neutral-800 dark:text-foreground">
+          Quiz Completed 🎉
+        </h2>
         <p className="text-sm text-neutral-500">
-          Topic: <span className="font-semibold text-neutral-700">{session.topic}</span> ·{" "}
-          <span className="capitalize">{session.difficulty}</span>
+          Topic:{" "}
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+            {session.topic}
+          </span>{" "}
+          · <span className="capitalize">{session.difficulty}</span>
         </p>
       </div>
 
@@ -289,10 +294,12 @@ export const QuizResult = ({
       </div>
 
       {/* Stats row */}
-      <div className="grid gap-3 rounded-xl border-2 border-slate-200 bg-slate-50 p-4 text-sm md:grid-cols-4">
+      <div className="grid gap-3 rounded-xl border-2 border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-800/50 md:grid-cols-4">
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-neutral-500">Questions</span>
-          <span className="text-lg font-semibold text-neutral-800">{totalQuestions || "—"}</span>
+          <span className="text-lg font-semibold text-neutral-800 dark:text-foreground">
+            {totalQuestions || "—"}
+          </span>
         </div>
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-neutral-500">Correct</span>
@@ -300,11 +307,13 @@ export const QuizResult = ({
         </div>
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-neutral-500">Time taken</span>
-          <span className="text-lg font-semibold text-neutral-800">{timeTakenLabel}</span>
+          <span className="text-lg font-semibold text-neutral-800 dark:text-foreground">
+            {timeTakenLabel}
+          </span>
         </div>
         <div className="flex flex-col">
           <span className="text-xs uppercase tracking-wide text-neutral-500">Difficulty</span>
-          <span className="text-lg font-semibold capitalize text-neutral-800">
+          <span className="text-lg font-semibold capitalize text-neutral-800 dark:text-foreground">
             {session.difficulty}
           </span>
         </div>
@@ -312,8 +321,10 @@ export const QuizResult = ({
 
       {/* Question review */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-neutral-800">Question review</h3>
-        <div className="max-h-80 space-y-3 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3">
+        <h3 className="text-lg font-semibold text-neutral-800 dark:text-foreground">
+          Question review
+        </h3>
+        <div className="max-h-80 space-y-3 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
           {session.questions.length === 0 ? (
             <p className="text-sm text-neutral-500">No questions found for this session.</p>
           ) : (
@@ -324,10 +335,10 @@ export const QuizResult = ({
               return (
                 <div
                   key={q.id}
-                  className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm"
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-800/50"
                 >
                   <div className="mb-1 flex items-start justify-between gap-2">
-                    <p className="font-semibold text-neutral-800">
+                    <p className="font-semibold text-neutral-800 dark:text-foreground">
                       {index + 1}. {q.question}
                     </p>
                     <span
@@ -341,7 +352,7 @@ export const QuizResult = ({
                   <p className={`mt-1 text-xs ${isCorrect ? "text-emerald-700" : "text-rose-700"}`}>
                     Your answer: <span className="font-semibold">{userAnswer}</span>
                   </p>
-                  <p className="mt-1 text-xs text-neutral-700">
+                  <p className="mt-1 text-xs text-neutral-700 dark:text-neutral-300">
                     Correct answer: <span className="font-semibold">{q.correctAnswer}</span>
                   </p>
                   {q.explanation && (

@@ -38,7 +38,7 @@ export const Card = ({ title, id, imageSrc, onClick, disabled, isActive }: CardP
         style={{ height: "auto" }}
       />
 
-      <p className="mt-3 text-center font-bold text-neutral-700">{title}</p>
+      <p className="mt-3 text-center font-bold text-neutral-700 dark:text-foreground">{title}</p>
     </div>
   );
 };

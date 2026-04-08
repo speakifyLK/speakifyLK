@@ -50,6 +50,8 @@ export default tseslint.config(
       "next-env.d.ts",
       "jira/**",
       "scripts/**",
+      "playwright-report/**",
+      "test-results/**"
     ],
   }
 );

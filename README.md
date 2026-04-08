@@ -91,6 +91,11 @@ speakify/
     |-- sidebar.tsx
     |-- sticky-wrapper.test.tsx
     |-- sticky-wrapper.tsx
+    |-- theme-provider.ssr.test.tsx
+    |-- theme-provider.test.tsx
+    |-- theme-provider.tsx
+    |-- theme-toggle.test.tsx
+    |-- theme-toggle.tsx
     |-- user-progress.test.tsx
     |-- user-progress.tsx
   |- config/
@@ -211,6 +216,7 @@ speakify/
   |- drizzle.config.ts
   |- environment.d.ts
   |- eslint.config.mjs
+  |- lint.txt
   |- middleware.test.ts
   |- middleware.ts
   |- next.config.ts

@@ -7,6 +7,10 @@ vi.mock("sonner", () => ({
   ),
 }));
 
+vi.mock("../theme-provider", () => ({
+  useTheme: () => ({ theme: "dark" }),
+}));
+
 import { Toaster } from "./sonner";
 
 describe("Toaster", () => {
@@ -15,10 +19,10 @@ describe("Toaster", () => {
     expect(screen.getByTestId("sonner-toaster")).toBeInTheDocument();
   });
 
-  it("passes theme prop as 'light'", () => {
+  it("passes theme prop from useTheme", () => {
     render(<Toaster />);
     const el = screen.getByTestId("sonner-toaster");
-    expect(el.getAttribute("theme")).toBe("light");
+    expect(el.getAttribute("theme")).toBe("dark");
   });
 
   it("applies the toaster class", () => {

@@ -11,33 +11,37 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-500",
+          "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700",
 
         // custom
         locked:
-          "bg-neutral-200 text-primary-foreground hover:bg-neutral-200/90 border-neutral-400 border-b-4 active:border-b-0",
+          "bg-neutral-200 text-primary-foreground hover:bg-neutral-200/90 border-neutral-400 border-b-4 active:border-b-0 dark:bg-neutral-700 dark:border-neutral-600",
 
         primary:
           "bg-sky-400 text-primary-foreground hover:bg-sky-400/90 border-sky-500 border-b-4 active:border-b-0",
-        primaryOutline: "bg-white text-sky-500 hover:bg-slate-100",
+        primaryOutline:
+          "bg-white text-sky-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700",
 
         secondary:
           "bg-green-500 text-primary-foreground hover:bg-green-500/90 border-green-600 border-b-4 active:border-b-0",
-        secondaryOutline: "bg-white text-green-500 hover:bg-slate-100",
+        secondaryOutline:
+          "bg-white text-green-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700",
 
         danger:
           "bg-rose-500 text-primary-foreground hover:bg-rose-500/90 border-rose-600 border-b-4 active:border-b-0",
-        dangerOutline: "bg-white text-rose-500 hover:bg-slate-100",
+        dangerOutline:
+          "bg-white text-rose-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700",
 
         super:
           "bg-indigo-500 text-primary-foreground hover:bg-indigo-500/90 border-indigo-600 border-b-4 active:border-b-0",
-        superOutline: "bg-white text-indigo-500 hover:bg-slate-100",
+        superOutline:
+          "bg-white text-indigo-500 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700",
 
         ghost:
-          "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100",
+          "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800",
 
         sidebar:
-          "bg-transparent text-slate-500 border-2 border-transparent hover:bg-slate-100 transition-none",
+          "bg-transparent text-slate-500 border-2 border-transparent hover:bg-slate-100 transition-none dark:text-slate-400 dark:hover:bg-slate-800",
         sidebarOutline:
           "bg-sky-500/15 text-sky-500 border-sky-300 border-2 hover:bg-sky-500/20 transition-none",
       },
@@ -59,9 +63,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
@@ -69,11 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
     );
   }
 );
