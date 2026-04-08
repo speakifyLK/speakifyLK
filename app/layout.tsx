@@ -41,7 +41,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={font.className}>
           <ThemeProvider>
-            <Toaster theme="system" richColors closeButton />
+            <Toaster richColors closeButton />
             <ExitModal />
             <HeartsModal />
             <PracticeModal />

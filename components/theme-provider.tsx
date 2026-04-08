@@ -21,12 +21,14 @@ function getInitialTheme(): Theme {
 }
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light";
+    return getInitialTheme();
+  });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line
-    setTheme(getInitialTheme());
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected to run once on mount
     setMounted(true);
   }, []);
 
