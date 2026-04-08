@@ -30,24 +30,15 @@ vi.mock("@/db/drizzle", () => {
     and: (...args: unknown[]) => ({ _type: "and", args }),
     eq: (col: unknown, val: unknown) => ({ _type: "eq", col, val }),
   };
-  const fakeTable = new Proxy(
-    {},
-    { get: (_t, prop) => `table.${String(prop)}` }
-  );
+  const fakeTable = new Proxy({}, { get: (_t, prop) => `table.${String(prop)}` });
 
   const wrapQuery = (mockFn: any) => {
     return (opts?: Record<string, unknown>) => {
       if (opts?.where && typeof opts.where === "function") {
-        (opts.where as (t: unknown, h: unknown) => unknown)(
-          fakeTable,
-          fakeHelpers
-        );
+        (opts.where as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
       }
       if (opts?.orderBy && typeof opts.orderBy === "function") {
-        (opts.orderBy as (t: unknown, h: unknown) => unknown)(
-          fakeTable,
-          fakeHelpers
-        );
+        (opts.orderBy as (t: unknown, h: unknown) => unknown)(fakeTable, fakeHelpers);
       }
       return mockFn(opts);
     };

@@ -31,10 +31,8 @@ export const recordDailyActivity = async (opts: {
     await db
       .update(userActivity)
       .set({
-        lessonsCompleted:
-          existing.lessonsCompleted + (opts.lessonsCompleted ?? 0),
-        quizzesCompleted:
-          existing.quizzesCompleted + (opts.quizzesCompleted ?? 0),
+        lessonsCompleted: existing.lessonsCompleted + (opts.lessonsCompleted ?? 0),
+        quizzesCompleted: existing.quizzesCompleted + (opts.quizzesCompleted ?? 0),
         xpEarned: existing.xpEarned + (opts.xpEarned ?? 0),
       })
       .where(eq(userActivity.id, existing.id));

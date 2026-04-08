@@ -38,11 +38,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
   const isPractice = !!existingChallengeProgress;
 
-  if (
-    currentUserProgress.hearts === 0 &&
-    !isPractice &&
-    !userSubscription?.isActive
-  )
+  if (currentUserProgress.hearts === 0 && !isPractice && !userSubscription?.isActive)
     return { error: "hearts" };
 
   if (isPractice) {

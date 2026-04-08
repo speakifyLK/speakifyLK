@@ -6,9 +6,7 @@ const mockRedirect = vi.hoisted(() =>
     throw new Error("NEXT_REDIRECT");
   })
 );
-const mockAuth = vi.hoisted(() =>
-  vi.fn().mockResolvedValue({ userId: "user_123" })
-);
+const mockAuth = vi.hoisted(() => vi.fn().mockResolvedValue({ userId: "user_123" }));
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
 const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetQuizSessionWithQuestions = vi.hoisted(() => vi.fn());
@@ -36,19 +34,13 @@ vi.mock("@/db/queries", () => ({
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => (
-    <div data-testid="feed-wrapper">{children}</div>
-  ),
+  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => (
-    <div data-testid="sticky-wrapper">{children}</div>
-  ),
+  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => (
-    <div data-testid="user-progress">{JSON.stringify(props)}</div>
-  ),
+  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/promo", () => ({
   Promo: () => <div data-testid="promo">Promo</div>,
@@ -57,19 +49,13 @@ vi.mock("@/components/quests", () => ({
   Quests: ({ points }: any) => <div data-testid="quests">Quests: {points}</div>,
 }));
 vi.mock("@/components/quiz/quiz-config", () => ({
-  QuizConfig: (props: any) => (
-    <div data-testid="quiz-config">{JSON.stringify(props)}</div>
-  ),
+  QuizConfig: (props: any) => <div data-testid="quiz-config">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/quiz/quiz-play", () => ({
-  QuizPlay: (props: any) => (
-    <div data-testid="quiz-play">{JSON.stringify(props)}</div>
-  ),
+  QuizPlay: (props: any) => <div data-testid="quiz-play">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/quiz/quiz-history", () => ({
-  QuizHistory: (props: any) => (
-    <div data-testid="quiz-history">{JSON.stringify(props)}</div>
-  ),
+  QuizHistory: (props: any) => <div data-testid="quiz-history">{JSON.stringify(props)}</div>,
 }));
 vi.mock("../learn/header", () => ({
   Header: ({ title }: any) => <div data-testid="header">{title}</div>,
@@ -111,9 +97,7 @@ describe("AIQuizPage", () => {
     mockAuth.mockResolvedValue({ userId: null });
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/sign-in");
   });
 
@@ -121,9 +105,7 @@ describe("AIQuizPage", () => {
     mockGetUserProgress.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/courses");
   });
 
@@ -134,9 +116,7 @@ describe("AIQuizPage", () => {
     });
 
     const Page = (await import("./page")).default;
-    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
+    await expect(Page({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/courses");
   });
 
@@ -214,9 +194,9 @@ describe("AIQuizPage", () => {
     mockGetQuizSessionWithQuestions.mockResolvedValue(null);
 
     const Page = (await import("./page")).default;
-    await expect(
-      Page({ searchParams: Promise.resolve({ sessionId: "999" }) })
-    ).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page({ searchParams: Promise.resolve({ sessionId: "999" }) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
     expect(mockRedirect).toHaveBeenCalledWith("/ai-quiz");
   });
 

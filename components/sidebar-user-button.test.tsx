@@ -3,19 +3,11 @@ import { render, screen } from "@testing-library/react";
 
 vi.mock("@clerk/nextjs", () => {
   const MockUserButton = Object.assign(
-    ({ children, ..._props }: any) => (
-      <div data-testid="user-button">{children}</div>
-    ),
+    ({ children, ..._props }: any) => <div data-testid="user-button">{children}</div>,
     {
-      MenuItems: ({ children }: any) => (
-        <div data-testid="user-button-menu-items">{children}</div>
-      ),
+      MenuItems: ({ children }: any) => <div data-testid="user-button-menu-items">{children}</div>,
       Link: (props: any) => (
-        <a
-          data-testid="user-button-link"
-          href={props.href}
-          data-label={props.label}
-        />
+        <a data-testid="user-button-link" href={props.href} data-label={props.label} />
       ),
     }
   );
@@ -41,9 +33,7 @@ describe("SidebarUserButton", () => {
 
     expect(screen.getByTestId("user-button-menu-items")).toBeInTheDocument();
     const links = screen.getAllByTestId("user-button-link");
-    const profileLink = links.find(
-      (l) => l.getAttribute("data-label") === "Profile"
-    );
+    const profileLink = links.find((l) => l.getAttribute("data-label") === "Profile");
     expect(profileLink).toBeInTheDocument();
     expect(profileLink).toHaveAttribute("href", "/profile");
   });
@@ -52,9 +42,7 @@ describe("SidebarUserButton", () => {
     render(<SidebarUserButton isAdmin={false} />);
 
     const links = screen.getAllByTestId("user-button-link");
-    const adminLink = links.find(
-      (l) => l.getAttribute("data-label") === "Admin"
-    );
+    const adminLink = links.find((l) => l.getAttribute("data-label") === "Admin");
     expect(adminLink).toBeUndefined();
   });
 
@@ -62,9 +50,7 @@ describe("SidebarUserButton", () => {
     render(<SidebarUserButton />);
 
     const links = screen.getAllByTestId("user-button-link");
-    const adminLink = links.find(
-      (l) => l.getAttribute("data-label") === "Admin"
-    );
+    const adminLink = links.find((l) => l.getAttribute("data-label") === "Admin");
     expect(adminLink).toBeUndefined();
   });
 
@@ -73,9 +59,7 @@ describe("SidebarUserButton", () => {
 
     expect(screen.getByTestId("user-button-menu-items")).toBeInTheDocument();
     const links = screen.getAllByTestId("user-button-link");
-    const adminLink = links.find(
-      (l) => l.getAttribute("data-label") === "Admin"
-    );
+    const adminLink = links.find((l) => l.getAttribute("data-label") === "Admin");
     expect(adminLink).toBeInTheDocument();
     expect(adminLink).toHaveAttribute("href", "/admin");
   });

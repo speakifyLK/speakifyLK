@@ -29,13 +29,12 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
   const sessionId = params.sessionId ? parseInt(params.sessionId, 10) : null;
 
   if (sessionId && !isNaN(sessionId)) {
-    const [userProgress, userSubscription, session, streakData] =
-      await Promise.all([
-        getUserProgress(),
-        getUserSubscription(),
-        getQuizSessionWithQuestions(sessionId),
-        getStreakData(),
-      ]);
+    const [userProgress, userSubscription, session, streakData] = await Promise.all([
+      getUserProgress(),
+      getUserSubscription(),
+      getQuizSessionWithQuestions(sessionId),
+      getStreakData(),
+    ]);
 
     if (!userProgress || !userProgress.activeCourse) redirect("/courses");
 
@@ -67,14 +66,13 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
     );
   }
 
-  const [userProgress, units, userSubscription, quizHistory, streakData] =
-    await Promise.all([
-      getUserProgress(),
-      getUnitsForQuiz(),
-      getUserSubscription(),
-      getQuizHistory(),
-      getStreakData(),
-    ]);
+  const [userProgress, units, userSubscription, quizHistory, streakData] = await Promise.all([
+    getUserProgress(),
+    getUnitsForQuiz(),
+    getUserSubscription(),
+    getQuizHistory(),
+    getStreakData(),
+  ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
 

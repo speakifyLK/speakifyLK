@@ -48,9 +48,7 @@ describe("ActivityHeatmap", () => {
       "Nov",
       "Dec",
     ];
-    const found = monthLabels.filter(
-      (m) => screen.queryAllByText(m).length > 0
-    );
+    const found = monthLabels.filter((m) => screen.queryAllByText(m).length > 0);
     expect(found.length).toBeGreaterThan(0);
   });
 
@@ -72,9 +70,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 10,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-10: 1 activity"]');
     expect(tile).toBeInTheDocument();
@@ -90,9 +86,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 40,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-10: 4 activities"]');
     expect(tile).toBeInTheDocument();
@@ -108,9 +102,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 80,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-10: 8 activities"]');
     expect(tile).toBeInTheDocument();
@@ -126,9 +118,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 130,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-10: 13 activities"]');
     expect(tile).toBeInTheDocument();
@@ -144,9 +134,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 10,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-10: 1 activity"]');
     expect(tile).toBeInTheDocument();
@@ -161,9 +149,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 30,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-10: 3 activities"]');
     expect(tile).toBeInTheDocument();
@@ -207,19 +193,11 @@ describe("ActivityHeatmap", () => {
         xpEarned: 0,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
-    expect(
-      container.querySelector('[title="2025-06-10: 1 activity"]')
-    ).toBeInTheDocument();
-    expect(
-      container.querySelector('[title="2025-06-11: 5 activities"]')
-    ).toBeInTheDocument();
-    expect(
-      container.querySelector('[title="2025-06-12: 0 activities"]')
-    ).toBeInTheDocument();
+    expect(container.querySelector('[title="2025-06-10: 1 activity"]')).toBeInTheDocument();
+    expect(container.querySelector('[title="2025-06-11: 5 activities"]')).toBeInTheDocument();
+    expect(container.querySelector('[title="2025-06-12: 0 activities"]')).toBeInTheDocument();
   });
 
   it("renders out-of-range tiles as transparent with empty title", () => {
@@ -242,9 +220,7 @@ describe("ActivityHeatmap", () => {
         xpEarned: 30,
       },
     ];
-    const { container } = render(
-      <ActivityHeatmap activityData={activityData} />
-    );
+    const { container } = render(<ActivityHeatmap activityData={activityData} />);
 
     const tile = container.querySelector('[title="2025-06-15: 3 activities"]');
     expect(tile).toBeInTheDocument();

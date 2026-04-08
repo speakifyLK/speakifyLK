@@ -46,19 +46,14 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
   }
 
   // 2. Fetch all data in parallel for speed
-  const [
-    conversations,
-    activeConversation,
-    userProgress,
-    userSubscription,
-    streakData,
-  ] = await Promise.all([
-    getConversations(),
-    getConversationById(activeId),
-    getUserProgress(),
-    getUserSubscription(),
-    getStreakData(),
-  ]);
+  const [conversations, activeConversation, userProgress, userSubscription, streakData] =
+    await Promise.all([
+      getConversations(),
+      getConversationById(activeId),
+      getUserProgress(),
+      getUserSubscription(),
+      getStreakData(),
+    ]);
 
   const isPro = !!userSubscription?.isActive;
 
@@ -103,11 +98,7 @@ const ChatPage = async ({ searchParams }: ChatPageProps) => {
         <div className="h-[calc(100vh-180px)] lg:h-[calc(100vh-140px)]">
           <ChatClient
             initialMessages={activeConversation.messages.map(
-              (msg: {
-                role: "user" | "assistant";
-                content: string;
-                timestamp: Date;
-              }) => ({
+              (msg: { role: "user" | "assistant"; content: string; timestamp: Date }) => ({
                 ...msg,
                 timestamp: new Date(msg.timestamp),
               })

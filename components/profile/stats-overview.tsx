@@ -1,11 +1,4 @@
-import {
-  BookOpen,
-  Brain,
-  Zap,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-} from "lucide-react";
+import { BookOpen, Brain, Zap, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 type StatsOverviewProps = {
   totalXp: number;
@@ -34,9 +27,7 @@ export const StatsOverview = ({
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
             <Zap className="h-5 w-5 text-orange-500" />
           </div>
-          <p className="text-xl font-extrabold text-neutral-800">
-            {totalXp.toLocaleString()}
-          </p>
+          <p className="text-xl font-extrabold text-neutral-800">{totalXp.toLocaleString()}</p>
           <p className="text-xs text-muted-foreground">Total XP</p>
         </div>
 
@@ -45,9 +36,7 @@ export const StatsOverview = ({
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-sky-100">
             <BookOpen className="h-5 w-5 text-sky-500" />
           </div>
-          <p className="text-xl font-extrabold text-neutral-800">
-            {totalLessonsCompleted}
-          </p>
+          <p className="text-xl font-extrabold text-neutral-800">{totalLessonsCompleted}</p>
           <p className="text-xs text-muted-foreground">Lessons done</p>
         </div>
 
@@ -56,9 +45,7 @@ export const StatsOverview = ({
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
             <Brain className="h-5 w-5 text-purple-500" />
           </div>
-          <p className="text-xl font-extrabold text-neutral-800">
-            {totalQuizzesCompleted}
-          </p>
+          <p className="text-xl font-extrabold text-neutral-800">{totalQuizzesCompleted}</p>
           <p className="text-xs text-muted-foreground">Quizzes taken</p>
         </div>
 
@@ -67,9 +54,7 @@ export const StatsOverview = ({
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
             <Zap className="h-5 w-5 text-green-500" />
           </div>
-          <p className="text-xl font-extrabold text-neutral-800">
-            {averageQuizScore}%
-          </p>
+          <p className="text-xl font-extrabold text-neutral-800">{averageQuizScore}%</p>
           <p className="text-xs text-muted-foreground">Avg quiz score</p>
         </div>
 
@@ -92,9 +77,7 @@ export const StatsOverview = ({
               <Minus className="h-5 w-5 text-slate-500" />
             )}
           </div>
-          <p className="text-xl font-extrabold capitalize text-neutral-800">
-            {improvementTrend}
-          </p>
+          <p className="text-xl font-extrabold capitalize text-neutral-800">{improvementTrend}</p>
           <p className="text-xs text-muted-foreground">Performance</p>
         </div>
 
@@ -104,9 +87,7 @@ export const StatsOverview = ({
             <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
               <BookOpen className="h-5 w-5 text-amber-500" />
             </div>
-            <p className="truncate text-xl font-extrabold text-neutral-800">
-              {favouriteTopic}
-            </p>
+            <p className="truncate text-xl font-extrabold text-neutral-800">{favouriteTopic}</p>
             <p className="text-xs text-muted-foreground">Top topic</p>
           </div>
         )}

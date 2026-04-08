@@ -27,19 +27,13 @@ vi.mock("@/db/queries", () => ({
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => (
-    <div data-testid="feed-wrapper">{children}</div>
-  ),
+  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => (
-    <div data-testid="sticky-wrapper">{children}</div>
-  ),
+  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => (
-    <div data-testid="user-progress">{JSON.stringify(props)}</div>
-  ),
+  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/promo", () => ({
   Promo: () => <div data-testid="promo">Promo</div>,

@@ -7,11 +7,7 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Progress } from "@/components/ui/progress";
 import { UserProgress } from "@/components/user-progress";
 import { QUESTS } from "@/constants";
-import {
-  getUserProgress,
-  getUserSubscription,
-  getStreakData,
-} from "@/db/queries";
+import { getUserProgress, getUserSubscription, getStreakData } from "@/db/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +43,7 @@ const QuestsPage = async () => {
         <div className="flex w-full flex-col items-center">
           <Image src="/quests.svg" alt="Quests" height={90} width={90} />
 
-          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
-            Quests
-          </h1>
+          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">Quests</h1>
           <p className="mb-6 text-center text-lg text-muted-foreground">
             Complete quests by earning points.
           </p>
@@ -59,21 +53,11 @@ const QuestsPage = async () => {
               const progress = (userProgress.points / quest.value) * 100;
 
               return (
-                <div
-                  className="flex w-full items-center gap-x-4 border-t-2 p-4"
-                  key={quest.title}
-                >
-                  <Image
-                    src="/points.svg"
-                    alt="Points"
-                    width={60}
-                    height={60}
-                  />
+                <div className="flex w-full items-center gap-x-4 border-t-2 p-4" key={quest.title}>
+                  <Image src="/points.svg" alt="Points" width={60} height={60} />
 
                   <div className="flex w-full flex-col gap-y-2">
-                    <p className="text-xl font-bold text-neutral-700">
-                      {quest.title}
-                    </p>
+                    <p className="text-xl font-bold text-neutral-700">{quest.title}</p>
 
                     <Progress value={progress} className="h-3" />
                   </div>

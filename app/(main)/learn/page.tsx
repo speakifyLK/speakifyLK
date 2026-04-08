@@ -27,24 +27,17 @@ const LearnPage = async () => {
   const userSubscriptionData = getUserSubscription();
   const streakDataPromise = getStreakData();
 
-  const [
-    userProgress,
-    units,
-    courseProgress,
-    lessonPercentage,
-    userSubscription,
-    streakData,
-  ] = await Promise.all([
-    userProgressData,
-    unitsData,
-    courseProgressData,
-    lessonPercentageData,
-    userSubscriptionData,
-    streakDataPromise,
-  ]);
+  const [userProgress, units, courseProgress, lessonPercentage, userSubscription, streakData] =
+    await Promise.all([
+      userProgressData,
+      unitsData,
+      courseProgressData,
+      lessonPercentageData,
+      userSubscriptionData,
+      streakDataPromise,
+    ]);
 
-  if (!courseProgress || !userProgress || !userProgress.activeCourse)
-    redirect("/courses");
+  if (!courseProgress || !userProgress || !userProgress.activeCourse) redirect("/courses");
 
   const isPro = !!userSubscription?.isActive;
 

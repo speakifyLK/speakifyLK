@@ -29,21 +29,15 @@ const ProfilePage = async () => {
   const activityHeatmapData = getUserActivityHeatmap(365);
   const streakDataPromise = getStreakData();
 
-  const [
-    userProgress,
-    userSubscription,
-    profileStats,
-    quizStats,
-    activityHeatmap,
-    streakData,
-  ] = await Promise.all([
-    userProgressData,
-    userSubscriptionData,
-    profileStatsData,
-    quizStatsData,
-    activityHeatmapData,
-    streakDataPromise,
-  ]);
+  const [userProgress, userSubscription, profileStats, quizStats, activityHeatmap, streakData] =
+    await Promise.all([
+      userProgressData,
+      userSubscriptionData,
+      profileStatsData,
+      quizStatsData,
+      activityHeatmapData,
+      streakDataPromise,
+    ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
 
@@ -67,16 +61,11 @@ const ProfilePage = async () => {
           {/* Profile header */}
           <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:items-start">
             <Avatar className="h-24 w-24 border-4 border-green-500 shadow-md">
-              <AvatarImage
-                src={userProgress.userImageSrc}
-                className="object-cover"
-              />
+              <AvatarImage src={userProgress.userImageSrc} className="object-cover" />
             </Avatar>
 
             <div className="flex flex-col items-center sm:items-start">
-              <h1 className="text-2xl font-extrabold text-neutral-800">
-                {userProgress.userName}
-              </h1>
+              <h1 className="text-2xl font-extrabold text-neutral-800">{userProgress.userName}</h1>
               <div className="mt-1 flex items-center gap-2">
                 <Image
                   src={userProgress.activeCourse.imageSrc}
@@ -92,9 +81,7 @@ const ProfilePage = async () => {
               {profileStats.memberSince && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   Active since{" "}
-                  {new Date(
-                    profileStats.memberSince + "T00:00:00Z"
-                  ).toLocaleDateString("en-US", {
+                  {new Date(profileStats.memberSince + "T00:00:00Z").toLocaleDateString("en-US", {
                     month: "long",
                     year: "numeric",
                   })}
@@ -124,9 +111,7 @@ const ProfilePage = async () => {
 
           {/* Activity heatmap */}
           <div className="w-full">
-            <h2 className="mb-4 text-lg font-bold text-neutral-800">
-              Activity
-            </h2>
+            <h2 className="mb-4 text-lg font-bold text-neutral-800">Activity</h2>
             <div className="rounded-xl border-2 bg-white p-4 shadow-sm">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">

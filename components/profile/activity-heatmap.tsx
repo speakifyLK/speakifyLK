@@ -13,20 +13,7 @@ type ActivityHeatmapProps = {
   activityData: ActivityDay[];
 };
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const DAYS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
@@ -156,9 +143,7 @@ export const ActivityHeatmap = ({ activityData }: ActivityHeatmapProps) => {
                   <div
                     key={`${weekIdx}-${dayIdx}`}
                     className={`h-[11px] w-[11px] rounded-[2px] sm:h-[13px] sm:w-[13px] ${
-                      !day.isInRange
-                        ? "bg-transparent"
-                        : INTENSITY_COLORS[day.level]
+                      !day.isInRange ? "bg-transparent" : INTENSITY_COLORS[day.level]
                     }`}
                     title={
                       day.isInRange

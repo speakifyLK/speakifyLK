@@ -31,19 +31,13 @@ vi.mock("@/db/queries", () => ({
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => (
-    <div data-testid="feed-wrapper">{children}</div>
-  ),
+  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => (
-    <div data-testid="sticky-wrapper">{children}</div>
-  ),
+  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => (
-    <div data-testid="user-progress">{JSON.stringify(props)}</div>
-  ),
+  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/promo", () => ({
   Promo: () => <div data-testid="promo">Promo</div>,
@@ -59,9 +53,7 @@ vi.mock("@/components/ui/avatar", () => ({
   ),
 }));
 vi.mock("@/components/ui/separator", () => ({
-  Separator: (props: any) => (
-    <hr data-testid="separator" className={props.className} />
-  ),
+  Separator: (props: any) => <hr data-testid="separator" className={props.className} />,
 }));
 vi.mock("@/components/profile/activity-heatmap", () => ({
   ActivityHeatmap: ({ activityData }: any) => (
@@ -69,14 +61,10 @@ vi.mock("@/components/profile/activity-heatmap", () => ({
   ),
 }));
 vi.mock("@/components/profile/streak-card", () => ({
-  StreakCard: (props: any) => (
-    <div data-testid="streak-card">{JSON.stringify(props)}</div>
-  ),
+  StreakCard: (props: any) => <div data-testid="streak-card">{JSON.stringify(props)}</div>,
 }));
 vi.mock("@/components/profile/stats-overview", () => ({
-  StatsOverview: (props: any) => (
-    <div data-testid="stats-overview">{JSON.stringify(props)}</div>
-  ),
+  StatsOverview: (props: any) => <div data-testid="stats-overview">{JSON.stringify(props)}</div>,
 }));
 
 const activeCourse = { id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" };
@@ -298,9 +286,7 @@ describe("ProfilePage", () => {
 
     expect(screen.getByText("Activity")).toBeInTheDocument();
     expect(screen.getByTestId("activity-heatmap")).toBeInTheDocument();
-    expect(
-      screen.getByText("20 active days in the past year")
-    ).toBeInTheDocument();
+    expect(screen.getByText("20 active days in the past year")).toBeInTheDocument();
   });
 
   it("renders stats overview component", async () => {
