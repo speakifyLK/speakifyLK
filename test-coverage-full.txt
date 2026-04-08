@@ -1,0 +1,3295 @@
+﻿
+> speakify@1.0.1 test:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv4.1.2 [39m[90mC:/Users/Thevindu Kevin/Desktop/University/speakify/speakifyLK[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstdout[2m | scripts/create-rag-corpus.test.ts[2m > [22m[2mcreate-rag-corpus script[2m > [22m[2mexits when GCP_PROJECT_ID is missing
+[22m[39m[dotenv@17.3.1] injecting env (15) from .env -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜÖ∩╕Å  load multiple .env files with { path: ['.env.local', '.env'] }
+
+≡ƒÜÇ Creating RAG corpus...
+
+   Project:      
+   Location:     loc
+   Display Name: speakifylk-course-content
+
+
+[90mstdout[2m | scripts/import-rag-files.test.ts[2m > [22m[2mimport-rag-files
+[22m[39m[dotenv@17.3.1] injecting env (18) from .env -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+[90mstdout[2m | scripts/create-rag-corpus.test.ts[2m > [22m[2mcreate-rag-corpus script[2m > [22m[2mexits when GCP_LOCATION is missing
+[22m[39m[dotenv@17.3.1] injecting env (15) from .env -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+
+≡ƒÜÇ Creating RAG corpus...
+
+   Project:      pid
+   Location:     
+   Display Name: speakifylk-course-content
+
+
+[90mstdout[2m | scripts/create-rag-corpus.test.ts[2m > [22m[2mcreate-rag-corpus script[2m > [22m[2mexits when GOOGLE_SERVICE_ACCOUNT_KEY is missing
+[22m[39m[dotenv@17.3.1] injecting env (15) from .env -- tip: ≡ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒñû agentic secret storage: https://dotenvx.com/as2
+
+≡ƒÜÇ Creating RAG corpus...
+
+   Project:      pid
+   Location:     loc
+   Display Name: speakifylk-course-content
+
+
+ [32mΓ£ô[39m scripts/rag-status.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 3602[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m reports fully synced when GCS and corpus match [33m 1128[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/button.test.tsx [2m([22m[2m26 tests[22m[2m)[22m[33m 1216[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders without error [33m 397[2mms[22m[39m
+ [32mΓ£ô[39m db/schema.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 1907[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m exports all table definitions [33m 1879[2mms[22m[39m
+ [32mΓ£ô[39m components/chat/chat-input.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 1654[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a send button [33m 970[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-play.test.tsx [2m([22m[2m42 tests[22m[2m)[22m[33m 2646[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m advances to next question [33m 1020[2mms[22m[39m
+ [32mΓ£ô[39m components/profile/activity-heatmap.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 3055[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders with empty activity data [33m 355[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders month labels [33m 381[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders activity tiles with correct intensity for no activity (level 0) [33m 421[2mms[22m[39m
+ [32mΓ£ô[39m scripts/create-rag-corpus.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 7630[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m exits when GCP_PROJECT_ID is missing [33m 319[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m checks existing corpora when --check flag is passed [33m 828[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m polls operation multiple times before completion [33m 4024[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-history.test.tsx [2m([22m[2m34 tests[22m[2m)[22m[33m 2629[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-card.test.tsx [2m([22m[2m45 tests[22m[2m)[22m[33m 2824[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m disables MCQ options after submission [33m 688[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-result.test.tsx [2m([22m[2m63 tests[22m[2m)[22m[33m 3083[2mms[22m[39m
+[90mstdout[2m | scripts/export-course-content.test.ts[2m > [22m[2mexport-course-content script[2m > [22m[2mexits when GOOGLE_SERVICE_ACCOUNT_KEY is missing
+[22m[39m[dotenv@17.3.1] injecting env (17) from .env -- tip: ≡ƒ¢í∩╕Å auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
+
+[90mstdout[2m | scripts/export-course-content.test.ts[2m > [22m[2mexport-course-content script[2m > [22m[2mexits when GOOGLE_SERVICE_ACCOUNT_KEY is invalid JSON
+[22m[39m[dotenv@17.3.1] injecting env (17) from .env -- tip: ≡ƒ¢í∩╕Å auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+
+ [32mΓ£ô[39m scripts/import-rag-files.test.ts [2m([22m[2m67 tests[22m[2m)[22m[33m 8601[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m polls until done [33m 4008[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m throws on timeout [33m 4021[2mms[22m[39m
+ [32mΓ£ô[39m scripts/test-gcp-auth.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1497[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/dialog.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 2875[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m opens on trigger click and shows content [33m 839[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-config.test.tsx [2m([22m[2m50 tests[22m[2m)[22m[33m 4379[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders topic selection heading [33m 321[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m toggles question types [33m 695[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m disables start button when no question types selected [33m 467[2mms[22m[39m
+ [32mΓ£ô[39m scripts/export-course-content.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 1270[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/sheet.test.tsx [2m([22m[2m24 tests[22m[2m)[22m[33m 3863[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m opens on trigger click and shows content [33m 1005[2mms[22m[39m
+ [32mΓ£ô[39m components/chat/conversation-list.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 4125[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m hides delete buttons when only one conversation exists [33m 573[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m confirms deletion and shows success toast [33m 447[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m navigates to /chat when deleting the active conversation [33m 436[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m calls router.refresh when deleting a non-active conversation [33m 358[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m shows error toast when delete fails [33m 435[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m closes dialog when Cancel is clicked [33m 395[2mms[22m[39m
+ [32mΓ£ô[39m components/sidebar.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1733[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders sidebar items in correct order [33m 781[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/learn/lesson-button.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1350[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m links to /lesson/{id} for completed lesson [33m 508[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/quiz.test.tsx [2m([22m[2m33 tests[22m[2m)[22m[33m 2137[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m navigates to /learn when Continue is clicked on completion screen [33m 312[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/shop/items.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1912[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m calls refillHearts when refill button is clicked [33m 629[2mms[22m[39m
+ [32mΓ£ô[39m components/user-progress.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1106[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders links to /courses, /shop, and /profile [33m 714[2mms[22m[39m
+ [32mΓ£ô[39m components/chat/chat-button.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1423[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a button [33m 824[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/chat/page.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 1230[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a back link to /learn in the heading [33m 539[2mms[22m[39m
+ [32mΓ£ô[39m app/(marketing)/footer.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 773[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders two language buttons with cursor-default class [33m 422[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/profile/page.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 736[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/textarea.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1159[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m handles user input [33m 974[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/footer.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 815[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m uses sm size buttons when on mobile [33m 559[2mms[22m[39m
+ [32mΓ£ô[39m app/(marketing)/layout.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 687[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders main element with correct classes [33m 451[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/learn/header.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 828[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a link to /courses [33m 646[2mms[22m[39m
+ [32mΓ£ô[39m app/(marketing)/header.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 895[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders header element [33m 676[2mms[22m[39m
+[90mstdout[2m | scripts/test-content-formatter-integration.test.ts[2m > [22m[2mtest-content-formatter-integration script[2m > [22m[2mexits with 1 when main() throws a non-Error value
+[22m[39mFetching first course from DB with all relations...
+
+
+ [32mΓ£ô[39m scripts/test-content-formatter-integration.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 656[2mms[22m[39m
+ [32mΓ£ô[39m components/profile/stats-overview.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 919[2mms[22m[39m
+[90mstdout[2m | scripts/prod.test.ts[2m > [22m[2mprod script[2m > [22m[2mthrows when database operations fail
+[22m[39mSeeding database
+
+ [32mΓ£ô[39m scripts/prod.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 583[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m seeds database successfully ΓÇô deletes, inserts courses, units, lessons, challenges, options [33m 366[2mms[22m[39m
+ [32mΓ£ô[39m scripts/test-export-queries.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 465[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/learn/unit-banner.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 645[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a link to /lesson [33m 498[2mms[22m[39m
+ [32mΓ£ô[39m components/theme-toggle.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 829[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders moon icon in light mode [33m 543[2mms[22m[39m
+ [32mΓ£ô[39m scripts/test-gemini.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+ [32mΓ£ô[39m app/(auth)/layout.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 635[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders main element with correct classes [33m 424[2mms[22m[39m
+ [32mΓ£ô[39m app/(auth)/header.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 763[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders header element [33m 534[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-progress.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 359[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/chat/chat-client.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 752[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/chat/error.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 518[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders the error heading [33m 403[2mms[22m[39m
+ [32mΓ£ô[39m components/mobile-header.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 543[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a nav element [33m 458[2mms[22m[39m
+ [32mΓ£ô[39m components/loader.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 581[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m has role=status and aria-label for accessibility [33m 450[2mms[22m[39m
+ [32mΓ£ô[39m components/sidebar-item.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 555[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m renders a link with correct href [33m 398[2mms[22m[39m
+ [32mΓ£ô[39m components/quests.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 705[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/quests/page.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 771[2mms[22m[39m
+ [32mΓ£ô[39m components/quiz/quiz-timer.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 690[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/avatar.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 259[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/app-content.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 266[2mms[22m[39m
+ [32mΓ£ô[39m components/theme-provider.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1274[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m toggles theme from light to dark [33m 715[2mms[22m[39m
+ [32mΓ£ô[39m components/chat/chat-window.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 432[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/shop/page.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 456[2mms[22m[39m
+ [32mΓ£ô[39m components/modals/exit-modal.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 526[2mms[22m[39m
+ [32mΓ£ô[39m app/(marketing)/page.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 476[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/leaderboard/page.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 361[2mms[22m[39m
+ [32mΓ£ô[39m components/profile/streak-card.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 255[2mms[22m[39m
+[90mstdout[2m | scripts/test-content-formatter.test.ts[2m > [22m[2mtest-content-formatter script[2m > [22m[2mexits with 1 when some assertions fail
+[22m[39m
+ΓöüΓöüΓöü formatChallengeChunk ΓöüΓöüΓöü
+missing everything
+
+
+ΓöüΓöüΓöü formatLessonChunk ΓöüΓöüΓöü
+missing everything
+
+
+ΓöüΓöüΓöü formatCourseManifest ΓöüΓöüΓöü
+missing everything
+
+
+ΓöüΓöüΓöü Edge: empty lesson ΓöüΓöüΓöü
+missing everything
+
+
+ΓöüΓöüΓöü Edge: empty course ΓöüΓöüΓöü
+missing everything
+
+
+ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+Results: 0 passed, 25 failed
+All tests passed! Γ£à
+
+
+ [32mΓ£ô[39m components/ui/progress.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 234[2mms[22m[39m
+ [32mΓ£ô[39m components/modals/hearts-modal.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 374[2mms[22m[39m
+ [32mΓ£ô[39m scripts/test-content-formatter.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 264[2mms[22m[39m
+ [32mΓ£ô[39m components/chat/chat-bubble.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 439[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/quiz/page.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 367[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/header.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 333[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/courses/list.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 268[2mms[22m[39m
+ [32mΓ£ô[39m app/layout.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 259[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/card.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 391[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/courses/card.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 236[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/scroll-area.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 290[2mms[22m[39m
+ [32mΓ£ô[39m components/modals/practice-modal.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 252[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/layout-admin.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 300[2mms[22m[39m
+[90mstdout[2m | app/api/quiz/generate/route.test.ts[2m > [22m[2mPOST /api/quiz/generate[2m > [22m[2mfalls back to non-RAG flow if RAG context is empty array
+[22m[39m[quiz/generate] No relevant RAG context found for this topic. Proceeding without context.
+
+[90mstdout[2m | app/api/quiz/generate/route.test.ts[2m > [22m[2mPOST /api/quiz/generate[2m > [22m[2mfilters out empty text chunks completely and handles fallback
+[22m[39m[quiz/generate] No relevant RAG context found for this topic. Proceeding without context.
+
+ [32mΓ£ô[39m app/lesson/result-card.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 343[2mms[22m[39m
+ [32mΓ£ô[39m app/api/quiz/generate/route.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 295[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/challengeOption/create.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 251[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/ai-quiz/page.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 356[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/challenge/create.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 263[2mms[22m[39m
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mallows access when x-e2e-test-bypass header matches secret and not production
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2maccepts conversationId as a string-encoded integer
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mskips rate limiting for subscribers
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mtreats subscription check failure as non-subscriber
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mbuilds course context with current unit and completed lessons
+[22m[39m[Chat] Course context: 
+
+COURSE CONTEXT:
+The student is currently studying Sinhala Basics, in Unit 1. The latest completed lessons in the course sequence are: Greetings, Numbers.
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mbuilds course context without current unit (all completed)
+[22m[39m[Chat] Course context: 
+
+COURSE CONTEXT:
+The student is currently studying Sinhala Basics. The latest completed lessons in the course sequence are: Greetings.
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mbuilds course context with no completed lessons
+[22m[39m[Chat] Course context: 
+
+COURSE CONTEXT:
+The student is currently studying Sinhala Basics, in Unit 1.
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mcontinues without course context when getUserProgress fails
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mreturns 500 when sendMessage fails
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mreturns 500 when getMessages fails
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mstreams RAG response with correct headers
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mRAG stream skips empty text chunks
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mdoes not save assistant message when response is empty/whitespace
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2muses local RAG mock stream when E2E_MOCK_AI is true
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mcalls real generateWithRAG when E2E_MOCK_AI is not set
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mfalls back to Gemini when x-mock-rag-failure header is present using E2E shortcut
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mfalls back to Gemini when RAG fails
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+ [32mΓ£ô[39m app/admin/challengeOption/edit.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mfalls back to Gemini when RAG fails with non-Error
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mGemini fallback handles null text chunks
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2muses local Gemini mock stream when E2E_MOCK_AI is true
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mcalls real Gemini SDK when E2E_MOCK_AI is not set and RAG fails
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mreturns 503 when both RAG and Gemini fail
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mhandles stream error during RAG reading
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mlogs course context in non-production env
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mcorrectly formats history for RAG and passes to generateWithRAG
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+[90mstdout[2m | app/api/chat/route.test.ts[2m > [22m[2mPOST /api/chat[2m > [22m[2mextracts status code from RAG error message for logging
+[22m[39m[Chat] Course context: (none ΓÇö user has no active course)
+
+ [32mΓ£ô[39m app/api/chat/route.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 273[2mms[22m[39m
+[90mstdout[2m | scripts/test-rag-quiz.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (18) from .env -- tip: ≡ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexits with code 1 when a required env var is missing
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [31mΓ£ù[0m GCP_PROJECT_ID is missing
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcompletes the mocked library path without calling process.exit on success
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcompletes the mocked library path without calling process.exit on success
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcompletes the mocked library path without calling process.exit on success
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Translation  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcompletes the mocked library path without calling process.exit on success
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcompletes the mocked library path without calling process.exit on success
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcompletes the mocked library path without calling process.exit on success
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        1ms       -1ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        1ms       -1ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [32m0[0m / 0
+
+[32m[1mΓ£ô All checks passed.[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mformats RAG retrieval failures that are not Error instances
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mformats RAG retrieval failures that are not Error instances
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mformats RAG retrieval failures that are not Error instances
+[22m[39m  [31mΓ£ù[0m RAG retrieval failed in [2m0ms[0m: rag down
+  [33mΓÜá[0m  Continuing ΓÇö grounded checks may be limited.
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Translation  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mformats RAG retrieval failures that are not Error instances
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mformats RAG retrieval failures that are not Error instances
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mformats RAG retrieval failures that are not Error instances
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        0ms       +0ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        1ms       -1ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when RAG retrieval fails but still runs later stages
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when RAG retrieval fails but still runs later stages
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when RAG retrieval fails but still runs later stages
+[22m[39m  [31mΓ£ù[0m RAG retrieval failed in [2m0ms[0m: rag down
+  [33mΓÜá[0m  Continuing ΓÇö grounded checks may be limited.
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Translation  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when RAG retrieval fails but still runs later stages
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when RAG retrieval fails but still runs later stages
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when RAG retrieval fails but still runs later stages
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        1ms       -1ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        0ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Retrieved [1m4[0m chunks in [2m0ms[0m
+    [2m[1] score:0.910  sinhala:yes  src:unit1.md  preview:"hello thank α╢å lesson..."[0m
+    [2m[2] score:0.200  sinhala:no  src:inline  preview:"no slash source..."[0m
+    [2m[3] score:0.300  sinhala:no  src:folder/  preview:"trailing slash path..."[0m
+  [32mΓ£ô[0m Chunks with Sinhala: 1/3
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 8
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+  [33mΓÜá[0m  No Sinhala across 0 questions
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+  [33mΓÜá[0m  No Sinhala across 0 questions
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+  [33mΓÜá[0m  No Sinhala across 0 questions
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs chunk details when RAG returns non-empty chunks
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                           1ms        1ms       +0ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        0ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m4[0m
+  Vocab terms       : [2m8[0m
+  Errors / warnings : [32m0[0m / [33m3[0m
+
+[33m[1mΓ£ô Completed with 3 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m0ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"hello world lesson..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 3
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick α╢å greeting
+         answer : lesson
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 33%
+         vocab overlap with RAG corpus: 33%
+[0m
+  [32mΓ£ô[0m Questions containing Sinhala: 1/1
+  [32mΓ£ô[0m Average vocab overlap with RAG corpus: 33%
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick α╢å greeting
+         answer : lesson
+  [33mΓÜá[0m  Q1: fill-in-blank may be missing a blank marker
+         vocab overlap (stem + answer): 33%
+         vocab overlap with RAG corpus: 33%
+[0m
+  [32mΓ£ô[0m Questions containing Sinhala: 1/1
+  [32mΓ£ô[0m Average vocab overlap with RAG corpus: 33%
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick α╢å greeting
+         answer : lesson
+  [32mΓ£ô[0m Q1: translation source present
+         vocab overlap (stem + answer): 33%
+         vocab overlap with RAG corpus: 33%
+[0m
+  [32mΓ£ô[0m Questions containing Sinhala: 1/1
+  [32mΓ£ô[0m Average vocab overlap with RAG corpus: 33%
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns library RAG generation when HTTP is not configured and chunks exist
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                           0ms        0ms       +0ms
+  Fill in the Blank             0ms        0ms       +0ms
+  Translation                   0ms        1ms       -1ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m3[0m
+  Errors / warnings : [32m0[0m / [33m1[0m
+
+[33m[1mΓ£ô Completed with 1 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m0ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"uniquecorpusword alpha..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 2
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m1ms[0m
+
+    [2mQ1: unrelated text here
+         answer : also unrelated
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: unrelated text here
+         answer : also unrelated
+  [33mΓÜá[0m  Q1: fill-in-blank may be missing a blank marker
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: unrelated text here
+         answer : also unrelated
+  [32mΓ£ô[0m Q1: translation source present
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mwarns about low average vocab overlap in library RAG when vocab exists
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                           1ms        1ms       +0ms
+  Fill in the Blank             0ms        0ms       +0ms
+  Translation                   0ms        0ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m2[0m
+  Errors / warnings : [32m0[0m / [33m10[0m
+
+[33m[1mΓ£ô Completed with 10 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m1ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"hello there..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 2
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick
+         answer : a
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [33mΓÜá[0m  Q1: no Sinhala in any MCQ option ΓÇö may be ungrounded
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick
+         answer : a
+  [33mΓÜá[0m  Q1: fill-in-blank may be missing a blank marker
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m1ms[0m
+
+    [2mQ1: Pick
+         answer : a
+  [32mΓ£ô[0m Q1: translation source present
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcounts warnings when library RAG returns questions without Sinhala
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                           0ms        0ms       +0ms
+  Fill in the Blank             0ms        0ms       +0ms
+  Translation                   1ms        1ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m2[0m
+  Errors / warnings : [32m0[0m / [33m11[0m
+
+[33m[1mΓ£ô Completed with 11 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m1ms[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 0
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m1ms[0m
+
+    [2mQ1: Pick one
+         answer : a
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [33mΓÜá[0m  Q1: no Sinhala in any MCQ option ΓÇö may be ungrounded
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick one
+         answer : a
+  [33mΓÜá[0m  Q1: fill-in-blank may be missing a blank marker
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick one
+         answer : a
+  [32mΓ£ô[0m Q1: translation source present
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG questions when retrieved chunks yield an empty vocab set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                           1ms        0ms       +1ms
+  Fill in the Blank             0ms        1ms       -1ms
+  Translation                   0ms        0ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [32m0[0m / [33m4[0m
+
+[33m[1mΓ£ô Completed with 4 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m1ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"hello lesson course..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 3
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Pick hello
+         answer : lesson
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 67%
+  [32mΓ£ô[0m Q1: references course-like anchors: hello
+         vocab overlap with RAG corpus: 67%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [32mΓ£ô[0m Average vocab overlap with RAG corpus: 67%
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+
+    [2mQ1: Say ___ please
+         answer : hello
+  [32mΓ£ô[0m Q1: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q1: references course-like anchors: hello
+         vocab overlap with RAG corpus: 25%
+[0m
+  [33mΓÜá[0m  No Sinhala across 1 questions
+  [32mΓ£ô[0m Average vocab overlap with RAG corpus: 25%
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m36ms[0m
+
+    [2mQ1: greeting
+         answer : α╢å
+  [32mΓ£ô[0m Q1: translation source present
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+         vocab overlap with RAG corpus: 0%
+[0m
+  [32mΓ£ô[0m Questions containing Sinhala: 1/1
+  [33mΓÜá[0m  Low average vocab overlap: 0%
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mexercises fill-blank and translation branches inside library RAG loops
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                           0ms        0ms       +0ms
+  Fill in the Blank             0ms        1ms       -1ms
+  Translation                  36ms        0ms      +36ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m3[0m
+  Errors / warnings : [32m0[0m / [33m5[0m
+
+[33m[1mΓ£ô Completed with 5 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m0ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"word..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 1
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [31mΓ£ù[0m MCQ RAG generation failed in [2m0ms[0m: gen fail
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [31mΓ£ù[0m Fill in the Blank RAG generation failed in [2m0ms[0m: gen fail
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [31mΓ£ù[0m Translation RAG generation failed in [2m1ms[0m: gen fail
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles generateQuizWithRAG rejection
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        0ms       +0ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                   1ms        0ms       +1ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m1[0m
+  Errors / warnings : [31m3[0m / 0
+
+[31m[1mΓ£ù Finished with 3 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m1ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"w..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 0
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [31mΓ£ù[0m MCQ RAG generation failed in [2m0ms[0m: bad
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+  [33mΓÜá[0m  No Sinhala across 0 questions
+
+  [36mΓû╢ Translation  (with RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+  [33mΓÜá[0m  No Sinhala across 0 questions
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles library RAG failure with a non-Error throw
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        0ms       +0ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        0ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / [33m2[0m
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles non-RAG library generation failure with non-Error throws
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles non-RAG library generation failure with non-Error throws
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles non-RAG library generation failure with non-Error throws
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Translation  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles non-RAG library generation failure with non-Error throws
+[22m[39m  [31mΓ£ù[0m MCQ no-RAG failed in [2m0ms[0m: parse fail
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles non-RAG library generation failure with non-Error throws
+[22m[39m  [31mΓ£ù[0m Fill in the Blank no-RAG failed in [2m0ms[0m: parse fail
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mhandles non-RAG library generation failure with non-Error throws
+[22m[39m  [31mΓ£ù[0m Translation no-RAG failed in [2m1ms[0m: parse fail
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        0ms       +0ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        1ms       -1ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m3[0m / 0
+
+[31m[1mΓ£ù Finished with 3 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats missing Gemini text as empty when parsing no-RAG responses
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats missing Gemini text as empty when parsing no-RAG responses
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats missing Gemini text as empty when parsing no-RAG responses
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m0ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. Skipping HTTP E2E ΓöÇΓöÇ[0m
+  [2mSet QUIZ_E2E_BASE_URL and QUIZ_E2E_COOKIE to call /api/quiz/generate from this script.[0m
+
+[1m[34mΓöÇΓöÇ 3. RAG-grounded generation (library) ΓÇö one batch per question type ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Fill in the Blank  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+  [36mΓû╢ Translation  (with RAG)[0m
+  [33mΓÜá[0m  Skipped ΓÇö no RAG chunks were retrieved.
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats missing Gemini text as empty when parsing no-RAG responses
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats missing Gemini text as empty when parsing no-RAG responses
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats missing Gemini text as empty when parsing no-RAG responses
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                          skip        0ms       +0ms
+  Fill in the Blank            skip        0ms       +0ms
+  Translation                  skip        0ms       +0ms
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [32m0[0m / 0
+
+[32m[1mΓ£ô All checks passed.[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+  [31mΓ£ù[0m Expected 9 questions, got 0
+  [31mΓ£ù[0m MCQ: expected 3 questions, got 0
+  [31mΓ£ù[0m FILL: expected 3 questions, got 0
+  [31mΓ£ù[0m TR: expected 3 questions, got 0
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in primary HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (0 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        1ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m4[0m / 0
+
+[31m[1mΓ£ù Finished with 4 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m0ms[0m
+    [2m[1] score:0.800  sinhala:no  src:a.md  preview:"hello thank..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 2
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+  [33mΓÜá[0m  Q2: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q2: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+  [33mΓÜá[0m  Q3: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q3: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q4: references course-like anchors: hello
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q5: references course-like anchors: hello
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q6: references course-like anchors: hello
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q7: references course-like anchors: hello
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q8: references course-like anchors: hello
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q9: references course-like anchors: hello
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mruns HTTP E2E when base URL and cookie are set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m2[0m
+  Errors / warnings : [32m0[0m / [33m6[0m
+
+[33m[1mΓ£ô Completed with 6 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mlogs HTTP tip when second server URL is not set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        1ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        1ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [32m0[0m / 0
+
+[32m[1mΓ£ô All checks passed.[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+
+  [36mΓû╢ Second server ΓÇö POST without RAG (QUIZ_DISABLE_RAG=1 on that process)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m  [32mΓ£ô[0m no-RAG HTTP 200 in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcalls second HTTP server when QUIZ_E2E_NO_RAG_BASE_URL is set
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+  [1mHTTP (no-RAG server)[0m: 1ms  (9 questions)  [2m╬ö +1ms[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        1ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [32m0[0m / 0
+
+[32m[1mΓ£ô All checks passed.[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m  [31mΓ£ù[0m HTTP 500 in [2m0ms[0m ΓÇö {"err":true}
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors on HTTP non-200
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (0 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m7ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m1ms[0m
+  [31mΓ£ù[0m Expected 9 questions, got 4
+  [31mΓ£ù[0m FILL: expected 3 questions, got 1
+  [31mΓ£ù[0m TR: expected 3 questions, got 0
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m10ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP returns wrong question count
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 1ms  (4 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        1ms          ΓÇö
+  Fill in the Blank               ΓÇö       10ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m3[0m / 0
+
+[31m[1mΓ£ù Finished with 3 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m0ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+  [31mΓ£ù[0m Row 1: unknown type "weird"
+  [31mΓ£ù[0m MCQ: expected 3 questions, got 2
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+
+    [2mQ3 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q3: blank marker present
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+
+    [2mQ6 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q6: translation source present
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when an HTTP row has an unknown type
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m2[0m / 0
+
+[31m[1mΓ£ù Finished with 2 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m1ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m  [31mΓ£ù[0m HTTP request failed: network
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when primary HTTP POST throws a non-Error value
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        1ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m0ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m  [31mΓ£ù[0m HTTP request failed: network
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when HTTP POST throws
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        1ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m1ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"alpha beta gamma delta..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 4
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+  [33mΓÜá[0m  Q2: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q2: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+  [33mΓÜá[0m  Q3: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q3: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+         vocab overlap (stem + answer): 0%
+  [32mΓ£ô[0m Q4: references course-like anchors: hello
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+         vocab overlap (stem + answer): 0%
+  [32mΓ£ô[0m Q5: references course-like anchors: hello
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+         vocab overlap (stem + answer): 0%
+  [32mΓ£ô[0m Q6: references course-like anchors: hello
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+         vocab overlap (stem + answer): 0%
+  [32mΓ£ô[0m Q7: references course-like anchors: hello
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+         vocab overlap (stem + answer): 0%
+  [32mΓ£ô[0m Q8: references course-like anchors: hello
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+         vocab overlap (stem + answer): 0%
+  [32mΓ£ô[0m Q9: references course-like anchors: hello
+  [2mTip: set QUIZ_E2E_NO_RAG_BASE_URL to a server started with QUIZ_DISABLE_RAG=1 for HTTP no-RAG timings.[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+    [2mQ1: alpha
+         answer : beta
+         vocab overlap with RAG corpus: 100%
+[0m
+    [1mOverlap ΓÇö RAG: 0%  |  No-RAG: 100%  |  ╬ö: [31m-100%[0m[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m1ms[0m
+    [2mQ1: alpha
+         answer : beta
+         vocab overlap with RAG corpus: 100%
+[0m
+    [1mOverlap ΓÇö RAG: 0%  |  No-RAG: 100%  |  ╬ö: [31m-100%[0m[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mprints overlap comparison when RAG and no-RAG averages are available
+[22m[39m  [32mΓ£ô[0m Generated 1 question(s) in [2m0ms[0m
+    [2mQ1: alpha
+         answer : beta
+         vocab overlap with RAG corpus: 100%
+[0m
+    [1mOverlap ΓÇö RAG: 0%  |  No-RAG: 100%  |  ╬ö: [31m-100%[0m[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        1ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m4[0m
+  Errors / warnings : [32m0[0m / [33m6[0m
+
+[33m[1mΓ£ô Completed with 6 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m0ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"hello world course material here..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 5
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+  [33mΓÜá[0m  Q2: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q2: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+  [33mΓÜá[0m  Q3: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q3: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q4: references course-like anchors: hello
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q5: references course-like anchors: hello
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q6: references course-like anchors: hello
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q7: references course-like anchors: hello
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q8: references course-like anchors: hello
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q9: references course-like anchors: hello
+
+  [36mΓû╢ Second server ΓÇö POST without RAG (QUIZ_DISABLE_RAG=1 on that process)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m  [32mΓ£ô[0m no-RAG HTTP 200 in [2m0ms[0m
+    [1mAverage vocab overlap vs same RAG corpus (no-RAG generation): 42%[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mcomputes no-RAG HTTP vocab overlap when primary RAG built a non-empty vocab
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+  [1mHTTP (no-RAG server)[0m: 0ms  (9 questions)  [2m╬ö +0ms[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        1ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m5[0m
+  Errors / warnings : [32m0[0m / [33m6[0m
+
+[33m[1mΓ£ô Completed with 6 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m0ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m2ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+
+  [36mΓû╢ Second server ΓÇö POST without RAG (QUIZ_DISABLE_RAG=1 on that process)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m  [31mΓ£ù[0m no-RAG HTTP 502 in [2m0ms[0m ΓÇö {}
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP returns non-200
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 2ms  (9 questions)
+  [1mHTTP (no-RAG server)[0m: 0ms  (0 questions)  [2m╬ö -2ms[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        1ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        1ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Retrieved [1m1[0m chunks in [2m1ms[0m
+    [2m[1] score:0.500  sinhala:no  src:a.md  preview:"hello world..."[0m
+  [33mΓÜá[0m  No Sinhala in retrieved chunks ΓÇö corpus may be missing course material.
+  [32mΓ£ô[0m Vocab terms for overlap scoring: 2
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m0ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+  [33mΓÜá[0m  Q1: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q1: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+  [33mΓÜá[0m  Q2: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q2: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+  [33mΓÜá[0m  Q3: all distractors have 0% corpus vocab overlap and no Sinhala ΓÇö possible hallucinated alternatives
+         vocab overlap (stem + answer): 0%
+  [33mΓÜá[0m  Q3: low vocab overlap (0%) ΓÇö question may drift from retrieved lesson text
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q4: references course-like anchors: hello
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q5: references course-like anchors: hello
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+         vocab overlap (stem + answer): 25%
+  [32mΓ£ô[0m Q6: references course-like anchors: hello
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q7: references course-like anchors: hello
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q8: references course-like anchors: hello
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+         vocab overlap (stem + answer): 100%
+  [32mΓ£ô[0m Q9: references course-like anchors: hello
+
+  [36mΓû╢ Second server ΓÇö POST without RAG (QUIZ_DISABLE_RAG=1 on that process)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m no-RAG HTTP 200 in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mtreats non-array questions in no-RAG HTTP JSON as empty rows
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m1ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 0ms  (9 questions)
+  [1mHTTP (no-RAG server)[0m: 0ms  (0 questions)  [2m╬ö +0ms[0m
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        1ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m1[0m
+  Vocab terms       : [2m2[0m
+  Errors / warnings : [32m0[0m / [33m6[0m
+
+[33m[1mΓ£ô Completed with 6 warning(s).[0m
+
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m
+[1m[35mΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù[0m
+[1m[35mΓòæ  RAG-Powered Quiz Generation ΓÇö E2E Test       Γòæ[0m
+[1m[35mΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥[0m
+
+[1m[34mΓöÇΓöÇ 1. Environment Check ΓöÇΓöÇ[0m
+  [32mΓ£ô[0m GCP_PROJECT_ID is set
+  [32mΓ£ô[0m GCP_LOCATION is set
+  [32mΓ£ô[0m RAG_CORPUS_ID is set
+  [32mΓ£ô[0m GOOGLE_SERVICE_ACCOUNT_KEY is set
+  [32mΓ£ô[0m GEMINI_MODEL is set
+
+  Project  : [2mtest-project[0m
+  Location : [2mus-central1[0m
+  Corpus   : [2mcorpus[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m
+[1m[34mΓöÇΓöÇ 2. RAG context  [topic: 'Greetings'  difficulty: beginner] ΓöÇΓöÇ[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m  [33mΓÜá[0m  No chunks retrieved ([2m0ms[0m) ΓÇö generation will not be RAG-grounded.
+
+[1m[34mΓöÇΓöÇ 3. HTTP E2E ΓÇö POST /api/quiz/generate  (9 questions, all types) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ Authenticated request (RAG enabled on server)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m  [32mΓ£ô[0m HTTP 200 in [2m1ms[0m
+
+    [2mQ1 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q1: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q1: at least one option contains Sinhala
+
+    [2mQ2 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q2: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q2: at least one option contains Sinhala
+
+    [2mQ3 [MULTIPLE_CHOICE]: Q?...
+         answer: a[0m
+  [32mΓ£ô[0m Q3: MCQ structure valid (4 options, 1 correct)
+  [32mΓ£ô[0m Q3: at least one option contains Sinhala
+
+    [2mQ4 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q4: blank marker present
+
+    [2mQ5 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q5: blank marker present
+
+    [2mQ6 [FILL_IN_BLANK]: Say ___ please...
+         answer: hello[0m
+  [32mΓ£ô[0m Q6: blank marker present
+
+    [2mQ7 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q7: translation source present
+
+    [2mQ8 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q8: translation source present
+
+    [2mQ9 [TRANSLATION]: Hello...
+         answer: α╢å[0m
+  [32mΓ£ô[0m Q9: translation source present
+
+  [36mΓû╢ Second server ΓÇö POST without RAG (QUIZ_DISABLE_RAG=1 on that process)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m  [31mΓ£ù[0m no-RAG HTTP failed: norag net
+
+[1m[34mΓöÇΓöÇ 4. Non-RAG fallback (library, no ragContext in prompt) ΓöÇΓöÇ[0m
+
+  [36mΓû╢ MCQ  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Fill in the Blank  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+  [36mΓû╢ Translation  (no RAG)[0m
+
+[90mstdout[2m | scripts/test-rag-quiz.test.ts[2m > [22m[2mtest-rag-quiz runner[2m > [22m[2mincrements errors when no-RAG HTTP throws
+[22m[39m  [32mΓ£ô[0m Generated 0 question(s) in [2m0ms[0m
+
+[1m[34mΓöÇΓöÇ 5. Results summary (timings) ΓöÇΓöÇ[0m
+
+  [1mHTTP /api/quiz/generate[0m  RAG: 1ms  (9 questions)
+
+  [1mLibrary generation (per type, ms)[0m
+  Type                          RAG     No-RAG          ╬ö
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  MCQ                             ΓÇö        0ms          ΓÇö
+  Fill in the Blank               ΓÇö        0ms          ΓÇö
+  Translation                     ΓÇö        0ms          ΓÇö
+
+  RAG corpus ID     : [2mcorpus[0m
+  Chunks retrieved  : [2m0[0m
+  Vocab terms       : [2m0[0m
+  Errors / warnings : [31m1[0m / 0
+
+[31m[1mΓ£ù Finished with 1 error(s).[0m
+
+
+ [32mΓ£ô[39m scripts/test-rag-quiz.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/chat/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/layout.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 267[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/unit/edit.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 205[2mms[22m[39m
+ [32mΓ£ô[39m components/promo.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/[lessonId]/page.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 173[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/lesson/edit.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 207[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/page.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 153[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/separator.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/learn/page.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/challenge.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 344[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/lesson/create.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 208[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/unit/list.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 211[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/unit/create.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/challenge/list.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 183[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/question-bubble.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/learn/unit.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/challenge/edit.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/ai-quiz/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/challengeOption/list.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 211[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/course/list.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/courses/page.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+ [32mΓ£ô[39m components/ui/sonner.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32mΓ£ô[39m components/mobile-sidebar.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 229[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/course/edit.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/layout.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/course/create.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32mΓ£ô[39m components/sticky-wrapper.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/app.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32mΓ£ô[39m components/sidebar-user-button.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32mΓ£ô[39m lib/gcp-auth.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32mΓ£ô[39m lib/gemini.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 162[2mms[22m[39m
+ [32mΓ£ô[39m app/admin/lesson/list.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/leaderboard/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32mΓ£ô[39m components/feed-wrapper.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32mΓ£ô[39m db/queries.test.ts [2m([22m[2m83 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32mΓ£ô[39m middleware.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+ [32mΓ£ô[39m app/lesson/[lessonId]/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/quiz/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/shop/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/courses/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 113[2mms[22m[39m
+ [32mΓ£ô[39m lib/stripe.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/learn/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 172[2mms[22m[39m
+ [32mΓ£ô[39m app/(auth)/sign-up/[[...sign-up]]/page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 132[2mms[22m[39m
+ [32mΓ£ô[39m actions/quiz.test.ts [2m([22m[2m56 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32mΓ£ô[39m app/(main)/quests/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 186[2mms[22m[39m
+ [32mΓ£ô[39m app/(auth)/sign-in/[[...sign-in]]/page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mthrows when Vertex AI API returns non-ok response
+[22m[39m[RAG] Retrieved 0 chunks for: "hello"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mthrows when response has no body stream
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mreturns a ReadableStream when successful
+[22m[39m[RAG] Retrieved 0 chunks for: "hello"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2minjects RAG context into system prompt when chunks are retrieved
+[22m[39m[RAG] Retrieved 1 chunks for: "greetings"
+  [1] score: 0.90 | RAG chunk content...
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mfully consumes the SSE stream and closes (covers done path)
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mhandles [DONE] SSE marker, empty data, and non-data lines alongside valid data
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mskips malformed JSON in SSE data
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mskips SSE data with empty content
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mhandles reader error in pull (covers error path)
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+[90mstdout[2m | lib/vertex-rag.test.ts[2m > [22m[2mvertex-rag module[2m > [22m[2mgenerateWithRAG[2m > [22m[2mcancels the underlying reader when stream is cancelled
+[22m[39m[RAG] Retrieved 0 chunks for: "hi"
+
+ [32mΓ£ô[39m db/drizzle.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32mΓ£ô[39m lib/vertex-rag.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32mΓ£ô[39m store/quiz-store.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32mΓ£ô[39m actions/ai-quiz.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32mΓ£ô[39m lib/adaptive-difficulty.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32mΓ£ô[39m app/(marketing)/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 145[2mms[22m[39m
+ [32mΓ£ô[39m app/api/courses/route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32mΓ£ô[39m actions/challenge-progress.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32mΓ£ô[39m app/(auth)/loading.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 107[2mms[22m[39m
+ [32mΓ£ô[39m app/api/challenges/route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32mΓ£ô[39m app/api/lessons/route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+ [32mΓ£ô[39m actions/user-progress.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-rag.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32mΓ£ô[39m app/api/units/route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32mΓ£ô[39m lib/rate-limit.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32mΓ£ô[39m lib/utils.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-prompt.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32mΓ£ô[39m lib/rag-import-status.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32mΓ£ô[39m lib/rag-quiz-e2e-helpers.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32mΓ£ô[39m app/api/challengeOptions/route.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32mΓ£ô[39m app/api/quiz/session/route.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32mΓ£ô[39m lib/quiz-normalise.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32mΓ£ô[39m app/api/webhooks/stripe/route.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32mΓ£ô[39m actions/chat.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32mΓ£ô[39m actions/user-subscription.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32mΓ£ô[39m app/api/courses/[courseId]/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32mΓ£ô[39m lib/content-formatter.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32mΓ£ô[39m components/theme-provider.ssr.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32mΓ£ô[39m app/api/units/[unitId]/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32mΓ£ô[39m actions/user-activity.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32mΓ£ô[39m app/api/challengeOptions/[challengeOptionId]/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32mΓ£ô[39m app/api/lessons/[lessonId]/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32mΓ£ô[39m app/api/challenges/[challengeId]/route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32mΓ£ô[39m constants.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32mΓ£ô[39m db/export-queries.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32mΓ£ô[39m lib/admin.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32mΓ£ô[39m tests/helpers/quiz-rag-e2e-shared.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32mΓ£ô[39m config/index.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m store/use-practice-modal.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32mΓ£ô[39m lib/chat-prompt.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32mΓ£ô[39m store/use-hearts-modal.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m store/use-exit-modal.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m170 passed[39m[22m[90m (170)[39m
+[2m      Tests [22m [1m[32m2112 passed[39m[22m[90m (2112)[39m
+[2m   Start at [22m 20:24:08
+[2m   Duration [22m 69.35s[2m (transform 29.78s, setup 70.99s, import 117.35s, tests 105.23s, environment 524.60s)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |     100 |      100 |     100 |     100 |                   
+ speakifyLK        |     100 |      100 |     100 |     100 |                   
+  constants.ts     |     100 |      100 |     100 |     100 |                   
+  middleware.ts    |     100 |      100 |     100 |     100 |                   
+ ...kifyLK/actions |     100 |      100 |     100 |     100 |                   
+  ai-quiz.ts       |     100 |      100 |     100 |     100 |                   
+  ...e-progress.ts |     100 |      100 |     100 |     100 |                   
+  chat.ts          |     100 |      100 |     100 |     100 |                   
+  quiz.ts          |     100 |      100 |     100 |     100 |                   
+  user-activity.ts |     100 |      100 |     100 |     100 |                   
+  user-progress.ts |     100 |      100 |     100 |     100 |                   
+  ...bscription.ts |     100 |      100 |     100 |     100 |                   
+ speakifyLK/app    |     100 |      100 |     100 |     100 |                   
+  layout.tsx       |     100 |      100 |     100 |     100 |                   
+ ...yLK/app/(auth) |     100 |      100 |     100 |     100 |                   
+  header.tsx       |     100 |      100 |     100 |     100 |                   
+  layout.tsx       |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+ ...[[...sign-in]] |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...[[...sign-up]] |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...yLK/app/(main) |     100 |      100 |     100 |     100 |                   
+  layout.tsx       |     100 |      100 |     100 |     100 |                   
+ ...(main)/ai-quiz |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...pp/(main)/chat |     100 |      100 |     100 |     100 |                   
+  chat-client.tsx  |     100 |      100 |     100 |     100 |                   
+  error.tsx        |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...(main)/courses |     100 |      100 |     100 |     100 |                   
+  card.tsx         |     100 |      100 |     100 |     100 |                   
+  list.tsx         |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...n)/leaderboard |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...p/(main)/learn |     100 |      100 |     100 |     100 |                   
+  header.tsx       |     100 |      100 |     100 |     100 |                   
+  ...on-button.tsx |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+  unit-banner.tsx  |     100 |      100 |     100 |     100 |                   
+  unit.tsx         |     100 |      100 |     100 |     100 |                   
+ ...(main)/profile |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ .../(main)/quests |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...pp/(main)/quiz |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...pp/(main)/shop |     100 |      100 |     100 |     100 |                   
+  items.tsx        |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...pp/(marketing) |     100 |      100 |     100 |     100 |                   
+  footer.tsx       |     100 |      100 |     100 |     100 |                   
+  header.tsx       |     100 |      100 |     100 |     100 |                   
+  layout.tsx       |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...fyLK/app/admin |     100 |      100 |     100 |     100 |                   
+  app-content.tsx  |     100 |      100 |     100 |     100 |                   
+  app.tsx          |     100 |      100 |     100 |     100 |                   
+  layout-admin.tsx |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+  theme.ts         |     100 |      100 |     100 |     100 |                   
+ ...dmin/challenge |     100 |      100 |     100 |     100 |                   
+  create.tsx       |     100 |      100 |     100 |     100 |                   
+  edit.tsx         |     100 |      100 |     100 |     100 |                   
+  list.tsx         |     100 |      100 |     100 |     100 |                   
+ ...hallengeOption |     100 |      100 |     100 |     100 |                   
+  create.tsx       |     100 |      100 |     100 |     100 |                   
+  edit.tsx         |     100 |      100 |     100 |     100 |                   
+  list.tsx         |     100 |      100 |     100 |     100 |                   
+ ...p/admin/course |     100 |      100 |     100 |     100 |                   
+  create.tsx       |     100 |      100 |     100 |     100 |                   
+  edit.tsx         |     100 |      100 |     100 |     100 |                   
+  list.tsx         |     100 |      100 |     100 |     100 |                   
+ ...p/admin/lesson |     100 |      100 |     100 |     100 |                   
+  create.tsx       |     100 |      100 |     100 |     100 |                   
+  edit.tsx         |     100 |      100 |     100 |     100 |                   
+  list.tsx         |     100 |      100 |     100 |     100 |                   
+ ...app/admin/unit |     100 |      100 |     100 |     100 |                   
+  create.tsx       |     100 |      100 |     100 |     100 |                   
+  edit.tsx         |     100 |      100 |     100 |     100 |                   
+  list.tsx         |     100 |      100 |     100 |     100 |                   
+ ...allengeOptions |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...lengeOptionId] |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...api/challenges |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ .../[challengeId] |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...K/app/api/chat |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...pp/api/courses |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...ses/[courseId] |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...pp/api/lessons |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...ons/[lessonId] |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ .../quiz/generate |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...i/quiz/session |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ .../app/api/units |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...units/[unitId] |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...ebhooks/stripe |     100 |      100 |     100 |     100 |                   
+  route.ts         |     100 |      100 |     100 |     100 |                   
+ ...yLK/app/lesson |     100 |      100 |     100 |     100 |                   
+  card.tsx         |     100 |      100 |     100 |     100 |                   
+  challenge.tsx    |     100 |      100 |     100 |     100 |                   
+  footer.tsx       |     100 |      100 |     100 |     100 |                   
+  header.tsx       |     100 |      100 |     100 |     100 |                   
+  layout.tsx       |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+  ...on-bubble.tsx |     100 |      100 |     100 |     100 |                   
+  quiz.tsx         |     100 |      100 |     100 |     100 |                   
+  result-card.tsx  |     100 |      100 |     100 |     100 |                   
+ ...son/[lessonId] |     100 |      100 |     100 |     100 |                   
+  loading.tsx      |     100 |      100 |     100 |     100 |                   
+  page.tsx         |     100 |      100 |     100 |     100 |                   
+ ...yLK/components |     100 |      100 |     100 |     100 |                   
+  feed-wrapper.tsx |     100 |      100 |     100 |     100 |                   
+  loader.tsx       |     100 |      100 |     100 |     100 |                   
+  ...le-header.tsx |     100 |      100 |     100 |     100 |                   
+  ...e-sidebar.tsx |     100 |      100 |     100 |     100 |                   
+  promo.tsx        |     100 |      100 |     100 |     100 |                   
+  quests.tsx       |     100 |      100 |     100 |     100 |                   
+  sidebar-item.tsx |     100 |      100 |     100 |     100 |                   
+  ...er-button.tsx |     100 |      100 |     100 |     100 |                   
+  sidebar.tsx      |     100 |      100 |     100 |     100 |                   
+  ...y-wrapper.tsx |     100 |      100 |     100 |     100 |                   
+  ...-provider.tsx |     100 |      100 |     100 |     100 |                   
+  theme-toggle.tsx |     100 |      100 |     100 |     100 |                   
+  ...-progress.tsx |     100 |      100 |     100 |     100 |                   
+ ...omponents/chat |     100 |      100 |     100 |     100 |                   
+  chat-bubble.tsx  |     100 |      100 |     100 |     100 |                   
+  chat-button.tsx  |     100 |      100 |     100 |     100 |                   
+  chat-input.tsx   |     100 |      100 |     100 |     100 |                   
+  chat-window.tsx  |     100 |      100 |     100 |     100 |                   
+  ...tion-list.tsx |     100 |      100 |     100 |     100 |                   
+ ...ponents/modals |     100 |      100 |     100 |     100 |                   
+  exit-modal.tsx   |     100 |      100 |     100 |     100 |                   
+  hearts-modal.tsx |     100 |      100 |     100 |     100 |                   
+  ...ice-modal.tsx |     100 |      100 |     100 |     100 |                   
+ ...onents/profile |     100 |      100 |     100 |     100 |                   
+  ...y-heatmap.tsx |     100 |      100 |     100 |     100 |                   
+  ...-overview.tsx |     100 |      100 |     100 |     100 |                   
+  streak-card.tsx  |     100 |      100 |     100 |     100 |                   
+ ...omponents/quiz |     100 |      100 |     100 |     100 |                   
+  quiz-card.tsx    |     100 |      100 |     100 |     100 |                   
+  quiz-config.tsx  |     100 |      100 |     100 |     100 |                   
+  quiz-history.tsx |     100 |      100 |     100 |     100 |                   
+  quiz-play.tsx    |     100 |      100 |     100 |     100 |                   
+  ...-progress.tsx |     100 |      100 |     100 |     100 |                   
+  quiz-result.tsx  |     100 |      100 |     100 |     100 |                   
+  quiz-timer.tsx   |     100 |      100 |     100 |     100 |                   
+ .../components/ui |     100 |      100 |     100 |     100 |                   
+  avatar.tsx       |     100 |      100 |     100 |     100 |                   
+  button.tsx       |     100 |      100 |     100 |     100 |                   
+  dialog.tsx       |     100 |      100 |     100 |     100 |                   
+  progress.tsx     |     100 |      100 |     100 |     100 |                   
+  scroll-area.tsx  |     100 |      100 |     100 |     100 |                   
+  separator.tsx    |     100 |      100 |     100 |     100 |                   
+  sheet.tsx        |     100 |      100 |     100 |     100 |                   
+  sonner.tsx       |     100 |      100 |     100 |     100 |                   
+  textarea.tsx     |     100 |      100 |     100 |     100 |                   
+ speakifyLK/config |     100 |      100 |     100 |     100 |                   
+  index.ts         |     100 |      100 |     100 |     100 |                   
+ speakifyLK/db     |     100 |      100 |     100 |     100 |                   
+  drizzle.ts       |     100 |      100 |     100 |     100 |                   
+  ...rt-queries.ts |     100 |      100 |     100 |     100 |                   
+  queries.ts       |     100 |      100 |     100 |     100 |                   
+  schema.ts        |     100 |      100 |     100 |     100 |                   
+ speakifyLK/lib    |     100 |      100 |     100 |     100 |                   
+  ...difficulty.ts |     100 |      100 |     100 |     100 |                   
+  admin.ts         |     100 |      100 |     100 |     100 |                   
+  chat-prompt.ts   |     100 |      100 |     100 |     100 |                   
+  ...-formatter.ts |     100 |      100 |     100 |     100 |                   
+  gcp-auth.ts      |     100 |      100 |     100 |     100 |                   
+  gemini.ts        |     100 |      100 |     100 |     100 |                   
+  ...-normalise.ts |     100 |      100 |     100 |     100 |                   
+  quiz-prompt.ts   |     100 |      100 |     100 |     100 |                   
+  quiz-rag.ts      |     100 |      100 |     100 |     100 |                   
+  ...ort-status.ts |     100 |      100 |     100 |     100 |                   
+  ...2e-helpers.ts |     100 |      100 |     100 |     100 |                   
+  rate-limit.ts    |     100 |      100 |     100 |     100 |                   
+  stripe.ts        |     100 |      100 |     100 |     100 |                   
+  utils.ts         |     100 |      100 |     100 |     100 |                   
+  vertex-rag.ts    |     100 |      100 |     100 |     100 |                   
+ ...kifyLK/scripts |     100 |      100 |     100 |     100 |                   
+  ...rag-corpus.ts |     100 |      100 |     100 |     100 |                   
+  ...se-content.ts |     100 |      100 |     100 |     100 |                   
+  ...-rag-files.ts |     100 |      100 |     100 |     100 |                   
+  prod.ts          |     100 |      100 |     100 |     100 |                   
+  rag-status.ts    |     100 |      100 |     100 |     100 |                   
+  ...ntegration.ts |     100 |      100 |     100 |     100 |                   
+  ...-formatter.ts |     100 |      100 |     100 |     100 |                   
+  ...rt-queries.ts |     100 |      100 |     100 |     100 |                   
+  test-gcp-auth.ts |     100 |      100 |     100 |     100 |                   
+  test-gemini.ts   |     100 |      100 |     100 |     100 |                   
+  test-rag-quiz.ts |     100 |      100 |     100 |     100 |                   
+ speakifyLK/store  |     100 |      100 |     100 |     100 |                   
+  quiz-store.ts    |     100 |      100 |     100 |     100 |                   
+  ...exit-modal.ts |     100 |      100 |     100 |     100 |                   
+  ...arts-modal.ts |     100 |      100 |     100 |     100 |                   
+  ...tice-modal.ts |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------
