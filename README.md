@@ -34,7 +34,6 @@
 Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
-
 ```bash
 speakify/
   |- actions/
@@ -46,6 +45,8 @@ speakify/
     |-- chat.ts
     |-- quiz.test.ts
     |-- quiz.ts
+    |-- user-activity.test.ts
+    |-- user-activity.ts
     |-- user-progress.test.ts
     |-- user-progress.ts
     |-- user-subscription.test.ts
@@ -67,6 +68,7 @@ speakify/
   |- components/
     |-- chat/
     |-- modals/
+    |-- profile/
     |-- quiz/
     |-- ui/
     |-- feed-wrapper.test.tsx
@@ -219,7 +221,6 @@ speakify/
   |- vitest.config.ts
   |- vitest.setup.ts
 ```
-
 <!--- FOLDER_STRUCTURE_END --->
 
 <br />
@@ -392,7 +393,6 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in SpeakifyLK.
 
 <!--- DEPENDENCIES_START --->
-
 - [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^6.12.12
 - [@google-cloud/storage](https://www.npmjs.com/package/@google-cloud/storage): ^7.19.0
 - [@google/genai](https://www.npmjs.com/package/@google/genai): ^1.46.0
@@ -425,7 +425,7 @@ Useful resources and dependencies that are used in SpeakifyLK.
 - [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
 - [dotenv](https://www.npmjs.com/package/dotenv): ^17.3.1
 - [drizzle-kit](https://www.npmjs.com/package/drizzle-kit): ^0.31.10
-- [drizzle-orm](https://www.npmjs.com/package/drizzle-orm): ^0.45.1
+- [drizzle-orm](https://www.npmjs.com/package/drizzle-orm): ^0.45.2
 - [eslint](https://www.npmjs.com/package/eslint): ^9
 - [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
 - [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks): ^7.0.1
