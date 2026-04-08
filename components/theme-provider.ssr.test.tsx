@@ -11,8 +11,8 @@ const ThemeConsumer = () => {
 };
 
 describe("ThemeProvider in Server Environment", () => {
-  it("defaults to light theme during SSR (window is undefined)", () => {
-    // Expected to evaluate typeof window === 'undefined' branch
+  it("renders the default light theme during SSR", () => {
+    // SSR renders the initial theme value; client-side effects do not run on the server.
     const html = renderToString(
       <ThemeProvider>
         <ThemeConsumer />
