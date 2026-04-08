@@ -128,17 +128,13 @@ describe("ChatBubble", () => {
     });
 
     it("falls back to plain text when ✏️ is present but pattern is incomplete", () => {
-      render(
-        <ChatBubble role="assistant" content="✏️ just a note" timestamp={validDate} />
-      );
+      render(<ChatBubble role="assistant" content="✏️ just a note" timestamp={validDate} />);
       // Should render as plain text since "Let's refine that:" is missing
       expect(screen.getByText(/just a note/)).toBeInTheDocument();
     });
 
     it("falls back to plain text when 📖 is present but pattern is incomplete", () => {
-      render(
-        <ChatBubble role="assistant" content="📖 interesting fact" timestamp={validDate} />
-      );
+      render(<ChatBubble role="assistant" content="📖 interesting fact" timestamp={validDate} />);
       // Should render as plain text since full "New word: X (Y) — Z" is missing
       expect(screen.getByText(/interesting fact/)).toBeInTheDocument();
     });
