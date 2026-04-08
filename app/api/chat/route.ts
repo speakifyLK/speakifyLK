@@ -152,9 +152,7 @@ export async function POST(req: Request) {
       }
 
       if (completedLessons.length > 0) {
-        parts.push(
-          `Recently completed lessons: ${completedLessons.join(", ")}.`
-        );
+        parts.push(`Recently completed lessons: ${completedLessons.join(", ")}.`);
       }
 
       courseContext = "\n\nUSER LEARNING CONTEXT:\n" + parts.join("\n");

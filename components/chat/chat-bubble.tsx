@@ -49,7 +49,7 @@ const FormattedMessagePart = ({ text, isUser }: { text: string; isUser: boolean 
       const [, script, translit, meaning] = mainMatch;
       return (
         <div className="my-2 space-y-1 rounded-xl border border-indigo-100 bg-indigo-50/50 p-3 text-zinc-800">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-indigo-500 uppercase">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-500">
             <span>📖</span>
             <span>LEARNING POINT</span>
           </div>
@@ -112,10 +112,7 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
 
   return (
     <div
-      className={cn(
-        "mb-6 flex w-full items-end gap-x-3",
-        isUser ? "flex-row-reverse" : "flex-row"
-      )}
+      className={cn("mb-6 flex w-full items-end gap-x-3", isUser ? "flex-row-reverse" : "flex-row")}
     >
       {!isUser && (
         <Avatar className="h-9 w-9 shrink-0 border-2 border-green-200 bg-white ring-2 ring-green-100/50">
@@ -144,7 +141,7 @@ export const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
           ))}
         </div>
 
-        <span className="mt-1.5 px-2 text-[10px] font-medium tracking-tight text-zinc-400 uppercase">
+        <span className="mt-1.5 px-2 text-[10px] font-medium uppercase tracking-tight text-zinc-400">
           {formattedTime}
         </span>
       </div>
