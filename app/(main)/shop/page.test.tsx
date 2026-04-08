@@ -8,6 +8,7 @@ const mockRedirect = vi.hoisted(() =>
 );
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
 const mockGetUserSubscription = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -20,16 +21,23 @@ vi.mock("next/image", () => ({
 vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
   getUserSubscription: mockGetUserSubscription,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
+  FeedWrapper: ({ children }: any) => (
+    <div data-testid="feed-wrapper">{children}</div>
+  ),
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
+  StickyWrapper: ({ children }: any) => (
+    <div data-testid="sticky-wrapper">{children}</div>
+  ),
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
+  UserProgress: (props: any) => (
+    <div data-testid="user-progress">{JSON.stringify(props)}</div>
+  ),
 }));
 vi.mock("@/components/quests", () => ({
   Quests: ({ points }: any) => <div data-testid="quests">Quests: {points}</div>,
@@ -65,6 +73,11 @@ const baseUserProgress = {
 describe("ShopPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });
@@ -100,7 +113,9 @@ describe("ShopPage", () => {
     render(jsx);
 
     expect(screen.getByText("Shop")).toBeInTheDocument();
-    expect(screen.getByText("Spend your points on cool stuff.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Spend your points on cool stuff.")
+    ).toBeInTheDocument();
     expect(screen.getByAltText("Shop")).toBeInTheDocument();
     expect(screen.getByTestId("items")).toBeInTheDocument();
   });

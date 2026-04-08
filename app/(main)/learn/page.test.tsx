@@ -11,6 +11,7 @@ const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetCourseProgress = vi.hoisted(() => vi.fn());
 const mockGetLessonPercentage = vi.hoisted(() => vi.fn());
 const mockGetUnits = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -22,16 +23,23 @@ vi.mock("@/db/queries", () => ({
   getCourseProgress: mockGetCourseProgress,
   getLessonPercentage: mockGetLessonPercentage,
   getUnits: mockGetUnits,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
+  FeedWrapper: ({ children }: any) => (
+    <div data-testid="feed-wrapper">{children}</div>
+  ),
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
+  StickyWrapper: ({ children }: any) => (
+    <div data-testid="sticky-wrapper">{children}</div>
+  ),
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
+  UserProgress: (props: any) => (
+    <div data-testid="user-progress">{JSON.stringify(props)}</div>
+  ),
 }));
 vi.mock("@/components/promo", () => ({
   Promo: () => <div data-testid="promo">Promo</div>,
@@ -75,6 +83,11 @@ const activeLesson = {
 describe("LearnPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });

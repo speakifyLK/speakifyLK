@@ -7,17 +7,23 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Progress } from "@/components/ui/progress";
 import { UserProgress } from "@/components/user-progress";
 import { QUESTS } from "@/constants";
-import { getUserProgress, getUserSubscription } from "@/db/queries";
+import {
+  getUserProgress,
+  getUserSubscription,
+  getStreakData,
+} from "@/db/queries";
 
 export const dynamic = "force-dynamic";
 
 const QuestsPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
+  const streakDataPromise = getStreakData();
 
-  const [userProgress, userSubscription] = await Promise.all([
+  const [userProgress, userSubscription, streakData] = await Promise.all([
     userProgressData,
     userSubscriptionData,
+    streakDataPromise,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
@@ -32,6 +38,7 @@ const QuestsPage = async () => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
       </StickyWrapper>

@@ -11,6 +11,7 @@ const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetProfileStats = vi.hoisted(() => vi.fn());
 const mockGetQuizStats = vi.hoisted(() => vi.fn());
 const mockGetUserActivityHeatmap = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -26,6 +27,7 @@ vi.mock("@/db/queries", () => ({
   getProfileStats: mockGetProfileStats,
   getQuizStats: mockGetQuizStats,
   getUserActivityHeatmap: mockGetUserActivityHeatmap,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
@@ -125,6 +127,11 @@ const baseActivityHeatmap = [
 describe("ProfilePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });

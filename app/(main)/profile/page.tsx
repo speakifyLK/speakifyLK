@@ -13,6 +13,7 @@ import { Promo } from "@/components/promo";
 import {
   getProfileStats,
   getQuizStats,
+  getStreakData,
   getUserActivityHeatmap,
   getUserProgress,
   getUserSubscription,
@@ -26,6 +27,7 @@ const ProfilePage = async () => {
   const profileStatsData = getProfileStats();
   const quizStatsData = getQuizStats();
   const activityHeatmapData = getUserActivityHeatmap(365);
+  const streakDataPromise = getStreakData();
 
   const [
     userProgress,
@@ -33,12 +35,14 @@ const ProfilePage = async () => {
     profileStats,
     quizStats,
     activityHeatmap,
+    streakData,
   ] = await Promise.all([
     userProgressData,
     userSubscriptionData,
     profileStatsData,
     quizStatsData,
     activityHeatmapData,
+    streakDataPromise,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
@@ -53,6 +57,7 @@ const ProfilePage = async () => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
       </StickyWrapper>

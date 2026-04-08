@@ -8,6 +8,7 @@ import { UserProgress } from "@/components/user-progress";
 import {
   getCourseProgress,
   getLessonPercentage,
+  getStreakData,
   getUnits,
   getUserProgress,
   getUserSubscription,
@@ -24,6 +25,7 @@ const LearnPage = async () => {
   const lessonPercentageData = getLessonPercentage();
   const unitsData = getUnits();
   const userSubscriptionData = getUserSubscription();
+  const streakDataPromise = getStreakData();
 
   const [
     userProgress,
@@ -31,12 +33,14 @@ const LearnPage = async () => {
     courseProgress,
     lessonPercentage,
     userSubscription,
+    streakData,
   ] = await Promise.all([
     userProgressData,
     unitsData,
     courseProgressData,
     lessonPercentageData,
     userSubscriptionData,
+    streakDataPromise,
   ]);
 
   if (!courseProgress || !userProgress || !userProgress.activeCourse)
@@ -52,6 +56,7 @@ const LearnPage = async () => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
 
         {!isPro && <Promo />}

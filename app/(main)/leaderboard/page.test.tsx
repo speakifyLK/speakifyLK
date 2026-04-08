@@ -9,6 +9,7 @@ const mockRedirect = vi.hoisted(() =>
 const mockGetUserProgress = vi.hoisted(() => vi.fn());
 const mockGetUserSubscription = vi.hoisted(() => vi.fn());
 const mockGetTopTenUsers = vi.hoisted(() => vi.fn());
+const mockGetStreakData = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   redirect: mockRedirect,
@@ -22,16 +23,23 @@ vi.mock("@/db/queries", () => ({
   getUserProgress: mockGetUserProgress,
   getUserSubscription: mockGetUserSubscription,
   getTopTenUsers: mockGetTopTenUsers,
+  getStreakData: mockGetStreakData,
 }));
 
 vi.mock("@/components/feed-wrapper", () => ({
-  FeedWrapper: ({ children }: any) => <div data-testid="feed-wrapper">{children}</div>,
+  FeedWrapper: ({ children }: any) => (
+    <div data-testid="feed-wrapper">{children}</div>
+  ),
 }));
 vi.mock("@/components/sticky-wrapper", () => ({
-  StickyWrapper: ({ children }: any) => <div data-testid="sticky-wrapper">{children}</div>,
+  StickyWrapper: ({ children }: any) => (
+    <div data-testid="sticky-wrapper">{children}</div>
+  ),
 }));
 vi.mock("@/components/user-progress", () => ({
-  UserProgress: (props: any) => <div data-testid="user-progress">{JSON.stringify(props)}</div>,
+  UserProgress: (props: any) => (
+    <div data-testid="user-progress">{JSON.stringify(props)}</div>
+  ),
 }));
 vi.mock("@/components/promo", () => ({
   Promo: () => <div data-testid="promo">Promo</div>,
@@ -48,7 +56,9 @@ vi.mock("@/components/ui/avatar", () => ({
   AvatarImage: ({ src }: any) => <img data-testid="avatar-image" src={src} />,
 }));
 vi.mock("@/components/ui/separator", () => ({
-  Separator: (props: any) => <hr data-testid="separator" className={props.className} />,
+  Separator: (props: any) => (
+    <hr data-testid="separator" className={props.className} />
+  ),
 }));
 
 const activeCourse = { id: 1, title: "Sinhala", imageSrc: "/sinhala.svg" };
@@ -66,6 +76,11 @@ const baseUserProgress = {
 describe("LeaderboardPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetStreakData.mockResolvedValue({
+      currentStreak: 3,
+      longestStreak: 7,
+      totalActiveDays: 20,
+    });
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
     });
@@ -185,7 +200,9 @@ describe("LeaderboardPage", () => {
     render(jsx);
 
     expect(
-      screen.getByText("See where you stand among other learners in the community.")
+      screen.getByText(
+        "See where you stand among other learners in the community."
+      )
     ).toBeInTheDocument();
   });
 

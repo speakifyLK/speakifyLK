@@ -9,6 +9,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { UserProgress } from "@/components/user-progress";
 import {
+  getStreakData,
   getTopTenUsers,
   getUserProgress,
   getUserSubscription,
@@ -20,12 +21,15 @@ const LeaderboardPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
   const leaderboardData = getTopTenUsers();
+  const streakDataPromise = getStreakData();
 
-  const [userProgress, userSubscription, leaderboard] = await Promise.all([
-    userProgressData,
-    userSubscriptionData,
-    leaderboardData,
-  ]);
+  const [userProgress, userSubscription, leaderboard, streakData] =
+    await Promise.all([
+      userProgressData,
+      userSubscriptionData,
+      leaderboardData,
+      streakDataPromise,
+    ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
 
@@ -39,6 +43,7 @@ const LeaderboardPage = async () => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />

@@ -13,6 +13,7 @@ import {
   getQuizHistory,
   getQuizSessionWithQuestions,
   getQuizStats,
+  getStreakData,
   getUnitsForQuiz,
   getUserProgress,
   getUserSubscription,
@@ -38,22 +39,35 @@ const AIQuizPage = async ({ searchParams }: Props) => {
 
   const userProgressPromise = getUserProgress();
   const userSubscriptionPromise = getUserSubscription();
+  const streakDataPromise = getStreakData();
   const sessionPromise =
-    sessionId && !isNaN(sessionId) ? getQuizSessionWithQuestions(sessionId) : Promise.resolve(null);
-  const unitsPromise = !sessionId || isNaN(sessionId) ? getUnitsForQuiz() : Promise.resolve([]);
+    sessionId && !isNaN(sessionId)
+      ? getQuizSessionWithQuestions(sessionId)
+      : Promise.resolve(null);
+  const unitsPromise =
+    !sessionId || isNaN(sessionId) ? getUnitsForQuiz() : Promise.resolve([]);
   const quizHistoryPromise =
     !sessionId || isNaN(sessionId) ? getQuizHistory() : Promise.resolve([]);
-  const quizStatsPromise = !sessionId || isNaN(sessionId) ? getQuizStats() : Promise.resolve(null);
+  const quizStatsPromise =
+    !sessionId || isNaN(sessionId) ? getQuizStats() : Promise.resolve(null);
 
-  const [userProgress, userSubscription, session, units, quizHistory, quizStats] =
-    await Promise.all([
-      userProgressPromise,
-      userSubscriptionPromise,
-      sessionPromise,
-      unitsPromise,
-      quizHistoryPromise,
-      quizStatsPromise,
-    ]);
+  const [
+    userProgress,
+    userSubscription,
+    streakData,
+    session,
+    units,
+    quizHistory,
+    quizStats,
+  ] = await Promise.all([
+    userProgressPromise,
+    userSubscriptionPromise,
+    streakDataPromise,
+    sessionPromise,
+    unitsPromise,
+    quizHistoryPromise,
+    quizStatsPromise,
+  ]);
 
   if (!userProgress || !userProgress.activeCourse) {
     redirect("/courses");
@@ -72,7 +86,11 @@ const AIQuizPage = async ({ searchParams }: Props) => {
   } else {
     mainContent = (
       <div className="flex flex-col gap-4">
-        <QuizConfig units={units} basePath="/ai-quiz" quizHistory={quizHistory} />
+        <QuizConfig
+          units={units}
+          basePath="/ai-quiz"
+          quizHistory={quizHistory}
+        />
         {quizStats && (
           <QuizHistory
             history={quizHistory}
@@ -97,6 +115,7 @@ const AIQuizPage = async ({ searchParams }: Props) => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />

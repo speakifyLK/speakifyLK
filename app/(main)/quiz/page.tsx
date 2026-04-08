@@ -10,6 +10,7 @@ import { UserProgress } from "@/components/user-progress";
 import {
   getQuizHistory,
   getQuizSessionWithQuestions,
+  getStreakData,
   getUnitsForQuiz,
   getUserProgress,
   getUserSubscription,
@@ -28,11 +29,13 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
   const sessionId = params.sessionId ? parseInt(params.sessionId, 10) : null;
 
   if (sessionId && !isNaN(sessionId)) {
-    const [userProgress, userSubscription, session] = await Promise.all([
-      getUserProgress(),
-      getUserSubscription(),
-      getQuizSessionWithQuestions(sessionId),
-    ]);
+    const [userProgress, userSubscription, session, streakData] =
+      await Promise.all([
+        getUserProgress(),
+        getUserSubscription(),
+        getQuizSessionWithQuestions(sessionId),
+        getStreakData(),
+      ]);
 
     if (!userProgress || !userProgress.activeCourse) redirect("/courses");
 
@@ -50,6 +53,7 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
             hearts={userProgress.hearts}
             points={userProgress.points}
             hasActiveSubscription={isPro}
+            streak={streakData.currentStreak}
           />
 
           {!isPro && <Promo />}
@@ -63,12 +67,14 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
     );
   }
 
-  const [userProgress, units, userSubscription, quizHistory] = await Promise.all([
-    getUserProgress(),
-    getUnitsForQuiz(),
-    getUserSubscription(),
-    getQuizHistory(),
-  ]);
+  const [userProgress, units, userSubscription, quizHistory, streakData] =
+    await Promise.all([
+      getUserProgress(),
+      getUnitsForQuiz(),
+      getUserSubscription(),
+      getQuizHistory(),
+      getStreakData(),
+    ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
 
@@ -82,6 +88,7 @@ const QuizPage = async ({ searchParams }: QuizPageProps) => {
           hearts={userProgress.hearts}
           points={userProgress.points}
           hasActiveSubscription={isPro}
+          streak={streakData.currentStreak}
         />
 
         {!isPro && <Promo />}
