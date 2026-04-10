@@ -63,7 +63,7 @@
     "drizzle-orm": "^0.45.2",
     "google-auth-library": "^10.6.2",
     "lucide-react": "^0.577.0",
-    "next": "^16.2.1",
+    "next": "^16.2.3",
     "p-limit": "^7.3.0",
     "ra-data-simple-rest": "^5.14.4",
     "react": "^19.2.4",
