@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Auto-assign PR author if unassigned
         if: github.event.pull_request.assignees == null || toJSON(github.event.pull_request.assignees) == '[]'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.addAssignees({
@@ -29,7 +29,7 @@ jobs:
 
       - name: Validate Jira key in PR title
         id: validate_title
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const title = context.payload.pull_request.title;
@@ -46,7 +46,7 @@ jobs:
 
       - name: Delete comment if title is valid
         if: steps.validate_title.outputs.valid == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- pr-title-validation-comment -->';
@@ -67,7 +67,7 @@ jobs:
 
       - name: Comment on PR if title invalid
         if: failure() && steps.validate_title.outputs.valid == 'false'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const title = context.payload.pull_request.title;

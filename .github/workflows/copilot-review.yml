@@ -20,7 +20,7 @@ jobs:
       && startsWith(github.event.comment.body, '/copilot-review')
     steps:
       - name: Add rocket reaction to comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.reactions.createForIssueComment({
@@ -31,7 +31,7 @@ jobs:
             });
 
       - name: Request Copilot review
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const prNumber = context.issue.number;
