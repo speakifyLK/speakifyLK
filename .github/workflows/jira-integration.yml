@@ -16,7 +16,7 @@ jobs:
     if: github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - name: Sync PR with Jira
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_KEY }}
           JIRA_BASE_URL: "https://speakifylk.atlassian.net"
@@ -413,7 +413,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check commits for Jira references
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { data: commits } = await github.rest.pulls.listCommits({

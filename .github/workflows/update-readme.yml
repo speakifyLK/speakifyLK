@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Check if triggered by bot commit
         id: check_bot
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { data: commit } = await github.rest.repos.getCommit({

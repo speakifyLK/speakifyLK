@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Check if triggered by bot commit
         id: check_bot
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const sha = context.payload.pull_request?.head?.sha || context.sha;
@@ -94,7 +94,7 @@ jobs:
 
       - name: Delete comment if sync succeeded
         if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- sync-lockfiles-comment -->';
@@ -115,7 +115,7 @@ jobs:
 
       - name: Comment on PR if sync failed
         if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');

@@ -37,7 +37,7 @@ jobs:
 
       - name: Comment on PR if typecheck failed
         if: steps.typecheck.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -92,7 +92,7 @@ jobs:
 
       - name: Delete comment if typecheck passed
         if: steps.typecheck.outcome == 'success' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- ci-typecheck -->';
@@ -143,7 +143,7 @@ jobs:
 
       - name: Comment on PR if lint failed
         if: steps.lint.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -198,7 +198,7 @@ jobs:
 
       - name: Delete comment if lint passed
         if: steps.lint.outcome == 'success' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- ci-lint -->';
@@ -264,7 +264,7 @@ jobs:
 
       - name: Comment on PR if build failed
         if: steps.build.outcome == 'failure' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -319,7 +319,7 @@ jobs:
 
       - name: Delete comment if build passed
         if: steps.build.outcome == 'success' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- ci-build -->';
@@ -417,7 +417,7 @@ jobs:
 
       - name: Comment on PR if unit tests failed
         if: steps.coverage-check.outputs.tests_passed == 'false' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -472,7 +472,7 @@ jobs:
 
       - name: Comment on PR if coverage is not 100%
         if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'false' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -570,7 +570,7 @@ jobs:
 
       - name: Delete comment if unit tests and coverage passed
         if: steps.coverage-check.outputs.tests_passed == 'true' && steps.coverage-check.outputs.coverage_ok == 'true' && github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- ci-unit-test -->';
